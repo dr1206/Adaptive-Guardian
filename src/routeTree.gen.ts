@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 import { Route as AuthSignatureRouteImport } from './routes/auth.signature'
 import { Route as AuthCalibrateRouteImport } from './routes/auth.calibrate'
@@ -32,6 +34,22 @@ import { Route as AppBudgetsRouteImport } from './routes/app.budgets'
 import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AppAccountsRouteImport } from './routes/app.accounts'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminRiskRouteImport } from './routes/admin.risk'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
+import { Route as AdminInfraRouteImport } from './routes/admin.infra'
+import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
+import { Route as AdminChallengesRouteImport } from './routes/admin.challenges'
+import { Route as AdminBehaviorRouteImport } from './routes/admin.behavior'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminApiRouteImport } from './routes/admin.api'
+import { Route as AdminAnomaliesRouteImport } from './routes/admin.anomalies'
+import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
 import { Route as AppGuardIndexRouteImport } from './routes/app.guard.index'
 import { Route as AppGuardTypingRouteImport } from './routes/app.guard.typing'
 import { Route as AppGuardSessionRouteImport } from './routes/app.guard.session'
@@ -49,6 +67,10 @@ import { Route as AppGuardBehaviorRouteImport } from './routes/app.guard.behavio
 import { Route as AppGuardAuthenticationRouteImport } from './routes/app.guard.authentication'
 import { Route as AppGuardAuthTimelineRouteImport } from './routes/app.guard.auth-timeline'
 import { Route as AppAccountsIdRouteImport } from './routes/app.accounts.$id'
+import { Route as AdminAiModelsRouteImport } from './routes/admin.ai.models'
+import { Route as AdminAiLiveRouteImport } from './routes/admin.ai.live'
+import { Route as AdminAiExplainRouteImport } from './routes/admin.ai.explain'
+import { Route as AdminAiDatasetsRouteImport } from './routes/admin.ai.datasets'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -58,6 +80,11 @@ const AuthRoute = AuthRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -74,6 +101,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthVerifyRoute = AuthVerifyRouteImport.update({
   id: '/verify',
@@ -165,6 +197,86 @@ const AppAccountsRoute = AppAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSessionsRoute = AdminSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRiskRoute = AdminRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInfraRoute = AdminInfraRouteImport.update({
+  id: '/infra',
+  path: '/infra',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminComplianceRoute = AdminComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminChallengesRoute = AdminChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBehaviorRoute = AdminBehaviorRouteImport.update({
+  id: '/behavior',
+  path: '/behavior',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApiRoute = AdminApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnomaliesRoute = AdminAnomaliesRouteImport.update({
+  id: '/anomalies',
+  path: '/anomalies',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAccountsRoute = AdminAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AppGuardIndexRoute = AppGuardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -251,11 +363,48 @@ const AppAccountsIdRoute = AppAccountsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppAccountsRoute,
 } as any)
+const AdminAiModelsRoute = AdminAiModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiLiveRoute = AdminAiLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiExplainRoute = AdminAiExplainRouteImport.update({
+  id: '/explain',
+  path: '/explain',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiDatasetsRoute = AdminAiDatasetsRouteImport.update({
+  id: '/datasets',
+  path: '/datasets',
+  getParentRoute: () => AdminAiRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/ai': typeof AdminAiRouteWithChildren
+  '/admin/anomalies': typeof AdminAnomaliesRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/behavior': typeof AdminBehaviorRoute
+  '/admin/challenges': typeof AdminChallengesRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/infra': typeof AdminInfraRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/risk': typeof AdminRiskRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
@@ -274,8 +423,13 @@ export interface FileRoutesByFullPath {
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/admin/ai/datasets': typeof AdminAiDatasetsRoute
+  '/admin/ai/explain': typeof AdminAiExplainRoute
+  '/admin/ai/live': typeof AdminAiLiveRoute
+  '/admin/ai/models': typeof AdminAiModelsRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
   '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
   '/app/guard/authentication': typeof AppGuardAuthenticationRoute
@@ -296,6 +450,22 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/ai': typeof AdminAiRouteWithChildren
+  '/admin/anomalies': typeof AdminAnomaliesRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/behavior': typeof AdminBehaviorRoute
+  '/admin/challenges': typeof AdminChallengesRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/infra': typeof AdminInfraRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/risk': typeof AdminRiskRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
@@ -313,8 +483,13 @@ export interface FileRoutesByTo {
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/admin/ai/datasets': typeof AdminAiDatasetsRoute
+  '/admin/ai/explain': typeof AdminAiExplainRoute
+  '/admin/ai/live': typeof AdminAiLiveRoute
+  '/admin/ai/models': typeof AdminAiModelsRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
   '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
   '/app/guard/authentication': typeof AppGuardAuthenticationRoute
@@ -336,8 +511,25 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/ai': typeof AdminAiRouteWithChildren
+  '/admin/anomalies': typeof AdminAnomaliesRoute
+  '/admin/api': typeof AdminApiRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/behavior': typeof AdminBehaviorRoute
+  '/admin/challenges': typeof AdminChallengesRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/infra': typeof AdminInfraRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/risk': typeof AdminRiskRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
@@ -356,8 +548,13 @@ export interface FileRoutesById {
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/admin/ai/datasets': typeof AdminAiDatasetsRoute
+  '/admin/ai/explain': typeof AdminAiExplainRoute
+  '/admin/ai/live': typeof AdminAiLiveRoute
+  '/admin/ai/models': typeof AdminAiModelsRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
   '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
   '/app/guard/authentication': typeof AppGuardAuthenticationRoute
@@ -380,8 +577,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/app'
     | '/auth'
+    | '/admin/accounts'
+    | '/admin/ai'
+    | '/admin/anomalies'
+    | '/admin/api'
+    | '/admin/audit'
+    | '/admin/behavior'
+    | '/admin/challenges'
+    | '/admin/compliance'
+    | '/admin/infra'
+    | '/admin/notifications'
+    | '/admin/reports'
+    | '/admin/risk'
+    | '/admin/roles'
+    | '/admin/sessions'
+    | '/admin/settings'
+    | '/admin/users'
     | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
@@ -400,8 +614,13 @@ export interface FileRouteTypes {
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
+    | '/admin/'
     | '/app/'
     | '/auth/'
+    | '/admin/ai/datasets'
+    | '/admin/ai/explain'
+    | '/admin/ai/live'
+    | '/admin/ai/models'
     | '/app/accounts/$id'
     | '/app/guard/auth-timeline'
     | '/app/guard/authentication'
@@ -422,6 +641,22 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/accounts'
+    | '/admin/ai'
+    | '/admin/anomalies'
+    | '/admin/api'
+    | '/admin/audit'
+    | '/admin/behavior'
+    | '/admin/challenges'
+    | '/admin/compliance'
+    | '/admin/infra'
+    | '/admin/notifications'
+    | '/admin/reports'
+    | '/admin/risk'
+    | '/admin/roles'
+    | '/admin/sessions'
+    | '/admin/settings'
+    | '/admin/users'
     | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
@@ -439,8 +674,13 @@ export interface FileRouteTypes {
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
+    | '/admin'
     | '/app'
     | '/auth'
+    | '/admin/ai/datasets'
+    | '/admin/ai/explain'
+    | '/admin/ai/live'
+    | '/admin/ai/models'
     | '/app/accounts/$id'
     | '/app/guard/auth-timeline'
     | '/app/guard/authentication'
@@ -461,8 +701,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/app'
     | '/auth'
+    | '/admin/accounts'
+    | '/admin/ai'
+    | '/admin/anomalies'
+    | '/admin/api'
+    | '/admin/audit'
+    | '/admin/behavior'
+    | '/admin/challenges'
+    | '/admin/compliance'
+    | '/admin/infra'
+    | '/admin/notifications'
+    | '/admin/reports'
+    | '/admin/risk'
+    | '/admin/roles'
+    | '/admin/sessions'
+    | '/admin/settings'
+    | '/admin/users'
     | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
@@ -481,8 +738,13 @@ export interface FileRouteTypes {
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
+    | '/admin/'
     | '/app/'
     | '/auth/'
+    | '/admin/ai/datasets'
+    | '/admin/ai/explain'
+    | '/admin/ai/live'
+    | '/admin/ai/models'
     | '/app/accounts/$id'
     | '/app/guard/auth-timeline'
     | '/app/guard/authentication'
@@ -504,6 +766,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
 }
@@ -522,6 +785,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -544,6 +814,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/auth/verify': {
       id: '/auth/verify'
@@ -671,6 +948,118 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sessions': {
+      id: '/admin/sessions'
+      path: '/sessions'
+      fullPath: '/admin/sessions'
+      preLoaderRoute: typeof AdminSessionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/risk': {
+      id: '/admin/risk'
+      path: '/risk'
+      fullPath: '/admin/risk'
+      preLoaderRoute: typeof AdminRiskRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/infra': {
+      id: '/admin/infra'
+      path: '/infra'
+      fullPath: '/admin/infra'
+      preLoaderRoute: typeof AdminInfraRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/compliance': {
+      id: '/admin/compliance'
+      path: '/compliance'
+      fullPath: '/admin/compliance'
+      preLoaderRoute: typeof AdminComplianceRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/challenges': {
+      id: '/admin/challenges'
+      path: '/challenges'
+      fullPath: '/admin/challenges'
+      preLoaderRoute: typeof AdminChallengesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/behavior': {
+      id: '/admin/behavior'
+      path: '/behavior'
+      fullPath: '/admin/behavior'
+      preLoaderRoute: typeof AdminBehaviorRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/api': {
+      id: '/admin/api'
+      path: '/api'
+      fullPath: '/admin/api'
+      preLoaderRoute: typeof AdminApiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/anomalies': {
+      id: '/admin/anomalies'
+      path: '/anomalies'
+      fullPath: '/admin/anomalies'
+      preLoaderRoute: typeof AdminAnomaliesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/accounts': {
+      id: '/admin/accounts'
+      path: '/accounts'
+      fullPath: '/admin/accounts'
+      preLoaderRoute: typeof AdminAccountsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/app/guard/': {
       id: '/app/guard/'
       path: '/'
@@ -790,8 +1179,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsIdRouteImport
       parentRoute: typeof AppAccountsRoute
     }
+    '/admin/ai/models': {
+      id: '/admin/ai/models'
+      path: '/models'
+      fullPath: '/admin/ai/models'
+      preLoaderRoute: typeof AdminAiModelsRouteImport
+      parentRoute: typeof AdminAiRoute
+    }
+    '/admin/ai/live': {
+      id: '/admin/ai/live'
+      path: '/live'
+      fullPath: '/admin/ai/live'
+      preLoaderRoute: typeof AdminAiLiveRouteImport
+      parentRoute: typeof AdminAiRoute
+    }
+    '/admin/ai/explain': {
+      id: '/admin/ai/explain'
+      path: '/explain'
+      fullPath: '/admin/ai/explain'
+      preLoaderRoute: typeof AdminAiExplainRouteImport
+      parentRoute: typeof AdminAiRoute
+    }
+    '/admin/ai/datasets': {
+      id: '/admin/ai/datasets'
+      path: '/datasets'
+      fullPath: '/admin/ai/datasets'
+      preLoaderRoute: typeof AdminAiDatasetsRouteImport
+      parentRoute: typeof AdminAiRoute
+    }
   }
 }
+
+interface AdminAiRouteChildren {
+  AdminAiDatasetsRoute: typeof AdminAiDatasetsRoute
+  AdminAiExplainRoute: typeof AdminAiExplainRoute
+  AdminAiLiveRoute: typeof AdminAiLiveRoute
+  AdminAiModelsRoute: typeof AdminAiModelsRoute
+}
+
+const AdminAiRouteChildren: AdminAiRouteChildren = {
+  AdminAiDatasetsRoute: AdminAiDatasetsRoute,
+  AdminAiExplainRoute: AdminAiExplainRoute,
+  AdminAiLiveRoute: AdminAiLiveRoute,
+  AdminAiModelsRoute: AdminAiModelsRoute,
+}
+
+const AdminAiRouteWithChildren =
+  AdminAiRoute._addFileChildren(AdminAiRouteChildren)
+
+interface AdminRouteChildren {
+  AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminAiRoute: typeof AdminAiRouteWithChildren
+  AdminAnomaliesRoute: typeof AdminAnomaliesRoute
+  AdminApiRoute: typeof AdminApiRoute
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminBehaviorRoute: typeof AdminBehaviorRoute
+  AdminChallengesRoute: typeof AdminChallengesRoute
+  AdminComplianceRoute: typeof AdminComplianceRoute
+  AdminInfraRoute: typeof AdminInfraRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminRiskRoute: typeof AdminRiskRoute
+  AdminRolesRoute: typeof AdminRolesRoute
+  AdminSessionsRoute: typeof AdminSessionsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAccountsRoute: AdminAccountsRoute,
+  AdminAiRoute: AdminAiRouteWithChildren,
+  AdminAnomaliesRoute: AdminAnomaliesRoute,
+  AdminApiRoute: AdminApiRoute,
+  AdminAuditRoute: AdminAuditRoute,
+  AdminBehaviorRoute: AdminBehaviorRoute,
+  AdminChallengesRoute: AdminChallengesRoute,
+  AdminComplianceRoute: AdminComplianceRoute,
+  AdminInfraRoute: AdminInfraRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminRiskRoute: AdminRiskRoute,
+  AdminRolesRoute: AdminRolesRoute,
+  AdminSessionsRoute: AdminSessionsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppAccountsRouteChildren {
   AppAccountsIdRoute: typeof AppAccountsIdRoute
@@ -905,6 +1381,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
 }

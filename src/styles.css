@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
 @source "../src";
+@source inline("grid-cols-16 grid-cols-24");
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
