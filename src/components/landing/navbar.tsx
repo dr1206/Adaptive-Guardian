@@ -57,6 +57,12 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <Link
+            to="/admin"
+            className="hidden rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+          >
+            Cockpit
+          </Link>
+          <Link
             to="/auth"
             className="hidden rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
           >
