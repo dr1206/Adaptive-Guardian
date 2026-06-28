@@ -34,8 +34,8 @@ function TransferPage() {
   const source = ACCOUNTS.find((a) => a.id === sourceId)!;
   const recipient = BENEFICIARIES.find((b) => b.id === recipientId);
 
-  const next = () => setStep((s) => Math.min(4, (s + 1) as Step));
-  const back = () => setStep((s) => Math.max(0, (s - 1) as Step));
+  const next = () => setStep((s) => Math.min(4, s + 1) as Step);
+  const back = () => setStep((s) => Math.max(0, s - 1) as Step);
 
   return (
     <div>

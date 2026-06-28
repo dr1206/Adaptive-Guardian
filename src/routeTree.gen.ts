@@ -17,6 +17,21 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 import { Route as AuthSignatureRouteImport } from './routes/auth.signature'
 import { Route as AuthCalibrateRouteImport } from './routes/auth.calibrate'
+import { Route as AppTransferRouteImport } from './routes/app.transfer'
+import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
+import { Route as AppStatementsRouteImport } from './routes/app.statements'
+import { Route as AppSavingsRouteImport } from './routes/app.savings'
+import { Route as AppPaymentsRouteImport } from './routes/app.payments'
+import { Route as AppLoansRouteImport } from './routes/app.loans'
+import { Route as AppInvestmentsRouteImport } from './routes/app.investments'
+import { Route as AppInsightsRouteImport } from './routes/app.insights'
+import { Route as AppExchangeRouteImport } from './routes/app.exchange'
+import { Route as AppCardsRouteImport } from './routes/app.cards'
+import { Route as AppBudgetsRouteImport } from './routes/app.budgets'
+import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
+import { Route as AppActivityRouteImport } from './routes/app.activity'
+import { Route as AppAccountsRouteImport } from './routes/app.accounts'
+import { Route as AppAccountsIdRouteImport } from './routes/app.accounts.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -58,35 +73,155 @@ const AuthCalibrateRoute = AuthCalibrateRouteImport.update({
   path: '/calibrate',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppTransferRoute = AppTransferRouteImport.update({
+  id: '/transfer',
+  path: '/transfer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransactionsRoute = AppTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStatementsRoute = AppStatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSavingsRoute = AppSavingsRouteImport.update({
+  id: '/savings',
+  path: '/savings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLoansRoute = AppLoansRouteImport.update({
+  id: '/loans',
+  path: '/loans',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvestmentsRoute = AppInvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInsightsRoute = AppInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExchangeRoute = AppExchangeRouteImport.update({
+  id: '/exchange',
+  path: '/exchange',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCardsRoute = AppCardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBudgetsRoute = AppBudgetsRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBeneficiariesRoute = AppBeneficiariesRouteImport.update({
+  id: '/beneficiaries',
+  path: '/beneficiaries',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppActivityRoute = AppActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountsRoute = AppAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountsIdRoute = AppAccountsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAccountsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app/accounts': typeof AppAccountsRouteWithChildren
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
+  '/app/budgets': typeof AppBudgetsRoute
+  '/app/cards': typeof AppCardsRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/insights': typeof AppInsightsRoute
+  '/app/investments': typeof AppInvestmentsRoute
+  '/app/loans': typeof AppLoansRoute
+  '/app/payments': typeof AppPaymentsRoute
+  '/app/savings': typeof AppSavingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
+  '/app/transfer': typeof AppTransferRoute
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/app/accounts/$id': typeof AppAccountsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/accounts': typeof AppAccountsRouteWithChildren
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
+  '/app/budgets': typeof AppBudgetsRoute
+  '/app/cards': typeof AppCardsRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/insights': typeof AppInsightsRoute
+  '/app/investments': typeof AppInvestmentsRoute
+  '/app/loans': typeof AppLoansRoute
+  '/app/payments': typeof AppPaymentsRoute
+  '/app/savings': typeof AppSavingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
+  '/app/transfer': typeof AppTransferRoute
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/app': typeof AppIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/app/accounts/$id': typeof AppAccountsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app/accounts': typeof AppAccountsRouteWithChildren
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
+  '/app/budgets': typeof AppBudgetsRoute
+  '/app/cards': typeof AppCardsRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/insights': typeof AppInsightsRoute
+  '/app/investments': typeof AppInvestmentsRoute
+  '/app/loans': typeof AppLoansRoute
+  '/app/payments': typeof AppPaymentsRoute
+  '/app/savings': typeof AppSavingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
+  '/app/transfer': typeof AppTransferRoute
   '/auth/calibrate': typeof AuthCalibrateRoute
   '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/app/accounts/$id': typeof AppAccountsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,29 +229,74 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
+    | '/app/budgets'
+    | '/app/cards'
+    | '/app/exchange'
+    | '/app/insights'
+    | '/app/investments'
+    | '/app/loans'
+    | '/app/payments'
+    | '/app/savings'
+    | '/app/statements'
+    | '/app/transactions'
+    | '/app/transfer'
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
     | '/app/'
     | '/auth/'
+    | '/app/accounts/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
+    | '/app/budgets'
+    | '/app/cards'
+    | '/app/exchange'
+    | '/app/insights'
+    | '/app/investments'
+    | '/app/loans'
+    | '/app/payments'
+    | '/app/savings'
+    | '/app/statements'
+    | '/app/transactions'
+    | '/app/transfer'
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
     | '/app'
     | '/auth'
+    | '/app/accounts/$id'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/auth'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
+    | '/app/budgets'
+    | '/app/cards'
+    | '/app/exchange'
+    | '/app/insights'
+    | '/app/investments'
+    | '/app/loans'
+    | '/app/payments'
+    | '/app/savings'
+    | '/app/statements'
+    | '/app/transactions'
+    | '/app/transfer'
     | '/auth/calibrate'
     | '/auth/signature'
     | '/auth/verify'
     | '/app/'
     | '/auth/'
+    | '/app/accounts/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,14 +363,159 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCalibrateRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/app/transfer': {
+      id: '/app/transfer'
+      path: '/transfer'
+      fullPath: '/app/transfer'
+      preLoaderRoute: typeof AppTransferRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transactions': {
+      id: '/app/transactions'
+      path: '/transactions'
+      fullPath: '/app/transactions'
+      preLoaderRoute: typeof AppTransactionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/statements': {
+      id: '/app/statements'
+      path: '/statements'
+      fullPath: '/app/statements'
+      preLoaderRoute: typeof AppStatementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/savings': {
+      id: '/app/savings'
+      path: '/savings'
+      fullPath: '/app/savings'
+      preLoaderRoute: typeof AppSavingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/payments': {
+      id: '/app/payments'
+      path: '/payments'
+      fullPath: '/app/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/loans': {
+      id: '/app/loans'
+      path: '/loans'
+      fullPath: '/app/loans'
+      preLoaderRoute: typeof AppLoansRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/investments': {
+      id: '/app/investments'
+      path: '/investments'
+      fullPath: '/app/investments'
+      preLoaderRoute: typeof AppInvestmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/insights': {
+      id: '/app/insights'
+      path: '/insights'
+      fullPath: '/app/insights'
+      preLoaderRoute: typeof AppInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/exchange': {
+      id: '/app/exchange'
+      path: '/exchange'
+      fullPath: '/app/exchange'
+      preLoaderRoute: typeof AppExchangeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/cards': {
+      id: '/app/cards'
+      path: '/cards'
+      fullPath: '/app/cards'
+      preLoaderRoute: typeof AppCardsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/budgets': {
+      id: '/app/budgets'
+      path: '/budgets'
+      fullPath: '/app/budgets'
+      preLoaderRoute: typeof AppBudgetsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/beneficiaries': {
+      id: '/app/beneficiaries'
+      path: '/beneficiaries'
+      fullPath: '/app/beneficiaries'
+      preLoaderRoute: typeof AppBeneficiariesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/activity': {
+      id: '/app/activity'
+      path: '/activity'
+      fullPath: '/app/activity'
+      preLoaderRoute: typeof AppActivityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/accounts': {
+      id: '/app/accounts'
+      path: '/accounts'
+      fullPath: '/app/accounts'
+      preLoaderRoute: typeof AppAccountsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/accounts/$id': {
+      id: '/app/accounts/$id'
+      path: '/$id'
+      fullPath: '/app/accounts/$id'
+      preLoaderRoute: typeof AppAccountsIdRouteImport
+      parentRoute: typeof AppAccountsRoute
+    }
   }
 }
 
+interface AppAccountsRouteChildren {
+  AppAccountsIdRoute: typeof AppAccountsIdRoute
+}
+
+const AppAccountsRouteChildren: AppAccountsRouteChildren = {
+  AppAccountsIdRoute: AppAccountsIdRoute,
+}
+
+const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
+  AppAccountsRouteChildren,
+)
+
 interface AppRouteChildren {
+  AppAccountsRoute: typeof AppAccountsRouteWithChildren
+  AppActivityRoute: typeof AppActivityRoute
+  AppBeneficiariesRoute: typeof AppBeneficiariesRoute
+  AppBudgetsRoute: typeof AppBudgetsRoute
+  AppCardsRoute: typeof AppCardsRoute
+  AppExchangeRoute: typeof AppExchangeRoute
+  AppInsightsRoute: typeof AppInsightsRoute
+  AppInvestmentsRoute: typeof AppInvestmentsRoute
+  AppLoansRoute: typeof AppLoansRoute
+  AppPaymentsRoute: typeof AppPaymentsRoute
+  AppSavingsRoute: typeof AppSavingsRoute
+  AppStatementsRoute: typeof AppStatementsRoute
+  AppTransactionsRoute: typeof AppTransactionsRoute
+  AppTransferRoute: typeof AppTransferRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountsRoute: AppAccountsRouteWithChildren,
+  AppActivityRoute: AppActivityRoute,
+  AppBeneficiariesRoute: AppBeneficiariesRoute,
+  AppBudgetsRoute: AppBudgetsRoute,
+  AppCardsRoute: AppCardsRoute,
+  AppExchangeRoute: AppExchangeRoute,
+  AppInsightsRoute: AppInsightsRoute,
+  AppInvestmentsRoute: AppInvestmentsRoute,
+  AppLoansRoute: AppLoansRoute,
+  AppPaymentsRoute: AppPaymentsRoute,
+  AppSavingsRoute: AppSavingsRoute,
+  AppStatementsRoute: AppStatementsRoute,
+  AppTransactionsRoute: AppTransactionsRoute,
+  AppTransferRoute: AppTransferRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
