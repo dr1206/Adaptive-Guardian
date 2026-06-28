@@ -1,469 +1,648 @@
-# Phase 4A — The Vault Interior
+# Phase 4B — The Banking Module
 
-The dashboard is the moment the user crosses the threshold of the vault they just unlocked. Everything we built in auth — the Vault Atmosphere, the Signature Glyph, the Adaptive Shield, the calm AI voice — now becomes the room they live in. This document defines the experience, not the code.
+The dashboard is the vault's atrium. Phase 4B is everything behind the doors: the accounts, the cards, the rails along which money actually moves. Every workflow is engineered to **generate natural behavioral signal** — typing rhythm in the amount field, mouse curvature when selecting a beneficiary, dwell time on review screens — so Aegis can verify the user continuously without ever asking them to prove anything.
+
+You will not see a single CAPTCHA, OTP, or "are you sure?" modal in this module. The AI is the friction.
 
 ---
 
-## 1. Product Posture
+## 1. Module Posture
 
-Four feelings, ranked, that every pixel must reinforce:
+Five feelings, ranked:
 
-1. **Wealth** — generous whitespace, tabular numerals, metal-grade surfaces
-2. **Intelligence** — AI is ambient, not announced
-3. **Security** — visible everywhere, alarming nowhere
-4. **Confidence** — one clear next action, never six competing ones
+1. **Effortless** — any task in ≤ 3 clicks, ≤ 12 keystrokes
+2. **Premium** — metal, glass, tabular numerals, generous rhythm
+3. **Confident** — Aegis is present on every page as a 12px ring; never a banner
+4. **Continuous** — same Vault Atmosphere, same Signature Glyph, same motion
+5. **Intelligent** — insights appear in flow, never in popups
 
-The dashboard answers six questions inside the first viewport, in this order of glance:
+The promise: **the user transfers €10,000 and never once feels "verified."**
+
+---
+
+## 2. Information Architecture
 
 ```text
-1. How much do I have?      → Balance Hero (top-left, 60% width)
-2. What changed today?      → Delta chip on the hero + sparkline
-3. Am I safe?               → Aegis Ring (top-right corner of hero row)
-4. Does AI know me?         → Confidence value inside the ring
-5. What needs me?           → Attention Lane (a single horizontal strip)
-6. What can I do next?      → Quick Actions dock (below the fold edge)
+/app                    Dashboard (4A)
+/app/accounts           Account command center
+/app/accounts/$id       Account workspace (Overview · Transactions · Analytics · Statements · Scheduled · Security · Documents)
+/app/cards              Card gallery + controls
+/app/cards/$id          Card detail (flip, limits, travel mode, history)
+/app/transactions       Global ledger
+/app/transactions/$id   Transaction detail
+/app/transfer           Transfer flow (multi-step)
+/app/payments           Recurring · bills · subscriptions (calendar + timeline)
+/app/beneficiaries      Directory
+/app/statements         Statement vault
+/app/investments        Portfolio
+/app/loans              Loan overview + repayment schedule
+/app/exchange           Currency converter
+/app/savings            Goals
+/app/budgets            Budget envelopes
+/app/insights           AI financial insights stream
+/app/activity           Unified activity timeline
 ```
+
+VaultRail (4A) gets the new entries with the same anatomy: icon, label, `⌘`-shortcut, optional unread dot. Sections group as **Money** (Accounts, Cards, Transactions, Transfer, Payments, Beneficiaries, Statements), **Grow** (Investments, Savings, Budgets, Loans, Exchange), **Intelligence** (Insights, Activity).
 
 ---
 
-## 2. Spatial System
+## 3. Reused Constitution
+
+Nothing is re-invented. Phase 4B composes on top of the 4A kit:
 
 ```text
-Max canvas        1440 px
-Rail collapsed    72 px      Rail expanded    260 px
-Command Bar       64 px      Content gutter   32 px
-Grid              12 cols × 8px baseline, 24px gap, 32px row rhythm
-Card radius       20 px outer, 14 px inner, 28 px hero
-Elevation tiers   E0 flat · E1 glass · E2 lifted · E3 floating-modal
+Surfaces      Obsidian floor · Slate Glass cards · Mercury hero (4A §2)
+Radii         20 outer · 14 inner · 28 hero · 999 pill
+Type          Sora (display) · Inter (body) · Space Grotesk (numeric)
+Motion        Page entrance 480/60 · odometer 600 · chart draw 700 (4A §17)
+AI voice      ≤ 6 words, observation not command, never red, never !
+Brand         VaultAtmosphere · SignatureGlyph · AdaptiveShield · Aegis ring
 ```
 
-Three surface tones layered over the Vault Atmosphere:
-
-- **Obsidian** `#0B1120` — page floor
-- **Slate Glass** translucent `rgba(255,255,255,0.04)` + 24px backdrop blur — cards
-- **Mercury** `rgba(255,255,255,0.08)` with 1px inner light stroke — hero & rail
-
-Accent ladder stays the auth palette: Cyan (primary AI), Iris (wealth), Mint (positive), Amber (attention), Coral (rare — only true risk).
+Any new pattern below must reuse one of these or it doesn't ship.
 
 ---
 
-## 3. Macro Layout
+## 4. Accounts — `/app/accounts`
+
+A command center for every pot of money.
+
+**Layout** — single column of horizontal account groups (Current · Savings · Investment · Business · Fixed Deposit · Credit). Each group has a tiny pill header with count and total; below, a horizontal-snap rail of **Account Cards** (320×200).
+
+**Account Card anatomy**
 
 ```text
-┌──┬────────────────────────────────────────────────────────┐
-│  │  Command Bar  · search · ⌘K · Aegis pill · profile     │
-│R ├────────────────────────────────────────────────────────┤
-│a │                                                        │
-│i │  Welcome Header — "Good morning, Amal"                 │
-│l │  Six-stat strip (Available · Δ Today · In · Out · …)   │
-│  │                                                        │
-│  │  ┌──────────────────────────────┐ ┌──────────────────┐ │
-│  │  │  BALANCE HERO  (8 cols)      │ │ AEGIS RING (4)   │ │
-│  │  │  account switcher · graph    │ │ confidence · AI  │ │
-│  │  └──────────────────────────────┘ └──────────────────┘ │
-│  │                                                        │
-│  │  ATTENTION LANE — 0–3 chips, dismissable               │
-│  │                                                        │
-│  │  ┌─────────┬─────────┬─────────┬─────────┐             │
-│  │  │ Quick Actions (4 up, scroll on mobile)│             │
-│  │  └─────────┴─────────┴─────────┴─────────┘             │
-│  │                                                        │
-│  │  Widget Mosaic  (Insights · Spend · Cards · Goals)     │
-│  │                                                        │
-│  │  Transaction Feed   (8)    │  Security Overview  (4)   │
-│  │                                                        │
-│  │  Footer: Aegis whisper · regulatory line               │
-└──┴────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Primary · EUR              IBAN ••3491  │
+│                                          │
+│  € 248,902.14                  ↑ 0.57%   │
+│  ─── 30-day sparkline ───                │
+│                                          │
+│  ◯ Active · refreshed 14:32              │
+│  Transfer · Statement · ⋯                │
+└──────────────────────────────────────────┘
 ```
+
+- Card finish shifts per type: Primary obsidian, Savings champagne, Investment iris, Credit graphite, Business platinum, Fixed Deposit deep emerald.
+- Today's Δ as a chip; sparkline auto-scales.
+- Long-press / right-click → context menu: View · Transfer · Statement · Freeze · Rename · Copy IBAN · Set primary.
+- Drag horizontally to reorder (persists per user — generates mouse curvature signal).
+
+**Empty group** → a single dashed-edge "Open a Savings account" tile with one CTA.
 
 ---
 
-## 4. Navigation Rail
+## 5. Account Workspace — `/app/accounts/$id`
 
-A floating glass capsule, **24px inset from the viewport edges, top to bottom**. Never touches a screen edge — it hovers like the Signature Card did during enrollment.
+Tabbed workspace, hero on top, content below.
 
-**Structure**
-
-- **Crown** — Adaptive Shield + wordmark; click collapses/expands
-- **Primary** — Dashboard, Accounts, Cards, Payments, Transfers, Transactions, Investments, Analytics
-- **Quiet divider** — 1px hairline at 8% opacity, 24px breathing room
-- **Guard** — Security Center, Authentication Center, Devices, Notifications
-- **Quiet divider**
-- **Personal** — Profile, Settings, Help
-- **Role-gated** — Admin appears only when `role:admin`, with a tiny Iris keyhole icon
-- **Foot** — Workspace switcher · Theme · Aegis status dot · Sign out
-
-**Item anatomy** (expanded)
+**Hero strip (sticky)**
 
 ```text
-[●icon] Label …………………………… ⌘1   [badge]
-        ↑hover: 200ms glow halo, label slides 2px right
-        active: 3px vertical Iris bar at left edge + soft inner gradient
+[Primary ▾]   € 248,902.14   ↑ 0.57% today   ·   IBAN PT50 …  📋
+              Available · Pending €1,820                    [Transfer] [⋯]
 ```
 
-**Collapsed (72px)** — icon-only with a 4px right-edge active indicator. Hover any item to reveal a floating tooltip-card that shows label + shortcut + unread count.
+The `▾` is the AccountSwitcher from 4A — switching mutates the URL `$id` without remount.
 
-**Expansion animation** — width tween 280ms `cubic-bezier(0.2, 0.8, 0.2, 1)`; labels fade-in on a 120ms delay with a 4px translateX. No layout jank — the content area never reflows because the rail is overlaid, not in flow.
+**Tabs** (single row, underline-on-active, ⌘1–7)
 
-**Aegis status dot** at the foot pulses one slow breath every 4s when confidence ≥ 0.9, holds steady amber if a verification is in progress, never red.
+- **Overview** — cash-flow chart (90d), 4 KPI tiles (In, Out, Net, Savings rate), top categories, upcoming payments mini-list, two AI insight cards.
+- **Transactions** — Transaction Feed (§8) scoped to this account.
+- **Analytics** — stacked monthly area, category donut, savings-rate line, income-vs-expense compare, weekday heatmap.
+- **Statements** — Statement Vault (§13) scoped.
+- **Scheduled** — list of standing orders, direct debits, future transfers; calendar peek button.
+- **Security** — account-scoped Aegis: last 5 verification events, trusted devices that touched this account, freeze-account control, transaction risk timeline.
+- **Documents** — KYC, account opening, tax statements, certificates. Card grid with type-icon + date + download.
 
 ---
 
-## 5. Command Bar
+## 6. Cards — `/app/cards`
 
-64px high, full content width, sticky at top, glass with a 1px lower hairline that becomes visible only after 12px of scroll.
+A gallery, not a list.
+
+**Carousel** — full-bleed horizontal snap, one card centered, neighbors at 70% scale + 40% opacity. Cards rendered with the 4A `CardObject` primitive (3D metal, signature etching). Subtle parallax tilt follows pointer (≤ 6°). Mobile = swipe.
+
+**Center card** shows: type (Primary / Virtual / Credit / Travel), masked PAN (•••• 4912), holder, expiry, network mark, current status pill (Active / Frozen / Travel mode).
+
+Below the carousel, a **Control Deck** for the selected card:
 
 ```text
-[≡]  [⌕ Search anything…  ⌘K]   ·   [Aegis 99.2% ▾]  [⌥]  [⌘N]  [🔔3]  [⏱ 14:32]  [Avatar ▾]
+┌─ Controls ──────────────────┐ ┌─ Limits ────────────┐ ┌─ Insights ─┐
+│ Freeze        [toggle]      │ │ Daily   € 2,000 ▮▮▯ │ │ Spent this │
+│ Contactless   [toggle]      │ │ Monthly € 18,000 ▮▯ │ │ month      │
+│ Online        [toggle]      │ │ ATM     € 400  ▮▯▯  │ │ € 1,284    │
+│ International [toggle]      │ │ Edit limits         │ │ ───sparkline│
+│ Travel mode   [toggle ▸]    │ └─────────────────────┘ └─────────────┘
+│ View PIN  · Replace · Term. │
+└─────────────────────────────┘
 ```
 
-- **Global search** — instant fuzzy across Transactions, Beneficiaries, Accounts, Settings, Help, Security Events, AI Reports, Recent Pages. Each result is a row with icon + title + secondary line + scope chip. Keyboard-first: ↑↓ navigate, ⏎ open, ⌘⏎ open in new pane.
-- **⌘K Command Palette** — full-screen overlay, `scale(0.98)→1` + fade, 180ms. Two zones: Actions (top) and Navigate (bottom). Recent commands persist per user.
-- **Aegis pill** — confidence % with a 12px micro-ring. Click opens the Aegis popover (see §8).
-- **Quick Transfer** (⌘N) — opens a 480px right drawer, never a modal.
-- **Notification bell** — opens the Notification Drawer.
-- **Time** is local to the session device, in Space Grotesk tabular.
-- **Avatar** — Signature Glyph as the avatar shape, falling back to monogram. Opens profile menu.
+**Card flip** — `R` or tap the card → 600ms 3D Y-axis flip exposes back with CVV (revealed on press-and-hold, auto-hides after 8s; press-and-hold itself is excellent behavioral signal).
+
+**Freeze** → card frosts over (CSS filter blur + cyan tint sweep), status pill morphs to "Frozen", control deck dims appropriate toggles. No modal, no confirmation — undoable for 30s via a glass toast.
+
+**Virtual card creation** — opens a 480px right drawer with a live-rendering card preview; user picks finish, label, and limits — the card on screen mints in real time as they type. Then a single primary `Mint card` button.
+
+**Transaction history** sits beneath, filtered to this card.
 
 ---
 
-## 6. Welcome Header
+## 7. Transfer Money — `/app/transfer`
+
+The signature flow. Engineered to feel like one continuous motion across four screens, each generating distinct behavioral telemetry.
 
 ```text
-Good morning, Amal.                          Sun · 28 Jun · Lisbon
-Session stable · recognized in 12 ms
-
-Available           Today              In (Mo)      Out (Mo)    Savings    Investments
-€ 248,902.14        + € 1,420.40 ↑     € 14,230     € 9,184     € 62,400   € 2.48 M
-                    +0.57%             ───────      ─────       ─────      ────────
+1. Source   →   2. Recipient   →   3. Amount   →   4. Review   →   ✓ Success
 ```
 
-- Greeting cycles **Good morning / afternoon / evening / Working late** based on local time.
-- Six-stat strip is a single horizontal row on desktop, 2×3 on tablet, vertical stack on mobile. Numbers animate from `0` to value with an easing curve once on mount (250ms, staggered 40ms). Subsequent value changes use a 600ms odometer roll, never a re-mount.
-- Each stat has a 24px sparkline below it. Hovering reveals a tooltip with the 30-day high/low.
+A single horizontal progress hairline at the top (4 segments), Aegis pill in the top-right always visible.
 
----
+### 7.1 Source — accounts as a horizontal rail
+The user's account cards from §4 in a snap-rail; tap to select, the chosen card rises 12px and gains a 2px Cyan stroke. Auto-advance after 400ms. (Mouse-curve signal: how they hover before committing.)
 
-## 7. Balance Hero
+### 7.2 Recipient
+Two-column inside a single screen:
 
-The centerpiece. Treat it like the Signature Card from enrollment — same metal, same lighting, same edge bevel — but laid flat and made interactive.
+- **Left** — search-first field (`/` focuses). Real-time filtered list of beneficiaries with avatar, nickname, bank, last-sent, favorite star. Categories as chips above the list (Family · Business · Utilities · Savings · Recent).
+- **Right** — empty state morphs into a recipient preview as soon as one is picked: avatar, full name, bank, IBAN, last 3 transfers to them. Inline `Edit` and `Add new` actions.
 
-**Anatomy**
+Keyboard-first: ↑↓ navigate, ⏎ pick, `+` opens new-beneficiary drawer. (Keystroke cadence signal.)
+
+### 7.3 Amount
+The hero of the flow. Massive 96pt Space Grotesk numeric input, currency selector left, live FX panel right.
 
 ```text
-┌────────────────────────────────────────────────────────────┐
-│  PRIMARY  ·  ▾ switch account                  EUR ▾   👁  │
-│                                                            │
-│  € 248,902.14                                              │
-│  Available · Pending € 1,820.00                            │
-│                                                            │
-│   ╱╲    ╱╲      ╱╲╱╲                                       │
-│  ╱  ╲__╱  ╲____╱    ╲___    (30d area, Iris→Cyan gradient) │
-│                                                            │
-│  Deposit · Transfer · Pay · Request · Statement · Details  │
-└────────────────────────────────────────────────────────────┘
+            EUR  €  1,250.00          ↔  USD $1,347.62
+                                          rate 1.0781 · ~0.4% spread
+            Fee  Free  ·  Arrives  Today
+            ────────────────────────────────
+            Purpose [Rent ▾]   Note [optional]
+            Send  Now  ·  Schedule  ▾   Repeat  ▾
 ```
 
-- **Account switcher** is a popover stack of mini-cards (Primary · Savings · Investment · Credit). The hero crossfades + the metal tone shifts subtly to indicate the new context (silver → champagne for Savings, obsidian for Credit).
-- **Currency selector** is a small inline dropdown with the ISO code; FX rate appears as a 10px caption when a non-base currency is chosen.
-- **Hide balance (👁)** replaces digits with `••• ••• ,••` using the same monospace width. State persists per device.
-- **Area graph** is interactive — hover shows a vertical guide and a glass tooltip pinned above the cursor with date + value + delta.
-- **Quick Actions row** lives inside the hero, secondary buttons (ghost on glass). The primary `Transfer` keeps the gradient fill.
+- Digits roll in with the 4A odometer curve as the user types.
+- Currency chip click → glass dropdown of currencies with flag glyphs and current rate.
+- FX panel updates in real time; spread shown honestly.
+- Arrival estimate is a chip ("Today · 14:32 local") that updates with route changes.
+- Below: a quiet row of suggested amounts based on history (e.g. last rent paid was €1,250).
+- Schedule → 7-day mini-calendar popover. Repeat → frequency stepper.
 
----
+(Behavioral signal: typing rhythm on numerals, hesitation, correction count.)
 
-## 8. The Aegis Widget (signature element)
-
-The dashboard's emotional anchor. Always visible, always calm.
+### 7.4 Review
+A single glass "transfer ticket" card centered on screen:
 
 ```text
-┌────────────────────────┐
-│        ◯ 99.2          │   ← confidence ring, Cyan
-│        Recognized       │
-│                         │
-│  Trust          High    │
-│  Session        02:14   │
-│  Device         Trusted │
-│  Behavior       Stable  │
-│  Risk           0.04    │
-│                         │
-│  "Everything looks      │
-│   normal." — Aegis      │
-└────────────────────────┘
+        From   Primary · ••3491
+          To   Marta Silva · BPI · ••8821
+      Amount   € 1,250.00
+       Today   Free · Arrives 14:32
+     Purpose   Rent
+        Note   June
+
+  [ Edit ]                          [ Hold to send ]
 ```
 
-- **Confidence ring** is a 160px SVG ring with a soft inner glow. Stroke draws once on mount (900ms), then breathes (±1% scale) every 6s.
-- **Color logic** — Cyan ≥ 90, Iris 75–89, Amber 50–74, Coral < 50. Coral is reserved; the demo will never show it.
-- **Behavior trend** appears on hover as a 7-day micro-sparkline beneath the ring.
-- **Aegis whisper** rotates through a curated set of one-liners every 30s with a 400ms crossfade. Examples: "Session stable.", "You're recognized.", "Behavior matches your signature.", "Encryption refreshed 4 min ago."
-- Click the ring → opens the **Security Center deep-view** (Phase 4B), not a modal.
+- The primary CTA is a **press-and-hold-to-send** button (1.1s). The hold time is real and is itself behavioral signal; visually a Cyan progress ring sweeps around the button. Releasing early aborts gracefully.
+- Aegis pill in the corner shows confidence ticking up as the screen is dwelled on, ending at "Verified" before the user even completes the hold.
+- The reassuring line beneath the button: *"Your session remains secure."* — rotates among Aegis whispers.
+
+### 7.5 Success
+- Vault Atmosphere brightens 6% for 800ms.
+- A Signature-Glyph-shaped checkmark draws (700ms).
+- "Sent. Marta will receive €1,250.00 by 14:32."
+- Three after-actions: `Send another` · `View transaction` · `Done`.
+- A receipt card slides in from the bottom-right for 4s (dismissable), with `Save PDF` and `Share` mini-actions.
+
+**Mobile** — each step is a full screen; the progress hairline becomes 4 dots. Amount uses a custom numeric pad (44px keys, haptic on tap).
 
 ---
 
-## 9. Attention Lane
+## 8. Transactions — `/app/transactions`
 
-A single horizontal strip beneath the hero row. **At most three chips**, dismissable, in priority order: Security → Money → Admin.
+Global ledger. Same TransactionRow primitive as 4A's feed, scaled up.
+
+**Top bar** (sticky, glass)
 
 ```text
-[ 🛡 New device verified — Lisbon, MacBook  · Acknowledge ]
-[ 📅 Rent due in 2 days — €1,420            · Pay now    ]
+[⌕ search…  /]   [Date ▾]  [Category ▾]  [Account ▾]  [Amount ▾]  [Status ▾]  ·  [Export ▾]
 ```
 
-If empty, the lane shows a single faded Aegis line: *"Nothing needs you right now."* Never collapses to zero height — keeps rhythm.
+Filters render as removable chips just under the bar. `Saved views` dropdown on the right preserves combinations.
 
----
+**Body** — day-grouped timeline with sticky day-headers, 56px rows. Virtualized for 10k+ rows. Hovering a row reveals a subtle 1px Iris underline; arrow keys move selection; ⏎ opens detail.
 
-## 10. Quick Actions Dock
-
-Four cards on desktop, horizontally scrollable on mobile, each 200×120.
+**Expand row** (chevron rotates 90°, row grows to 220px):
 
 ```text
-Transfer · Pay Bills · Scan QR · Add Beneficiary
-View Statements · Freeze Card · Exchange · Security
+ 🍔  Wolt                          Food · 13:02     − € 18.40
+ ────────────────────────────────────────────────────────────
+ Merchant address · payment method (Visa ••4912)
+ Category editor  ·  Tags  ·  Attach receipt  ·  Split  ·  Dispute
+ Notes …………………………………………
+ Aegis: verified at 13:02 · confidence 99.4%
 ```
 
-Each card: small line illustration top-left, label bottom-left, keyboard shortcut bottom-right in mono. On hover the illustration animates (e.g. Freeze Card grows a tiny frost vignette; Scan QR pulses a reticle). Pressing shows a 60ms inset shadow.
+**Bulk select** with `Shift+click` and `⌘A`. Bulk actions appear as a floating glass bar bottom-center: Tag · Categorize · Export · Dispute.
+
+**Export menu**: CSV · PDF statement · JSON · QIF · OFX.
 
 ---
 
-## 11. Widget Mosaic
+## 9. Transaction Detail — `/app/transactions/$id`
 
-Adaptive cards, all share the same card constitution but vary in span (4, 6, 8, 12 cols). Order on first load:
-
-1. **Financial Insights** (8) — three AI insight cards in a horizontal carousel, each with a tiny chart inline
-2. **Spending Analytics** (4) — category donut + legend
-3. **Cards** (4) — stacked Signature Cards (Primary, Credit), tap to flip
-4. **Cash Flow** (8) — 30-day in/out area chart, dual line
-5. **Savings Goal** (4) — ring + amount + ETA
-6. **Investment Portfolio** (4) — mini allocation bar + day Δ
-7. **Currency Exchange** (4) — three pairs, live ticks
-8. **Favorite Beneficiaries** (12) — horizontal avatar rail, tap to start transfer
-
-All widgets are **resizable-ready** but not draggable in 4A. Each carries a 3-dot menu with: Hide, Resize, Refresh, Open full view.
-
----
-
-## 12. Transaction Feed
-
-Revolut-grade, timeline-grouped.
+A right-side **deep panel** (520px) overlay rather than a route change — keeps the user in context. Hard-link `?tx=$id` shareable.
 
 ```text
-TODAY · 28 JUN
-🍔  Wolt                           Food · 13:02     − € 18.40
-🅿︎  EasyPark                      Transport · 10:11 − € 4.50
-↘  Salary · Banco Atlântico      Income · 09:00    + € 6,400.00
+ 🍔  Wolt Delivery                       − € 18.40
+     Lisbon, PT  ·  Tue 23 Jun  13:02
 
-YESTERDAY
-…
+ ┌─ Map preview (160px, dark mapbox-style) ──────┐
+ └────────────────────────────────────────────────┘
+
+ Method      Visa ••4912 (Primary)
+ Reference   WLT-9F3K-AAB2
+ Category    Food  [Edit]
+ Tags        rent-month · with-marta  [+]
+ Receipt     [Attach receipt]
+ Tax         VAT €1.41 (estimate)
+
+ Aegis check    ✓ verified at 13:02
+ Confidence     99.4%
+ Risk score     0.02
+ Device         MacBook Pro · Lisbon
+
+ Related       3 transactions with Wolt this month
+ Merchant      View Wolt insights →
+
+ [ Export PDF ]  [ Dispute ]  [ Split ]
 ```
 
-- **Row anatomy**: 40px merchant glyph (auto-generated from merchant initials on a tinted disc when no logo exists) · merchant name (Sora 15) · category chip · timestamp · amount (Space Grotesk tabular, sign-colored).
-- **Expand row** — chevron rotates 90°, row grows to reveal: full merchant address, payment method (with card last-4), category editor, attach receipt, dispute, split, notes. 220ms ease.
-- **Filters bar** above the feed: Search · Date · Category · Account · Amount range · Status. Filters chip-style, removable.
-- **Grouping** by day, with sticky day-headers when scrolling within the feed container.
-- **Export** dropdown: CSV, PDF statement, JSON.
+Aegis block is descriptive, never alarming. Dispute opens a 3-step inline form (Reason → Evidence → Submit), not a modal.
 
 ---
 
-## 13. Spending Analytics Section
+## 10. Beneficiaries — `/app/beneficiaries`
 
-Two-column: 60/40.
+A modern Rolodex.
 
-- **Left** — stacked area chart of last 6 months income vs expense, with savings rate as a thin line overlay. Hover snaps to month with a glass tooltip.
-- **Right** — category donut. Legend below with category, %, and absolute. Click a slice to filter the Transaction Feed.
+**Layout** — left sidebar with alphabetical index (A · B · C …) and category chips; main canvas as a 3-column card grid.
 
-Charts are drawn once with a 600ms staggered path animation. Reduced-motion users see them appear instantly with a fade.
-
----
-
-## 14. Security Overview Section
-
-Seven cards arranged 4+3.
+**Beneficiary card**
 
 ```text
-Auth Confidence · Trusted Device · Recent Verification · Behavior Stability
-Session Integrity · AI Monitoring · Risk Assessment
+┌──────────────────────────────┐
+│  ◉ MS    Marta Silva    ★    │
+│          BPI · ••8821        │
+│  Last sent  €1,250 · 23 Jun  │
+│  [ Transfer ]  Edit  ⋯       │
+└──────────────────────────────┘
 ```
 
-Each card: status icon (◯ pass · ◐ in progress · △ attention), one-line description, micro-metric, primary action ("View", "Re-verify", "Manage"). No exclamation marks, no red defaults. The whole section is one tap away from the Security Center.
+- Avatar = initials on a deterministic tinted disc, or uploaded photo.
+- Star toggles favorite; favorites pin to the top.
+- Categories: Family · Business · Utilities · Savings · Recent · Hidden.
+- Search is instant fuzzy (name, IBAN, bank, tag).
+- `+ Add beneficiary` opens a right drawer with IBAN auto-validation that reveals the bank name as soon as 8 valid digits are typed (delight moment + behavioral signal).
 
 ---
 
-## 15. Session Widget & Notification Drawer
+## 11. Payments — `/app/payments`
 
-**Session Widget** lives in the Aegis popover (opens from the Command Bar pill):
+Two-view toggle in the page header: **Timeline** · **Calendar**.
+
+**Timeline** — chronological list of upcoming and recurring payments, grouped This week / Next 30 days / Later. Each row: merchant glyph · name · category · next date · amount · status chip (Auto / Manual / Paused). Row actions: Pay now · Pause · Edit · Cancel.
+
+**Calendar** — monthly grid with payment dots colored by category; click a day to reveal a popover list. Drag-to-reschedule a payment within the calendar (mouse curvature signal).
+
+**Sidebar** — Reminder settings, total committed this month, ratio of fixed vs variable, an AI insight card ("Your subscriptions grew €12 this month — Netflix increased.").
+
+---
+
+## 12. Statements — `/app/statements`
+
+A statement vault.
+
+**Left** — year accordion (2026 ▸ 2025 ▸ 2024). Inside each year, months as 12 glass tiles in a 4×3 grid; each tile shows month name + size + page count.
+
+**Right** — when a month is selected, a PDF-style preview pane (rendered as styled HTML, not an iframe) with the bank's letterhead, account summary, transaction list. Toolbar above: Download · Print · Share · Bookmark · Highlight · Export CSV.
+
+Search bar searches across all statement contents. Bookmarks and highlights persist per user.
+
+---
+
+## 13. Investments — `/app/investments`
+
+**Hero** — portfolio value with day Δ and lifetime Δ, plus a 1D/1W/1M/3M/1Y/ALL chart toggle. Beneath: allocation as a horizontal bar (Stocks · ETFs · Funds · Crypto · Cash) with hover legend.
+
+**Tabs** — Holdings · Watchlist · Orders · Insights · Research.
+
+**Holdings table** — instrument · units · avg cost · price · day Δ · value · weight · sparkline. Click a row → instrument detail drawer with chart, news, fundamentals, transaction history with this instrument, and a `Buy / Sell` ticket.
+
+**Risk score** — a small ring widget in the hero corner using the Aegis ring primitive but in Iris, with a calm interpretation ("Balanced · 4 / 10").
+
+**AI Recommendations** — InsightCard carousel: rebalancing nudges, dividend opportunities, concentration warnings. Always observational ("Tech is 42% of your portfolio.").
+
+---
+
+## 14. Savings — `/app/savings`
+
+**Goal card grid**. Each card:
 
 ```text
-Current Session · started 14:18, Lisbon · Safari 17 · macOS · MacBook Pro
-Behavior confidence  99.2%
-Session score        A+
-[ Sign out other devices ]   [ View history ]
+┌──────────────────────────────┐
+│  ✈  Lisbon → Tokyo            │
+│                               │
+│         ◯  62%                │
+│      saved € 3,100 of € 5,000 │
+│                               │
+│  ETA   12 Sep 2026            │
+│  Contribute €420 / mo         │
+│  [ Add funds ]  History  ⋯    │
+└──────────────────────────────┘
 ```
 
-**Notification Drawer** — right-hand 420px overlay, glass, segmented tabs (All · Banking · Security · Transfers · Investments · AI · System). Notifications grouped by day. Each item: 32px category glyph, title, secondary line, time, swipe-left to archive. Bulk actions: Mark all read, Filter, Search, Archive. Empty tab shows the empty-state pattern (§16).
+Progress ring uses the Aegis ring primitive in Mint. Card finish keyed to category (Travel iris, Emergency cyan, Car graphite, Education champagne, Home obsidian, Retirement platinum).
+
+**Detail view** — contribution history bar chart, forecast curve, motivational AI line ("At this pace, you'll arrive 18 days early."), edit goal, pause, complete.
+
+**Create goal** wizard — 3 steps (Purpose → Target & date → Funding source), all on one screen with auto-advance.
 
 ---
 
-## 16. Empty & Loading States
+## 15. Budgets — `/app/budgets`
 
-**Empty pattern** — center-aligned: 96px illustration (line-art in the Vault Atmosphere palette) · headline (Sora 18) · one-line explanation (Inter 14, muted) · single primary action.
+Envelope-style monthly budgets per category.
 
-Catalogue:
+- Grid of category envelopes (Food, Transport, Subscriptions, …). Each shows budget, spent, remaining, with a horizontal progress bar that morphs from Mint → Iris → Amber as utilization climbs.
+- Click an envelope → drawer with the contributing transactions, trend, and adjust-budget slider.
+- Header KPIs: Total budget · Total spent · Pace (ahead/behind) · Days left.
+
+---
+
+## 16. Loans — `/app/loans`
+
+**Loan card** per loan: principal, remaining, rate, next EMI date and amount, progress bar, status pill.
+
+**Detail page** — amortization schedule (table + stacked area of interest vs principal over time), payment history, documents, EMI calculator, prepayment calculator (slider that re-runs the schedule live).
+
+Calm AI line: "Prepay €2,000 today and you'll save €184 in interest."
+
+---
+
+## 17. Currency Exchange — `/app/exchange`
+
+A two-pane interactive converter.
 
 ```text
-No Transactions     — "Your ledger is quiet."          [ Make a transfer ]
-No Investments      — "Begin your portfolio."          [ Explore funds ]
-No Notifications    — "All clear. Aegis is watching."  [ Notification settings ]
-No Beneficiaries    — "Add someone to pay."            [ Add beneficiary ]
-No Security Events  — "Nothing to report."             [ View security log ]
-No Devices          — "No other devices signed in."    [ Manage devices ]
-No Insights         — "Insights appear after a week."  [ Learn more ]
+You send                You receive
+EUR ▾  €  1,000.00      USD ▾  $ 1,078.10
+                        rate 1.0781 · spread 0.42% · arrives instantly
+
+[ Chart 1D · 1W · 1M · 1Y ]   ── live tick line, Cyan ──
+
+Favorites  EUR/USD  EUR/GBP  EUR/CHF  USD/JPY      [+]
+Popular    EUR/USD  EUR/GBP  USD/JPY  EUR/BRL  GBP/INR
 ```
 
-**Loading vocabulary** — no spinners outside the Aperture brand mark.
+Swap button between fields with a 180° icon rotation. Live ticks animate the chart every 3s (paused under reduced-motion). AI suggestion chip: "EUR/USD is 1.2% above 30-day avg."
 
-- **Skeletons** — card-shaped, with a slow 1.6s shimmer running left-to-right at 12% opacity.
-- **Chart placeholder** — faint grid + a dashed baseline pulse.
-- **Number placeholder** — three monospace blocks `▮▮▮ ▮▮▮.▮▮` shimmering.
-- **Aegis** — the brand Aperture spinner, used sparingly for cross-page transitions.
-- **AI Mesh** — a 2×3 dotted constellation that breathes; used only for AI insight cards while generating.
+`Exchange now` button is the same press-and-hold mechanism as Transfer §7.4.
 
 ---
 
-## 17. Motion Language (continuity with auth)
+## 18. Financial Insights — `/app/insights`
 
-| Moment              | Curve                        | Duration |
-| ------------------- | ---------------------------- | -------- |
-| Page entrance       | `cubic-bezier(.2,.8,.2,1)`   | 480ms, stagger 60ms |
-| Balance odometer    | `cubic-bezier(.4,0,.2,1)`    | 600ms |
-| Card stagger        | same                         | 80ms apart |
-| Chart draw          | `cubic-bezier(.6,.05,.2,1)`  | 700ms |
-| Transaction reveal  | ease-out                     | 220ms |
-| Sidebar expand      | `cubic-bezier(.2,.8,.2,1)`   | 280ms |
-| Widget hover lift   | ease-out                     | 160ms, +2px y, +shadow |
-| Button press        | ease-in                      | 60ms, scale .98 |
-| Search / drawer in  | spring-ish ease              | 240ms |
-| Aegis ring breathe  | sine                         | 6s loop, ±1% |
+A stream of AI insight cards, infinite scroll, with filters (All · Spending · Saving · Income · Subscriptions · Security · Investments).
 
-All motion respects `prefers-reduced-motion`: opacity-only, no transforms, no loops longer than one cycle.
-
----
-
-## 18. Vault Continuity
-
-Reused verbatim from Phase 3:
-
-- Vault Atmosphere background layer (aurora + grain + vignette)
-- Signature Glyph as avatar shape and decorative accents in widget headers
-- Adaptive Shield as the Aegis ring center mark
-- Glass language, lighting, type ramp (Sora / Inter / Space Grotesk)
-- Aegis voice — calm, brief, present tense, ≤ 6 words preferred
-
-Result: zero perceptual jump between the success screen and the dashboard. The Signature Card simply becomes the Balance Hero.
-
----
-
-## 19. AI Presence Rules
-
-- AI never opens dialogs.
-- AI never uses red.
-- AI never uses exclamation marks.
-- AI speaks in **observations**, not commands. ("Session stable." not "Stay alert.")
-- AI surfaces in three places only: Aegis ring whisper, Insight cards, Attention Lane.
-- Insights are dismissable; once dismissed they don't return for 24h.
-
----
-
-## 20. Accessibility
-
-- AAA contrast for all body text on glass (≥ 7:1 against Obsidian fallback).
-- Every interactive element has a visible focus ring (2px Cyan, 4px offset, rounded to surface).
-- Full keyboard map: `⌘K` palette, `⌘1–9` rail jump, `⌘N` quick transfer, `⌘/` shortcut cheat-sheet, `g s` go-to-security, `g t` go-to-transactions, `?` help.
-- Charts have a "View as table" toggle in the 3-dot menu.
-- Skeletons announce `aria-busy`; live regions announce balance changes politely.
-- Touch targets ≥ 44×44 on tablet/mobile.
-- Reduced-motion mode disables all loops and replaces transforms with opacity.
-
----
-
-## 21. Responsive Choreography
-
-| Breakpoint | Rail              | Hero               | Mosaic                | Feed            |
-| ---------- | ----------------- | ------------------ | --------------------- | --------------- |
-| ≥ 1280     | Floating, expanded option | Hero 8 + Aegis 4 | 12-col mosaic      | 8 + 4 side      |
-| 1024–1279  | Collapsed (72)    | Hero 8 + Aegis 4   | 8-col mosaic         | 8 stacked       |
-| 768–1023   | Bottom drawer trigger; opens overlay | Hero full, Aegis collapses into hero header strip | 2-col mosaic | Single column |
-| < 768      | Bottom tab bar (5 essentials) + ⋯ overflow | Stacked, Aegis pill in command bar | 1-col | Single column, sticky filters |
-
-Mobile is **designed**, not scaled — the Quick Actions become a horizontal snap-rail, the Transaction Feed becomes the dominant surface, and the Aegis ring shrinks to a 28px pill in the command bar that taps open the full Security sheet.
-
----
-
-## 22. Component Inventory (reusable kit)
-
-Foundational primitives Phase 4B will build against. Names use the established conventions.
+Card patterns:
 
 ```text
-Layout            : VaultRail · CommandBar · WelcomeHeader · StatStrip
-                    AttentionLane · ActionDock · WidgetCard · MosaicGrid
+↘  Dining down 18% this month
+   You spent €212 vs €258 last month. Top reduction: weekday lunches.
+   [ See transactions ]  Dismiss
 
-Hero & Account    : BalanceHero · AccountSwitcher · CurrencyChip
-                    HideBalanceToggle · QuickActionRow
+📈 A subscription increased
+   Netflix went from €13.99 to €17.99 on 4 Jun.
+   [ Review ]  Keep  Cancel
 
-Security          : AegisRing · AegisPopover · SecurityCard
-                    SessionPanel · DeviceRow · TrustBadge
+🏦 Rent is due Wednesday
+   €1,250 to Marta Silva, scheduled. No action needed.
+   [ View ]
 
-Data              : AreaChart · DonutChart · Sparkline · Odometer
-                    TabularNumber · DeltaChip · CategoryChip
-
-Feed              : TransactionRow (extends Phase 3) · TransactionGroupHeader
-                    FilterBar · ExpandPanel · ExportMenu
-
-Notification      : NotificationDrawer · NotificationItem · SegmentedTabs
-
-Empty & Load      : EmptyState · CardSkeleton · ChartSkeleton
-                    NumberSkeleton · ApertureSpinner (reused) · AiMesh
-
-Overlay           : CommandPalette · QuickTransferDrawer · ContextMenu
-                    Popover · Tooltip
-
-AI                : InsightCard · AegisWhisper · ConfidenceMeter
+🛡  Your behavior is stable
+   30 days, 0 anomalies. Aegis confidence average 98.7%.
 ```
+
+Each card carries a small chart or pill, a one-line headline (Sora 16), a body sentence (Inter 14), and 0–2 actions. Dismissed insights vanish for 24h. Never red, never `!`.
 
 ---
 
-## 23. First-Load Choreography (the cinematic 1.2 seconds)
+## 19. Activity Timeline — `/app/activity`
+
+A unified ledger of *everything* that happened on the account: transactions, transfers, payments, logins, security events, settings changes, card actions, AI verifications.
+
+- Day-grouped, same row primitive as transactions, with type glyph.
+- Filter chips: Banking · Security · Auth · Cards · Payments · Investments · Settings.
+- Each row expandable to its native detail.
+- Used as the canonical place to answer "what happened on my account on June 14?"
+
+---
+
+## 20. Banking-Wide Security Skin
+
+Every banking page carries a **Security Strip** in the page footer (16px tall, glass):
 
 ```text
-0 ms     Vault Atmosphere fades from auth-success state (no cut)
-80 ms    Rail slides in from left (overlay, doesn't push)
-160 ms   Command Bar fades + 4px down→0
-240 ms   Welcome greeting types in (character stagger, 12ms)
-320 ms   Stat strip odometers roll
-400 ms   Balance Hero metal panel rises 8px + fades; area chart draws
-600 ms   Aegis ring strokes around to 99.2%
-720 ms   Widget mosaic staggers in (80ms apart)
-1100 ms  Transaction feed reveals
-1200 ms  Aegis whisper appears: "Welcome back, Amal. Session stable."
+◯ Aegis 99.2  ·  Trusted device  ·  Session 02:14  ·  Behavior stable
 ```
 
-After this, the dashboard is calm. No more entrance motion until the user acts.
+Click anywhere on it → opens the Aegis popover from 4A. Strip turns Iris briefly (1s) every time Aegis re-verifies in the background — a subtle visual heartbeat that builds trust over weeks.
+
+Page-level signals:
+- **Transfer** screens show an additional 12px Aegis ring next to the primary CTA.
+- **Card** controls that change risk posture (Freeze, International on, Limits up) trigger a 600ms Cyan halo and a one-line Aegis confirmation.
+- **Statements / Documents** downloads log to the Activity timeline with a "verified by Aegis" badge.
+
+No banking page ever surfaces a red color, an exclamation mark, or a modal warning unless real risk is detected (and the demo will never trigger it).
 
 ---
 
-## 24. Out of Scope for 4A (handed to 4B+)
+## 21. Universal Banking Search (⌘K extension)
 
-- Drag-to-rearrange widgets
-- Deep Security Center page
-- Investments sub-app
-- Notification settings page
-- Admin workspace
-- Real-time websocket plumbing
+The 4A Command Palette gains banking scopes. Results group:
+
+```text
+Accounts          Primary · Savings · Investment …
+Beneficiaries     Marta Silva · Banco Atlântico …
+Transactions      "wolt" → 14 results · "rent" → 6
+Merchants         Wolt · EasyPark · Spotify
+Cards             Visa Primary · Virtual Travel · Credit
+Statements        June 2026 · May 2026 …
+Payments          Rent · Netflix · Insurance
+Actions           Transfer · Freeze card · Exchange · Add beneficiary
+Pages             Investments · Savings · Loans …
+```
+
+Each result row: type glyph · title · secondary line · scope chip · keyboard shortcut. Fuzzy ranking. `⏎` opens, `⌘⏎` opens in a drawer, `⌥⏎` copies a deep link.
 
 ---
 
-## 25. What "done" looks like
+## 22. Behavioral Signal Map (by surface)
 
-A user who finishes enrollment lands here and, without reading a single label, knows: their balance, that it grew today, that Aegis recognizes them, and what one action to take next. They feel they are inside the vault, not on a webpage about a vault.
+For Aegis tuning — every banking surface intentionally captures specific telemetry without UX cost.
 
-When you're ready, approve this and I'll start building 4A — beginning with the VaultRail, CommandBar, WelcomeHeader, BalanceHero, and AegisWidget as the foundational stack, then layering the mosaic and feed.
+```text
+Transfer · Amount field        keystroke cadence, dwell, correction count
+Transfer · Press-and-hold      hold duration variance
+Transfer · Beneficiary list    mouse curvature, hover dwell, scroll bursts
+Cards · Carousel               swipe velocity, tilt response, hover targeting
+Cards · Reveal PIN             press-and-hold cadence
+Accounts · Reorder drag        drag path curvature
+Payments · Calendar drag       drag distance + drop precision
+Investments · Buy ticket       same-as-transfer signals
+Statements · Scroll            scroll burst pattern, dwell per page
+Search ⌘K                      typing rhythm, backspace count
+Logout / sensitive screens     idle time before action
+```
+
+None of this is exposed to the user. Aegis reports on the dashboard remain abstract: confidence, stability, recognized.
+
+---
+
+## 23. Component Inventory (additions to 4A kit)
+
+```text
+Accounts        AccountCard · AccountGroupRail · AccountSwitcherInline · IbanChip
+Cards           CardCarousel · CardControlDeck · CardLimitRow · CardFlip · VirtualCardMintDrawer
+Transfer        TransferStepper · SourceRail · RecipientPicker · AmountStage · FxPanel · ReviewTicket · PressHoldButton · SuccessGlyph · ReceiptToast
+Tx              TxFilterBar · TxBulkBar · TxDetailDrawer · MerchantMap · DisputeForm
+Benef           BeneficiaryCard · BeneficiaryDrawer · IbanField (auto-bank-detect)
+Payments        PaymentRow · PaymentCalendar · ReminderSheet
+Statements      StatementYearAccordion · StatementTile · StatementPreviewPane · HighlightLayer
+Invest          PortfolioHero · AllocationBar · HoldingsTable · InstrumentDrawer · OrderTicket · RiskRing
+Savings         GoalCard · GoalRing · GoalWizard · ForecastChart
+Budgets         EnvelopeCard · UtilizationBar · BudgetSlider
+Loans           LoanCard · AmortizationChart · PrepayCalculator
+Exchange        FxConverter · FxChart · PairChip
+Insights        InsightCardLarge · InsightStream · InsightFilterBar
+Activity        ActivityRow · ActivityFilterChips
+Cross-cutting   SecurityStrip · SavedViewsDropdown · ExportMenu · BulkActionBar
+```
+
+All inherit the 4A WidgetCard constitution and motion language.
+
+---
+
+## 24. Motion Additions
+
+| Moment                     | Curve                          | Duration |
+| -------------------------- | ------------------------------ | -------- |
+| Card flip                  | `cubic-bezier(.4,.0,.2,1)`     | 600ms    |
+| Card freeze (frost sweep)  | ease-out                       | 700ms    |
+| Transfer step transition   | `cubic-bezier(.2,.8,.2,1)`     | 320ms, x-slide 24px |
+| Press-and-hold ring sweep  | linear                         | 1100ms   |
+| Success glyph draw         | `cubic-bezier(.6,.05,.2,1)`    | 700ms    |
+| Receipt toast in           | spring-ish                     | 260ms    |
+| IBAN bank reveal           | fade + 4px y                   | 200ms    |
+| FX rate tick               | sine                           | 3s loop  |
+| Calendar drag drop         | ease-out                       | 220ms    |
+| Allocation bar settle      | `cubic-bezier(.2,.8,.2,1)`     | 700ms staggered |
+
+Reduced-motion: card flip → crossfade; press-and-hold ring → static fill; FX ticks → static value.
+
+---
+
+## 25. Empty States
+
+```text
+No transactions          "Your ledger is quiet."          [ Make a transfer ]
+No cards                 "Mint your first card."          [ Create virtual card ]
+No beneficiaries         "Add someone to pay."            [ Add beneficiary ]
+No statements            "Statements appear monthly."     [ Notify me ]
+No loans                 "No loans on file."              [ Explore lending ]
+No goals                 "Set your first goal."           [ Create goal ]
+No investments           "Begin your portfolio."          [ Explore funds ]
+No insights              "Insights appear after a week."  [ Learn more ]
+No payments              "Nothing scheduled."             [ Schedule a payment ]
+No documents             "Nothing here yet."              [ Upload document ]
+```
+
+Pattern from 4A §16: 96px line-art illustration in Vault palette, Sora 18 headline, Inter 14 sub, one primary action.
+
+---
+
+## 26. Responsive
+
+| Breakpoint | Accounts          | Cards                  | Transfer                | Transactions     |
+| ---------- | ----------------- | ---------------------- | ----------------------- | ---------------- |
+| ≥ 1280     | 3-col rails       | Full carousel + deck   | 2-col where useful      | Full filters + bulk |
+| 1024–1279  | 2-col rails       | Carousel narrows       | Same flow, 1-col Amount | Filters collapse to chips |
+| 768–1023   | Single column     | Single card + deck below | Step-per-screen       | Drawer for detail |
+| < 768      | Vertical stack    | Single card swipe      | Full-screen steps, native num pad, bottom-sheet recipient | Sticky filter sheet, swipe-row actions |
+
+Mobile primitives: BottomSheet (recipient picker, filters, detail), SwipeRow (archive, favorite, dispute), thumb-zone primary CTAs anchored to the bottom-safe-area.
+
+---
+
+## 27. Accessibility
+
+- All press-and-hold actions have a keyboard equivalent: `Space` to hold, `Enter` to commit short-press fallback after focus + confirm dialog only for keyboard users.
+- All carousels expose `←/→` keys, focus order matches visual order.
+- Charts have a `View as table` toggle in the 3-dot menu.
+- Color is never the sole carrier of meaning — every status pill has text.
+- Form fields have visible labels (no placeholder-as-label).
+- Drag interactions have a keyboard alternative (reorder via menu).
+- Reduced-motion swaps all transforms for opacity, disables loops > 1 cycle.
+
+---
+
+## 28. Build Order (when you greenlight 4B)
+
+```text
+1. Foundations  : VaultRail entries · SecurityStrip · ⌘K banking scopes
+2. Accounts     : AccountCard · /app/accounts · /app/accounts/$id (Overview, Tx tab)
+3. Cards        : CardCarousel · ControlDeck · flip · freeze
+4. Transactions : Global feed + DetailDrawer + filters + export
+5. Transfer     : The full 5-screen flow (the marquee build)
+6. Beneficiaries: Directory + Add drawer with IBAN auto-bank
+7. Payments     : Timeline + Calendar
+8. Statements   : Vault + preview
+9. Investments  : Hero + Holdings + Drawer
+10. Savings · Budgets · Loans · Exchange
+11. Insights · Activity
+12. Empty states + mobile pass + reduced-motion pass
+```
+
+Each tranche merges with its own QA checklist: behavior-signal coverage, motion timing, AAA contrast, keyboard map, reduced-motion fallback.
+
+---
+
+## 29. Out of Scope for 4B
+
+- Real provider integrations (Plaid, Stripe Treasury, etc.)
+- Real KYC document upload pipeline
+- Crypto trading execution
+- Loan origination flow
+- Admin / back-office views
+- Multi-currency consolidated balance math beyond display
+
+---
+
+## 30. Definition of "Done"
+
+A user can:
+1. Glance at `/app/accounts` and know where every euro lives.
+2. Mint a virtual card, freeze it, unfreeze it — without a single modal.
+3. Send €1,250 to a saved beneficiary in under 18 seconds, never once asked to "verify."
+4. Find any transaction in `⌘K` in under 4 keystrokes.
+5. Set a savings goal and see, that evening, an AI insight about their pace.
+6. Look at the Security Strip and feel — without thinking — that Aegis is awake.
+
+When all six are true and the module shares zero perceptual seams with 4A, Phase 4B is done.
+
+---
+
+Approve this and I'll start building 4B in the order in §28 — beginning with the SecurityStrip + ⌘K extension, then Accounts, then the marquee Transfer flow.
