@@ -25,12 +25,29 @@ import { Route as AppPaymentsRouteImport } from './routes/app.payments'
 import { Route as AppLoansRouteImport } from './routes/app.loans'
 import { Route as AppInvestmentsRouteImport } from './routes/app.investments'
 import { Route as AppInsightsRouteImport } from './routes/app.insights'
+import { Route as AppGuardRouteImport } from './routes/app.guard'
 import { Route as AppExchangeRouteImport } from './routes/app.exchange'
 import { Route as AppCardsRouteImport } from './routes/app.cards'
 import { Route as AppBudgetsRouteImport } from './routes/app.budgets'
 import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AppAccountsRouteImport } from './routes/app.accounts'
+import { Route as AppGuardIndexRouteImport } from './routes/app.guard.index'
+import { Route as AppGuardTypingRouteImport } from './routes/app.guard.typing'
+import { Route as AppGuardSessionRouteImport } from './routes/app.guard.session'
+import { Route as AppGuardRiskRouteImport } from './routes/app.guard.risk'
+import { Route as AppGuardReportsRouteImport } from './routes/app.guard.reports'
+import { Route as AppGuardPrivacyRouteImport } from './routes/app.guard.privacy'
+import { Route as AppGuardMouseRouteImport } from './routes/app.guard.mouse'
+import { Route as AppGuardLearningRouteImport } from './routes/app.guard.learning'
+import { Route as AppGuardExplainabilityRouteImport } from './routes/app.guard.explainability'
+import { Route as AppGuardDevicesRouteImport } from './routes/app.guard.devices'
+import { Route as AppGuardDecisionsRouteImport } from './routes/app.guard.decisions'
+import { Route as AppGuardChallengesRouteImport } from './routes/app.guard.challenges'
+import { Route as AppGuardBehaviorTimelineRouteImport } from './routes/app.guard.behavior-timeline'
+import { Route as AppGuardBehaviorRouteImport } from './routes/app.guard.behavior'
+import { Route as AppGuardAuthenticationRouteImport } from './routes/app.guard.authentication'
+import { Route as AppGuardAuthTimelineRouteImport } from './routes/app.guard.auth-timeline'
 import { Route as AppAccountsIdRouteImport } from './routes/app.accounts.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -113,6 +130,11 @@ const AppInsightsRoute = AppInsightsRouteImport.update({
   path: '/insights',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGuardRoute = AppGuardRouteImport.update({
+  id: '/guard',
+  path: '/guard',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppExchangeRoute = AppExchangeRouteImport.update({
   id: '/exchange',
   path: '/exchange',
@@ -143,6 +165,87 @@ const AppAccountsRoute = AppAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGuardIndexRoute = AppGuardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardTypingRoute = AppGuardTypingRouteImport.update({
+  id: '/typing',
+  path: '/typing',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardSessionRoute = AppGuardSessionRouteImport.update({
+  id: '/session',
+  path: '/session',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardRiskRoute = AppGuardRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardReportsRoute = AppGuardReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardPrivacyRoute = AppGuardPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardMouseRoute = AppGuardMouseRouteImport.update({
+  id: '/mouse',
+  path: '/mouse',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardLearningRoute = AppGuardLearningRouteImport.update({
+  id: '/learning',
+  path: '/learning',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardExplainabilityRoute = AppGuardExplainabilityRouteImport.update({
+  id: '/explainability',
+  path: '/explainability',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardDevicesRoute = AppGuardDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardDecisionsRoute = AppGuardDecisionsRouteImport.update({
+  id: '/decisions',
+  path: '/decisions',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardChallengesRoute = AppGuardChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardBehaviorTimelineRoute =
+  AppGuardBehaviorTimelineRouteImport.update({
+    id: '/behavior-timeline',
+    path: '/behavior-timeline',
+    getParentRoute: () => AppGuardRoute,
+  } as any)
+const AppGuardBehaviorRoute = AppGuardBehaviorRouteImport.update({
+  id: '/behavior',
+  path: '/behavior',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardAuthenticationRoute = AppGuardAuthenticationRouteImport.update({
+  id: '/authentication',
+  path: '/authentication',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardAuthTimelineRoute = AppGuardAuthTimelineRouteImport.update({
+  id: '/auth-timeline',
+  path: '/auth-timeline',
+  getParentRoute: () => AppGuardRoute,
+} as any)
 const AppAccountsIdRoute = AppAccountsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -159,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/app/budgets': typeof AppBudgetsRoute
   '/app/cards': typeof AppCardsRoute
   '/app/exchange': typeof AppExchangeRoute
+  '/app/guard': typeof AppGuardRouteWithChildren
   '/app/insights': typeof AppInsightsRoute
   '/app/investments': typeof AppInvestmentsRoute
   '/app/loans': typeof AppLoansRoute
@@ -173,6 +277,22 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
+  '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
+  '/app/guard/authentication': typeof AppGuardAuthenticationRoute
+  '/app/guard/behavior': typeof AppGuardBehaviorRoute
+  '/app/guard/behavior-timeline': typeof AppGuardBehaviorTimelineRoute
+  '/app/guard/challenges': typeof AppGuardChallengesRoute
+  '/app/guard/decisions': typeof AppGuardDecisionsRoute
+  '/app/guard/devices': typeof AppGuardDevicesRoute
+  '/app/guard/explainability': typeof AppGuardExplainabilityRoute
+  '/app/guard/learning': typeof AppGuardLearningRoute
+  '/app/guard/mouse': typeof AppGuardMouseRoute
+  '/app/guard/privacy': typeof AppGuardPrivacyRoute
+  '/app/guard/reports': typeof AppGuardReportsRoute
+  '/app/guard/risk': typeof AppGuardRiskRoute
+  '/app/guard/session': typeof AppGuardSessionRoute
+  '/app/guard/typing': typeof AppGuardTypingRoute
+  '/app/guard/': typeof AppGuardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,6 +316,22 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/auth': typeof AuthIndexRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
+  '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
+  '/app/guard/authentication': typeof AppGuardAuthenticationRoute
+  '/app/guard/behavior': typeof AppGuardBehaviorRoute
+  '/app/guard/behavior-timeline': typeof AppGuardBehaviorTimelineRoute
+  '/app/guard/challenges': typeof AppGuardChallengesRoute
+  '/app/guard/decisions': typeof AppGuardDecisionsRoute
+  '/app/guard/devices': typeof AppGuardDevicesRoute
+  '/app/guard/explainability': typeof AppGuardExplainabilityRoute
+  '/app/guard/learning': typeof AppGuardLearningRoute
+  '/app/guard/mouse': typeof AppGuardMouseRoute
+  '/app/guard/privacy': typeof AppGuardPrivacyRoute
+  '/app/guard/reports': typeof AppGuardReportsRoute
+  '/app/guard/risk': typeof AppGuardRiskRoute
+  '/app/guard/session': typeof AppGuardSessionRoute
+  '/app/guard/typing': typeof AppGuardTypingRoute
+  '/app/guard': typeof AppGuardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -208,6 +344,7 @@ export interface FileRoutesById {
   '/app/budgets': typeof AppBudgetsRoute
   '/app/cards': typeof AppCardsRoute
   '/app/exchange': typeof AppExchangeRoute
+  '/app/guard': typeof AppGuardRouteWithChildren
   '/app/insights': typeof AppInsightsRoute
   '/app/investments': typeof AppInvestmentsRoute
   '/app/loans': typeof AppLoansRoute
@@ -222,6 +359,22 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/app/accounts/$id': typeof AppAccountsIdRoute
+  '/app/guard/auth-timeline': typeof AppGuardAuthTimelineRoute
+  '/app/guard/authentication': typeof AppGuardAuthenticationRoute
+  '/app/guard/behavior': typeof AppGuardBehaviorRoute
+  '/app/guard/behavior-timeline': typeof AppGuardBehaviorTimelineRoute
+  '/app/guard/challenges': typeof AppGuardChallengesRoute
+  '/app/guard/decisions': typeof AppGuardDecisionsRoute
+  '/app/guard/devices': typeof AppGuardDevicesRoute
+  '/app/guard/explainability': typeof AppGuardExplainabilityRoute
+  '/app/guard/learning': typeof AppGuardLearningRoute
+  '/app/guard/mouse': typeof AppGuardMouseRoute
+  '/app/guard/privacy': typeof AppGuardPrivacyRoute
+  '/app/guard/reports': typeof AppGuardReportsRoute
+  '/app/guard/risk': typeof AppGuardRiskRoute
+  '/app/guard/session': typeof AppGuardSessionRoute
+  '/app/guard/typing': typeof AppGuardTypingRoute
+  '/app/guard/': typeof AppGuardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -235,6 +388,7 @@ export interface FileRouteTypes {
     | '/app/budgets'
     | '/app/cards'
     | '/app/exchange'
+    | '/app/guard'
     | '/app/insights'
     | '/app/investments'
     | '/app/loans'
@@ -249,6 +403,22 @@ export interface FileRouteTypes {
     | '/app/'
     | '/auth/'
     | '/app/accounts/$id'
+    | '/app/guard/auth-timeline'
+    | '/app/guard/authentication'
+    | '/app/guard/behavior'
+    | '/app/guard/behavior-timeline'
+    | '/app/guard/challenges'
+    | '/app/guard/decisions'
+    | '/app/guard/devices'
+    | '/app/guard/explainability'
+    | '/app/guard/learning'
+    | '/app/guard/mouse'
+    | '/app/guard/privacy'
+    | '/app/guard/reports'
+    | '/app/guard/risk'
+    | '/app/guard/session'
+    | '/app/guard/typing'
+    | '/app/guard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,6 +442,22 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/app/accounts/$id'
+    | '/app/guard/auth-timeline'
+    | '/app/guard/authentication'
+    | '/app/guard/behavior'
+    | '/app/guard/behavior-timeline'
+    | '/app/guard/challenges'
+    | '/app/guard/decisions'
+    | '/app/guard/devices'
+    | '/app/guard/explainability'
+    | '/app/guard/learning'
+    | '/app/guard/mouse'
+    | '/app/guard/privacy'
+    | '/app/guard/reports'
+    | '/app/guard/risk'
+    | '/app/guard/session'
+    | '/app/guard/typing'
+    | '/app/guard'
   id:
     | '__root__'
     | '/'
@@ -283,6 +469,7 @@ export interface FileRouteTypes {
     | '/app/budgets'
     | '/app/cards'
     | '/app/exchange'
+    | '/app/guard'
     | '/app/insights'
     | '/app/investments'
     | '/app/loans'
@@ -297,6 +484,22 @@ export interface FileRouteTypes {
     | '/app/'
     | '/auth/'
     | '/app/accounts/$id'
+    | '/app/guard/auth-timeline'
+    | '/app/guard/authentication'
+    | '/app/guard/behavior'
+    | '/app/guard/behavior-timeline'
+    | '/app/guard/challenges'
+    | '/app/guard/decisions'
+    | '/app/guard/devices'
+    | '/app/guard/explainability'
+    | '/app/guard/learning'
+    | '/app/guard/mouse'
+    | '/app/guard/privacy'
+    | '/app/guard/reports'
+    | '/app/guard/risk'
+    | '/app/guard/session'
+    | '/app/guard/typing'
+    | '/app/guard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -419,6 +622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInsightsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/guard': {
+      id: '/app/guard'
+      path: '/guard'
+      fullPath: '/app/guard'
+      preLoaderRoute: typeof AppGuardRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/exchange': {
       id: '/app/exchange'
       path: '/exchange'
@@ -461,6 +671,118 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/guard/': {
+      id: '/app/guard/'
+      path: '/'
+      fullPath: '/app/guard/'
+      preLoaderRoute: typeof AppGuardIndexRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/typing': {
+      id: '/app/guard/typing'
+      path: '/typing'
+      fullPath: '/app/guard/typing'
+      preLoaderRoute: typeof AppGuardTypingRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/session': {
+      id: '/app/guard/session'
+      path: '/session'
+      fullPath: '/app/guard/session'
+      preLoaderRoute: typeof AppGuardSessionRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/risk': {
+      id: '/app/guard/risk'
+      path: '/risk'
+      fullPath: '/app/guard/risk'
+      preLoaderRoute: typeof AppGuardRiskRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/reports': {
+      id: '/app/guard/reports'
+      path: '/reports'
+      fullPath: '/app/guard/reports'
+      preLoaderRoute: typeof AppGuardReportsRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/privacy': {
+      id: '/app/guard/privacy'
+      path: '/privacy'
+      fullPath: '/app/guard/privacy'
+      preLoaderRoute: typeof AppGuardPrivacyRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/mouse': {
+      id: '/app/guard/mouse'
+      path: '/mouse'
+      fullPath: '/app/guard/mouse'
+      preLoaderRoute: typeof AppGuardMouseRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/learning': {
+      id: '/app/guard/learning'
+      path: '/learning'
+      fullPath: '/app/guard/learning'
+      preLoaderRoute: typeof AppGuardLearningRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/explainability': {
+      id: '/app/guard/explainability'
+      path: '/explainability'
+      fullPath: '/app/guard/explainability'
+      preLoaderRoute: typeof AppGuardExplainabilityRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/devices': {
+      id: '/app/guard/devices'
+      path: '/devices'
+      fullPath: '/app/guard/devices'
+      preLoaderRoute: typeof AppGuardDevicesRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/decisions': {
+      id: '/app/guard/decisions'
+      path: '/decisions'
+      fullPath: '/app/guard/decisions'
+      preLoaderRoute: typeof AppGuardDecisionsRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/challenges': {
+      id: '/app/guard/challenges'
+      path: '/challenges'
+      fullPath: '/app/guard/challenges'
+      preLoaderRoute: typeof AppGuardChallengesRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/behavior-timeline': {
+      id: '/app/guard/behavior-timeline'
+      path: '/behavior-timeline'
+      fullPath: '/app/guard/behavior-timeline'
+      preLoaderRoute: typeof AppGuardBehaviorTimelineRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/behavior': {
+      id: '/app/guard/behavior'
+      path: '/behavior'
+      fullPath: '/app/guard/behavior'
+      preLoaderRoute: typeof AppGuardBehaviorRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/authentication': {
+      id: '/app/guard/authentication'
+      path: '/authentication'
+      fullPath: '/app/guard/authentication'
+      preLoaderRoute: typeof AppGuardAuthenticationRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/auth-timeline': {
+      id: '/app/guard/auth-timeline'
+      path: '/auth-timeline'
+      fullPath: '/app/guard/auth-timeline'
+      preLoaderRoute: typeof AppGuardAuthTimelineRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
     '/app/accounts/$id': {
       id: '/app/accounts/$id'
       path: '/$id'
@@ -483,6 +805,48 @@ const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
   AppAccountsRouteChildren,
 )
 
+interface AppGuardRouteChildren {
+  AppGuardAuthTimelineRoute: typeof AppGuardAuthTimelineRoute
+  AppGuardAuthenticationRoute: typeof AppGuardAuthenticationRoute
+  AppGuardBehaviorRoute: typeof AppGuardBehaviorRoute
+  AppGuardBehaviorTimelineRoute: typeof AppGuardBehaviorTimelineRoute
+  AppGuardChallengesRoute: typeof AppGuardChallengesRoute
+  AppGuardDecisionsRoute: typeof AppGuardDecisionsRoute
+  AppGuardDevicesRoute: typeof AppGuardDevicesRoute
+  AppGuardExplainabilityRoute: typeof AppGuardExplainabilityRoute
+  AppGuardLearningRoute: typeof AppGuardLearningRoute
+  AppGuardMouseRoute: typeof AppGuardMouseRoute
+  AppGuardPrivacyRoute: typeof AppGuardPrivacyRoute
+  AppGuardReportsRoute: typeof AppGuardReportsRoute
+  AppGuardRiskRoute: typeof AppGuardRiskRoute
+  AppGuardSessionRoute: typeof AppGuardSessionRoute
+  AppGuardTypingRoute: typeof AppGuardTypingRoute
+  AppGuardIndexRoute: typeof AppGuardIndexRoute
+}
+
+const AppGuardRouteChildren: AppGuardRouteChildren = {
+  AppGuardAuthTimelineRoute: AppGuardAuthTimelineRoute,
+  AppGuardAuthenticationRoute: AppGuardAuthenticationRoute,
+  AppGuardBehaviorRoute: AppGuardBehaviorRoute,
+  AppGuardBehaviorTimelineRoute: AppGuardBehaviorTimelineRoute,
+  AppGuardChallengesRoute: AppGuardChallengesRoute,
+  AppGuardDecisionsRoute: AppGuardDecisionsRoute,
+  AppGuardDevicesRoute: AppGuardDevicesRoute,
+  AppGuardExplainabilityRoute: AppGuardExplainabilityRoute,
+  AppGuardLearningRoute: AppGuardLearningRoute,
+  AppGuardMouseRoute: AppGuardMouseRoute,
+  AppGuardPrivacyRoute: AppGuardPrivacyRoute,
+  AppGuardReportsRoute: AppGuardReportsRoute,
+  AppGuardRiskRoute: AppGuardRiskRoute,
+  AppGuardSessionRoute: AppGuardSessionRoute,
+  AppGuardTypingRoute: AppGuardTypingRoute,
+  AppGuardIndexRoute: AppGuardIndexRoute,
+}
+
+const AppGuardRouteWithChildren = AppGuardRoute._addFileChildren(
+  AppGuardRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAccountsRoute: typeof AppAccountsRouteWithChildren
   AppActivityRoute: typeof AppActivityRoute
@@ -490,6 +854,7 @@ interface AppRouteChildren {
   AppBudgetsRoute: typeof AppBudgetsRoute
   AppCardsRoute: typeof AppCardsRoute
   AppExchangeRoute: typeof AppExchangeRoute
+  AppGuardRoute: typeof AppGuardRouteWithChildren
   AppInsightsRoute: typeof AppInsightsRoute
   AppInvestmentsRoute: typeof AppInvestmentsRoute
   AppLoansRoute: typeof AppLoansRoute
@@ -508,6 +873,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBudgetsRoute: AppBudgetsRoute,
   AppCardsRoute: AppCardsRoute,
   AppExchangeRoute: AppExchangeRoute,
+  AppGuardRoute: AppGuardRouteWithChildren,
   AppInsightsRoute: AppInsightsRoute,
   AppInvestmentsRoute: AppInvestmentsRoute,
   AppLoansRoute: AppLoansRoute,

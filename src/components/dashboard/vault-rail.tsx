@@ -55,10 +55,11 @@ const INTEL: Item[] = [
 ];
 
 const GUARD: Item[] = [
-  { label: "Security Center", icon: ShieldCheck, to: "/app" },
-  { label: "Authentication", icon: Fingerprint, to: "/app" },
-  { label: "Devices", icon: Smartphone, to: "/app" },
-  { label: "Notifications", icon: Bell, to: "/app", badge: 3 },
+  { label: "Security Center", icon: ShieldCheck, to: "/app/guard" },
+  { label: "Authentication", icon: Fingerprint, to: "/app/guard/authentication" },
+  { label: "Devices", icon: Smartphone, to: "/app/guard/devices" },
+  { label: "Explainability", icon: Sparkles, to: "/app/guard/explainability" },
+  { label: "Privacy", icon: Bell, to: "/app/guard/privacy" },
 ];
 
 const PERSONAL: Item[] = [
