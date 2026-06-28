@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { CommandBar } from "@/components/dashboard/command-bar";
 import { WelcomeHeader } from "@/components/dashboard/welcome-header";
 import { BalanceHero } from "@/components/dashboard/balance-hero";
 import { AegisWidget } from "@/components/dashboard/aegis-widget";
@@ -19,13 +18,10 @@ export const Route = createFileRoute("/app/")({
 
 function DashboardPage() {
   const { e } = Route.useSearch();
-  const seed = e ?? "amal.kareem";
   const name = e ? deriveName(e) : "Amal";
 
   return (
     <div className="pb-16">
-      <CommandBar glyphSeed={seed} />
-
       <WelcomeHeader name={name} />
 
       <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-12">
