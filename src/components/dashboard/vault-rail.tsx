@@ -18,6 +18,12 @@ import {
   HelpCircle,
   LogOut,
   ChevronLeft,
+  FileText,
+  PiggyBank,
+  Landmark,
+  Repeat,
+  Sparkles,
+  Activity,
 } from "lucide-react";
 import { Shield } from "@/components/brand/shield";
 import { cn } from "@/lib/utils";
