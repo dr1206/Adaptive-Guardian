@@ -450,7 +450,7 @@ function PlatformFeatures() {
             className="surface-card hover-lift group flex items-start gap-4 rounded-2xl p-5"
           >
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary-glow transition-colors group-hover:bg-primary/20">
-              <f.icon className="h-4.5 w-4.5 h-5 w-5" strokeWidth={1.8} />
+              <f.icon className="h-5 w-5" strokeWidth={1.8} />
             </span>
             <div className="min-w-0">
               <h3 className="text-sm font-semibold">{f.title}</h3>
