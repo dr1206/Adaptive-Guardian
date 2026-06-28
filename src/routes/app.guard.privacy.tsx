@@ -134,7 +134,8 @@ function Privacy() {
           </ol>
           <div className="mt-5 flex flex-wrap gap-2">
             <PressHoldButton label="Hold to export my data" onComplete={() => {}} />
-            <PressHoldButton label="Hold to delete my signature" onComplete={() => {}} tone="danger" />
+            <PressHoldButton label="Hold to delete my signature" onComplete={() => {}} />
+
           </div>
         </SigilCard>
       </section>

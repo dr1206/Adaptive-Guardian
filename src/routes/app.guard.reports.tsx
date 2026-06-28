@@ -7,7 +7,7 @@ import { Sparkline } from "@/components/banking/sparkline";
 import { FileDown, Share2 } from "lucide-react";
 
 export const Route = createFileRoute("/app/guard/reports")({
-  component: Reports;
+  component: Reports,
 });
 
 const PERIODS = ["Daily", "Weekly", "Monthly"] as const;
