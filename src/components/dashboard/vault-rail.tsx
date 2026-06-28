@@ -26,13 +26,26 @@ type Item = { label: string; icon: typeof LayoutGrid; to: string; badge?: number
 
 const PRIMARY: Item[] = [
   { label: "Dashboard", icon: LayoutGrid, to: "/app", kbd: "⌘1" },
-  { label: "Accounts", icon: Wallet, to: "/app", kbd: "⌘2" },
-  { label: "Cards", icon: CreditCard, to: "/app", kbd: "⌘3" },
-  { label: "Payments", icon: Send, to: "/app", kbd: "⌘4" },
-  { label: "Transfers", icon: ArrowLeftRight, to: "/app", kbd: "⌘5" },
-  { label: "Transactions", icon: ListOrdered, to: "/app", kbd: "⌘6" },
-  { label: "Investments", icon: LineChart, to: "/app", kbd: "⌘7" },
-  { label: "Analytics", icon: PieChart, to: "/app", kbd: "⌘8" },
+  { label: "Accounts", icon: Wallet, to: "/app/accounts", kbd: "⌘2" },
+  { label: "Cards", icon: CreditCard, to: "/app/cards", kbd: "⌘3" },
+  { label: "Transfer", icon: Send, to: "/app/transfer", kbd: "⌘N" },
+  { label: "Payments", icon: ArrowLeftRight, to: "/app/payments", kbd: "⌘4" },
+  { label: "Transactions", icon: ListOrdered, to: "/app/transactions", kbd: "⌘5" },
+  { label: "Beneficiaries", icon: User, to: "/app/beneficiaries", kbd: "⌘6" },
+  { label: "Statements", icon: FileText, to: "/app/statements" },
+];
+
+const GROW: Item[] = [
+  { label: "Investments", icon: LineChart, to: "/app/investments" },
+  { label: "Savings", icon: PiggyBank, to: "/app/savings" },
+  { label: "Budgets", icon: PieChart, to: "/app/budgets" },
+  { label: "Loans", icon: Landmark, to: "/app/loans" },
+  { label: "Exchange", icon: Repeat, to: "/app/exchange" },
+];
+
+const INTEL: Item[] = [
+  { label: "Insights", icon: Sparkles, to: "/app/insights" },
+  { label: "Activity", icon: Activity, to: "/app/activity" },
 ];
 
 const GUARD: Item[] = [
