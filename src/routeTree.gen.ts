@@ -9,38 +9,103 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
+import { Route as AuthSignatureRouteImport } from './routes/auth.signature'
+import { Route as AuthCalibrateRouteImport } from './routes/auth.calibrate'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthVerifyRoute = AuthVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSignatureRoute = AuthSignatureRouteImport.update({
+  id: '/signature',
+  path: '/signature',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCalibrateRoute = AuthCalibrateRouteImport.update({
+  id: '/calibrate',
+  path: '/calibrate',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/auth/calibrate': typeof AuthCalibrateRoute
+  '/auth/signature': typeof AuthSignatureRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth/calibrate': typeof AuthCalibrateRoute
+  '/auth/signature': typeof AuthSignatureRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/auth': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/auth/calibrate': typeof AuthCalibrateRoute
+  '/auth/signature': typeof AuthSignatureRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/auth/calibrate'
+    | '/auth/signature'
+    | '/auth/verify'
+    | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth/calibrate' | '/auth/signature' | '/auth/verify' | '/auth'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/auth/calibrate'
+    | '/auth/signature'
+    | '/auth/verify'
+    | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +113,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/signature': {
+      id: '/auth/signature'
+      path: '/signature'
+      fullPath: '/auth/signature'
+      preLoaderRoute: typeof AuthSignatureRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/calibrate': {
+      id: '/auth/calibrate'
+      path: '/calibrate'
+      fullPath: '/auth/calibrate'
+      preLoaderRoute: typeof AuthCalibrateRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
+interface AuthRouteChildren {
+  AuthCalibrateRoute: typeof AuthCalibrateRoute
+  AuthSignatureRoute: typeof AuthSignatureRoute
+  AuthVerifyRoute: typeof AuthVerifyRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCalibrateRoute: AuthCalibrateRoute,
+  AuthSignatureRoute: AuthSignatureRoute,
+  AuthVerifyRoute: AuthVerifyRoute,
+  AuthIndexRoute: AuthIndexRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

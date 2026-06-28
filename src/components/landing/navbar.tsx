@@ -56,19 +56,19 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
-          <a
-            href="#login"
+          <Link
+            to="/auth"
             className="hidden rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
           >
-            Login
-          </a>
-          <a
-            href="#demo"
+            Sign in
+          </Link>
+          <Link
+            to="/auth"
             className="hover-lift inline-flex items-center gap-1.5 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow"
           >
-            Start Demo
+            Enter the vault
             <ArrowRight className="h-3.5 w-3.5" />
-          </a>
+          </Link>
           <button
             onClick={() => setOpen((v) => !v)}
             className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted-foreground lg:hidden"
