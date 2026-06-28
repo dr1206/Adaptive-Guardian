@@ -60,16 +60,13 @@ function Index() {
         {/* Token preview strip */}
         <div className="surface-card mt-16 grid w-full max-w-4xl grid-cols-2 gap-4 rounded-3xl p-6 sm:grid-cols-4">
           {[
-            { label: "Primary", var: "--primary" },
-            { label: "Accent Cyan", var: "--accent" },
-            { label: "Success", var: "--success" },
-            { label: "Purple", var: "--purple" },
+            { label: "Primary", className: "bg-primary" },
+            { label: "Accent Cyan", className: "bg-accent" },
+            { label: "Success", className: "bg-success" },
+            { label: "Purple", className: "bg-purple" },
           ].map((t) => (
             <div key={t.label} className="flex flex-col items-start gap-2">
-              <div
-                className="h-14 w-full rounded-xl border border-border"
-                style={{ background: `oklch(var(${t.var}))` }}
-              />
+              <div className={`h-14 w-full rounded-xl border border-border ${t.className}`} />
               <span className="text-xs font-medium text-muted-foreground">{t.label}</span>
             </div>
           ))}
