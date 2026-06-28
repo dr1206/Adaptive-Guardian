@@ -70,7 +70,8 @@ function SignatureScreen() {
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            to="/"
+            to="/app"
+            search={{ e: seed }}
             className="group inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl gradient-cyber px-6 text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:translate-y-[-1px]"
           >
             Enter the vault
