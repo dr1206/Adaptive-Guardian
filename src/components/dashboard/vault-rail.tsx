@@ -100,6 +100,12 @@ export function VaultRail() {
       <nav className="flex-1 overflow-y-auto px-3 py-3">
         <RailGroup items={PRIMARY} expanded={expanded} pathname={pathname} />
         <Divider />
+        {expanded && <Label>Grow</Label>}
+        <RailGroup items={GROW} expanded={expanded} pathname={pathname} />
+        <Divider />
+        {expanded && <Label>Intelligence</Label>}
+        <RailGroup items={INTEL} expanded={expanded} pathname={pathname} />
+        <Divider />
         <RailGroup items={GUARD} expanded={expanded} pathname={pathname} />
         <Divider />
         <RailGroup items={PERSONAL} expanded={expanded} pathname={pathname} />
