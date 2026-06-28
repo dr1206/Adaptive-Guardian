@@ -146,6 +146,14 @@ function Divider() {
   return <div className="my-3 h-px bg-white/[0.04]" />;
 }
 
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-3 pb-1.5 pt-1 text-[9px] uppercase tracking-[0.22em] text-muted-foreground/60">
+      {children}
+    </div>
+  );
+}
+
 function RailGroup({
   items,
   expanded,
