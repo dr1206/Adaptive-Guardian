@@ -103,6 +103,11 @@ function VerifyScreen() {
             <ArrowRight className="h-4 w-4" /> Code accepted. Calibrating your behavioral profile…
           </div>
         )}
+        {otpError && (
+          <p className="mt-6 text-[12px] text-danger" role="alert">
+            {otpError} <span className="text-muted-foreground">(Hint: any 6 digits except 000000 works in demo.)</span>
+          </p>
+        )}
       </div>
     </AuthShell>
   );
