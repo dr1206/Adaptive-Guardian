@@ -962,7 +962,13 @@ export const ACTIVITY_EVENTS: ReadonlyArray<ActivityEvent> = [
     title: "Aegis re-verified",
     sub: "Confidence 99.4% · MacBook Pro · Lisbon",
   },
-  { id: "e2", ts: "2026-06-28 13:02", type: "tx", title: "Wolt · €18.40", sub: "Visa ••4912 · Food" },
+  {
+    id: "e2",
+    ts: "2026-06-28 13:02",
+    type: "tx",
+    title: "Wolt · €18.40",
+    sub: "Visa ••4912 · Food",
+  },
   {
     id: "e3",
     ts: "2026-06-28 09:00",
@@ -998,7 +1004,13 @@ export const ACTIVITY_EVENTS: ReadonlyArray<ActivityEvent> = [
     title: "International payments enabled",
     sub: "MC ••3340",
   },
-  { id: "e8", ts: "2026-06-24 14:18", type: "auth", title: "New session", sub: "Lisbon · Safari 17" },
+  {
+    id: "e8",
+    ts: "2026-06-24 14:18",
+    type: "auth",
+    title: "New session",
+    sub: "Lisbon · Safari 17",
+  },
   {
     id: "e9",
     ts: "2026-06-23 11:00",
@@ -1042,4 +1054,3 @@ export const BUDGET_ENVELOPES: ReadonlyArray<BudgetEnvelope> = [
   },
   { id: "travel", name: "Travel", spent: 1284, budget: 1500, color: "oklch(0.715 0.135 215)" },
 ];
-

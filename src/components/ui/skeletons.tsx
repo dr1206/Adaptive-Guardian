@@ -85,10 +85,7 @@ export function CardsSkeleton({ count = 6 }: { count?: number }) {
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-[20px] border border-white/[0.06] bg-white/[0.025] p-5"
-        >
+        <div key={i} className="rounded-[20px] border border-white/[0.06] bg-white/[0.025] p-5">
           <div className="mb-3 flex items-center justify-between">
             <Bar className="w-1/3" />
             <Bar className="h-2 w-10" />

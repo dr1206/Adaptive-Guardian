@@ -19,8 +19,7 @@ function Decisions() {
   const decisions = replaysQ.data ?? [];
   const state = asyncStateFromQuery(replaysQ, (d) => d.length === 0);
   const [selId, setSelId] = useState<string | null>(null);
-  const sel: DecisionReplay | undefined =
-    decisions.find((d) => d.id === selId) ?? decisions[0];
+  const sel: DecisionReplay | undefined = decisions.find((d) => d.id === selId) ?? decisions[0];
 
   return (
     <>
@@ -92,8 +91,8 @@ function Decisions() {
                     Plain English
                   </div>
                   <p className="mt-2 text-[13px] leading-relaxed">
-                    The Guardian recognized you immediately. Behavior and device alone were enough
-                    — risk was minimal.
+                    The Guardian recognized you immediately. Behavior and device alone were enough —
+                    risk was minimal.
                   </p>
                 </div>
               </div>
