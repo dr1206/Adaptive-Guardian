@@ -1,22 +1,17 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Copy, Send, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/banking/page-header";
 import { Sparkline } from "@/components/banking/sparkline";
-import { TRANSACTIONS, ACCOUNTS, fmt } from "@/lib/banking-data";
 import { InsightCard } from "@/components/banking/insight-card";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useAccount, useTransactions } from "@/services/hooks";
+import type { Transaction } from "@/services/banking/banking.contract";
 
 export const Route = createFileRoute("/app/accounts/$id")({
-  loader: ({ params }) => {
-    const account = ACCOUNTS.find((a) => a.id === params.id);
-    if (!account) throw notFound();
-    return { account };
-  },
   component: AccountDetailPage,
-  notFoundComponent: () => (
-    <div className="mt-20 text-center text-muted-foreground">Account not found.</div>
-  ),
 });
 
 const TABS = [
@@ -30,9 +25,10 @@ const TABS = [
 ] as const;
 
 function AccountDetailPage() {
-  const { account } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const accountQ = useAccount(id);
+  const txsQ = useTransactions({ accountId: id });
   const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
-  const txs = TRANSACTIONS.filter((t) => t.account === account.id);
 
   return (
     <div>
@@ -45,78 +41,93 @@ function AccountDetailPage() {
         </Link>
       </div>
 
-      <PageHeader
-        title={account.name}
-        subtitle={`${account.currency} · ${account.iban}`}
-        actions={
+      <AsyncBoundary
+        isLoading={accountQ.isLoading}
+        error={accountQ.error}
+        isEmpty={!accountQ.data}
+        emptyLabel="Account not found."
+      >
+        {accountQ.data && (
           <>
-            <button className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-[12px] text-muted-foreground transition-colors hover:text-foreground">
-              <Copy className="h-3.5 w-3.5" /> Copy IBAN
-            </button>
-            <Link
-              to="/app/transfer"
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-3 text-[12px] font-medium text-accent"
-            >
-              <Send className="h-3.5 w-3.5" /> Transfer
-            </Link>
-            <button className="grid h-9 w-9 place-items-center rounded-xl border border-white/[0.08] bg-white/[0.03]">
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
+            <PageHeader
+              title={accountQ.data.name}
+              subtitle={`${accountQ.data.currency} · ${accountQ.data.iban}`}
+              actions={
+                <>
+                  <button className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-[12px] text-muted-foreground transition-colors hover:text-foreground">
+                    <Copy className="h-3.5 w-3.5" /> Copy IBAN
+                  </button>
+                  <Link
+                    to="/app/transfer"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-3 text-[12px] font-medium text-accent"
+                  >
+                    <Send className="h-3.5 w-3.5" /> Transfer
+                  </Link>
+                  <button className="grid h-9 w-9 place-items-center rounded-xl border border-white/[0.08] bg-white/[0.03]">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
+                </>
+              }
+            />
+
+            <section className="relative overflow-hidden rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 backdrop-blur-xl">
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Available</div>
+                  <div className="mt-1 font-numeric text-[56px] font-semibold tracking-tight">{fmt(accountQ.data.balance)}</div>
+                  <div className="mt-1 text-[12px] text-muted-foreground">
+                    {accountQ.data.pending ? `Pending ${fmt(accountQ.data.pending)} · ` : ""}
+                    <span className={accountQ.data.deltaPct >= 0 ? "text-success" : "text-warning"}>
+                      {accountQ.data.deltaPct >= 0 ? "↑" : "↓"} {Math.abs(accountQ.data.deltaPct).toFixed(2)}% today
+                    </span>
+                  </div>
+                </div>
+                <Sparkline points={accountQ.data.spark} width={420} height={80} color="oklch(0.715 0.135 215)" />
+              </div>
+            </section>
+
+            <nav className="mt-8 flex items-center gap-1 border-b border-white/[0.06]">
+              {TABS.map((t, i) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "relative h-10 px-3 text-[13px] transition-colors",
+                    tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t}
+                  <kbd className="ml-2 font-numeric text-[9px] text-muted-foreground/50">⌘{i + 1}</kbd>
+                  {tab === t && (
+                    <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-gradient-to-r from-accent to-purple" />
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            <section className="mt-6">
+              <AsyncBoundary
+                isLoading={txsQ.isLoading}
+                error={txsQ.error}
+                isEmpty={false}
+              >
+                {tab === "Overview" && <OverviewTab spark={accountQ.data.spark} txs={txsQ.data ?? []} />}
+                {tab === "Transactions" && <TxsTab txs={txsQ.data ?? []} />}
+                {tab === "Analytics" && <PlaceholderTab label="Analytics — charts coming online." />}
+                {tab === "Statements" && <PlaceholderTab label="Statements scoped to this account." />}
+                {tab === "Scheduled" && <PlaceholderTab label="Standing orders & direct debits." />}
+                {tab === "Security" && <PlaceholderTab label="Aegis verification events for this account." />}
+                {tab === "Documents" && <PlaceholderTab label="KYC, statements, certificates." />}
+              </AsyncBoundary>
+            </section>
           </>
-        }
-      />
-
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 backdrop-blur-xl">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Available</div>
-            <div className="mt-1 font-numeric text-[56px] font-semibold tracking-tight">{fmt(account.balance)}</div>
-            <div className="mt-1 text-[12px] text-muted-foreground">
-              {account.pending ? `Pending ${fmt(account.pending)} · ` : ""}
-              <span className={account.deltaPct >= 0 ? "text-success" : "text-warning"}>
-                {account.deltaPct >= 0 ? "↑" : "↓"} {Math.abs(account.deltaPct).toFixed(2)}% today
-              </span>
-            </div>
-          </div>
-          <Sparkline points={account.spark} width={420} height={80} color="oklch(0.715 0.135 215)" />
-        </div>
-      </section>
-
-      {/* Tabs */}
-      <nav className="mt-8 flex items-center gap-1 border-b border-white/[0.06]">
-        {TABS.map((t, i) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              "relative h-10 px-3 text-[13px] transition-colors",
-              tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t}
-            <kbd className="ml-2 font-numeric text-[9px] text-muted-foreground/50">⌘{i + 1}</kbd>
-            {tab === t && (
-              <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-gradient-to-r from-accent to-purple" />
-            )}
-          </button>
-        ))}
-      </nav>
-
-      <section className="mt-6">
-        {tab === "Overview" && <OverviewTab spark={account.spark} txs={txs} />}
-        {tab === "Transactions" && <TxsTab txs={txs} />}
-        {tab === "Analytics" && <PlaceholderTab label="Analytics — charts coming online." />}
-        {tab === "Statements" && <PlaceholderTab label="Statements scoped to this account." />}
-        {tab === "Scheduled" && <PlaceholderTab label="Standing orders & direct debits." />}
-        {tab === "Security" && <PlaceholderTab label="Aegis verification events for this account." />}
-        {tab === "Documents" && <PlaceholderTab label="KYC, statements, certificates." />}
-      </section>
+        )}
+      </AsyncBoundary>
     </div>
   );
 }
 
-function OverviewTab({ spark, txs }: { spark: number[]; txs: typeof TRANSACTIONS }) {
+function OverviewTab({ spark, txs }: { spark: number[]; txs: ReadonlyArray<Transaction> }) {
   return (
     <div className="grid gap-5 lg:grid-cols-12">
       <article className="lg:col-span-8 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-6">
@@ -162,7 +173,7 @@ function KPI({ label, value, tone }: { label: string; value: string; tone?: "suc
   );
 }
 
-function TxsTab({ txs, compact }: { txs: typeof TRANSACTIONS; compact?: boolean }) {
+function TxsTab({ txs, compact }: { txs: ReadonlyArray<Transaction>; compact?: boolean }) {
   if (txs.length === 0)
     return <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-10 text-center text-[13px] text-muted-foreground">Your ledger is quiet.</div>;
   return (
