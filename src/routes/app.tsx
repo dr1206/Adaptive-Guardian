@@ -37,9 +37,7 @@ function AppLayout() {
             side="left"
             className="w-[280px] border-white/[0.06] bg-[oklch(0.16_0.025_264/0.98)] p-0 backdrop-blur-2xl"
           >
-            <VisuallyHidden>
-              <SheetTitle>Navigation</SheetTitle>
-            </VisuallyHidden>
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
             <div className="h-full overflow-y-auto" onClick={() => setOpen(false)}>
               <VaultRail variant="drawer" />
             </div>
