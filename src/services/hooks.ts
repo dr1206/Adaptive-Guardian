@@ -168,9 +168,52 @@ export function useBeneficiaries() {
 }
 
 export function useCards() {
-  return useQuery<ReadonlyArray<Card>>({
+  return useQuery<ReadonlyArray<BankCard>>({
     queryKey: queryKeys.cards,
     queryFn: ({ signal }) => services.banking.listCards({ signal }),
+  });
+}
+
+export function usePayments() {
+  return useQuery<ReadonlyArray<Payment>>({
+    queryKey: queryKeys.payments,
+    queryFn: ({ signal }) => services.banking.listPayments({ signal }),
+  });
+}
+
+export function useSavingsGoals() {
+  return useQuery<ReadonlyArray<SavingsGoal>>({
+    queryKey: queryKeys.savingsGoals,
+    queryFn: ({ signal }) => services.banking.listSavingsGoals({ signal }),
+  });
+}
+
+export function useHoldings() {
+  return useQuery<ReadonlyArray<Holding>>({
+    queryKey: queryKeys.holdings,
+    queryFn: ({ signal }) => services.banking.listHoldings({ signal }),
+  });
+}
+
+export function useLoans() {
+  return useQuery<ReadonlyArray<LoanRecord>>({
+    queryKey: queryKeys.loans,
+    queryFn: ({ signal }) => services.banking.listLoans({ signal }),
+  });
+}
+
+export function useCurrencies() {
+  return useQuery<ReadonlyArray<Currency>>({
+    queryKey: queryKeys.currencies,
+    queryFn: ({ signal }) => services.banking.listCurrencies({ signal }),
+    staleTime: 60_000,
+  });
+}
+
+export function useInsights() {
+  return useQuery<ReadonlyArray<Insight>>({
+    queryKey: queryKeys.insights,
+    queryFn: ({ signal }) => services.banking.listInsights({ signal }),
   });
 }
 
