@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { GOALS, fmt, type SavingsGoal } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { useSavingsGoals } from "@/services/hooks";
+import type { SavingsGoal } from "@/services/banking/banking.contract";
 
 export const Route = createFileRoute("/app/savings")({
   component: SavingsPage,
 });
 
 function SavingsPage() {
+  const { data: goals, isLoading, error } = useSavingsGoals();
   return (
     <div>
       <PageHeader
@@ -20,12 +24,20 @@ function SavingsPage() {
           </button>
         }
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {GOALS.map((g) => <GoalCard key={g.id} g={g} />)}
-      </div>
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={!goals || goals.length === 0}
+        emptyLabel="No savings goals yet."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {(goals ?? []).map((g) => <GoalCard key={g.id} g={g} />)}
+        </div>
+      </AsyncBoundary>
     </div>
   );
 }
+
 
 function GoalCard({ g }: { g: SavingsGoal }) {
   const pct = (g.saved / g.target) * 100;
