@@ -6,7 +6,6 @@ import { VaultRail } from "@/components/dashboard/vault-rail";
 import { CommandBar } from "@/components/dashboard/command-bar";
 import { SecurityStrip } from "@/components/banking/security-strip";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { Shield } from "@/components/brand/shield";
 
 export const Route = createFileRoute("/app")({
