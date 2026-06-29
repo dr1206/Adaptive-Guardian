@@ -4,6 +4,7 @@ import { OpsTable } from "@/components/admin/ops-table";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { seedSeries } from "@/lib/admin-signal";
 import { useAdminAccounts } from "@/services/hooks";
+import type { AdminAccount } from "@/services/admin/admin.contract";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/accounts")({
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/admin/accounts")({
 
 function AccountsPage() {
   const accountsQ = useAdminAccounts();
-  const accounts = accountsQ.data ?? [];
+  const accounts: ReadonlyArray<AdminAccount> = accountsQ.data ?? [];
   return (
     <AsyncBoundary isLoading={accountsQ.isLoading} error={accountsQ.error as Error | null}>
     <div className="space-y-6">

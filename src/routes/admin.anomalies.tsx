@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { signalTone } from "@/lib/admin-signal";
 import { useAdminAnomalySignatures, useAdminIncidents } from "@/services/hooks";
+import type { AnomalySignature } from "@/services/admin/admin.contract";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { AlertOctagon } from "lucide-react";
 
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/admin/anomalies")({
 function AnomaliesPage() {
   const sigsQ = useAdminAnomalySignatures();
   const incidentsQ = useAdminIncidents();
-  const signatures = sigsQ.data ?? [];
+  const signatures: ReadonlyArray<AnomalySignature> = sigsQ.data ?? [];
   const incidents = incidentsQ.data ?? [];
   return (
     <AsyncBoundary

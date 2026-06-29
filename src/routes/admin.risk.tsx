@@ -53,7 +53,7 @@ function RiskPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3">
           <InstrumentPanel eyebrow="Geo · last 5 minutes" title="Live event map">
-            <GeoMap dots={geoDots} />
+            <GeoMap dots={[...geoDots]} />
           </InstrumentPanel>
         </div>
         <div className="lg:col-span-2">
