@@ -32,8 +32,14 @@ import type {
 } from "./auth/auth.contract";
 import type {
   Account,
+  BankCard,
   Beneficiary,
-  Card,
+  Currency,
+  Holding,
+  Insight,
+  LoanRecord,
+  Payment,
+  SavingsGoal,
   Transaction,
   TransferInput,
   TransferResult,
