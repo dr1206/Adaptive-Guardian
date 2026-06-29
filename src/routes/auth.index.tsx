@@ -6,17 +6,31 @@ import { ApertureInput } from "@/components/auth/aperture-input";
 import { ApertureSpinner } from "@/components/brand/shield";
 import { BalanceTile } from "@/components/banking/balance-tile";
 import { TransactionRow, sampleTxs } from "@/components/banking/transaction-row";
+import { useRegister } from "@/services/hooks";
 
 export const Route = createFileRoute("/auth/")({
   component: IdentityScreen,
 });
+
+function deriveDisplayName(em: string) {
+  const local = em.split("@")[0] ?? "";
+  return (
+    local
+      .split(/[._-]/)
+      .filter(Boolean)
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ") || "Member"
+  );
+}
 
 function IdentityScreen() {
   const nav = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailState, setEmailState] = useState<"idle" | "validating" | "valid" | "error">("idle");
-  const [submitting, setSubmitting] = useState(false);
+  const register = useRegister();
+  const submitting = register.isPending;
+  const error = register.error;
 
   function checkEmail(v: string) {
     setEmail(v);
@@ -30,8 +44,17 @@ function IdentityScreen() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) return;
-    setSubmitting(true);
-    setTimeout(() => nav({ to: "/auth/verify", search: { e: email } }), 700);
+    try {
+      await register.mutateAsync({
+        email,
+        password,
+        displayName: deriveDisplayName(email),
+        acceptedTerms: true,
+      });
+      nav({ to: "/auth/verify", search: { e: email } });
+    } catch {
+      /* surfaced via register.error below */
+    }
   }
 
   return (
@@ -97,6 +120,11 @@ function IdentityScreen() {
               </>
             )}
           </button>
+          {error ? (
+            <p className="text-[12px] text-danger" role="alert">
+              {error.message}
+            </p>
+          ) : null}
         </form>
 
         <div className="mt-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
