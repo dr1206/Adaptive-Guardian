@@ -83,10 +83,26 @@ export const queryKeys = {
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
   aegisRisk: ["aegis", "risk"] as const,
+  adminKpis: ["admin", "kpis"] as const,
+  adminGlobalMetrics: ["admin", "global-metrics"] as const,
+  adminLiveSessions: ["admin", "live-sessions"] as const,
   adminUsers: ["admin", "users"] as const,
-  adminSessions: ["admin", "sessions"] as const,
+  adminIncidents: ["admin", "incidents"] as const,
   adminModels: ["admin", "models"] as const,
+  adminDatasets: ["admin", "datasets"] as const,
+  adminApiServices: ["admin", "api-services"] as const,
+  adminControls: ["admin", "controls"] as const,
+  adminReportTemplates: ["admin", "report-templates"] as const,
   adminAudit: ["admin", "audit"] as const,
+  adminChallengeReasons: ["admin", "challenge-reasons"] as const,
+  adminChallenges: ["admin", "challenges"] as const,
+  adminRoles: ["admin", "roles"] as const,
+  adminPermissions: ["admin", "permissions"] as const,
+  adminRolePermissions: ["admin", "role-permissions"] as const,
+  adminNotificationGroups: ["admin", "notification-groups"] as const,
+  adminGeoDots: ["admin", "geo-dots"] as const,
+  adminInfra: ["admin", "infra"] as const,
+
 };
 
 // ----------------------------------------------------------------------------
