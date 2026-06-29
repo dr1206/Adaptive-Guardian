@@ -116,7 +116,13 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="dark min-h-screen bg-background text-foreground antialiased">
+      <body className="dark min-h-screen bg-background text-foreground antialiased overflow-x-hidden">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-foreground focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         {children}
         <Scripts />
       </body>
