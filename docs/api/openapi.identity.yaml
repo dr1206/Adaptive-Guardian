@@ -1,0 +1,214 @@
+openapi: 3.1.0
+info:
+  title: AdaptiveGuard Identity API
+  version: 1.0.0
+  description: |
+    Identity, authentication, OTP, refresh, and role management.
+    Frozen at Sprint 1 D3. Breaking changes require a new major version.
+servers:
+  - url: https://api.adaptiveguard.ai/api/v1
+    description: Production
+  - url: https://staging-api.adaptiveguard.ai/api/v1
+    description: Staging
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Begin registration — creates pending user, dispatches OTP
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '202':
+          description: OTP dispatched
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegistrationPending' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/Validation' }
+  /auth/verify-otp:
+    post:
+      summary: Verify OTP, complete registration or login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyOtpRequest' }
+      responses:
+        '200':
+          description: Verified — issues access token + sets refresh cookie
+          headers:
+            Set-Cookie:
+              description: Refresh token, HttpOnly, Secure, SameSite=Strict, Path=/api/auth
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /auth/login:
+    post:
+      summary: Password login (issues OTP step on unknown device)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '202':
+          description: OTP challenge required
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegistrationPending' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/refresh:
+    post:
+      summary: Rotate refresh cookie, issue new access token
+      security: []
+      responses:
+        '200':
+          description: Rotated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/logout:
+    post:
+      summary: Revoke refresh token + clear cookie
+      responses:
+        '204': { description: Logged out }
+  /auth/me:
+    get:
+      summary: Current user + roles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+  /auth/enrollment:
+    post:
+      summary: Submit behavioral enrollment vector (keyboard + mouse calibration)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EnrollmentVector' }
+      responses:
+        '201':
+          description: Baseline created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EnrollmentReceipt' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: Conflict
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Validation:
+      description: Validation error
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    RateLimited:
+      description: Too many requests
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 12 }
+        fullName: { type: string, minLength: 2, maxLength: 120 }
+    RegistrationPending:
+      type: object
+      required: [challengeId, expiresAt]
+      properties:
+        challengeId: { type: string, format: uuid }
+        expiresAt: { type: string, format: date-time }
+    VerifyOtpRequest:
+      type: object
+      required: [challengeId, code]
+      properties:
+        challengeId: { type: string, format: uuid }
+        code: { type: string, pattern: '^[0-9]{6}$' }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    AuthSession:
+      type: object
+      required: [accessToken, expiresIn, user]
+      properties:
+        accessToken: { type: string }
+        expiresIn: { type: integer, description: Seconds }
+        user: { $ref: '#/components/schemas/Me' }
+    Me:
+      type: object
+      required: [id, email, roles, enrollmentStatus]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        fullName: { type: string }
+        roles:
+          type: array
+          items: { type: string, enum: [user, analyst, admin] }
+        enrollmentStatus:
+          type: string
+          enum: [pending, calibrating, ready]
+    EnrollmentVector:
+      type: object
+      required: [keyboard, mouse, sessionMeta]
+      properties:
+        keyboard:
+          type: object
+          properties:
+            holdTimesMs: { type: array, items: { type: number } }
+            flightTimesMs: { type: array, items: { type: number } }
+            rhythmHash: { type: string }
+        mouse:
+          type: object
+          properties:
+            velocityProfile: { type: array, items: { type: number } }
+            curvatureProfile: { type: array, items: { type: number } }
+            jerkProfile: { type: array, items: { type: number } }
+        sessionMeta:
+          type: object
+          properties:
+            userAgent: { type: string }
+            viewport: { type: string }
+            timezone: { type: string }
+    EnrollmentReceipt:
+      type: object
+      required: [baselineId, createdAt]
+      properties:
+        baselineId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }

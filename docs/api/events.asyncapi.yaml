@@ -1,0 +1,97 @@
+asyncapi: 3.0.0
+info:
+  title: AdaptiveGuard Event Contracts
+  version: 1.0.0
+  description: Kafka topics. Avro-encoded. Schema Registry is authoritative for evolution rules.
+defaultContentType: application/avro
+channels:
+  identity.user.registered:
+    address: identity.user.registered
+    messages:
+      UserRegistered:
+        $ref: '#/components/messages/UserRegistered'
+  identity.session.opened:
+    address: identity.session.opened
+    messages:
+      SessionOpened:
+        $ref: '#/components/messages/SessionOpened'
+  behavior.features.window:
+    address: behavior.features.window
+    messages:
+      FeatureWindow:
+        $ref: '#/components/messages/FeatureWindow'
+  decision.evaluated:
+    address: decision.evaluated
+    messages:
+      DecisionEvaluated:
+        $ref: '#/components/messages/DecisionEvaluated'
+  audit.event:
+    address: audit.event
+    messages:
+      AuditEvent:
+        $ref: '#/components/messages/AuditEvent'
+operations:
+  publishAudit:
+    action: send
+    channel: { $ref: '#/channels/audit.event' }
+components:
+  messages:
+    UserRegistered:
+      payload:
+        type: object
+        required: [userId, email, occurredAt]
+        properties:
+          userId: { type: string, format: uuid }
+          email: { type: string }
+          occurredAt: { type: string, format: date-time }
+    SessionOpened:
+      payload:
+        type: object
+        required: [sessionId, userId, deviceFingerprint, occurredAt]
+        properties:
+          sessionId: { type: string, format: uuid }
+          userId: { type: string, format: uuid }
+          deviceFingerprint: { type: string }
+          occurredAt: { type: string, format: date-time }
+    FeatureWindow:
+      payload:
+        type: object
+        required: [sessionId, windowStart, windowEnd, features]
+        properties:
+          sessionId: { type: string, format: uuid }
+          windowStart: { type: string, format: date-time }
+          windowEnd: { type: string, format: date-time }
+          features:
+            type: object
+            additionalProperties: { type: number }
+    DecisionEvaluated:
+      payload:
+        type: object
+        required: [decisionId, sessionId, outcome, score, occurredAt]
+        properties:
+          decisionId: { type: string, format: uuid }
+          sessionId: { type: string, format: uuid }
+          outcome: { type: string, enum: [allow, challenge, step_up, block] }
+          score: { type: number }
+          topContributors:
+            type: array
+            items:
+              type: object
+              properties:
+                feature: { type: string }
+                shap: { type: number }
+          occurredAt: { type: string, format: date-time }
+    AuditEvent:
+      payload:
+        type: object
+        required: [eventId, actorType, action, target, occurredAt, prevHash, hash]
+        properties:
+          eventId: { type: string, format: uuid }
+          actorType: { type: string, enum: [user, system, admin] }
+          actorId: { type: string }
+          action: { type: string }
+          target: { type: string }
+          payload: { type: object, additionalProperties: true }
+          occurredAt: { type: string, format: date-time }
+          prevHash: { type: string }
+          hash: { type: string }
