@@ -69,7 +69,9 @@ export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
             className="hidden md:inline-flex h-11 items-center gap-1.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 text-[12px] text-muted-foreground transition-colors hover:border-white/15 hover:text-foreground"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden /> New
-            <kbd aria-hidden className="ml-1 font-numeric text-[10px] opacity-60">⌘N</kbd>
+            <kbd aria-hidden className="ml-1 font-numeric text-[10px] opacity-60">
+              ⌘N
+            </kbd>
           </button>
 
           {/* Bell */}

@@ -35,10 +35,15 @@ export function OpsTopBar() {
     <header className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6 bg-[oklch(0.16_0.025_264/0.75)] backdrop-blur-xl border-b border-white/[0.05]">
       <div className="flex items-center gap-3 sm:gap-4">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1.5 text-sm min-w-0">
+        <nav
+          aria-label="Breadcrumb"
+          className="hidden md:flex items-center gap-1.5 text-sm min-w-0"
+        >
           {segs.map((s, i) => (
             <span key={i} className="flex items-center gap-1.5 min-w-0">
-              {i > 0 && <ChevronRight className="size-3.5 text-muted-foreground/60 shrink-0" aria-hidden />}
+              {i > 0 && (
+                <ChevronRight className="size-3.5 text-muted-foreground/60 shrink-0" aria-hidden />
+              )}
               <span
                 className={
                   i === segs.length - 1
@@ -54,17 +59,24 @@ export function OpsTopBar() {
 
         {/* Search */}
         <div className="flex-1 md:ml-4 min-w-0 md:max-w-2xl">
-          <label htmlFor="ops-search" className="sr-only">Search</label>
+          <label htmlFor="ops-search" className="sr-only">
+            Search
+          </label>
           <button
             id="ops-search"
             className="w-full group flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.05] hover:border-white/[0.12] px-3.5 py-2.5 text-left transition-colors min-h-11"
           >
             <Search className="size-3.5 text-muted-foreground shrink-0" aria-hidden />
             <span className="text-xs text-muted-foreground flex-1 truncate">
-              <span className="hidden sm:inline">Search users · sessions · models · logs · runbooks…</span>
+              <span className="hidden sm:inline">
+                Search users · sessions · models · logs · runbooks…
+              </span>
               <span className="sm:hidden">Search…</span>
             </span>
-            <kbd aria-hidden className="hidden sm:inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+            <kbd
+              aria-hidden
+              className="hidden sm:inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground"
+            >
               <Command className="size-3" />K
             </kbd>
           </button>

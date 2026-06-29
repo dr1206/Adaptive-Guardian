@@ -51,10 +51,7 @@ function AppLayout() {
         </a>
       </header>
 
-      <main
-        id="main"
-        className="lg:ml-[300px] px-4 sm:px-6 lg:pr-8 lg:pl-0 pb-20 lg:pb-24"
-      >
+      <main id="main" className="lg:ml-[300px] px-4 sm:px-6 lg:pr-8 lg:pl-0 pb-20 lg:pb-24">
         <CommandBar />
         <Outlet />
       </main>

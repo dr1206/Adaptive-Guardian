@@ -15,9 +15,7 @@ export function PageHeader({
     <header className="mt-6 mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:flex-wrap sm:justify-between">
       <div className="min-w-0">
         {eyebrow && (
-          <div className="mb-2 text-[11px] uppercase tracking-[0.22em] text-accent">
-            {eyebrow}
-          </div>
+          <div className="mb-2 text-[11px] uppercase tracking-[0.22em] text-accent">{eyebrow}</div>
         )}
         <h1 className="truncate font-display text-2xl sm:text-3xl lg:text-[34px] font-semibold tracking-tight">
           {title}

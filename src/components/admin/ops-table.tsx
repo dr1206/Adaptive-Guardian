@@ -25,15 +25,15 @@ export function OpsTable<T>({
   const padY = density === "dense" ? "py-1.5" : density === "compact" ? "py-2" : "py-3";
   const grid = columns.map((c) => c.width ?? "1fr").join(" ");
   return (
-    <div className="rounded-2xl border border-white/[0.06] overflow-hidden" role="region" aria-label={caption}>
+    <div
+      className="rounded-2xl border border-white/[0.06] overflow-hidden"
+      role="region"
+      aria-label={caption}
+    >
       {caption && <span className="sr-only">{caption}</span>}
 
       {/* Desktop / wide table */}
-      <div
-        role="table"
-        className="hidden md:block"
-        aria-rowcount={rows.length + 1}
-      >
+      <div role="table" className="hidden md:block" aria-rowcount={rows.length + 1}>
         <div
           role="row"
           className="sticky top-0 z-10 grid bg-white/[0.03] backdrop-blur px-4 py-2.5 border-b border-white/[0.05] text-[10px] uppercase tracking-[0.16em] font-mono text-muted-foreground"

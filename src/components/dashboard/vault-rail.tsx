@@ -88,7 +88,9 @@ export function VaultRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" 
       {/* Crown */}
       <button
         onClick={() => !isDrawer && setExpanded((v) => !v)}
-        aria-label={isDrawer ? "AdaptiveGuard" : expanded ? "Collapse navigation" : "Expand navigation"}
+        aria-label={
+          isDrawer ? "AdaptiveGuard" : expanded ? "Collapse navigation" : "Expand navigation"
+        }
         className="group flex items-center gap-2.5 px-4 pt-5 pb-4 text-left min-h-11"
       >
         <Shield size={28} live />
@@ -125,7 +127,7 @@ export function VaultRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" 
         <div
           className={cn(
             "flex items-center gap-2",
-            (expanded || isDrawer) ? "px-2" : "justify-center",
+            expanded || isDrawer ? "px-2" : "justify-center",
           )}
         >
           <span className="relative grid h-7 w-7 place-items-center">
