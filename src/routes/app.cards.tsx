@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Snowflake, Lock, Globe, Plane, Eye, RotateCcw, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { BankCard } from "@/components/banking/bank-card";
-import { CARDS, fmt } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { useCards } from "@/services/hooks";
+import type { BankCard as TCard } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/cards")({
@@ -11,14 +14,21 @@ export const Route = createFileRoute("/app/cards")({
 });
 
 function CardsPage() {
+  const { data, isLoading, error } = useCards();
   const [idx, setIdx] = useState(0);
-  const [cards, setCards] = useState(CARDS);
+  const [cards, setCards] = useState<ReadonlyArray<TCard>>([]);
+
+  useEffect(() => {
+    if (data) setCards(data);
+  }, [data]);
+
   const card = cards[idx];
 
   const toggleFreeze = () =>
     setCards((cs) => cs.map((c, i) => (i === idx ? { ...c, frozen: !c.frozen } : c)));
 
   return (
+
     <div>
       <PageHeader
         eyebrow="Money"
