@@ -87,10 +87,16 @@ export const queryKeys = {
   loans: ["banking", "loans"] as const,
   currencies: ["banking", "currencies"] as const,
   insights: ["banking", "insights"] as const,
+  statementYears: ["banking", "statements", "years"] as const,
+  statement: (q: StatementQuery) => ["banking", "statements", q.year, q.month] as const,
+  activity: ["banking", "activity"] as const,
+  budgets: ["banking", "budgets"] as const,
   aegisSnapshot: ["aegis", "snapshot"] as const,
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
   aegisRisk: ["aegis", "risk"] as const,
+  aegisDeviceProfiles: ["aegis", "device-profiles"] as const,
+  aegisDecisionReplays: ["aegis", "decision-replays"] as const,
   adminAccounts: ["admin", "accounts"] as const,
   adminAnomalySignatures: ["admin", "anomaly-signatures"] as const,
   adminKpis: ["admin", "kpis"] as const,
@@ -250,6 +256,35 @@ export function useCurrencies() {
   });
 }
 
+export function useStatementYears() {
+  return useQuery<ReadonlyArray<StatementYearGroup>>({
+    queryKey: queryKeys.statementYears,
+    queryFn: ({ signal }) => services.banking.listStatementYears({ signal }),
+    staleTime: 60_000,
+  });
+}
+
+export function useStatement(query: StatementQuery) {
+  return useQuery<StatementSample>({
+    queryKey: queryKeys.statement(query),
+    queryFn: ({ signal }) => services.banking.getStatement(query, { signal }),
+  });
+}
+
+export function useActivity() {
+  return useQuery<ReadonlyArray<ActivityEvent>>({
+    queryKey: queryKeys.activity,
+    queryFn: ({ signal }) => services.banking.listActivity({ signal }),
+  });
+}
+
+export function useBudgets() {
+  return useQuery<ReadonlyArray<BudgetEnvelope>>({
+    queryKey: queryKeys.budgets,
+    queryFn: ({ signal }) => services.banking.listBudgets({ signal }),
+  });
+}
+
 export function useInsights() {
   return useQuery<ReadonlyArray<Insight>>({
     queryKey: queryKeys.insights,
@@ -326,6 +361,20 @@ export function useRiskEvents() {
 // ----------------------------------------------------------------------------
 // Admin
 // ----------------------------------------------------------------------------
+
+export function useDeviceProfiles() {
+  return useQuery<ReadonlyArray<DeviceProfile>>({
+    queryKey: queryKeys.aegisDeviceProfiles,
+    queryFn: ({ signal }) => services.aegis.listDeviceProfiles({ signal }),
+  });
+}
+
+export function useDecisionReplays() {
+  return useQuery<ReadonlyArray<DecisionReplay>>({
+    queryKey: queryKeys.aegisDecisionReplays,
+    queryFn: ({ signal }) => services.aegis.listDecisionReplays({ signal }),
+  });
+}
 
 export function useAdminKpis() {
   return useQuery<ReadonlyArray<Kpi>>({
