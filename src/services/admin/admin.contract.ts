@@ -226,8 +226,12 @@ export interface AdminService {
   listChallenges(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<ChallengeRecord>>;
   listRoles(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Role>>;
   listPermissions(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Permission>>;
-  getRolePermissions(opts?: { signal?: AbortSignal }): Promise<Readonly<Record<string, ReadonlyArray<string>>>>;
-  listNotificationGroups(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<NotificationGroup>>;
+  getRolePermissions(opts?: {
+    signal?: AbortSignal;
+  }): Promise<Readonly<Record<string, ReadonlyArray<string>>>>;
+  listNotificationGroups(opts?: {
+    signal?: AbortSignal;
+  }): Promise<ReadonlyArray<NotificationGroup>>;
   listGeoDots(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<GeoDot>>;
   getInfraSnapshot(opts?: { signal?: AbortSignal }): Promise<InfraSnapshot>;
 }

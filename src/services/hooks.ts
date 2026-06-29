@@ -16,12 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { services } from "./registry";
-import type {
-  AegisSnapshot,
-  Decision,
-  Device,
-  RiskEvent,
-} from "./aegis/aegis.contract";
+import type { AegisSnapshot, Decision, Device, RiskEvent } from "./aegis/aegis.contract";
 import type {
   EnrollmentSample,
   EnrollmentSummary,
@@ -67,8 +62,6 @@ import type {
   Role,
 } from "./admin/admin.contract";
 
-
-
 export const queryKeys = {
   session: ["auth", "session"] as const,
   accounts: ["banking", "accounts"] as const,
@@ -107,7 +100,6 @@ export const queryKeys = {
   adminNotificationGroups: ["admin", "notification-groups"] as const,
   adminGeoDots: ["admin", "geo-dots"] as const,
   adminInfra: ["admin", "infra"] as const,
-
 };
 
 // ----------------------------------------------------------------------------
@@ -449,4 +441,3 @@ export function useAdminAnomalySignatures() {
     queryFn: ({ signal }) => services.admin.listAnomalySignatures({ signal }),
   });
 }
-
