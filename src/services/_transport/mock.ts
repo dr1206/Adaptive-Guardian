@@ -6,7 +6,7 @@
  * world from day one — never "feels instant in dev, sluggish in prod".
  */
 
-import { AppError, IntegrationError } from "../lib/platform/errors";
+import { AppError, IntegrationError } from "../../lib/platform/errors";
 
 const DEFAULT_LATENCY_RANGE: [number, number] = [180, 420];
 
