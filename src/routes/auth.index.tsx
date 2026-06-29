@@ -120,6 +120,11 @@ function IdentityScreen() {
               </>
             )}
           </button>
+          {error ? (
+            <p className="text-[12px] text-danger" role="alert">
+              {error.message}
+            </p>
+          ) : null}
         </form>
 
         <div className="mt-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
