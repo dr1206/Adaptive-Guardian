@@ -26,8 +26,7 @@ export function AuroraStrip({ height = 8 }: { height?: number }) {
           right: 0,
           background:
             "linear-gradient(90deg, transparent, oklch(0.655 0.195 258 / 0.5), oklch(0.715 0.135 215 / 0.7), oklch(0.635 0.215 295 / 0.5), transparent)",
-          maskImage:
-            "linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%)",
+          maskImage: "linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%)",
         }}
       />
       <div

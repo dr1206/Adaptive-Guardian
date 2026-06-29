@@ -29,9 +29,7 @@ export function SecurityStrip() {
       <div
         className="mx-8 mb-3 flex items-center gap-4 rounded-full border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.78)] px-4 py-2 text-[11px] text-muted-foreground backdrop-blur-2xl pointer-events-auto transition-colors"
         style={{
-          borderColor: pulse
-            ? "oklch(0.715 0.135 215 / 0.5)"
-            : undefined,
+          borderColor: pulse ? "oklch(0.715 0.135 215 / 0.5)" : undefined,
         }}
       >
         <span className="inline-flex items-center gap-1.5">

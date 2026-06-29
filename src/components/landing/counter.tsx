@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
-export function Counter({ to, suffix = "", decimals = 0 }: { to: number; suffix?: string; decimals?: number }) {
+export function Counter({
+  to,
+  suffix = "",
+  decimals = 0,
+}: {
+  to: number;
+  suffix?: string;
+  decimals?: number;
+}) {
   const [val, setVal] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);

@@ -77,7 +77,9 @@ function SecurityCenter() {
                         {row.value}%
                       </span>
                     </div>
-                    <div className="text-[11.5px] leading-snug text-muted-foreground">{row.note}</div>
+                    <div className="text-[11.5px] leading-snug text-muted-foreground">
+                      {row.note}
+                    </div>
                   </div>
                 </li>
               ))}
@@ -163,7 +165,8 @@ function SecurityCenter() {
                           className="h-full rounded-full"
                           style={{
                             width: `${t.value}%`,
-                            background: "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
+                            background:
+                              "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
                           }}
                         />
                       </div>
@@ -200,13 +203,7 @@ function SecurityCenter() {
   );
 }
 
-function Pill({
-  children,
-  tone,
-}: {
-  children: React.ReactNode;
-  tone?: "success" | "accent";
-}) {
+function Pill({ children, tone }: { children: React.ReactNode; tone?: "success" | "accent" }) {
   const cls =
     tone === "success"
       ? "bg-success/12 text-success"
@@ -214,7 +211,9 @@ function Pill({
         ? "bg-accent/15 text-accent"
         : "bg-white/[0.06] text-foreground";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] ${cls}`}
+    >
       <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
       {children}
     </span>
@@ -244,8 +243,7 @@ function Footnote({
 
 function MouseFlowMini() {
   // a faint glowing cursor trail
-  const path =
-    "M10 70 C 60 30, 120 100, 180 50 S 320 20, 400 70 S 540 110, 590 60";
+  const path = "M10 70 C 60 30, 120 100, 180 50 S 320 20, 400 70 S 540 110, 590 60";
   return (
     <svg viewBox="0 0 600 100" className="block w-full">
       <defs>
@@ -259,7 +257,14 @@ function MouseFlowMini() {
         </pattern>
       </defs>
       <rect width="600" height="100" fill="url(#mfm-grid)" />
-      <path d={path} fill="none" stroke="url(#mfm)" strokeWidth="2" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 6px oklch(0.715 0.135 215))" }} />
+      <path
+        d={path}
+        fill="none"
+        stroke="url(#mfm)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        style={{ filter: "drop-shadow(0 0 6px oklch(0.715 0.135 215))" }}
+      />
       <circle cx="590" cy="60" r="3.5" fill="oklch(0.715 0.135 215)" />
     </svg>
   );
@@ -275,7 +280,8 @@ function InteractionBars() {
           className="flex-1 rounded-sm"
           style={{
             height: `${(b / 9) * 100}%`,
-            background: "linear-gradient(180deg, oklch(0.715 0.135 215), oklch(0.655 0.195 258 / 0.4))",
+            background:
+              "linear-gradient(180deg, oklch(0.715 0.135 215), oklch(0.655 0.195 258 / 0.4))",
           }}
         />
       ))}

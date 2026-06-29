@@ -2,7 +2,10 @@ import { Shield, Github, Linkedin, Twitter, Mail } from "lucide-react";
 
 const COLS: { title: string; links: string[] }[] = [
   { title: "Platform", links: ["Overview", "Dashboard", "Auth Center", "AI Monitoring", "SHAP"] },
-  { title: "Technology", links: ["AI Engine", "Behavioral Biometrics", "LightGBM", "OC-SVM", "SHAP"] },
+  {
+    title: "Technology",
+    links: ["AI Engine", "Behavioral Biometrics", "LightGBM", "OC-SVM", "SHAP"],
+  },
   { title: "Research", links: ["CMU Dataset", "Publications", "Whitepapers", "Methodology"] },
   { title: "Resources", links: ["Documentation", "API Reference", "Changelog", "Status"] },
   { title: "Company", links: ["About", "Careers", "Press", "Contact"] },
@@ -29,8 +32,8 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              Continuous authentication powered by behavioral biometrics — invisible
-              security for modern banking and enterprise platforms.
+              Continuous authentication powered by behavioral biometrics — invisible security for
+              modern banking and enterprise platforms.
             </p>
 
             <form className="mt-6 flex max-w-sm gap-2">

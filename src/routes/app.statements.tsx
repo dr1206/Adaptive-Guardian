@@ -17,11 +17,19 @@ function StatementsPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Money" title="Statements" subtitle="Every month, archived as it was issued." />
+      <PageHeader
+        eyebrow="Money"
+        title="Statements"
+        subtitle="Every month, archived as it was issued."
+      />
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         <aside className="space-y-4">
           {YEARS.map((y) => (
-            <details key={y} open={y === year} className="group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+            <details
+              key={y}
+              open={y === year}
+              className="group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3"
+            >
               <summary className="flex cursor-pointer list-none items-center justify-between text-[12px] font-medium">
                 <span className="font-numeric">{y}</span>
                 <span className="text-muted-foreground">12 statements</span>
@@ -36,7 +44,9 @@ function StatementsPage() {
                     }}
                     className={cn(
                       "rounded-lg border border-white/[0.04] px-2 py-2 text-[10px] transition-colors",
-                      year === y && month === i ? "border-accent/40 bg-accent/10 text-accent" : "bg-white/[0.02] text-muted-foreground hover:text-foreground",
+                      year === y && month === i
+                        ? "border-accent/40 bg-accent/10 text-accent"
+                        : "bg-white/[0.02] text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {m}
@@ -49,10 +59,15 @@ function StatementsPage() {
 
         <article className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.025]">
           <header className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
-            <h3 className="font-display text-[14px] font-semibold">{MONTHS[month]} {year} · Primary Account</h3>
+            <h3 className="font-display text-[14px] font-semibold">
+              {MONTHS[month]} {year} · Primary Account
+            </h3>
             <div className="flex items-center gap-1">
               {[Download, Printer, Share2, Bookmark, Highlighter].map((Icon, i) => (
-                <button key={i} className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-white/[0.04] hover:text-foreground">
+                <button
+                  key={i}
+                  className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
+                >
                   <Icon className="h-3.5 w-3.5" />
                 </button>
               ))}
@@ -62,8 +77,12 @@ function StatementsPage() {
             <div className="mx-auto max-w-[640px]">
               <div className="mb-6 flex items-center justify-between border-b border-black/10 pb-4">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] opacity-60">AdaptiveGuard AI · EU</div>
-                  <div className="mt-1 font-display text-[20px] font-semibold">Monthly Statement</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] opacity-60">
+                    AdaptiveGuard AI · EU
+                  </div>
+                  <div className="mt-1 font-display text-[20px] font-semibold">
+                    Monthly Statement
+                  </div>
                 </div>
                 <div className="text-right text-[11px]">
                   <div>Amal Kareem</div>
@@ -89,7 +108,9 @@ function StatementsPage() {
                     ["01 Jun", "Banco Atlântico · Salary", "+ €6,400.00"],
                   ].map(([d, n, a]) => (
                     <li key={n} className="flex justify-between py-1.5">
-                      <span>{d} · {n}</span>
+                      <span>
+                        {d} · {n}
+                      </span>
                       <span className="font-numeric">{a}</span>
                     </li>
                   ))}

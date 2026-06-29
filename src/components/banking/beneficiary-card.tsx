@@ -31,7 +31,8 @@ export function BeneficiaryCard({ b }: { b: Beneficiary }) {
       <div className="mt-3 text-[11px] text-muted-foreground">
         {b.lastSent ? (
           <>
-            Last sent <span className="font-numeric text-foreground">{fmt(b.lastSent.amount)}</span> · {b.lastSent.date}
+            Last sent <span className="font-numeric text-foreground">{fmt(b.lastSent.amount)}</span>{" "}
+            · {b.lastSent.date}
           </>
         ) : (
           <span className="italic opacity-70">No transfers yet</span>

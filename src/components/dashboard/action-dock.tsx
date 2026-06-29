@@ -25,7 +25,9 @@ export function ActionDock() {
             key={a.label}
             className="group relative flex h-[112px] flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.04]"
           >
-            <span className={`grid h-9 w-9 place-items-center rounded-xl transition-transform group-hover:scale-110 ${tone}`}>
+            <span
+              className={`grid h-9 w-9 place-items-center rounded-xl transition-transform group-hover:scale-110 ${tone}`}
+            >
               <Icon className="h-4 w-4" />
             </span>
             <div className="flex items-end justify-between">

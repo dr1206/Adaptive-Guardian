@@ -16,7 +16,10 @@ const WHISPERS = [
 
 function snapshot(): AegisSnapshot {
   trend.shift();
-  const next = Math.max(0.84, Math.min(0.998, trend[trend.length - 1] + (Math.random() - 0.5) * 0.014));
+  const next = Math.max(
+    0.84,
+    Math.min(0.998, trend[trend.length - 1] + (Math.random() - 0.5) * 0.014),
+  );
   trend.push(next);
   return {
     confidence: next,
@@ -45,15 +48,51 @@ const DECISIONS: ReadonlyArray<Decision> = Array.from({ length: 12 }, (_, i) => 
 }));
 
 const DEVICES: ReadonlyArray<Device> = [
-  { id: "dev_mac", label: "MacBook Pro 14", os: "macOS 15.2", trust: "trusted", lastSeenAt: new Date().toISOString(), city: "Berlin" },
-  { id: "dev_iphone", label: "iPhone 16 Pro", os: "iOS 19.0", trust: "trusted", lastSeenAt: new Date(Date.now() - 9e6).toISOString(), city: "Berlin" },
-  { id: "dev_unknown", label: "Chrome on Windows", os: "Windows 11", trust: "new", lastSeenAt: new Date(Date.now() - 36e5).toISOString(), city: "Vilnius" },
+  {
+    id: "dev_mac",
+    label: "MacBook Pro 14",
+    os: "macOS 15.2",
+    trust: "trusted",
+    lastSeenAt: new Date().toISOString(),
+    city: "Berlin",
+  },
+  {
+    id: "dev_iphone",
+    label: "iPhone 16 Pro",
+    os: "iOS 19.0",
+    trust: "trusted",
+    lastSeenAt: new Date(Date.now() - 9e6).toISOString(),
+    city: "Berlin",
+  },
+  {
+    id: "dev_unknown",
+    label: "Chrome on Windows",
+    os: "Windows 11",
+    trust: "new",
+    lastSeenAt: new Date(Date.now() - 36e5).toISOString(),
+    city: "Vilnius",
+  },
 ];
 
 const RISK: ReadonlyArray<RiskEvent> = [
-  { id: "rsk_1", occurredAt: new Date().toISOString(), severity: "info", summary: "Routine login from Berlin." },
-  { id: "rsk_2", occurredAt: new Date(Date.now() - 6e6).toISOString(), severity: "warn", summary: "Pointer pattern drift on /transfer." },
-  { id: "rsk_3", occurredAt: new Date(Date.now() - 12e6).toISOString(), severity: "critical", summary: "Unrecognized device attempted login." },
+  {
+    id: "rsk_1",
+    occurredAt: new Date().toISOString(),
+    severity: "info",
+    summary: "Routine login from Berlin.",
+  },
+  {
+    id: "rsk_2",
+    occurredAt: new Date(Date.now() - 6e6).toISOString(),
+    severity: "warn",
+    summary: "Pointer pattern drift on /transfer.",
+  },
+  {
+    id: "rsk_3",
+    occurredAt: new Date(Date.now() - 12e6).toISOString(),
+    severity: "critical",
+    summary: "Unrecognized device attempted login.",
+  },
 ];
 
 export const mockAegisService: AegisService = {

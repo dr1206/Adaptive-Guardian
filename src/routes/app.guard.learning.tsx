@@ -33,7 +33,11 @@ function Learning() {
       />
 
       <section className="grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-7" eyebrow="Today vs your baseline" title="Behavior drift">
+        <SigilCard
+          className="lg:col-span-7"
+          eyebrow="Today vs your baseline"
+          title="Behavior drift"
+        >
           <DriftBandChart seed={11} height={220} />
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4">
@@ -48,8 +52,12 @@ function Learning() {
 
         <SigilCard className="lg:col-span-5" eyebrow="Then ↔ Now" title="Your signature">
           <div className="relative grid place-items-center py-2">
-            <div className="absolute"><ConfidenceRing value={92} size="lg" label="Then" /></div>
-            <div className="opacity-90"><ConfidenceRing value={98.4} size="lg" label="Now" /></div>
+            <div className="absolute">
+              <ConfidenceRing value={92} size="lg" label="Then" />
+            </div>
+            <div className="opacity-90">
+              <ConfidenceRing value={98.4} size="lg" label="Now" />
+            </div>
           </div>
           <p className="mt-2 text-center text-[12.5px] text-muted-foreground">
             The Guardian is learning your evolving habits — calmly and gradually.
@@ -61,12 +69,17 @@ function Learning() {
         <SigilCard eyebrow="Recent learning" title="What changed in the model">
           <ul className="space-y-2">
             {LEARNED.map((l, i) => (
-              <li key={i} className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2.5">
+              <li
+                key={i}
+                className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2.5"
+              >
                 <span className="grid h-7 w-7 place-items-center rounded-md bg-accent/10 text-accent">
                   <RefreshCw className="h-3.5 w-3.5" />
                 </span>
                 <span className="flex-1 text-[12.5px]">{l.label}</span>
-                <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">{l.time}</span>
+                <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">
+                  {l.time}
+                </span>
               </li>
             ))}
           </ul>
@@ -90,7 +103,10 @@ function Learning() {
       <SigilCard className="mt-6" eyebrow="How it learns" title="A calm loop">
         <div className="grid gap-4 md:grid-cols-4">
           {STEPS.map((s, i) => (
-            <div key={s.label} className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div
+              key={s.label}
+              className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4"
+            >
               <div className="absolute right-3 top-3 font-numeric text-[10px] tabular-nums text-muted-foreground/60">
                 0{i + 1}
               </div>

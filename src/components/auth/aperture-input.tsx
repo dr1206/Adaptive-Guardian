@@ -69,7 +69,10 @@ export const ApertureInput = forwardRef<HTMLInputElement, ApertureInputProps>(
               {hint}
             </span>
             {whyWeAsk && (
-              <span className="text-muted-foreground/70 underline decoration-dotted underline-offset-2 cursor-help" title={whyWeAsk}>
+              <span
+                className="text-muted-foreground/70 underline decoration-dotted underline-offset-2 cursor-help"
+                title={whyWeAsk}
+              >
                 Why we ask
               </span>
             )}

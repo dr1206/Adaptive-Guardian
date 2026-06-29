@@ -31,9 +31,10 @@ export function RiskHeatmap({ seed = 3 }: { seed?: number }) {
               key={i}
               className="aspect-square rounded-[3px]"
               style={{
-                background: v < 0.02
-                  ? "oklch(1 0 0 / 0.03)"
-                  : `oklch(${0.55 + v * 0.15} ${0.18 - v * 0.05} ${258 - v * 80} / ${0.25 + v * 0.7})`,
+                background:
+                  v < 0.02
+                    ? "oklch(1 0 0 / 0.03)"
+                    : `oklch(${0.55 + v * 0.15} ${0.18 - v * 0.05} ${258 - v * 80} / ${0.25 + v * 0.7})`,
               }}
               title={`Risk ${(v * 100).toFixed(0)}%`}
             />

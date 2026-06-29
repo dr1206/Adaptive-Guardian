@@ -27,11 +27,27 @@ const DECISIONS: Decision[] = [
     outcome: "Step-up OTP",
     confidence: 99.4,
     petals: [
-      { label: "Behavior match", weight: 38, sentence: "Typing rhythm and mouse flow match your signature." },
+      {
+        label: "Behavior match",
+        weight: 38,
+        sentence: "Typing rhythm and mouse flow match your signature.",
+      },
       { label: "Device match", weight: 26, sentence: "MacBook Pro · trusted for 312 days." },
-      { label: "Historical match", weight: 18, sentence: "Recognized in 312 of 312 recent sessions." },
-      { label: "Session consistency", weight: 12, sentence: "Calm, focused session for the last 2 hours." },
-      { label: "New beneficiary risk", weight: -8, sentence: "First transfer to this recipient — one extra proof." },
+      {
+        label: "Historical match",
+        weight: 18,
+        sentence: "Recognized in 312 of 312 recent sessions.",
+      },
+      {
+        label: "Session consistency",
+        weight: 12,
+        sentence: "Calm, focused session for the last 2 hours.",
+      },
+      {
+        label: "New beneficiary risk",
+        weight: -8,
+        sentence: "First transfer to this recipient — one extra proof.",
+      },
     ],
   },
   {
@@ -41,7 +57,11 @@ const DECISIONS: Decision[] = [
     outcome: "Allowed silently",
     confidence: 98.9,
     petals: [
-      { label: "Behavior match", weight: 42, sentence: "Strong rhythm match during press-and-hold." },
+      {
+        label: "Behavior match",
+        weight: 42,
+        sentence: "Strong rhythm match during press-and-hold.",
+      },
       { label: "Device match", weight: 28, sentence: "Same trusted device, same location." },
       { label: "Historical match", weight: 18, sentence: "Similar amounts seen in last 90 days." },
       { label: "Risk delta", weight: -4, sentence: "Slightly above your monthly median." },
@@ -120,13 +140,20 @@ function Decisions() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Typing snapshot</div>
-              <div className="mt-2"><WaveformTrace seed={sel.id.length + 3} height={70} baseline={false} /></div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                Typing snapshot
+              </div>
+              <div className="mt-2">
+                <WaveformTrace seed={sel.id.length + 3} height={70} baseline={false} />
+              </div>
             </div>
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Plain English</div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                Plain English
+              </div>
               <p className="mt-2 text-[13px] leading-relaxed">
-                The Guardian recognized you immediately. Behavior and device alone were enough — risk was minimal.
+                The Guardian recognized you immediately. Behavior and device alone were enough —
+                risk was minimal.
               </p>
             </div>
           </div>

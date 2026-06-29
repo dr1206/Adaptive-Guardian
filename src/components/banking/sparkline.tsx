@@ -33,7 +33,14 @@ export function Sparkline({
         </linearGradient>
       </defs>
       {fill && <path d={area} fill={`url(#${id})`} />}
-      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

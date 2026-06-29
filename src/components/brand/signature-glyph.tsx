@@ -35,10 +35,7 @@ export function SignatureGlyph({
     return [cx + Math.cos(a) * R * amp, cy + Math.sin(a) * R * amp] as const;
   });
 
-  const path =
-    "M " +
-    points.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(" L ") +
-    " Z";
+  const path = "M " + points.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(" L ") + " Z";
 
   // hex frame
   const hex = Array.from({ length: 6 }, (_, i) => {
@@ -47,13 +44,7 @@ export function SignatureGlyph({
   }).join(" ");
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      width={size}
-      height={size}
-      className={cn(className)}
-      aria-hidden
-    >
+    <svg viewBox="0 0 100 100" width={size} height={size} className={cn(className)} aria-hidden>
       <defs>
         <linearGradient id={`sg-${seed}-g`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="oklch(0.655 0.195 258)" />
@@ -93,7 +84,10 @@ export function SignatureGlyph({
         strokeLinejoin="round"
         style={
           animated
-            ? { animation: "sg-breathe 6s cubic-bezier(0.65,0,0.35,1) infinite", transformOrigin: `${cx}px ${cy}px` }
+            ? {
+                animation: "sg-breathe 6s cubic-bezier(0.65,0,0.35,1) infinite",
+                transformOrigin: `${cx}px ${cy}px`,
+              }
             : { transformOrigin: `${cx}px ${cy}px` }
         }
       />

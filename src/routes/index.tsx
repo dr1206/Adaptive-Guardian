@@ -115,8 +115,7 @@ function Hero() {
           backgroundImage:
             "linear-gradient(oklch(0.84 0.018 250) 1px, transparent 1px), linear-gradient(90deg, oklch(0.84 0.018 250) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
-          maskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent 80%)",
+          maskImage: "radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent 80%)",
         }}
       />
 
@@ -131,14 +130,13 @@ function Hero() {
           <h1 className="mt-6 text-balance text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-[68px]">
             Continuous Authentication
             <br />
-            powered by{" "}
-            <span className="text-gradient">Artificial Intelligence</span>.
+            powered by <span className="text-gradient">Artificial Intelligence</span>.
           </h1>
 
           <p className="mt-6 max-w-xl text-balance text-base text-muted-foreground sm:text-lg">
-            Traditional authentication verifies users only once. AdaptiveGuard AI
-            continuously verifies identity using behavioral biometrics, AI, and
-            machine learning — protecting every session, not just the login.
+            Traditional authentication verifies users only once. AdaptiveGuard AI continuously
+            verifies identity using behavioral biometrics, AI, and machine learning — protecting
+            every session, not just the login.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -167,9 +165,7 @@ function Hero() {
               { v: "24/7", l: "Monitoring" },
             ].map((s) => (
               <div key={s.l}>
-                <dt className="font-numeric text-2xl font-semibold tracking-tight">
-                  {s.v}
-                </dt>
+                <dt className="font-numeric text-2xl font-semibold tracking-tight">{s.v}</dt>
                 <dd className="mt-1 text-xs text-muted-foreground">{s.l}</dd>
               </div>
             ))}
@@ -274,8 +270,7 @@ function Problem() {
       eyebrow="The Problem"
       title={
         <>
-          Why traditional authentication{" "}
-          <span className="text-gradient">fails</span>
+          Why traditional authentication <span className="text-gradient">fails</span>
         </>
       }
       subtitle="A login is a single moment. An attacker only needs one. We verify identity continuously, throughout the entire session."
@@ -331,8 +326,7 @@ function Solution() {
       eyebrow="The Solution"
       title={
         <>
-          Introducing{" "}
-          <span className="text-gradient">continuous authentication</span>
+          Introducing <span className="text-gradient">continuous authentication</span>
         </>
       }
       subtitle="Identity is verified at every interaction — not just at the door. The user sees nothing. The AI sees everything."
@@ -358,9 +352,7 @@ function Solution() {
                   <s.icon className="h-7 w-7 text-primary-foreground" strokeWidth={1.8} />
                 </span>
                 <h3 className="mt-4 text-sm font-semibold">{s.title}</h3>
-                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                  {s.desc}
-                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{s.desc}</p>
               </div>
             </li>
           ))}
@@ -372,14 +364,46 @@ function Solution() {
 
 /* ============================================================ AI ENGINE */
 const ENGINE = [
-  { icon: Activity, title: "Behavior Collector", desc: "Captures keystroke timing, mouse trajectories, scroll patterns at 60Hz." },
-  { icon: Layers, title: "Feature Extraction", desc: "Derives 50+ behavioral features in real time per session window." },
-  { icon: TrendingUp, title: "LightGBM", desc: "Gradient-boosted classifier scoring legitimate vs anomalous patterns." },
-  { icon: Target, title: "One-Class SVM", desc: "Novelty detection identifies behavior outside the user's profile." },
-  { icon: FileSearch, title: "SHAP", desc: "Explains every decision — analysts see exactly why a session was flagged." },
-  { icon: Brain, title: "Adaptive Learning", desc: "Profile drifts naturally with the user, retrained continuously." },
-  { icon: Fingerprint, title: "Behavior Profile", desc: "A living biometric template unique to every individual user." },
-  { icon: Radar, title: "Continuous Monitoring", desc: "Every event scored — risk and confidence update second-by-second." },
+  {
+    icon: Activity,
+    title: "Behavior Collector",
+    desc: "Captures keystroke timing, mouse trajectories, scroll patterns at 60Hz.",
+  },
+  {
+    icon: Layers,
+    title: "Feature Extraction",
+    desc: "Derives 50+ behavioral features in real time per session window.",
+  },
+  {
+    icon: TrendingUp,
+    title: "LightGBM",
+    desc: "Gradient-boosted classifier scoring legitimate vs anomalous patterns.",
+  },
+  {
+    icon: Target,
+    title: "One-Class SVM",
+    desc: "Novelty detection identifies behavior outside the user's profile.",
+  },
+  {
+    icon: FileSearch,
+    title: "SHAP",
+    desc: "Explains every decision — analysts see exactly why a session was flagged.",
+  },
+  {
+    icon: Brain,
+    title: "Adaptive Learning",
+    desc: "Profile drifts naturally with the user, retrained continuously.",
+  },
+  {
+    icon: Fingerprint,
+    title: "Behavior Profile",
+    desc: "A living biometric template unique to every individual user.",
+  },
+  {
+    icon: Radar,
+    title: "Continuous Monitoring",
+    desc: "Every event scored — risk and confidence update second-by-second.",
+  },
 ];
 
 function AiEngine() {
@@ -389,8 +413,7 @@ function AiEngine() {
       eyebrow="AI Engine"
       title={
         <>
-          The architecture behind{" "}
-          <span className="text-gradient">invisible security</span>
+          The architecture behind <span className="text-gradient">invisible security</span>
         </>
       }
       subtitle="A layered pipeline of behavioral capture, feature engineering, and explainable models — built for production scale."
@@ -416,17 +439,61 @@ function AiEngine() {
 
 /* ============================================================ PLATFORM FEATURES */
 const FEATURES = [
-  { icon: Fingerprint, title: "Behavioral Biometrics", desc: "Identify users by how they type and move, not what they know." },
-  { icon: Zap, title: "Real-Time Authentication", desc: "Sub-second scoring on every behavioral window." },
-  { icon: Brain, title: "Adaptive Learning", desc: "Profiles evolve with users — no manual retraining cycles." },
-  { icon: Radar, title: "Continuous Monitoring", desc: "Every action evaluated — never a single point of trust." },
-  { icon: ScanFace, title: "OTP Challenge", desc: "Step-up authentication triggered only when risk requires it." },
-  { icon: FileSearch, title: "Explainable AI", desc: "SHAP-powered transparency for every flagged session." },
-  { icon: AlertTriangle, title: "Risk Detection", desc: "Anomalies surfaced as they happen, not in next-day reports." },
-  { icon: BarChart3, title: "Enterprise Dashboard", desc: "Operations-grade view of users, sessions, and threats." },
-  { icon: LineChart, title: "Live Analytics", desc: "Real-time behavioral and security telemetry." },
-  { icon: CheckCircle2, title: "Zero-Friction UX", desc: "Invisible to legitimate users — security without burden." },
-  { icon: Workflow, title: "Behavior Drift Detection", desc: "Detect gradual profile shifts versus sudden takeovers." },
+  {
+    icon: Fingerprint,
+    title: "Behavioral Biometrics",
+    desc: "Identify users by how they type and move, not what they know.",
+  },
+  {
+    icon: Zap,
+    title: "Real-Time Authentication",
+    desc: "Sub-second scoring on every behavioral window.",
+  },
+  {
+    icon: Brain,
+    title: "Adaptive Learning",
+    desc: "Profiles evolve with users — no manual retraining cycles.",
+  },
+  {
+    icon: Radar,
+    title: "Continuous Monitoring",
+    desc: "Every action evaluated — never a single point of trust.",
+  },
+  {
+    icon: ScanFace,
+    title: "OTP Challenge",
+    desc: "Step-up authentication triggered only when risk requires it.",
+  },
+  {
+    icon: FileSearch,
+    title: "Explainable AI",
+    desc: "SHAP-powered transparency for every flagged session.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Risk Detection",
+    desc: "Anomalies surfaced as they happen, not in next-day reports.",
+  },
+  {
+    icon: BarChart3,
+    title: "Enterprise Dashboard",
+    desc: "Operations-grade view of users, sessions, and threats.",
+  },
+  {
+    icon: LineChart,
+    title: "Live Analytics",
+    desc: "Real-time behavioral and security telemetry.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Zero-Friction UX",
+    desc: "Invisible to legitimate users — security without burden.",
+  },
+  {
+    icon: Workflow,
+    title: "Behavior Drift Detection",
+    desc: "Detect gradual profile shifts versus sudden takeovers.",
+  },
   { icon: Eye, title: "Session Monitoring", desc: "Full timeline of every authenticated session." },
 ];
 
@@ -437,8 +504,7 @@ function PlatformFeatures() {
       eyebrow="Platform Features"
       title={
         <>
-          Everything you need to{" "}
-          <span className="text-gradient">protect every session</span>
+          Everything you need to <span className="text-gradient">protect every session</span>
         </>
       }
       subtitle="A complete continuous authentication platform — from behavioral capture to enterprise reporting."
@@ -454,9 +520,7 @@ function PlatformFeatures() {
             </span>
             <div className="min-w-0">
               <h3 className="text-sm font-semibold">{f.title}</h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {f.desc}
-              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{f.desc}</p>
             </div>
           </div>
         ))}
@@ -467,12 +531,42 @@ function PlatformFeatures() {
 
 /* ============================================================ HOW IT WORKS */
 const STEPS = [
-  { n: "01", title: "Register", icon: UserCheck, desc: "Create an account and begin a guided onboarding flow." },
-  { n: "02", title: "Behavior Profile Created", icon: Fingerprint, desc: "Initial typing and movement patterns establish a baseline." },
-  { n: "03", title: "Login", icon: KeyRound, desc: "Standard credential verification — familiar, frictionless." },
-  { n: "04", title: "AI Monitors Behavior", icon: Brain, desc: "Each interaction streamed to the live scoring engine." },
-  { n: "05", title: "Risk Analysis", icon: Gauge, desc: "Continuous risk and confidence values updated in real time." },
-  { n: "06", title: "Session Protected", icon: ShieldCheck, desc: "Step-up challenges trigger only when anomalies appear." },
+  {
+    n: "01",
+    title: "Register",
+    icon: UserCheck,
+    desc: "Create an account and begin a guided onboarding flow.",
+  },
+  {
+    n: "02",
+    title: "Behavior Profile Created",
+    icon: Fingerprint,
+    desc: "Initial typing and movement patterns establish a baseline.",
+  },
+  {
+    n: "03",
+    title: "Login",
+    icon: KeyRound,
+    desc: "Standard credential verification — familiar, frictionless.",
+  },
+  {
+    n: "04",
+    title: "AI Monitors Behavior",
+    icon: Brain,
+    desc: "Each interaction streamed to the live scoring engine.",
+  },
+  {
+    n: "05",
+    title: "Risk Analysis",
+    icon: Gauge,
+    desc: "Continuous risk and confidence values updated in real time.",
+  },
+  {
+    n: "06",
+    title: "Session Protected",
+    icon: ShieldCheck,
+    desc: "Step-up challenges trigger only when anomalies appear.",
+  },
 ];
 
 function HowItWorks() {
@@ -481,8 +575,7 @@ function HowItWorks() {
       eyebrow="How it works"
       title={
         <>
-          From registration to{" "}
-          <span className="text-gradient">protected session</span>
+          From registration to <span className="text-gradient">protected session</span>
         </>
       }
       subtitle="Six steps. Invisible to the user. Always on for the security team."
@@ -527,7 +620,13 @@ function HowItWorks() {
 const STACK: { group: string; items: { name: string; icon: typeof Brain }[] }[] = [
   { group: "Frontend", items: [{ name: "React", icon: Boxes }] },
   { group: "Backend", items: [{ name: "FastAPI", icon: Server }] },
-  { group: "Database", items: [{ name: "MongoDB", icon: Database }, { name: "Redis", icon: Database }] },
+  {
+    group: "Database",
+    items: [
+      { name: "MongoDB", icon: Database },
+      { name: "Redis", icon: Database },
+    ],
+  },
   {
     group: "Machine Learning",
     items: [
@@ -547,9 +646,7 @@ function TechStack() {
       eyebrow="Technology Stack"
       title={
         <>
-          Built on{" "}
-          <span className="text-gradient">modern, production-grade</span>{" "}
-          infrastructure
+          Built on <span className="text-gradient">modern, production-grade</span> infrastructure
         </>
       }
       subtitle="Open standards, battle-tested ML, and a deployment story that scales from research lab to enterprise rollout."
@@ -585,10 +682,34 @@ function TechStack() {
 
 /* ============================================================ RESEARCH */
 const RESEARCH = [
-  { date: "2024", title: "Behavioral Biometrics at Scale", topic: "Continuous Authentication", abstract: "Evaluating 50+ behavioral features across 10k sessions for low-friction identity assurance." },
-  { date: "2024", title: "Explainable Anomaly Detection", topic: "AI Explainability", abstract: "SHAP-based attribution for one-class SVM decisions in production authentication systems." },
-  { date: "2023", title: "Adaptive Profile Learning", topic: "Adaptive Learning", abstract: "Online retraining strategies that follow legitimate behavior drift while resisting takeover attempts." },
-  { date: "2023", title: "Post-Login Session Security", topic: "Session Security", abstract: "Quantifying risk reduction from continuous verification versus point-in-time authentication." },
+  {
+    date: "2024",
+    title: "Behavioral Biometrics at Scale",
+    topic: "Continuous Authentication",
+    abstract:
+      "Evaluating 50+ behavioral features across 10k sessions for low-friction identity assurance.",
+  },
+  {
+    date: "2024",
+    title: "Explainable Anomaly Detection",
+    topic: "AI Explainability",
+    abstract:
+      "SHAP-based attribution for one-class SVM decisions in production authentication systems.",
+  },
+  {
+    date: "2023",
+    title: "Adaptive Profile Learning",
+    topic: "Adaptive Learning",
+    abstract:
+      "Online retraining strategies that follow legitimate behavior drift while resisting takeover attempts.",
+  },
+  {
+    date: "2023",
+    title: "Post-Login Session Security",
+    topic: "Session Security",
+    abstract:
+      "Quantifying risk reduction from continuous verification versus point-in-time authentication.",
+  },
 ];
 
 function Research() {
@@ -598,8 +719,7 @@ function Research() {
       eyebrow="Research"
       title={
         <>
-          Grounded in{" "}
-          <span className="text-gradient">peer-reviewed research</span>
+          Grounded in <span className="text-gradient">peer-reviewed research</span>
         </>
       }
       subtitle="The AdaptiveGuard engine builds on published work in behavioral biometrics, machine learning, and explainable AI."
@@ -607,21 +727,14 @@ function Research() {
     >
       <div className="grid gap-4 lg:grid-cols-2">
         {RESEARCH.map((r) => (
-          <article
-            key={r.title}
-            className="surface-card hover-lift group rounded-3xl p-7"
-          >
+          <article key={r.title} className="surface-card hover-lift group rounded-3xl p-7">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="font-numeric font-semibold text-accent">{r.date}</span>
               <span className="h-1 w-1 rounded-full bg-border" />
               <span className="uppercase tracking-wider">{r.topic}</span>
             </div>
-            <h3 className="mt-3 font-display text-xl font-semibold leading-snug">
-              {r.title}
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              {r.abstract}
-            </p>
+            <h3 className="mt-3 font-display text-xl font-semibold leading-snug">{r.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{r.abstract}</p>
             <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent">
               Read paper
               <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
@@ -635,14 +748,46 @@ function Research() {
 
 /* ============================================================ SECURITY */
 const SECURITY = [
-  { icon: Lock, title: "End-to-End Security", desc: "TLS 1.3 in transit. AES-256 at rest. Zero plaintext exposure." },
-  { icon: KeyRound, title: "JWT Authentication", desc: "Signed, short-lived session tokens with refresh rotation." },
-  { icon: ScanFace, title: "OTP Verification", desc: "Step-up challenges issued only when behavioral risk demands it." },
-  { icon: Activity, title: "Behavior Analysis", desc: "Live biometric scoring across every authenticated session." },
-  { icon: Eye, title: "Session Monitoring", desc: "Full audit trail of risk, confidence, and challenges." },
-  { icon: Brain, title: "Adaptive AI", desc: "Models retrain online — your defense compounds over time." },
-  { icon: AlertTriangle, title: "Threat Detection", desc: "Anomalies surfaced in real time with explainable signals." },
-  { icon: Database, title: "Encrypted Data", desc: "Behavioral templates stored as irreversible feature vectors." },
+  {
+    icon: Lock,
+    title: "End-to-End Security",
+    desc: "TLS 1.3 in transit. AES-256 at rest. Zero plaintext exposure.",
+  },
+  {
+    icon: KeyRound,
+    title: "JWT Authentication",
+    desc: "Signed, short-lived session tokens with refresh rotation.",
+  },
+  {
+    icon: ScanFace,
+    title: "OTP Verification",
+    desc: "Step-up challenges issued only when behavioral risk demands it.",
+  },
+  {
+    icon: Activity,
+    title: "Behavior Analysis",
+    desc: "Live biometric scoring across every authenticated session.",
+  },
+  {
+    icon: Eye,
+    title: "Session Monitoring",
+    desc: "Full audit trail of risk, confidence, and challenges.",
+  },
+  {
+    icon: Brain,
+    title: "Adaptive AI",
+    desc: "Models retrain online — your defense compounds over time.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Threat Detection",
+    desc: "Anomalies surfaced in real time with explainable signals.",
+  },
+  {
+    icon: Database,
+    title: "Encrypted Data",
+    desc: "Behavioral templates stored as irreversible feature vectors.",
+  },
 ];
 
 function Security() {
@@ -652,8 +797,7 @@ function Security() {
       eyebrow="Security"
       title={
         <>
-          Enterprise-grade defense,{" "}
-          <span className="text-gradient">end-to-end</span>
+          Enterprise-grade defense, <span className="text-gradient">end-to-end</span>
         </>
       }
       subtitle="Security is not a feature — it's the foundation. Every layer of the platform is built to protect identity, data, and trust."
@@ -710,9 +854,7 @@ function Security() {
               </span>
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold">{s.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {s.desc}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -726,7 +868,10 @@ function Security() {
 const SCREENS = [
   { title: "Banking Dashboard", desc: "Accounts, balances, and quick transfers at a glance." },
   { title: "AI Monitoring", desc: "Live behavioral scoring across every active session." },
-  { title: "Authentication Center", desc: "Continuous identity confidence with full session timeline." },
+  {
+    title: "Authentication Center",
+    desc: "Continuous identity confidence with full session timeline.",
+  },
   { title: "Security Center", desc: "Risks, anomalies, and step-up challenges in one view." },
   { title: "Transactions", desc: "Audited, filtered, and exportable financial activity." },
   { title: "SHAP Dashboard", desc: "Explainable AI for every authentication decision." },
@@ -738,8 +883,7 @@ function Screenshots() {
       eyebrow="The Product"
       title={
         <>
-          A platform crafted with{" "}
-          <span className="text-gradient">obsessive detail</span>
+          A platform crafted with <span className="text-gradient">obsessive detail</span>
         </>
       }
       subtitle="From dashboards to the AI engine — every surface is designed to feel premium, secure, and effortless."
@@ -820,7 +964,10 @@ function Stats() {
           style={{ background: "var(--gradient-cyber)", opacity: 0.18 }}
         />
         <div className="relative grid gap-10 text-center sm:grid-cols-2 lg:grid-cols-5">
-          <Stat value={<Counter to={99.2} decimals={1} suffix="%" />} label="Authentication Accuracy" />
+          <Stat
+            value={<Counter to={99.2} decimals={1} suffix="%" />}
+            label="Authentication Accuracy"
+          />
           <Stat value={<Counter to={50} suffix="+" />} label="Behavior Features" />
           <Stat value="24/7" label="Monitoring" />
           <Stat value={<Counter to={100} suffix="%" />} label="Session Protection" />
@@ -837,9 +984,7 @@ function Stat({ value, label }: { value: React.ReactNode; label: string }) {
       <div className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
         <span className="text-gradient">{value}</span>
       </div>
-      <div className="mt-2 text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
+      <div className="mt-2 text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
     </div>
   );
 }
@@ -882,8 +1027,7 @@ function Testimonials() {
       eyebrow="Trusted by experts"
       title={
         <>
-          What security and{" "}
-          <span className="text-gradient">FinTech leaders</span> say
+          What security and <span className="text-gradient">FinTech leaders</span> say
         </>
       }
       alt
@@ -976,8 +1120,7 @@ function Pricing() {
       eyebrow="Pricing"
       title={
         <>
-          Plans built for{" "}
-          <span className="text-gradient">every stage of adoption</span>
+          Plans built for <span className="text-gradient">every stage of adoption</span>
         </>
       }
       subtitle="From academic exploration to enterprise deployment — choose the tier that matches your scale."
@@ -987,9 +1130,7 @@ function Pricing() {
           <div
             key={p.name}
             className={`relative flex flex-col rounded-3xl p-8 ${
-              p.highlight
-                ? "gradient-border surface-card shadow-glow"
-                : "surface-card hover-lift"
+              p.highlight ? "gradient-border surface-card shadow-glow" : "surface-card hover-lift"
             }`}
           >
             {p.highlight && (
@@ -1002,9 +1143,7 @@ function Pricing() {
               <p className="mt-2 text-sm text-muted-foreground">{p.desc}</p>
             </div>
             <div className="mt-6 flex items-baseline gap-1">
-              <span className="font-display text-4xl font-bold tracking-tight">
-                {p.price}
-              </span>
+              <span className="font-display text-4xl font-bold tracking-tight">{p.price}</span>
               {p.price !== "Free" && p.price !== "Custom" && p.price !== "Contact" && (
                 <span className="text-sm text-muted-foreground">/month</span>
               )}
@@ -1083,8 +1222,7 @@ function Contact() {
       eyebrow="Contact"
       title={
         <>
-          Talk to the team behind{" "}
-          <span className="text-gradient">AdaptiveGuard AI</span>
+          Talk to the team behind <span className="text-gradient">AdaptiveGuard AI</span>
         </>
       }
       subtitle="Pilot deployments, research partnerships, or technical deep-dives — we'd love to hear from you."

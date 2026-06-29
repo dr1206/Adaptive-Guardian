@@ -7,9 +7,15 @@ import { Sparkline } from "./sparkline";
 const FINISH: Record<Account["type"], { bg: string; accent: string }> = {
   primary: { bg: "linear-gradient(135deg,#1a1d24 0%,#0c0e12 60%,#23262d 100%)", accent: "#9aa3b2" },
   savings: { bg: "linear-gradient(135deg,#3a2f1f 0%,#1a1410 55%,#5a4628 100%)", accent: "#d6b66a" },
-  investment: { bg: "linear-gradient(135deg,#1c1a3a 0%,#0f0d24 55%,#332d5e 100%)", accent: "#b4a7ff" },
+  investment: {
+    bg: "linear-gradient(135deg,#1c1a3a 0%,#0f0d24 55%,#332d5e 100%)",
+    accent: "#b4a7ff",
+  },
   credit: { bg: "linear-gradient(135deg,#222428 0%,#101113 60%,#2e3138 100%)", accent: "#9aa3b2" },
-  business: { bg: "linear-gradient(135deg,#262a32 0%,#13161b 60%,#3a404a 100%)", accent: "#cdd3e0" },
+  business: {
+    bg: "linear-gradient(135deg,#262a32 0%,#13161b 60%,#3a404a 100%)",
+    accent: "#cdd3e0",
+  },
   fixed: { bg: "linear-gradient(135deg,#0e2a26 0%,#06120f 60%,#163b34 100%)", accent: "#6fe0c2" },
 };
 
@@ -27,9 +33,18 @@ export function AccountCard({ account }: { account: Account }) {
       }}
     >
       {/* etched grid */}
-      <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]" viewBox="0 0 320 200">
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]"
+        viewBox="0 0 320 200"
+      >
         <defs>
-          <pattern id={`acc-${account.id}-etch`} width="14" height="14" patternUnits="userSpaceOnUse">
+          <pattern
+            id={`acc-${account.id}-etch`}
+            width="14"
+            height="14"
+            patternUnits="userSpaceOnUse"
+          >
             <path d="M 14 0 L 0 0 0 14" stroke={f.accent} strokeWidth="0.3" fill="none" />
           </pattern>
         </defs>
@@ -38,17 +53,26 @@ export function AccountCard({ account }: { account: Account }) {
 
       <header className="flex items-start justify-between">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: f.accent, opacity: 0.7 }}>
+          <div
+            className="text-[10px] uppercase tracking-[0.18em]"
+            style={{ color: f.accent, opacity: 0.7 }}
+          >
             {account.name} · {account.currency}
           </div>
         </div>
-        <div className="font-numeric text-[10px] uppercase tracking-[0.18em]" style={{ color: f.accent, opacity: 0.55 }}>
+        <div
+          className="font-numeric text-[10px] uppercase tracking-[0.18em]"
+          style={{ color: f.accent, opacity: 0.55 }}
+        >
           IBAN ••{account.iban.slice(-4)}
         </div>
       </header>
 
       <div className="mt-5 flex items-end justify-between">
-        <div className="font-numeric text-[28px] font-semibold tracking-tight" style={{ color: f.accent }}>
+        <div
+          className="font-numeric text-[28px] font-semibold tracking-tight"
+          style={{ color: f.accent }}
+        >
           {fmt(account.balance)}
         </div>
         <span
@@ -62,7 +86,10 @@ export function AccountCard({ account }: { account: Account }) {
         <Sparkline points={account.spark} width={296} height={36} color={f.accent} />
       </div>
 
-      <footer className="mt-3 flex items-center justify-between text-[10px]" style={{ color: f.accent, opacity: 0.7 }}>
+      <footer
+        className="mt-3 flex items-center justify-between text-[10px]"
+        style={{ color: f.accent, opacity: 0.7 }}
+      >
         <span className="inline-flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-success" />
           Active · refreshed 14:32

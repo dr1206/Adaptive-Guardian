@@ -9,9 +9,7 @@ export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
 
   useEffect(() => {
     const tick = () =>
-      setTime(
-        new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-      );
+      setTime(new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
     tick();
     const i = setInterval(tick, 30_000);
     const onScroll = () => setScrolled(window.scrollY > 12);

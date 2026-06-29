@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Snowflake, Lock, Globe, Plane, Eye, RotateCcw, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Plus,
+  Snowflake,
+  Lock,
+  Globe,
+  Plane,
+  Eye,
+  RotateCcw,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { BankCard } from "@/components/banking/bank-card";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
@@ -28,7 +39,6 @@ function CardsPage() {
     setCards((cs) => cs.map((c, i) => (i === idx ? { ...c, frozen: !c.frozen } : c)));
 
   return (
-
     <div>
       <PageHeader
         eyebrow="Money"
@@ -84,7 +94,10 @@ function CardsPage() {
                   {cards.map((_, i) => (
                     <span
                       key={i}
-                      className={cn("h-1.5 rounded-full transition-all", i === idx ? "w-6 bg-accent" : "w-1.5 bg-white/15")}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all",
+                        i === idx ? "w-6 bg-accent" : "w-1.5 bg-white/15",
+                      )}
                     />
                   ))}
                 </div>
@@ -101,13 +114,32 @@ function CardsPage() {
             {/* Control Deck */}
             <section className="mt-6 grid gap-5 lg:grid-cols-12">
               <article className="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Controls</h3>
+                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Controls
+                </h3>
                 <ul className="space-y-2.5">
-                  <Toggle icon={<Snowflake className="h-3.5 w-3.5" />} label="Freeze card" on={card.frozen} onChange={toggleFreeze} />
-                  <Toggle icon={<Globe className="h-3.5 w-3.5" />} label="Online payments" on={true} />
+                  <Toggle
+                    icon={<Snowflake className="h-3.5 w-3.5" />}
+                    label="Freeze card"
+                    on={card.frozen}
+                    onChange={toggleFreeze}
+                  />
+                  <Toggle
+                    icon={<Globe className="h-3.5 w-3.5" />}
+                    label="Online payments"
+                    on={true}
+                  />
                   <Toggle icon={<Lock className="h-3.5 w-3.5" />} label="Contactless" on={true} />
-                  <Toggle icon={<Globe className="h-3.5 w-3.5" />} label="International" on={false} />
-                  <Toggle icon={<Plane className="h-3.5 w-3.5" />} label="Travel mode" on={card.kind === "travel"} />
+                  <Toggle
+                    icon={<Globe className="h-3.5 w-3.5" />}
+                    label="International"
+                    on={false}
+                  />
+                  <Toggle
+                    icon={<Plane className="h-3.5 w-3.5" />}
+                    label="Travel mode"
+                    on={card.kind === "travel"}
+                  />
                 </ul>
                 <div className="mt-5 flex items-center gap-2 border-t border-white/[0.05] pt-4 text-[11px] text-muted-foreground">
                   <SmallButton icon={<Eye className="h-3 w-3" />} label="View PIN" />
@@ -117,7 +149,9 @@ function CardsPage() {
               </article>
 
               <article className="lg:col-span-4 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Limits</h3>
+                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Limits
+                </h3>
                 <Limit label="Daily" used={card.limits.usedDaily} total={card.limits.daily} />
                 <Limit label="Monthly" used={card.limits.usedMonthly} total={card.limits.monthly} />
                 <Limit label="ATM" used={card.limits.usedAtm} total={card.limits.atm} />
@@ -125,8 +159,12 @@ function CardsPage() {
               </article>
 
               <article className="lg:col-span-3 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-                <h3 className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Spent this month</h3>
-                <div className="font-numeric text-[26px] font-semibold tracking-tight">{fmt(card.spentMonth)}</div>
+                <h3 className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Spent this month
+                </h3>
+                <div className="font-numeric text-[26px] font-semibold tracking-tight">
+                  {fmt(card.spentMonth)}
+                </div>
                 <div className="mt-1 text-[11px] text-success">↓ 8% vs May</div>
                 <div className="mt-4 text-[11px] text-muted-foreground">
                   Aegis confidence on transactions:
@@ -139,17 +177,28 @@ function CardsPage() {
       </AsyncBoundary>
     </div>
   );
-
 }
 
-function Toggle({ icon, label, on, onChange }: { icon: React.ReactNode; label: string; on: boolean; onChange?: () => void }) {
+function Toggle({
+  icon,
+  label,
+  on,
+  onChange,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  on: boolean;
+  onChange?: () => void;
+}) {
   return (
     <li>
       <button
         onClick={onChange}
         className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
       >
-        <span className="grid h-7 w-7 place-items-center rounded-md bg-white/[0.04] text-muted-foreground">{icon}</span>
+        <span className="grid h-7 w-7 place-items-center rounded-md bg-white/[0.04] text-muted-foreground">
+          {icon}
+        </span>
         <span className="flex-1 text-left">{label}</span>
         <span
           className={cn(
@@ -188,7 +237,10 @@ function Limit({ label, used, total }: { label: string; used: number; total: num
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-        <div className="h-full rounded-full bg-gradient-to-r from-accent to-purple" style={{ width: `${pct}%` }} />
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-accent to-purple"
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );

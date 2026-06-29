@@ -33,7 +33,6 @@ function VerifyScreen() {
     }
   }
 
-
   const masked = e ? e.replace(/^(.).+(@.+)$/, "$1•••••$2") : "your inbox";
 
   return (
@@ -69,8 +68,9 @@ function VerifyScreen() {
           <span className="text-gradient">code is waiting.</span>
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          We just sent a one-time code to <span className="text-foreground/90 font-medium">{masked}</span>.
-          Enter it below — the pucks will glow in sequence when it's right.
+          We just sent a one-time code to{" "}
+          <span className="text-foreground/90 font-medium">{masked}</span>. Enter it below — the
+          pucks will glow in sequence when it's right.
         </p>
 
         <div className="mt-10">
@@ -93,7 +93,8 @@ function VerifyScreen() {
             </>
           ) : (
             <>
-              <ShieldCheck className="h-3.5 w-3.5 text-success" /> This device has not been seen before — we'll remember it.
+              <ShieldCheck className="h-3.5 w-3.5 text-success" /> This device has not been seen
+              before — we'll remember it.
             </>
           )}
         </div>
@@ -105,7 +106,10 @@ function VerifyScreen() {
         )}
         {otpError && (
           <p className="mt-6 text-[12px] text-danger" role="alert">
-            {otpError} <span className="text-muted-foreground">(Hint: any 6 digits except 000000 works in demo.)</span>
+            {otpError}{" "}
+            <span className="text-muted-foreground">
+              (Hint: any 6 digits except 000000 works in demo.)
+            </span>
           </p>
         )}
       </div>

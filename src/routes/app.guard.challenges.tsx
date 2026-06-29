@@ -11,9 +11,33 @@ export const Route = createFileRoute("/app/guard/challenges")({
 });
 
 const ROWS = [
-  { t: "Today · 11:07", reason: "New beneficiary", before: 94.2, after: 99.4, result: "Passed · OTP", device: "MacBook Pro", loc: "Lisbon" },
-  { t: "Mar 14 · 18:22", reason: "Unusual amount", before: 95.1, after: 99.0, result: "Passed · OTP", device: "iPhone 15 Pro", loc: "Lisbon" },
-  { t: "Mar 11 · 09:04", reason: "New location", before: 88.7, after: 97.8, result: "Passed · OTP", device: "MacBook Pro", loc: "Porto" },
+  {
+    t: "Today · 11:07",
+    reason: "New beneficiary",
+    before: 94.2,
+    after: 99.4,
+    result: "Passed · OTP",
+    device: "MacBook Pro",
+    loc: "Lisbon",
+  },
+  {
+    t: "Mar 14 · 18:22",
+    reason: "Unusual amount",
+    before: 95.1,
+    after: 99.0,
+    result: "Passed · OTP",
+    device: "iPhone 15 Pro",
+    loc: "Lisbon",
+  },
+  {
+    t: "Mar 11 · 09:04",
+    reason: "New location",
+    before: 88.7,
+    after: 97.8,
+    result: "Passed · OTP",
+    device: "MacBook Pro",
+    loc: "Porto",
+  },
 ];
 
 function Challenges() {
@@ -57,7 +81,9 @@ function Challenges() {
               >
                 <div>
                   <div className="text-[12.5px] font-medium">{r.reason}</div>
-                  <div className="font-numeric text-[11px] tabular-nums text-muted-foreground">{r.t}</div>
+                  <div className="font-numeric text-[11px] tabular-nums text-muted-foreground">
+                    {r.t}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <ConfidenceRing value={r.before} size="sm" showShield={false} />
@@ -81,8 +107,12 @@ function Challenges() {
           <SigilCard eyebrow="This month" title="No challenges needed today">
             <div className="flex flex-col items-center py-2 text-center">
               <Shield size={56} live />
-              <div className="mt-3 font-display text-[28px] font-semibold tabular-nums">312<span className="text-[14px] text-muted-foreground"> / 312</span></div>
-              <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Sessions recognized</div>
+              <div className="mt-3 font-display text-[28px] font-semibold tabular-nums">
+                312<span className="text-[14px] text-muted-foreground"> / 312</span>
+              </div>
+              <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                Sessions recognized
+              </div>
               <p className="mt-3 max-w-[28ch] text-[12px] text-muted-foreground">
                 The Guardian recognized you 312 of 312 sessions this month — silently.
               </p>
@@ -93,7 +123,9 @@ function Challenges() {
               <div className="font-numeric text-[28px] font-semibold tabular-nums">0.96%</div>
               <Sparkline points={[3, 2, 2, 1.5, 1.2, 1.1, 0.96]} width={120} height={32} />
             </div>
-            <p className="mt-2 text-[11.5px] text-muted-foreground">Down from 3% — the model is learning.</p>
+            <p className="mt-2 text-[11.5px] text-muted-foreground">
+              Down from 3% — the model is learning.
+            </p>
           </SigilCard>
         </div>
       </section>

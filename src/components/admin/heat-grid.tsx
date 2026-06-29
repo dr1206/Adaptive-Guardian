@@ -19,13 +19,17 @@ export function HeatGrid({
         <div className="w-10" />
         <div className="grid grid-cols-24 gap-1 flex-1 text-[9px] font-mono text-muted-foreground/60">
           {Array.from({ length: cols }).map((_, i) => (
-            <div key={i} className="text-center">{i % 3 === 0 ? i.toString().padStart(2, "0") : ""}</div>
+            <div key={i} className="text-center">
+              {i % 3 === 0 ? i.toString().padStart(2, "0") : ""}
+            </div>
           ))}
         </div>
       </div>
       {Array.from({ length: rows }).map((_, r) => (
         <div key={r} className="flex items-center gap-1">
-          <div className="w-10 text-[10px] font-mono text-muted-foreground/70">{rowLabels[r] ?? ""}</div>
+          <div className="w-10 text-[10px] font-mono text-muted-foreground/70">
+            {rowLabels[r] ?? ""}
+          </div>
           <div className="grid grid-cols-24 gap-1 flex-1">
             {Array.from({ length: cols }).map((_, c) => {
               const v = data[r]?.[c] ?? 0;

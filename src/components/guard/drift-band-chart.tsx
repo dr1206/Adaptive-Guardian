@@ -44,7 +44,12 @@ export function DriftBandChart({ seed = 11, height = 180 }: { seed?: number; hei
           <stop offset="100%" stopColor="oklch(0.715 0.135 215)" stopOpacity="0.06" />
         </linearGradient>
       </defs>
-      <path d={band} fill="url(#drift-band)" stroke="oklch(0.655 0.195 258 / 0.35)" strokeWidth="0.8" />
+      <path
+        d={band}
+        fill="url(#drift-band)"
+        stroke="oklch(0.655 0.195 258 / 0.35)"
+        strokeWidth="0.8"
+      />
       <line
         x1="0"
         x2="600"
@@ -53,7 +58,14 @@ export function DriftBandChart({ seed = 11, height = 180 }: { seed?: number; hei
         stroke="oklch(1 0 0 / 0.06)"
         strokeDasharray="3 4"
       />
-      <path d={line} fill="none" stroke="oklch(0.715 0.135 215)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={line}
+        fill="none"
+        stroke="oklch(0.715 0.135 215)"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

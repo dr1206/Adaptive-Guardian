@@ -13,10 +13,20 @@
 export type Signal = "ok" | "watch" | "alert" | "critical";
 
 export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> = {
-  ok:       { fg: "text-emerald-300", bg: "bg-emerald-500/10", ring: "ring-emerald-500/30", label: "Healthy" },
-  watch:    { fg: "text-amber-300",   bg: "bg-amber-500/10",   ring: "ring-amber-500/30",   label: "Watch" },
-  alert:    { fg: "text-rose-300",    bg: "bg-rose-500/10",    ring: "ring-rose-500/30",    label: "Alert" },
-  critical: { fg: "text-fuchsia-300", bg: "bg-fuchsia-500/10", ring: "ring-fuchsia-500/30", label: "Critical" },
+  ok: {
+    fg: "text-emerald-300",
+    bg: "bg-emerald-500/10",
+    ring: "ring-emerald-500/30",
+    label: "Healthy",
+  },
+  watch: { fg: "text-amber-300", bg: "bg-amber-500/10", ring: "ring-amber-500/30", label: "Watch" },
+  alert: { fg: "text-rose-300", bg: "bg-rose-500/10", ring: "ring-rose-500/30", label: "Alert" },
+  critical: {
+    fg: "text-fuchsia-300",
+    bg: "bg-fuchsia-500/10",
+    ring: "ring-fuchsia-500/30",
+    label: "Critical",
+  },
 };
 
 function mulberry32(seed: number) {
@@ -42,7 +52,5 @@ export function seedSeries(seed: number, n = 64, min = 0, max = 1, smooth = 0.6)
 
 export function seedHeat(seed: number, cols = 24, rows = 7) {
   const rng = mulberry32(seed);
-  return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => rng()),
-  );
+  return Array.from({ length: rows }, () => Array.from({ length: cols }, () => rng()));
 }

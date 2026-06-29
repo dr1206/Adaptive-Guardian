@@ -20,25 +20,20 @@ export function Section({
   return (
     <section
       id={id}
-      className={`relative w-full overflow-hidden py-24 sm:py-32 ${
-        alt ? "bg-surface/40" : ""
-      }`}
+      className={`relative w-full overflow-hidden py-24 sm:py-32 ${alt ? "bg-surface/40" : ""}`}
     >
       {alt && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.08), transparent)",
+            background: "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.08), transparent)",
           }}
         />
       )}
       <div className="relative mx-auto w-full max-w-[1400px] px-6">
         {(eyebrow || title || subtitle) && (
-          <div
-            className={`mb-14 max-w-3xl ${align === "center" ? "mx-auto text-center" : ""}`}
-          >
+          <div className={`mb-14 max-w-3xl ${align === "center" ? "mx-auto text-center" : ""}`}>
             {eyebrow && (
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <span className="h-1 w-1 rounded-full bg-accent" />

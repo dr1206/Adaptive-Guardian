@@ -34,7 +34,10 @@ export function BalanceTile({
       </div>
       <Sparkline />
       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>Available · {currency}{integer}</span>
+        <span>
+          Available · {currency}
+          {integer}
+        </span>
         <ArrowUpRight className="h-3.5 w-3.5 text-accent" />
       </div>
     </div>

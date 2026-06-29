@@ -39,7 +39,8 @@ function AuthTimeline() {
                     className="h-full rounded-full"
                     style={{
                       width: `${d.conf}%`,
-                      background: "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
+                      background:
+                        "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
                     }}
                   />
                 </div>

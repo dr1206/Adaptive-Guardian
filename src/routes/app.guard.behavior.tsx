@@ -9,9 +9,21 @@ export const Route = createFileRoute("/app/guard/behavior")({
 });
 
 const PAGES = [
-  { to: "/app/guard/typing", label: "Typing Intelligence", note: "Rhythm, cadence, hold time, flight time." },
-  { to: "/app/guard/mouse", label: "Mouse Intelligence", note: "Speed, precision, smoothness, click rhythm." },
-  { to: "/app/guard/session", label: "Session Intelligence", note: "Consistency, idle, focus, action cadence." },
+  {
+    to: "/app/guard/typing",
+    label: "Typing Intelligence",
+    note: "Rhythm, cadence, hold time, flight time.",
+  },
+  {
+    to: "/app/guard/mouse",
+    label: "Mouse Intelligence",
+    note: "Speed, precision, smoothness, click rhythm.",
+  },
+  {
+    to: "/app/guard/session",
+    label: "Session Intelligence",
+    note: "Consistency, idle, focus, action cadence.",
+  },
 ];
 
 function Behavior() {
@@ -28,7 +40,9 @@ function Behavior() {
           <span className="inline-flex items-center gap-1.5 text-success">
             <span className="h-1.5 w-1.5 rounded-full bg-success" /> Within your normal range
           </span>
-          <span className="text-muted-foreground">You-ness index · <span className="font-numeric text-foreground">96.8</span></span>
+          <span className="text-muted-foreground">
+            You-ness index · <span className="font-numeric text-foreground">96.8</span>
+          </span>
         </div>
       </SigilCard>
 
@@ -42,7 +56,9 @@ function Behavior() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.22em] text-accent">Dedicated</div>
-                <div className="mt-1 font-display text-[18px] font-medium tracking-tight">{p.label}</div>
+                <div className="mt-1 font-display text-[18px] font-medium tracking-tight">
+                  {p.label}
+                </div>
                 <p className="mt-1.5 text-[12.5px] text-muted-foreground">{p.note}</p>
               </div>
               <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

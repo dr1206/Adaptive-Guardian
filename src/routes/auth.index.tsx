@@ -82,9 +82,8 @@ function IdentityScreen() {
           <span className="text-gradient">private vault.</span>
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          AdaptiveGuard recognizes you by how you type, move, and decide —
-          not just what you remember. Begin with your credentials; the AI
-          will quietly do the rest.
+          AdaptiveGuard recognizes you by how you type, move, and decide — not just what you
+          remember. Begin with your credentials; the AI will quietly do the rest.
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-4">
@@ -113,7 +112,9 @@ function IdentityScreen() {
             disabled={!email || !password || submitting}
             className="group relative inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl gradient-cyber px-6 text-sm font-semibold text-primary-foreground shadow-glow transition-all duration-300 hover:translate-y-[-1px] disabled:opacity-40 disabled:hover:translate-y-0"
           >
-            {submitting ? <ApertureSpinner size={18} /> : (
+            {submitting ? (
+              <ApertureSpinner size={18} />
+            ) : (
               <>
                 Continue to verification
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -138,8 +139,8 @@ function IdentityScreen() {
         </button>
 
         <p className="mt-8 text-[11px] text-muted-foreground">
-          By continuing you accept the AdaptiveGuard Trust Charter.
-          Behavioral data is captured on-device; only an encrypted vector ever leaves your browser.
+          By continuing you accept the AdaptiveGuard Trust Charter. Behavioral data is captured
+          on-device; only an encrypted vector ever leaves your browser.
         </p>
       </div>
     </AuthShell>

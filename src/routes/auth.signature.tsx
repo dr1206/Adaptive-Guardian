@@ -53,9 +53,9 @@ function SignatureScreen() {
           <span className="text-gradient">unmistakable.</span>
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          AdaptiveGuard has woven your keystroke cadence and mouse curvature
-          into a single behavioral filament. From now on, every session is
-          continuously verified — silently, on-device, with zero added friction.
+          AdaptiveGuard has woven your keystroke cadence and mouse curvature into a single
+          behavioral filament. From now on, every session is continuously verified — silently,
+          on-device, with zero added friction.
         </p>
 
         <div className="mt-10 mx-auto lg:mx-0">
@@ -83,8 +83,8 @@ function SignatureScreen() {
         </div>
 
         <p className="mt-6 text-[11px] text-muted-foreground">
-          Your behavioral vector is stored encrypted in the EU.
-          You can recalibrate or revoke it anytime from Settings → Identity.
+          Your behavioral vector is stored encrypted in the EU. You can recalibrate or revoke it
+          anytime from Settings → Identity.
         </p>
       </div>
     </AuthShell>
@@ -102,9 +102,11 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function deriveName(email: string) {
   const local = email.split("@")[0] ?? "";
-  return local
-    .split(/[._-]/)
-    .filter(Boolean)
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ") || "Member";
+  return (
+    local
+      .split(/[._-]/)
+      .filter(Boolean)
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ") || "Member"
+  );
 }
