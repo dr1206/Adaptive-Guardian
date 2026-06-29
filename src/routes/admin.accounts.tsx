@@ -2,25 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { OpsTable } from "@/components/admin/ops-table";
 import { MetricCell } from "@/components/admin/metric-cell";
-import { seedSeries } from "@/lib/admin-data";
+import { seedSeries } from "@/lib/admin-signal";
+import { useAdminAccounts } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/accounts")({
   component: AccountsPage,
 });
 
-const accounts = Array.from({ length: 20 }).map((_, i) => ({
-  id: `ACC-${(90000 + i).toString(16).toUpperCase()}`,
-  holder: ["Aurora Mfg LLC","Helios Capital","Northwind GmbH","Atlas Trust","Vega Holdings","Solstice LP","Halcyon Inc"][i % 7],
-  product: (["Current","Savings","Treasury","Card","FX","Loan"] as const)[i % 6],
-  balance: 12_000 + Math.floor(Math.random() * 8_000_000),
-  currency: ["USD","EUR","GBP","SGD"][i % 4],
-  flags: i % 5 === 0 ? "AML review" : i % 7 === 0 ? "frozen" : "—",
-  opened: ["2021","2022","2023","2024","2025"][i % 5],
-}));
-
 function AccountsPage() {
+  const accountsQ = useAdminAccounts();
+  const accounts = accountsQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={accountsQ.isLoading} error={accountsQ.error as Error | null}>
     <div className="space-y-6">
+
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">People · accounts</div>
         <h1 className="text-2xl font-semibold tracking-tight mt-1">Accounts</h1>
@@ -47,5 +43,6 @@ function AccountsPage() {
         ]}
       />
     </div>
+    </AsyncBoundary>
   );
 }

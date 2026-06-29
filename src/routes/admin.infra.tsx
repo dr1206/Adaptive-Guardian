@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { infra } from "@/lib/admin-data";
-import { Cpu, MemoryStick, HardDrive, Activity, Network, Boxes, Container, ListChecks } from "lucide-react";
+import { useAdminInfra } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { Cpu, MemoryStick, HardDrive, Activity, Network, Boxes, Container, ListChecks, type LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/infra")({
   component: InfraPage,
 });
 
-function Gauge({ label, value, icon: Icon }: { label: string; value: number; icon: any }) {
+function Gauge({ label, value, icon: Icon }: { label: string; value: number; icon: LucideIcon }) {
   return (
     <div className="rounded-2xl border border-white/[0.06] p-4 bg-[oklch(0.225_0.035_264/0.55)]">
       <div className="flex items-center justify-between mb-2">
@@ -23,7 +24,11 @@ function Gauge({ label, value, icon: Icon }: { label: string; value: number; ico
 }
 
 function InfraPage() {
+  const infraQ = useAdminInfra();
+  const infra = infraQ.data;
   return (
+    <AsyncBoundary isLoading={infraQ.isLoading} error={infraQ.error as Error | null} isEmpty={!infra}>
+    {infra ? (
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Platform · infrastructure</div>
@@ -67,5 +72,7 @@ function InfraPage() {
         </InstrumentPanel>
       </div>
     </div>
+    ) : null}
+    </AsyncBoundary>
   );
 }

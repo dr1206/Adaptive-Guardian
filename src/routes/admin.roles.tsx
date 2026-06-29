@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { roles, permissions, rolePermissions } from "@/lib/admin-data";
+import { useAdminPermissions, useAdminRolePermissions, useAdminRoles } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { Shield, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/roles")({
@@ -8,7 +9,17 @@ export const Route = createFileRoute("/admin/roles")({
 });
 
 function RolesPage() {
+  const rolesQ = useAdminRoles();
+  const permissionsQ = useAdminPermissions();
+  const rolePermsQ = useAdminRolePermissions();
+  const roles = rolesQ.data ?? [];
+  const permissions = permissionsQ.data ?? [];
+  const rolePermissions = rolePermsQ.data ?? {};
   return (
+    <AsyncBoundary
+      isLoading={rolesQ.isLoading || permissionsQ.isLoading || rolePermsQ.isLoading}
+      error={(rolesQ.error ?? permissionsQ.error ?? rolePermsQ.error) as Error | null}
+    >
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -62,5 +73,6 @@ function RolesPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

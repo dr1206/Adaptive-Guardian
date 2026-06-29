@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { auditLog } from "@/lib/admin-data";
+import { useAdminAudit } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { Search, Download, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/admin/audit")({
@@ -16,7 +17,10 @@ const classTone: Record<string, string> = {
 };
 
 function AuditPage() {
+  const auditQ = useAdminAudit();
+  const auditLog = auditQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={auditQ.isLoading} error={auditQ.error as Error | null} isEmpty={auditLog.length === 0}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -51,5 +55,6 @@ function AuditPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

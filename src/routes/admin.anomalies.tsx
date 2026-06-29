@@ -1,22 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { incidents, signalTone } from "@/lib/admin-data";
+import { signalTone } from "@/lib/admin-signal";
+import { useAdminAnomalySignatures, useAdminIncidents } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { AlertOctagon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/anomalies")({
   component: AnomaliesPage,
 });
 
-const signatures = [
-  { name: "Behavior drift > 3σ",       count: 12, last: "8m ago",   severity: "alert" as const },
-  { name: "New device burst (>5/min)", count: 6,  last: "21m ago",  severity: "watch" as const },
-  { name: "Impossible travel",          count: 3,  last: "47m ago",  severity: "critical" as const },
-  { name: "Velocity check failed",      count: 18, last: "1h ago",   severity: "watch" as const },
-  { name: "Model uncertainty spike",    count: 2,  last: "34m ago",  severity: "alert" as const },
-];
-
 function AnomaliesPage() {
+  const sigsQ = useAdminAnomalySignatures();
+  const incidentsQ = useAdminIncidents();
+  const signatures = sigsQ.data ?? [];
+  const incidents = incidentsQ.data ?? [];
   return (
+    <AsyncBoundary
+      isLoading={sigsQ.isLoading || incidentsQ.isLoading}
+      error={(sigsQ.error ?? incidentsQ.error) as Error | null}
+    >
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Defense · anomalies</div>
@@ -64,5 +66,6 @@ function AnomaliesPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

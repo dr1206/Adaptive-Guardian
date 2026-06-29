@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { models } from "@/lib/admin-data";
+import { useAdminModels } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { Cpu, GitCompare, History, Play, RotateCcw, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/admin/ai/models")({
@@ -8,7 +9,10 @@ export const Route = createFileRoute("/admin/ai/models")({
 });
 
 function ModelsPage() {
+  const modelsQ = useAdminModels();
+  const models = modelsQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={modelsQ.isLoading} error={modelsQ.error as Error | null} isEmpty={models.length === 0}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -76,5 +80,6 @@ function ModelsPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

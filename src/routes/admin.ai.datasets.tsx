@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { OpsTable } from "@/components/admin/ops-table";
-import { datasets } from "@/lib/admin-data";
+import { useAdminDatasets } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { Database, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/admin/ai/datasets")({
@@ -9,7 +10,10 @@ export const Route = createFileRoute("/admin/ai/datasets")({
 });
 
 function DatasetsPage() {
+  const datasetsQ = useAdminDatasets();
+  const datasets = datasetsQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={datasetsQ.isLoading} error={datasetsQ.error as Error | null} isEmpty={datasets.length === 0}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -62,5 +66,6 @@ function DatasetsPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

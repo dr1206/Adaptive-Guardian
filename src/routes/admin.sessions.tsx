@@ -5,7 +5,9 @@ import { OpsTable } from "@/components/admin/ops-table";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { HeatGrid } from "@/components/admin/heat-grid";
 import { SignalDot } from "@/components/admin/signal-dot";
-import { liveSessions, seedSeries, seedHeat, signalTone } from "@/lib/admin-data";
+import { seedHeat, seedSeries, signalTone } from "@/lib/admin-signal";
+import { useAdminLiveSessions } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/sessions")({
   component: SessionsPage,
@@ -13,7 +15,10 @@ export const Route = createFileRoute("/admin/sessions")({
 
 function SessionsPage() {
   const [mode, setMode] = useState<"table" | "timeline" | "heatmap">("table");
+  const sessionsQ = useAdminLiveSessions();
+  const liveSessions = sessionsQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={sessionsQ.isLoading} error={sessionsQ.error as Error | null}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -74,5 +79,6 @@ function SessionsPage() {
         </InstrumentPanel>
       )}
     </div>
+    </AsyncBoundary>
   );
 }

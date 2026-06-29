@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { services, signalTone } from "@/lib/admin-data";
+import { signalTone } from "@/lib/admin-signal";
+import { useAdminApiServices } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/api")({
   component: ApiHealthPage,
 });
 
 function ApiHealthPage() {
+  const servicesQ = useAdminApiServices();
+  const services = servicesQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={servicesQ.isLoading} error={servicesQ.error as Error | null} isEmpty={services.length === 0}>
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Platform · api health</div>
@@ -40,5 +45,6 @@ function ApiHealthPage() {
         })}
       </div>
     </div>
+    </AsyncBoundary>
   );
 }

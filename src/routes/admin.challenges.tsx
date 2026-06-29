@@ -2,14 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { OpsTable } from "@/components/admin/ops-table";
 import { MetricCell } from "@/components/admin/metric-cell";
-import { challenges, challengeReasons, seedSeries } from "@/lib/admin-data";
+import { seedSeries } from "@/lib/admin-signal";
+import { useAdminChallengeReasons, useAdminChallenges } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/challenges")({
   component: ChallengesPage,
 });
 
 function ChallengesPage() {
+  const challengesQ = useAdminChallenges();
+  const reasonsQ = useAdminChallengeReasons();
+  const challenges = challengesQ.data ?? [];
+  const challengeReasons = reasonsQ.data ?? [];
   return (
+    <AsyncBoundary
+      isLoading={challengesQ.isLoading || reasonsQ.isLoading}
+      error={(challengesQ.error ?? reasonsQ.error) as Error | null}
+    >
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Identity ops · challenges</div>
@@ -64,5 +74,6 @@ function ChallengesPage() {
         </InstrumentPanel>
       </div>
     </div>
+    </AsyncBoundary>
   );
 }

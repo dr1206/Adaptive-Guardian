@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { controls, signalTone } from "@/lib/admin-data";
+import { signalTone } from "@/lib/admin-signal";
+import { useAdminControls } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/admin/compliance")({
@@ -8,7 +10,10 @@ export const Route = createFileRoute("/admin/compliance")({
 });
 
 function CompliancePage() {
+  const controlsQ = useAdminControls();
+  const controls = controlsQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={controlsQ.isLoading} error={controlsQ.error as Error | null} isEmpty={controls.length === 0}>
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Platform · compliance</div>
@@ -77,5 +82,6 @@ function CompliancePage() {
         </InstrumentPanel>
       </div>
     </div>
+    </AsyncBoundary>
   );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { reportTemplates } from "@/lib/admin-data";
+import { useAdminReportTemplates } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { FileText, Download, Printer, Plus, Calendar, FileSpreadsheet } from "lucide-react";
 
 export const Route = createFileRoute("/admin/reports")({
@@ -8,7 +9,10 @@ export const Route = createFileRoute("/admin/reports")({
 });
 
 function ReportsPage() {
+  const templatesQ = useAdminReportTemplates();
+  const reportTemplates = templatesQ.data ?? [];
   return (
+    <AsyncBoundary isLoading={templatesQ.isLoading} error={templatesQ.error as Error | null} isEmpty={reportTemplates.length === 0}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -56,5 +60,6 @@ function ReportsPage() {
         </div>
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

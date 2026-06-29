@@ -6,16 +6,26 @@ import { GeoMap } from "@/components/admin/geo-map";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { RiverChart } from "@/components/admin/river-chart";
 import { OpsTable } from "@/components/admin/ops-table";
-import { adminUsers, seedHeat, seedSeries, signalTone, geoDots } from "@/lib/admin-data";
+import { seedHeat, seedSeries, signalTone } from "@/lib/admin-signal";
+import { useAdminGeoDots, useAdminUsers } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 
 export const Route = createFileRoute("/admin/risk")({
   component: RiskPage,
 });
 
 function RiskPage() {
+  const usersQ = useAdminUsers();
+  const geoQ = useAdminGeoDots();
+  const adminUsers = usersQ.data ?? [];
+  const geoDots = geoQ.data ?? [];
   const critical = adminUsers.filter((u) => u.risk > 0.5).slice(0, 10);
 
   return (
+    <AsyncBoundary
+      isLoading={usersQ.isLoading || geoQ.isLoading}
+      error={(usersQ.error ?? geoQ.error) as Error | null}
+    >
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Defense · risk center</div>
@@ -69,5 +79,6 @@ function RiskPage() {
         />
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

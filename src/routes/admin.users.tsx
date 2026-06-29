@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { OpsTable } from "@/components/admin/ops-table";
 import { SignalDot } from "@/components/admin/signal-dot";
-import { adminUsers, signalTone } from "@/lib/admin-data";
+import { signalTone } from "@/lib/admin-signal";
+import { useAdminUsers } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { useState } from "react";
 import { Search, Filter, Download, UserPlus, Lock, Unlock, RefreshCw, ShieldAlert } from "lucide-react";
 
@@ -11,6 +13,8 @@ export const Route = createFileRoute("/admin/users")({
 });
 
 function UsersPage() {
+  const usersQ = useAdminUsers();
+  const adminUsers = usersQ.data ?? [];
   const [q, setQ] = useState("");
   const [view, setView] = useState<"all" | "high-risk" | "enrolling" | "locked">("all");
   const [selected, setSelected] = useState<string | null>(null);
@@ -26,6 +30,7 @@ function UsersPage() {
   const user = adminUsers.find((u) => u.id === selected) ?? null;
 
   return (
+    <AsyncBoundary isLoading={usersQ.isLoading} error={usersQ.error as Error | null}>
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
@@ -161,5 +166,6 @@ function UsersPage() {
         </>
       )}
     </div>
+    </AsyncBoundary>
   );
 }

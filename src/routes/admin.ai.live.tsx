@@ -4,7 +4,9 @@ import { MetricCell } from "@/components/admin/metric-cell";
 import { PipelineFlow } from "@/components/admin/pipeline-flow";
 import { LiveTape } from "@/components/admin/live-tape";
 import { RiverChart } from "@/components/admin/river-chart";
-import { seedSeries, liveSessions } from "@/lib/admin-data";
+import { seedSeries } from "@/lib/admin-signal";
+import { useAdminLiveSessions } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/admin/ai/live")({
@@ -18,7 +20,11 @@ function LiveAIPage() {
     return () => clearInterval(id);
   }, []);
 
+  const sessionsQ = useAdminLiveSessions();
+  const liveSessions = sessionsQ.data ?? [];
+
   return (
+    <AsyncBoundary isLoading={sessionsQ.isLoading} error={sessionsQ.error as Error | null}>
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
@@ -87,5 +93,6 @@ function LiveAIPage() {
         <RiverChart series={seedSeries(91, 96, 8, 42)} height={160} />
       </InstrumentPanel>
     </div>
+    </AsyncBoundary>
   );
 }

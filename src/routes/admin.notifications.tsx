@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
-import { notifGroups, incidents, signalTone } from "@/lib/admin-data";
+import { signalTone } from "@/lib/admin-signal";
+import { useAdminIncidents, useAdminNotificationGroups } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { Bell, BellOff, AlertOctagon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/notifications")({
@@ -10,7 +12,15 @@ export const Route = createFileRoute("/admin/notifications")({
 
 function NotificationsPage() {
   const [group, setGroup] = useState("security");
+  const groupsQ = useAdminNotificationGroups();
+  const incidentsQ = useAdminIncidents();
+  const notifGroups = groupsQ.data ?? [];
+  const incidents = incidentsQ.data ?? [];
   return (
+    <AsyncBoundary
+      isLoading={groupsQ.isLoading || incidentsQ.isLoading}
+      error={(groupsQ.error ?? incidentsQ.error) as Error | null}
+    >
     <div className="space-y-6">
       <header>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Defense · notifications</div>
@@ -74,5 +84,6 @@ function NotificationsPage() {
         </div>
       </div>
     </div>
+    </AsyncBoundary>
   );
 }

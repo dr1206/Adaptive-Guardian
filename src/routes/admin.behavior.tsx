@@ -4,7 +4,7 @@ import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { HeatGrid } from "@/components/admin/heat-grid";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { RiverChart } from "@/components/admin/river-chart";
-import { seedSeries, seedHeat } from "@/lib/admin-data";
+import { seedSeries, seedHeat } from "@/lib/admin-signal";
 
 export const Route = createFileRoute("/admin/behavior")({
   component: BehaviorPage,
