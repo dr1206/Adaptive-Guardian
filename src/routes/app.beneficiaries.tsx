@@ -3,7 +3,9 @@ import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { BeneficiaryCard } from "@/components/banking/beneficiary-card";
-import { BENEFICIARIES, type Beneficiary } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { useBeneficiaries } from "@/services/hooks";
+import type { Beneficiary } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/beneficiaries")({
@@ -16,18 +18,25 @@ type Cat = (typeof CATEGORIES)[number];
 function BeneficiariesPage() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Cat>("All");
+  const { data: beneficiaries, isLoading, error } = useBeneficiaries();
 
-  const list = useMemo(
+  const list = useMemo<ReadonlyArray<Beneficiary>>(
     () =>
-      BENEFICIARIES.filter(
-        (b) =>
-          (cat === "All" || b.category === cat) &&
-          (q === "" || b.name.toLowerCase().includes(q.toLowerCase()) || b.bank.toLowerCase().includes(q.toLowerCase())),
-      ).sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite)),
-    [q, cat],
+      (beneficiaries ?? [])
+        .filter(
+          (b) =>
+            (cat === "All" || b.category === cat) &&
+            (q === "" || b.name.toLowerCase().includes(q.toLowerCase()) || b.bank.toLowerCase().includes(q.toLowerCase())),
+        )
+        .slice()
+        .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite)),
+    [beneficiaries, q, cat],
   );
 
-  const letters = useMemo(() => Array.from(new Set(list.map((b) => b.name[0].toUpperCase()))).sort(), [list]);
+  const letters = useMemo(
+    () => Array.from(new Set(list.map((b) => b.name[0].toUpperCase()))).sort(),
+    [list],
+  );
 
   return (
     <div>
@@ -82,13 +91,21 @@ function BeneficiariesPage() {
               className="h-10 w-full rounded-xl border border-white/[0.06] bg-white/[0.03] pl-10 pr-3 text-[13px] focus:border-accent/30 focus:outline-none"
             />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {list.map((b: Beneficiary) => (
-              <BeneficiaryCard key={b.id} b={b} />
-            ))}
-          </div>
+          <AsyncBoundary
+            isLoading={isLoading}
+            error={error}
+            isEmpty={list.length === 0}
+            emptyLabel="No beneficiaries match your filters."
+          >
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((b) => (
+                <BeneficiaryCard key={b.id} b={b} />
+              ))}
+            </div>
+          </AsyncBoundary>
         </div>
       </div>
     </div>
   );
 }
+

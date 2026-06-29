@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Download, ChevronDown } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { TRANSACTIONS, fmt, type Transaction } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { useTransactions } from "@/services/hooks";
+import type { Transaction } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/transactions")({
@@ -12,16 +15,17 @@ export const Route = createFileRoute("/app/transactions")({
 function TransactionsPage() {
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const { data: transactions, isLoading, error } = useTransactions({});
 
   const filtered = useMemo(
     () =>
-      TRANSACTIONS.filter(
+      (transactions ?? []).filter(
         (t) =>
           q === "" ||
           t.merchant.toLowerCase().includes(q.toLowerCase()) ||
           t.category.toLowerCase().includes(q.toLowerCase()),
       ),
-    [q],
+    [transactions, q],
   );
 
   const groups = useMemo(() => {
@@ -33,6 +37,7 @@ function TransactionsPage() {
     });
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [filtered]);
+
 
   return (
     <div>
@@ -63,54 +68,62 @@ function TransactionsPage() {
         </div>
       </div>
 
-      <div className="mt-3">
-        {groups.map(([date, items]) => (
-          <section key={date} className="mb-6">
-            <h3 className="mb-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              {formatDay(date)}
-            </h3>
-            <ul className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
-              {items.map((t) => (
-                <li key={t.id} className="border-b border-white/[0.04] last:border-b-0">
-                  <button
-                    onClick={() => setOpenId(openId === t.id ? null : t.id)}
-                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="grid h-10 w-10 place-items-center rounded-xl text-[11px] font-semibold"
-                        style={{
-                          background: "oklch(0.355 0.05 215 / 0.4)",
-                          color: "oklch(0.95 0.04 215)",
-                        }}
-                      >
-                        {t.merchant.slice(0, 2).toUpperCase()}
-                      </span>
-                      <div>
-                        <div className="text-[13px] font-medium">{t.merchant}</div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {t.category} · {t.time}
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={groups.length === 0}
+        emptyLabel="No transactions match your filters."
+      >
+        <div className="mt-3">
+          {groups.map(([date, items]) => (
+            <section key={date} className="mb-6">
+              <h3 className="mb-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                {formatDay(date)}
+              </h3>
+              <ul className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
+                {items.map((t) => (
+                  <li key={t.id} className="border-b border-white/[0.04] last:border-b-0">
+                    <button
+                      onClick={() => setOpenId(openId === t.id ? null : t.id)}
+                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="grid h-10 w-10 place-items-center rounded-xl text-[11px] font-semibold"
+                          style={{
+                            background: "oklch(0.355 0.05 215 / 0.4)",
+                            color: "oklch(0.95 0.04 215)",
+                          }}
+                        >
+                          {t.merchant.slice(0, 2).toUpperCase()}
+                        </span>
+                        <div>
+                          <div className="text-[13px] font-medium">{t.merchant}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {t.category} · {t.time}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <span
-                      className={cn(
-                        "font-numeric text-[14px] font-medium",
-                        t.amount >= 0 ? "text-success" : "text-foreground",
-                      )}
-                    >
-                      {fmt(t.amount)}
-                    </span>
-                  </button>
-                  {openId === t.id && <Expanded tx={t} />}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+                      <span
+                        className={cn(
+                          "font-numeric text-[14px] font-medium",
+                          t.amount >= 0 ? "text-success" : "text-foreground",
+                        )}
+                      >
+                        {fmt(t.amount)}
+                      </span>
+                    </button>
+                    {openId === t.id && <Expanded tx={t} />}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </AsyncBoundary>
     </div>
   );
+
 }
 
 function Expanded({ tx }: { tx: Transaction }) {

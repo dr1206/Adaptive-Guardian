@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Snowflake, Send, FileText, MoreHorizontal } from "lucide-react";
-import { type Account, fmt } from "@/lib/banking-data";
+import type { Account } from "@/services/banking/banking.contract";
+import { fmt } from "@/lib/format";
 import { Sparkline } from "./sparkline";
 
 const FINISH: Record<Account["type"], { bg: string; accent: string }> = {

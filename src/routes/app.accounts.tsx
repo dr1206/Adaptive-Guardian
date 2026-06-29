@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Filter } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { AccountCard } from "@/components/banking/account-card";
-import { ACCOUNTS, fmt, type AccountType } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import type { AccountType } from "@/services/banking/banking.contract";
+import { useAccounts } from "@/services/hooks";
 
 export const Route = createFileRoute("/app/accounts")({
   component: AccountsPage,
@@ -18,6 +21,7 @@ const GROUPS: { type: AccountType; label: string }[] = [
 ];
 
 function AccountsPage() {
+  const { data: accounts, isLoading, error } = useAccounts();
   return (
     <div>
       <PageHeader
@@ -36,30 +40,38 @@ function AccountsPage() {
         }
       />
 
-      <div className="space-y-10">
-        {GROUPS.map((g) => {
-          const items = ACCOUNTS.filter((a) => a.type === g.type);
-          if (items.length === 0) return null;
-          const total = items.reduce((s, a) => s + a.balance, 0);
-          return (
-            <section key={g.type}>
-              <header className="mb-3 flex items-center gap-3">
-                <h2 className="font-display text-[14px] font-semibold tracking-tight">{g.label}</h2>
-                <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted-foreground">
-                  {items.length} · <span className="font-numeric text-foreground">{fmt(total)}</span>
-                </span>
-              </header>
-              <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {items.map((a) => (
-                  <div key={a.id} className="snap-start">
-                    <AccountCard account={a} />
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={!accounts || accounts.length === 0}
+        emptyLabel="No accounts to display."
+      >
+        <div className="space-y-10">
+          {GROUPS.map((g) => {
+            const items = (accounts ?? []).filter((a) => a.type === g.type);
+            if (items.length === 0) return null;
+            const total = items.reduce((s, a) => s + a.balance, 0);
+            return (
+              <section key={g.type}>
+                <header className="mb-3 flex items-center gap-3">
+                  <h2 className="font-display text-[14px] font-semibold tracking-tight">{g.label}</h2>
+                  <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted-foreground">
+                    {items.length} · <span className="font-numeric text-foreground">{fmt(total)}</span>
+                  </span>
+                </header>
+                <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {items.map((a) => (
+                    <div key={a.id} className="snap-start">
+                      <AccountCard account={a} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </AsyncBoundary>
     </div>
   );
 }
+

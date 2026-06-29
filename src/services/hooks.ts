@@ -32,8 +32,14 @@ import type {
 } from "./auth/auth.contract";
 import type {
   Account,
+  BankCard,
   Beneficiary,
-  Card,
+  Currency,
+  Holding,
+  Insight,
+  LoanRecord,
+  Payment,
+  SavingsGoal,
   Transaction,
   TransferInput,
   TransferResult,
@@ -52,6 +58,12 @@ export const queryKeys = {
   transactions: (accountId?: string) => ["banking", "transactions", accountId ?? "all"] as const,
   beneficiaries: ["banking", "beneficiaries"] as const,
   cards: ["banking", "cards"] as const,
+  payments: ["banking", "payments"] as const,
+  savingsGoals: ["banking", "savings-goals"] as const,
+  holdings: ["banking", "holdings"] as const,
+  loans: ["banking", "loans"] as const,
+  currencies: ["banking", "currencies"] as const,
+  insights: ["banking", "insights"] as const,
   aegisSnapshot: ["aegis", "snapshot"] as const,
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
@@ -156,9 +168,52 @@ export function useBeneficiaries() {
 }
 
 export function useCards() {
-  return useQuery<ReadonlyArray<Card>>({
+  return useQuery<ReadonlyArray<BankCard>>({
     queryKey: queryKeys.cards,
     queryFn: ({ signal }) => services.banking.listCards({ signal }),
+  });
+}
+
+export function usePayments() {
+  return useQuery<ReadonlyArray<Payment>>({
+    queryKey: queryKeys.payments,
+    queryFn: ({ signal }) => services.banking.listPayments({ signal }),
+  });
+}
+
+export function useSavingsGoals() {
+  return useQuery<ReadonlyArray<SavingsGoal>>({
+    queryKey: queryKeys.savingsGoals,
+    queryFn: ({ signal }) => services.banking.listSavingsGoals({ signal }),
+  });
+}
+
+export function useHoldings() {
+  return useQuery<ReadonlyArray<Holding>>({
+    queryKey: queryKeys.holdings,
+    queryFn: ({ signal }) => services.banking.listHoldings({ signal }),
+  });
+}
+
+export function useLoans() {
+  return useQuery<ReadonlyArray<LoanRecord>>({
+    queryKey: queryKeys.loans,
+    queryFn: ({ signal }) => services.banking.listLoans({ signal }),
+  });
+}
+
+export function useCurrencies() {
+  return useQuery<ReadonlyArray<Currency>>({
+    queryKey: queryKeys.currencies,
+    queryFn: ({ signal }) => services.banking.listCurrencies({ signal }),
+    staleTime: 60_000,
+  });
+}
+
+export function useInsights() {
+  return useQuery<ReadonlyArray<Insight>>({
+    queryKey: queryKeys.insights,
+    queryFn: ({ signal }) => services.banking.listInsights({ signal }),
   });
 }
 

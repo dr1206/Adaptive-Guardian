@@ -2,11 +2,23 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useMemo, useState } from "react";
 import { ArrowRight, Search, Calendar, Repeat, Check } from "lucide-react";
-import { ACCOUNTS, BENEFICIARIES, CURRENCIES, fmt } from "@/lib/banking-data";
 import { PageHeader } from "@/components/banking/page-header";
 import { Shield } from "@/components/brand/shield";
 import { SignatureGlyph } from "@/components/brand/signature-glyph";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import {
+  useAccounts,
+  useBeneficiaries,
+  useCurrencies,
+  useInitiateTransfer,
+} from "@/services/hooks";
+import type {
+  Account,
+  Beneficiary,
+  Currency,
+} from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 const search = z.object({ to: z.string().optional(), from: z.string().optional() });
@@ -22,6 +34,11 @@ const STEPS = ["Source", "Recipient", "Amount", "Review", "Done"];
 function TransferPage() {
   const { to: presetTo, from: presetFrom } = Route.useSearch();
   const navigate = useNavigate();
+  const accountsQ = useAccounts();
+  const beneficiariesQ = useBeneficiaries();
+  const currenciesQ = useCurrencies();
+  const transferMutation = useInitiateTransfer();
+
   const [step, setStep] = useState<Step>(presetTo ? 2 : 0);
   const [sourceId, setSourceId] = useState<string>(presetFrom ?? "primary");
   const [recipientId, setRecipientId] = useState<string | null>(presetTo ?? null);
@@ -31,15 +48,29 @@ function TransferPage() {
   const [note, setNote] = useState("June");
   const [done, setDone] = useState(false);
 
-  const source = ACCOUNTS.find((a) => a.id === sourceId)!;
-  const recipient = BENEFICIARIES.find((b) => b.id === recipientId);
+  const accounts = accountsQ.data ?? [];
+  const beneficiaries = beneficiariesQ.data ?? [];
+  const currencies = currenciesQ.data ?? [];
+  const source = accounts.find((a) => a.id === sourceId) ?? accounts[0];
+  const recipient = beneficiaries.find((b) => b.id === recipientId);
 
   const next = () => setStep((s) => Math.min(4, s + 1) as Step);
   const back = () => setStep((s) => Math.max(0, s - 1) as Step);
 
+  const isLoading = accountsQ.isLoading || beneficiariesQ.isLoading || currenciesQ.isLoading;
+  const error = accountsQ.error ?? beneficiariesQ.error ?? currenciesQ.error;
+
   return (
     <div>
       <PageHeader eyebrow="Money" title="Transfer" subtitle="A calm, four-step motion. Aegis verifies along the way." />
+
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={accounts.length === 0 || beneficiaries.length === 0 || currencies.length === 0}
+        emptyLabel="Transfer setup unavailable."
+      >
+
 
       {/* Stepper */}
       <div className="mb-8 grid grid-cols-5 gap-2">
@@ -66,7 +97,7 @@ function TransferPage() {
         {step === 0 && (
           <StepShell title="Pick a source account">
             <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {ACCOUNTS.filter((a) => a.type !== "credit").map((a) => (
+              {accounts.filter((a) => a.type !== "credit").map((a) => (
                 <button
                   key={a.id}
                   onClick={() => {
@@ -92,6 +123,7 @@ function TransferPage() {
         {step === 1 && (
           <StepShell title="Who's it for?">
             <Recipients
+              beneficiaries={beneficiaries}
               onPick={(id) => {
                 setRecipientId(id);
                 setTimeout(next, 250);
@@ -104,6 +136,7 @@ function TransferPage() {
         {step === 2 && (
           <StepShell title="How much?">
             <AmountStage
+              currencies={currencies}
               amount={amount}
               setAmount={setAmount}
               currency={currency}
@@ -130,7 +163,16 @@ function TransferPage() {
             onEdit={back}
             onSend={() => {
               setDone(true);
-              setTimeout(() => setStep(4), 700);
+              transferMutation.mutate(
+                {
+                  fromAccountId: source.id,
+                  beneficiaryId: recipient.id,
+                  amount: Number(amount || 0),
+                  currency,
+                  reference: `${purpose}${note ? ` — ${note}` : ""}`,
+                },
+                { onSettled: () => setTimeout(() => setStep(4), 700) },
+              );
             }}
             sent={done}
           />
@@ -156,7 +198,9 @@ function TransferPage() {
           </button>
         </div>
       )}
+      </AsyncBoundary>
     </div>
+
   );
 }
 
@@ -170,9 +214,12 @@ function StepShell({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function Recipients({ picked, onPick }: { picked: string | null; onPick: (id: string) => void }) {
+function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: ReadonlyArray<Beneficiary>; picked: string | null; onPick: (id: string) => void }) {
   const [q, setQ] = useState("");
-  const list = BENEFICIARIES.filter((b) => b.name.toLowerCase().includes(q.toLowerCase()));
+  const list = useMemo(
+    () => beneficiaries.filter((b) => b.name.toLowerCase().includes(q.toLowerCase())),
+    [beneficiaries, q],
+  );
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <div>
@@ -217,7 +264,8 @@ function Recipients({ picked, onPick }: { picked: string | null; onPick: (id: st
       <aside className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
         {picked ? (
           (() => {
-            const b = BENEFICIARIES.find((x) => x.id === picked)!;
+            const b = beneficiaries.find((x) => x.id === picked);
+            if (!b) return null;
             return (
               <div>
                 <div className="mb-4 flex items-center gap-3">
@@ -254,6 +302,7 @@ function Recipients({ picked, onPick }: { picked: string | null; onPick: (id: st
 }
 
 function AmountStage({
+  currencies,
   amount,
   setAmount,
   currency,
@@ -264,6 +313,7 @@ function AmountStage({
   setNote,
   onNext,
 }: {
+  currencies: ReadonlyArray<Currency>;
   amount: string;
   setAmount: (s: string) => void;
   currency: string;
@@ -274,12 +324,15 @@ function AmountStage({
   setNote: (s: string) => void;
   onNext: () => void;
 }) {
-  const c = CURRENCIES.find((x) => x.code === currency)!;
+  const c = currencies.find((x) => x.code === currency) ?? currencies[0];
+  const usdC = currencies.find((x) => x.code === "USD") ?? c;
   const value = Number(amount || 0);
-  const usd = (value * (CURRENCIES.find((x) => x.code === "USD")!.rate / c.rate)).toLocaleString("en-US", {
+  const rate = c ? usdC.rate / c.rate : 1;
+  const usd = (value * rate).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
       <div className="rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 text-center">
@@ -289,7 +342,7 @@ function AmountStage({
             onChange={(e) => setCurrency(e.target.value)}
             className="bg-transparent text-foreground focus:outline-none"
           >
-            {CURRENCIES.map((cc) => (
+            {currencies.map((cc) => (
               <option key={cc.code} value={cc.code} className="bg-background">
                 {cc.flag} {cc.code}
               </option>
@@ -331,7 +384,7 @@ function AmountStage({
             <span className="font-numeric text-[18px] font-semibold">${usd}</span>
           </div>
           <div className="mt-2 text-[10px] text-muted-foreground">
-            Rate <span className="font-numeric">{(CURRENCIES.find((x) => x.code === "USD")!.rate / c.rate).toFixed(4)}</span> · spread 0.42%
+            Rate <span className="font-numeric">{rate.toFixed(4)}</span> · spread 0.42%
           </div>
         </article>
 

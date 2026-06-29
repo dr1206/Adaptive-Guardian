@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/banking/page-header";
-import { fmt } from "@/lib/banking-data";
+import { fmt } from "@/lib/format";
 
 export const Route = createFileRoute("/app/budgets")({
   component: BudgetsPage,

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star, Send, MoreHorizontal, Pencil } from "lucide-react";
-import type { Beneficiary } from "@/lib/banking-data";
-import { fmt } from "@/lib/banking-data";
+import type { Beneficiary } from "@/services/banking/banking.contract";
+import { fmt } from "@/lib/format";
 
 export function BeneficiaryCard({ b }: { b: Beneficiary }) {
   return (

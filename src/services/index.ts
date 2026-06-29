@@ -30,11 +30,18 @@ export type {
 export type {
   BankingService,
   Account,
+  AccountType,
   Transaction,
   Beneficiary,
   TransferInput,
   TransferResult,
-  Card,
+  BankCard,
+  Currency,
+  Holding,
+  Insight,
+  LoanRecord,
+  Payment,
+  SavingsGoal,
 } from "./banking/banking.contract";
 
 export type {
