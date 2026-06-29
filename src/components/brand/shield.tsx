@@ -98,7 +98,10 @@ export function ApertureSpinner({ size = 18, className }: { size?: number; class
           strokeWidth="2"
           strokeLinecap="round"
           strokeDasharray="14 60"
-          style={{ animation: "ag-spin 1.1s cubic-bezier(0.22,1,0.36,1) infinite", transformOrigin: "12px 12px" }}
+          style={{
+            animation: "ag-spin 1.1s cubic-bezier(0.22,1,0.36,1) infinite",
+            transformOrigin: "12px 12px",
+          }}
         />
         <defs>
           <linearGradient id="ag-spin-grad" x1="0" y1="0" x2="1" y2="1">

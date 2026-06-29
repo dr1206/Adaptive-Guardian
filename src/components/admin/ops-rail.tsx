@@ -1,9 +1,28 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import {
-  Activity, Users, Wallet, KeyRound, Brain, Shield, AlertOctagon, Radar,
-  Cpu, Database, Lightbulb, FileBarChart2, History, Bell, UserCog,
-  ScrollText, Network, Server, Settings, ShieldCheck, GitBranch, MessageCircleQuestion
+  Activity,
+  Users,
+  Wallet,
+  KeyRound,
+  Brain,
+  Shield,
+  AlertOctagon,
+  Radar,
+  Cpu,
+  Database,
+  Lightbulb,
+  FileBarChart2,
+  History,
+  Bell,
+  UserCog,
+  ScrollText,
+  Network,
+  Server,
+  Settings,
+  ShieldCheck,
+  GitBranch,
+  MessageCircleQuestion,
 } from "lucide-react";
 
 type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
@@ -72,7 +91,9 @@ export function OpsRail() {
       {/* Org switcher */}
       <div className="px-4 py-4 border-b border-white/[0.05]">
         <div className="flex items-center gap-2.5">
-          <div className="size-9 rounded-xl gradient-cyber flex items-center justify-center font-bold text-sm shadow-glow">A</div>
+          <div className="size-9 rounded-xl gradient-cyber flex items-center justify-center font-bold text-sm shadow-glow">
+            A
+          </div>
           <div className="min-w-0">
             <div className="text-sm font-semibold truncate">AdaptiveGuard</div>
             <div className="text-[10px] text-muted-foreground font-mono">Aurora Bank · prod</div>
@@ -88,7 +109,9 @@ export function OpsRail() {
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
         {groups.map((g) => (
           <div key={g.id}>
-            <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-mono">{g.title}</div>
+            <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-mono">
+              {g.title}
+            </div>
             <ul className="space-y-0.5">
               {g.items.map((it) => {
                 const Icon = it.icon;
@@ -100,7 +123,7 @@ export function OpsRail() {
                       className={cn(
                         "group flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-muted-foreground transition-colors",
                         "hover:bg-white/[0.04] hover:text-foreground",
-                        "data-[status=active]:bg-white/[0.06] data-[status=active]:text-foreground data-[status=active]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+                        "data-[status=active]:bg-white/[0.06] data-[status=active]:text-foreground data-[status=active]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]",
                       )}
                     >
                       <Icon className="size-4 text-muted-foreground group-hover:text-cyan-300 group-data-[status=active]:text-cyan-300 transition-colors" />
@@ -116,14 +139,19 @@ export function OpsRail() {
 
       {/* Operator footer */}
       <div className="px-3 py-3 border-t border-white/[0.05] flex items-center gap-2">
-        <div className="size-8 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-[11px] font-mono">LH</div>
+        <div className="size-8 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-[11px] font-mono">
+          LH
+        </div>
         <div className="min-w-0 flex-1">
           <div className="text-xs font-medium truncate">Lina Halsey</div>
           <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-1">
             <span className="size-1.5 rounded-full bg-emerald-400" /> on call · admin
           </div>
         </div>
-        <button className="size-8 rounded-lg hover:bg-white/[0.06] flex items-center justify-center text-muted-foreground" title="AI Assistant (⌘J)">
+        <button
+          className="size-8 rounded-lg hover:bg-white/[0.06] flex items-center justify-center text-muted-foreground"
+          title="AI Assistant (⌘J)"
+        >
           <MessageCircleQuestion className="size-4" />
         </button>
       </div>

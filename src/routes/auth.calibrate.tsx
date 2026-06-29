@@ -108,7 +108,9 @@ function CalibrateScreen() {
           <BalanceTile />
           <BalanceTile label="Allocation" amount={48211.0} delta="+ 0.36%" />
           <div className="col-span-2 surface-card rounded-[20px] p-5">
-            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Constellation · live</div>
+            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Constellation · live
+            </div>
             <ConstellationPreview />
           </div>
         </div>
@@ -125,9 +127,9 @@ function CalibrateScreen() {
           <span className="text-gradient">your signature.</span>
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          Type the phrase below in your natural rhythm, and let your cursor
-          wander across the canvas. We're capturing cadence and curvature —
-          on this device only. The vector that leaves your browser cannot be reversed into you.
+          Type the phrase below in your natural rhythm, and let your cursor wander across the
+          canvas. We're capturing cadence and curvature — on this device only. The vector that
+          leaves your browser cannot be reversed into you.
         </p>
 
         {/* Keyboard module */}
@@ -182,11 +184,11 @@ function CalibrateScreen() {
 
         {/* Combined */}
         <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3">
-          <div className="text-[12px] text-muted-foreground">
-            Combined profile strength
-          </div>
+          <div className="text-[12px] text-muted-foreground">Combined profile strength</div>
           <div className="flex items-center gap-3">
-            <span className="font-numeric text-sm text-foreground">{Math.round(combined * 100)}%</span>
+            <span className="font-numeric text-sm text-foreground">
+              {Math.round(combined * 100)}%
+            </span>
             {finalizing ? (
               <span className="inline-flex items-center gap-1.5 text-[12px] text-accent">
                 <ApertureSpinner size={14} /> Forging signature
@@ -285,7 +287,11 @@ function FilamentTrail({ points }: { points: Array<[number, number]> }) {
 function ConstellationPreview() {
   return (
     <div className="relative mt-3 h-32">
-      <SignatureGlyph seed="preview" size={120} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <SignatureGlyph
+        seed="preview"
+        size={120}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+      />
     </div>
   );
 }

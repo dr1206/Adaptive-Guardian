@@ -25,8 +25,7 @@ export function SignatureCard({
       : tier === "Wealth"
         ? "linear-gradient(135deg,#3a2f1f 0%,#1a1410 55%,#5a4628 100%)"
         : "linear-gradient(135deg,#2a2e36 0%,#16191f 60%,#3a3f49 100%)";
-  const accent =
-    tier === "Wealth" ? "#d6b66a" : tier === "Sovereign" ? "#cdd3e0" : "#9aa3b2";
+  const accent = tier === "Wealth" ? "#d6b66a" : tier === "Sovereign" ? "#cdd3e0" : "#9aa3b2";
 
   return (
     <div

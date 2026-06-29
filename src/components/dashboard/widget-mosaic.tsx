@@ -1,10 +1,4 @@
-import {
-  ArrowUpRight,
-  MoreHorizontal,
-  Sparkles,
-  Target,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowUpRight, MoreHorizontal, Sparkles, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function WidgetMosaic() {
@@ -85,7 +79,12 @@ function InsightsCard({ className }: { className?: string }) {
     },
   ];
   return (
-    <WidgetShell title="Financial insights" hint="Curated by Aegis · updated 6m ago" icon={Sparkles} className={className}>
+    <WidgetShell
+      title="Financial insights"
+      hint="Curated by Aegis · updated 6m ago"
+      icon={Sparkles}
+      className={className}
+    >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {insights.map((i) => {
           const dot =
@@ -157,7 +156,8 @@ function SpendDonut({ className }: { className?: string }) {
                 {cat.label}
               </span>
               <span className="font-numeric">
-                {cat.pct}% <span className="text-muted-foreground">· €{cat.amount.toLocaleString()}</span>
+                {cat.pct}%{" "}
+                <span className="text-muted-foreground">· €{cat.amount.toLocaleString()}</span>
               </span>
             </li>
           ))}
@@ -185,7 +185,12 @@ function CashFlow({ className }: { className?: string }) {
   const inLine = toPath(incoming);
   const outLine = toPath(outgoing);
   return (
-    <WidgetShell title="Cash flow · 30 days" hint="In €14,230 · Out €9,184 · Net +€5,046" icon={TrendingUp} className={className}>
+    <WidgetShell
+      title="Cash flow · 30 days"
+      hint="In €14,230 · Out €9,184 · Net +€5,046"
+      icon={TrendingUp}
+      className={className}
+    >
       <svg viewBox={`0 0 ${w} ${h}`} className="h-[150px] w-full">
         <defs>
           <linearGradient id="cf-in" x1="0" y1="0" x2="0" y2="1">
@@ -198,13 +203,30 @@ function CashFlow({ className }: { className?: string }) {
           </linearGradient>
         </defs>
         <path d={`${inLine} L ${w},${h} L 0,${h} Z`} fill="url(#cf-in)" />
-        <path d={inLine} stroke="oklch(0.71 0.155 165)" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path
+          d={inLine}
+          stroke="oklch(0.71 0.155 165)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
         <path d={`${outLine} L ${w},${h} L 0,${h} Z`} fill="url(#cf-out)" />
-        <path d={outLine} stroke="oklch(0.715 0.135 215)" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="3 3" />
+        <path
+          d={outLine}
+          stroke="oklch(0.715 0.135 215)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
       </svg>
       <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" /> Incoming</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-accent" /> Outgoing</span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-success" /> Incoming
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-accent" /> Outgoing
+        </span>
       </div>
     </WidgetShell>
   );
@@ -216,21 +238,32 @@ function SavingsGoal({ className }: { className?: string }) {
   const r = 50;
   const c = 2 * Math.PI * r;
   return (
-    <WidgetShell title="Savings goal" hint="Lisbon apartment · €80,000" icon={Target} className={className}>
+    <WidgetShell
+      title="Savings goal"
+      hint="Lisbon apartment · €80,000"
+      icon={Target}
+      className={className}
+    >
       <div className="flex flex-col items-center">
         <svg viewBox="0 0 120 120" className="h-[150px] w-[150px] -rotate-90">
           <circle cx="60" cy="60" r={r} stroke="oklch(1 0 0 / 0.06)" strokeWidth="8" fill="none" />
           <circle
-            cx="60" cy="60" r={r}
+            cx="60"
+            cy="60"
+            r={r}
             stroke="oklch(0.635 0.215 295)"
-            strokeWidth="8" fill="none" strokeLinecap="round"
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
             strokeDasharray={c}
             strokeDashoffset={c - (pct / 100) * c}
           />
         </svg>
         <div className="-mt-[95px] text-center">
           <div className="font-numeric text-[24px] font-semibold">{pct}%</div>
-          <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">complete</div>
+          <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            complete
+          </div>
         </div>
         <div className="mt-[50px] text-center text-[11px] text-muted-foreground">
           €62,400 of €80,000 · ETA Q4 2026
@@ -250,8 +283,12 @@ function PortfolioCard({ className }: { className?: string }) {
   ];
   return (
     <WidgetShell title="Portfolio" hint="€2.48M · today + 0.84%" className={className}>
-      <div className="font-numeric text-[24px] font-semibold tracking-tight">€2,480,120<span className="text-muted-foreground text-[14px]">.55</span></div>
-      <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-medium text-success">+ €20,851 · 0.84%</span>
+      <div className="font-numeric text-[24px] font-semibold tracking-tight">
+        €2,480,120<span className="text-muted-foreground text-[14px]">.55</span>
+      </div>
+      <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-medium text-success">
+        + €20,851 · 0.84%
+      </span>
       <div className="mt-4 flex h-2 overflow-hidden rounded-full">
         {slices.map((s) => (
           <span key={s.label} style={{ width: `${s.pct}%`, background: s.color }} />
@@ -284,10 +321,15 @@ function FxCard({ className }: { className?: string }) {
     <WidgetShell title="Exchange" hint="Live · refreshed every 30s" className={className}>
       <ul className="space-y-2">
         {rates.map((r) => (
-          <li key={r.pair} className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.04] bg-white/[0.015] px-3 py-2">
+          <li
+            key={r.pair}
+            className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.04] bg-white/[0.015] px-3 py-2"
+          >
             <span className="text-[12px] text-muted-foreground">{r.pair}</span>
             <span className="font-numeric text-[13px]">{r.rate}</span>
-            <span className={`font-numeric text-[10px] ${r.up ? "text-success" : "text-warning"}`}>{r.d}</span>
+            <span className={`font-numeric text-[10px] ${r.up ? "text-success" : "text-warning"}`}>
+              {r.d}
+            </span>
           </li>
         ))}
       </ul>

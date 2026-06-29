@@ -14,11 +14,7 @@ import {
   useCurrencies,
   useInitiateTransfer,
 } from "@/services/hooks";
-import type {
-  Account,
-  Beneficiary,
-  Currency,
-} from "@/services/banking/banking.contract";
+import type { Account, Beneficiary, Currency } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 const search = z.object({ to: z.string().optional(), from: z.string().optional() });
@@ -62,7 +58,11 @@ function TransferPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Money" title="Transfer" subtitle="A calm, four-step motion. Aegis verifies along the way." />
+      <PageHeader
+        eyebrow="Money"
+        title="Transfer"
+        subtitle="A calm, four-step motion. Aegis verifies along the way."
+      />
 
       <AsyncBoundary
         isLoading={isLoading}
@@ -70,137 +70,150 @@ function TransferPage() {
         isEmpty={accounts.length === 0 || beneficiaries.length === 0 || currencies.length === 0}
         emptyLabel="Transfer setup unavailable."
       >
-
-
-      {/* Stepper */}
-      <div className="mb-8 grid grid-cols-5 gap-2">
-        {STEPS.map((s, i) => (
-          <div key={s} className="flex flex-col gap-1.5">
-            <span
-              className={cn(
-                "h-1 rounded-full transition-all duration-500",
-                i < step
-                  ? "bg-gradient-to-r from-accent to-purple"
-                  : i === step
-                    ? "bg-accent shadow-[0_0_12px_oklch(0.715_0.135_215/0.6)]"
-                    : "bg-white/[0.08]",
-              )}
-            />
-            <span className={cn("text-[10px] uppercase tracking-[0.16em]", i === step ? "text-accent" : "text-muted-foreground/60")}>
-              {s}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="min-h-[440px]">
-        {step === 0 && (
-          <StepShell title="Pick a source account">
-            <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {accounts.filter((a) => a.type !== "credit").map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => {
-                    setSourceId(a.id);
-                    setTimeout(next, 350);
-                  }}
-                  className={cn(
-                    "snap-start w-[260px] shrink-0 rounded-[20px] border p-4 text-left transition-all duration-300",
-                    sourceId === a.id
-                      ? "-translate-y-2 border-accent/60 bg-gradient-to-br from-accent/15 to-purple/10 shadow-[0_20px_60px_-20px_oklch(0.715_0.135_215/0.5)]"
-                      : "border-white/[0.06] bg-white/[0.02] hover:border-white/15",
-                  )}
-                >
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{a.name} · {a.currency}</div>
-                  <div className="mt-2 font-numeric text-[22px] font-semibold">{fmt(a.balance)}</div>
-                  <div className="mt-1 text-[10px] text-muted-foreground">IBAN ••{a.iban.slice(-4)}</div>
-                </button>
-              ))}
+        {/* Stepper */}
+        <div className="mb-8 grid grid-cols-5 gap-2">
+          {STEPS.map((s, i) => (
+            <div key={s} className="flex flex-col gap-1.5">
+              <span
+                className={cn(
+                  "h-1 rounded-full transition-all duration-500",
+                  i < step
+                    ? "bg-gradient-to-r from-accent to-purple"
+                    : i === step
+                      ? "bg-accent shadow-[0_0_12px_oklch(0.715_0.135_215/0.6)]"
+                      : "bg-white/[0.08]",
+                )}
+              />
+              <span
+                className={cn(
+                  "text-[10px] uppercase tracking-[0.16em]",
+                  i === step ? "text-accent" : "text-muted-foreground/60",
+                )}
+              >
+                {s}
+              </span>
             </div>
-          </StepShell>
-        )}
-
-        {step === 1 && (
-          <StepShell title="Who's it for?">
-            <Recipients
-              beneficiaries={beneficiaries}
-              onPick={(id) => {
-                setRecipientId(id);
-                setTimeout(next, 250);
-              }}
-              picked={recipientId}
-            />
-          </StepShell>
-        )}
-
-        {step === 2 && (
-          <StepShell title="How much?">
-            <AmountStage
-              currencies={currencies}
-              amount={amount}
-              setAmount={setAmount}
-              currency={currency}
-              setCurrency={setCurrency}
-              purpose={purpose}
-              setPurpose={setPurpose}
-              note={note}
-              setNote={setNote}
-              onNext={next}
-            />
-          </StepShell>
-        )}
-
-        {step === 3 && recipient && (
-          <ReviewStage
-            from={source.name}
-            fromIban={source.iban.slice(-4)}
-            to={recipient.name}
-            toBank={recipient.bank}
-            toLast4={recipient.last4}
-            amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-            purpose={purpose}
-            note={note}
-            onEdit={back}
-            onSend={() => {
-              setDone(true);
-              transferMutation.mutate(
-                {
-                  fromAccountId: source.id,
-                  beneficiaryId: recipient.id,
-                  amount: Number(amount || 0),
-                  currency,
-                  reference: `${purpose}${note ? ` — ${note}` : ""}`,
-                },
-                { onSettled: () => setTimeout(() => setStep(4), 700) },
-              );
-            }}
-            sent={done}
-          />
-        )}
-
-        {step === 4 && recipient && (
-          <SuccessStage
-            amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-            to={recipient.name}
-            onAnother={() => {
-              setStep(0);
-              setDone(false);
-            }}
-            onDone={() => navigate({ to: "/app" })}
-          />
-        )}
-      </div>
-
-      {step > 0 && step < 3 && (
-        <div className="mt-6">
-          <button onClick={back} className="text-[12px] text-muted-foreground hover:text-foreground">
-            ← Back
-          </button>
+          ))}
         </div>
-      )}
+
+        <div className="min-h-[440px]">
+          {step === 0 && (
+            <StepShell title="Pick a source account">
+              <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {accounts
+                  .filter((a) => a.type !== "credit")
+                  .map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={() => {
+                        setSourceId(a.id);
+                        setTimeout(next, 350);
+                      }}
+                      className={cn(
+                        "snap-start w-[260px] shrink-0 rounded-[20px] border p-4 text-left transition-all duration-300",
+                        sourceId === a.id
+                          ? "-translate-y-2 border-accent/60 bg-gradient-to-br from-accent/15 to-purple/10 shadow-[0_20px_60px_-20px_oklch(0.715_0.135_215/0.5)]"
+                          : "border-white/[0.06] bg-white/[0.02] hover:border-white/15",
+                      )}
+                    >
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        {a.name} · {a.currency}
+                      </div>
+                      <div className="mt-2 font-numeric text-[22px] font-semibold">
+                        {fmt(a.balance)}
+                      </div>
+                      <div className="mt-1 text-[10px] text-muted-foreground">
+                        IBAN ••{a.iban.slice(-4)}
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </StepShell>
+          )}
+
+          {step === 1 && (
+            <StepShell title="Who's it for?">
+              <Recipients
+                beneficiaries={beneficiaries}
+                onPick={(id) => {
+                  setRecipientId(id);
+                  setTimeout(next, 250);
+                }}
+                picked={recipientId}
+              />
+            </StepShell>
+          )}
+
+          {step === 2 && (
+            <StepShell title="How much?">
+              <AmountStage
+                currencies={currencies}
+                amount={amount}
+                setAmount={setAmount}
+                currency={currency}
+                setCurrency={setCurrency}
+                purpose={purpose}
+                setPurpose={setPurpose}
+                note={note}
+                setNote={setNote}
+                onNext={next}
+              />
+            </StepShell>
+          )}
+
+          {step === 3 && recipient && (
+            <ReviewStage
+              from={source.name}
+              fromIban={source.iban.slice(-4)}
+              to={recipient.name}
+              toBank={recipient.bank}
+              toLast4={recipient.last4}
+              amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              purpose={purpose}
+              note={note}
+              onEdit={back}
+              onSend={() => {
+                setDone(true);
+                transferMutation.mutate(
+                  {
+                    fromAccountId: source.id,
+                    beneficiaryId: recipient.id,
+                    amount: Number(amount || 0),
+                    currency,
+                    reference: `${purpose}${note ? ` — ${note}` : ""}`,
+                  },
+                  { onSettled: () => setTimeout(() => setStep(4), 700) },
+                );
+              }}
+              sent={done}
+            />
+          )}
+
+          {step === 4 && recipient && (
+            <SuccessStage
+              amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              to={recipient.name}
+              onAnother={() => {
+                setStep(0);
+                setDone(false);
+              }}
+              onDone={() => navigate({ to: "/app" })}
+            />
+          )}
+        </div>
+
+        {step > 0 && step < 3 && (
+          <div className="mt-6">
+            <button
+              onClick={back}
+              className="text-[12px] text-muted-foreground hover:text-foreground"
+            >
+              ← Back
+            </button>
+          </div>
+        )}
       </AsyncBoundary>
     </div>
-
   );
 }
 
@@ -214,7 +227,15 @@ function StepShell({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: ReadonlyArray<Beneficiary>; picked: string | null; onPick: (id: string) => void }) {
+function Recipients({
+  beneficiaries,
+  picked,
+  onPick,
+}: {
+  beneficiaries: ReadonlyArray<Beneficiary>;
+  picked: string | null;
+  onPick: (id: string) => void;
+}) {
   const [q, setQ] = useState("");
   const list = useMemo(
     () => beneficiaries.filter((b) => b.name.toLowerCase().includes(q.toLowerCase())),
@@ -245,16 +266,23 @@ function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: Readonly
               >
                 <span
                   className="grid h-10 w-10 place-items-center rounded-full text-[12px] font-semibold"
-                  style={{ background: `oklch(0.355 0.08 ${b.tint} / 0.7)`, color: `oklch(0.95 0.04 ${b.tint})` }}
+                  style={{
+                    background: `oklch(0.355 0.08 ${b.tint} / 0.7)`,
+                    color: `oklch(0.95 0.04 ${b.tint})`,
+                  }}
                 >
                   {b.initials}
                 </span>
                 <div className="flex-1">
                   <div className="text-[13px] font-medium">{b.name}</div>
-                  <div className="text-[10px] text-muted-foreground">{b.bank} · ••{b.last4}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {b.bank} · ••{b.last4}
+                  </div>
                 </div>
                 {b.lastSent && (
-                  <span className="font-numeric text-[11px] text-muted-foreground">{fmt(b.lastSent.amount, "€", 0)}</span>
+                  <span className="font-numeric text-[11px] text-muted-foreground">
+                    {fmt(b.lastSent.amount, "€", 0)}
+                  </span>
                 )}
               </button>
             </li>
@@ -271,7 +299,10 @@ function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: Readonly
                 <div className="mb-4 flex items-center gap-3">
                   <span
                     className="grid h-14 w-14 place-items-center rounded-full font-display text-[16px] font-semibold"
-                    style={{ background: `oklch(0.355 0.08 ${b.tint} / 0.7)`, color: `oklch(0.95 0.04 ${b.tint})` }}
+                    style={{
+                      background: `oklch(0.355 0.08 ${b.tint} / 0.7)`,
+                      color: `oklch(0.95 0.04 ${b.tint})`,
+                    }}
                   >
                     {b.initials}
                   </span>
@@ -281,12 +312,19 @@ function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: Readonly
                   </div>
                 </div>
                 <div className="rounded-lg border border-white/[0.05] bg-white/[0.02] p-3">
-                  <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">IBAN</div>
+                  <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                    IBAN
+                  </div>
                   <div className="mt-1 font-numeric text-[12px]">{b.iban}</div>
                 </div>
                 <div className="mt-3 text-[11px] text-muted-foreground">Recent transfers</div>
                 <ul className="mt-1 space-y-1 text-[12px]">
-                  {b.lastSent && <li className="flex justify-between"><span>{b.lastSent.date}</span><span className="font-numeric">{fmt(b.lastSent.amount)}</span></li>}
+                  {b.lastSent && (
+                    <li className="flex justify-between">
+                      <span>{b.lastSent.date}</span>
+                      <span className="font-numeric">{fmt(b.lastSent.amount)}</span>
+                    </li>
+                  )}
                 </ul>
               </div>
             );
@@ -350,7 +388,9 @@ function AmountStage({
           </select>
         </div>
         <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[72px] font-semibold tracking-tight">
-          <span className="text-muted-foreground">{currency === "EUR" ? "€" : currency === "USD" ? "$" : ""}</span>
+          <span className="text-muted-foreground">
+            {currency === "EUR" ? "€" : currency === "USD" ? "$" : ""}
+          </span>
           <input
             type="text"
             inputMode="decimal"
@@ -361,7 +401,8 @@ function AmountStage({
           />
         </div>
         <div className="mt-3 text-[11px] text-muted-foreground">
-          Fee <span className="text-success">Free</span> · Arrives <span className="text-foreground">Today · 14:32</span>
+          Fee <span className="text-success">Free</span> · Arrives{" "}
+          <span className="text-foreground">Today · 14:32</span>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           {["500.00", "1250.00", "2000.00"].map((v) => (
@@ -378,7 +419,9 @@ function AmountStage({
 
       <aside className="space-y-4">
         <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-          <h3 className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Live FX</h3>
+          <h3 className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Live FX
+          </h3>
           <div className="flex items-center justify-between">
             <span className="text-[13px]">{currency} → USD</span>
             <span className="font-numeric text-[18px] font-semibold">${usd}</span>
@@ -390,18 +433,32 @@ function AmountStage({
 
         <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5 space-y-3">
           <Labelled label="Purpose">
-            <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none">
+            <select
+              value={purpose}
+              onChange={(e) => setPurpose(e.target.value)}
+              className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none"
+            >
               {["Rent", "Salary", "Gift", "Goods", "Services", "Family support"].map((p) => (
-                <option key={p} className="bg-background">{p}</option>
+                <option key={p} className="bg-background">
+                  {p}
+                </option>
               ))}
             </select>
           </Labelled>
           <Labelled label="Note (optional)">
-            <input value={note} onChange={(e) => setNote(e.target.value)} className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none" />
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none"
+            />
           </Labelled>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]"><Calendar className="h-3 w-3" /> Schedule</button>
-            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]"><Repeat className="h-3 w-3" /> Repeat</button>
+            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]">
+              <Calendar className="h-3 w-3" /> Schedule
+            </button>
+            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]">
+              <Repeat className="h-3 w-3" /> Repeat
+            </button>
           </div>
         </article>
 
@@ -419,17 +476,38 @@ function AmountStage({
 function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
+      <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </div>
       {children}
     </label>
   );
 }
 
 function ReviewStage({
-  from, fromIban, to, toBank, toLast4, amount, purpose, note, onEdit, onSend, sent,
+  from,
+  fromIban,
+  to,
+  toBank,
+  toLast4,
+  amount,
+  purpose,
+  note,
+  onEdit,
+  onSend,
+  sent,
 }: {
-  from: string; fromIban: string; to: string; toBank: string; toLast4: string; amount: string;
-  purpose: string; note: string; onEdit: () => void; onSend: () => void; sent: boolean;
+  from: string;
+  fromIban: string;
+  to: string;
+  toBank: string;
+  toLast4: string;
+  amount: string;
+  purpose: string;
+  note: string;
+  onEdit: () => void;
+  onSend: () => void;
+  sent: boolean;
 }) {
   return (
     <div className="grid place-items-center">
@@ -451,7 +529,10 @@ function ReviewStage({
         </dl>
 
         <div className="mt-8 flex items-center justify-between gap-4">
-          <button onClick={onEdit} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-3 text-[12px] text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onEdit}
+            className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-3 text-[12px] text-muted-foreground hover:text-foreground"
+          >
             Edit
           </button>
           <PressHoldButton label="Hold to send" onComplete={onSend} />
@@ -469,12 +550,26 @@ function Row({ k, v, big }: { k: string; v: string; big?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-white/[0.04] pb-2 last:border-b-0">
       <dt className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{k}</dt>
-      <dd className={cn("font-numeric text-right", big ? "text-[28px] font-semibold" : "text-[13px]")}>{v}</dd>
+      <dd
+        className={cn("font-numeric text-right", big ? "text-[28px] font-semibold" : "text-[13px]")}
+      >
+        {v}
+      </dd>
     </div>
   );
 }
 
-function SuccessStage({ amount, to, onAnother, onDone }: { amount: string; to: string; onAnother: () => void; onDone: () => void }) {
+function SuccessStage({
+  amount,
+  to,
+  onAnother,
+  onDone,
+}: {
+  amount: string;
+  to: string;
+  onAnother: () => void;
+  onDone: () => void;
+}) {
   return (
     <div className="grid place-items-center py-10 text-center">
       <div className="relative grid h-44 w-44 place-items-center">
@@ -491,8 +586,18 @@ function SuccessStage({ amount, to, onAnother, onDone }: { amount: string; to: s
         {to} will receive <span className="font-numeric text-foreground">{amount}</span> by 14:32.
       </p>
       <div className="mt-8 flex items-center gap-2">
-        <button onClick={onAnother} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-[12px] hover:text-foreground">Send another</button>
-        <button onClick={onDone} className="rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-4 py-2 text-[12px] font-medium text-accent">Done</button>
+        <button
+          onClick={onAnother}
+          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-[12px] hover:text-foreground"
+        >
+          Send another
+        </button>
+        <button
+          onClick={onDone}
+          className="rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-4 py-2 text-[12px] font-medium text-accent"
+        >
+          Done
+        </button>
       </div>
     </div>
   );

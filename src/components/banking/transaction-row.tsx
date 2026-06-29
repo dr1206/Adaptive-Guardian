@@ -35,7 +35,12 @@ export function TransactionRow({ tx, className }: { tx: Tx; className?: string }
         </div>
       </div>
       <div className="flex items-center gap-2 text-right">
-        <span className={cn("font-numeric text-sm font-medium", negative ? "text-foreground" : "text-success")}>
+        <span
+          className={cn(
+            "font-numeric text-sm font-medium",
+            negative ? "text-foreground" : "text-success",
+          )}
+        >
           {amt}
         </span>
         <span
@@ -56,5 +61,11 @@ export const sampleTxs: Tx[] = [
   { glyph: "plane", merchant: "British Airways", meta: "LHR → JFK · Yesterday", amount: 1284.0 },
   { glyph: "shop", merchant: "Goldsmiths", meta: "Bond Street · Mon", amount: 612.5 },
   { glyph: "energy", merchant: "Octopus Energy", meta: "Direct debit · 28th", amount: 142.0 },
-  { glyph: "coffee", merchant: "Inbound transfer", meta: "From A. Mehta · Mon", amount: 2400, direction: "in" },
+  {
+    glyph: "coffee",
+    merchant: "Inbound transfer",
+    meta: "From A. Mehta · Mon",
+    amount: 2400,
+    direction: "in",
+  },
 ];

@@ -27,14 +27,15 @@ function ExchangePage() {
   }, [currencies, send.code, recv]);
 
   const rate = rRate / sRate;
-  const out = (Number(send.amount || 0) * rate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const out = (Number(send.amount || 0) * rate).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   const swap = () => {
     setSend((s) => ({ code: recv, amount: s.amount }));
     setRecv(send.code);
   };
-
-
 
   return (
     <div>
@@ -55,35 +56,60 @@ function ExchangePage() {
                   onChange={(e) => setSend((s) => ({ ...s, code: e.target.value }))}
                   className="rounded-lg bg-white/[0.04] px-2 py-1 text-[12px] focus:outline-none"
                 >
-                  {(currencies ?? []).map((c) => <option key={c.code} value={c.code} className="bg-background">{c.flag} {c.code}</option>)}
+                  {(currencies ?? []).map((c) => (
+                    <option key={c.code} value={c.code} className="bg-background">
+                      {c.flag} {c.code}
+                    </option>
+                  ))}
                 </select>
                 <input
                   value={send.amount}
-                  onChange={(e) => setSend((s) => ({ ...s, amount: e.target.value.replace(/[^\d.]/g, "") }))}
+                  onChange={(e) =>
+                    setSend((s) => ({ ...s, amount: e.target.value.replace(/[^\d.]/g, "") }))
+                  }
                   className="w-full bg-transparent font-numeric text-[34px] font-semibold focus:outline-none"
                 />
               </Side>
-              <button onClick={swap} className="grid h-11 w-11 place-items-center rounded-full border border-white/[0.08] bg-white/[0.04] transition-transform hover:rotate-180">
+              <button
+                onClick={swap}
+                className="grid h-11 w-11 place-items-center rounded-full border border-white/[0.08] bg-white/[0.04] transition-transform hover:rotate-180"
+              >
                 <ArrowDownUp className="h-4 w-4" />
               </button>
               <Side label="You receive">
-                <select value={recv} onChange={(e) => setRecv(e.target.value)} className="rounded-lg bg-white/[0.04] px-2 py-1 text-[12px] focus:outline-none">
-                  {(currencies ?? []).map((c) => <option key={c.code} value={c.code} className="bg-background">{c.flag} {c.code}</option>)}
+                <select
+                  value={recv}
+                  onChange={(e) => setRecv(e.target.value)}
+                  className="rounded-lg bg-white/[0.04] px-2 py-1 text-[12px] focus:outline-none"
+                >
+                  {(currencies ?? []).map((c) => (
+                    <option key={c.code} value={c.code} className="bg-background">
+                      {c.flag} {c.code}
+                    </option>
+                  ))}
                 </select>
                 <div className="font-numeric text-[34px] font-semibold">{out}</div>
               </Side>
             </div>
 
             <div className="mt-3 text-[11px] text-muted-foreground">
-              Rate <span className="font-numeric text-foreground">{rate.toFixed(4)}</span> · spread 0.42% · arrives instantly
+              Rate <span className="font-numeric text-foreground">{rate.toFixed(4)}</span> · spread
+              0.42% · arrives instantly
             </div>
 
             <div className="mt-6 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">
               <div className="mb-2 flex items-center justify-between text-[11px]">
-                <span className="text-muted-foreground">{send.code}/{recv} · 1M</span>
+                <span className="text-muted-foreground">
+                  {send.code}/{recv} · 1M
+                </span>
                 <span className="text-accent">↑ 1.2% above 30-day avg</span>
               </div>
-              <Sparkline points={[80, 78, 82, 84, 80, 86, 88, 84, 88, 92, 90, 94, 92, 96, 94, 98, 96, 100]} width={800} height={100} color="oklch(0.715 0.135 215)" />
+              <Sparkline
+                points={[80, 78, 82, 84, 80, 86, 88, 84, 88, 92, 90, 94, 92, 96, 94, 98, 96, 100]}
+                width={800}
+                height={100}
+                color="oklch(0.715 0.135 215)"
+              />
             </div>
 
             <div className="mt-6">
@@ -95,11 +121,16 @@ function ExchangePage() {
             <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
               <div className="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 <span>Favorites</span>
-                <button><Plus className="h-3 w-3" /></button>
+                <button>
+                  <Plus className="h-3 w-3" />
+                </button>
               </div>
               <ul className="space-y-1.5">
                 {["EUR/USD", "EUR/GBP", "EUR/CHF", "USD/JPY"].map((p) => (
-                  <li key={p} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 text-[12px]">
+                  <li
+                    key={p}
+                    className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 text-[12px]"
+                  >
                     <span>{p}</span>
                     <span className="font-numeric text-success">↑ 0.21%</span>
                   </li>
@@ -107,10 +138,14 @@ function ExchangePage() {
               </ul>
             </article>
             <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-              <div className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Popular</div>
+              <div className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                Popular
+              </div>
               <div className="flex flex-wrap gap-1.5 text-[11px]">
                 {POPULAR.map((p) => (
-                  <span key={p} className="rounded-full bg-white/[0.04] px-2 py-1">{p}</span>
+                  <span key={p} className="rounded-full bg-white/[0.04] px-2 py-1">
+                    {p}
+                  </span>
                 ))}
               </div>
             </article>
@@ -121,12 +156,15 @@ function ExchangePage() {
   );
 }
 
-
 function Side({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
-      <div className="space-y-2 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">{children}</div>
+      <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </div>
+      <div className="space-y-2 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">
+        {children}
+      </div>
     </div>
   );
 }

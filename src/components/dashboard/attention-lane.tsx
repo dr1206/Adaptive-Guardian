@@ -50,13 +50,19 @@ export function AttentionLane() {
               ? "from-purple/20 to-transparent border-purple/20"
               : "from-accent/20 to-transparent border-accent/20";
         const iconColor =
-          it.tone === "warning" ? "text-warning" : it.tone === "purple" ? "text-purple" : "text-accent";
+          it.tone === "warning"
+            ? "text-warning"
+            : it.tone === "purple"
+              ? "text-purple"
+              : "text-accent";
         return (
           <div
             key={it.id}
             className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border bg-gradient-to-r ${ring} px-4 py-3`}
           >
-            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/[0.04] ${iconColor}`}>
+            <span
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/[0.04] ${iconColor}`}
+            >
               <Icon className="h-4 w-4" />
             </span>
             <div className="min-w-0 flex-1 leading-tight">

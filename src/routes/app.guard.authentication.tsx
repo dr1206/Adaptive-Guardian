@@ -48,8 +48,12 @@ function AuthCenter() {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Trust</div>
-            <div className="font-numeric text-[28px] font-semibold">9.4<span className="text-[14px] text-muted-foreground">/10</span></div>
+            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Trust
+            </div>
+            <div className="font-numeric text-[28px] font-semibold">
+              9.4<span className="text-[14px] text-muted-foreground">/10</span>
+            </div>
           </div>
           <ConfidenceRing value={98.4} size="md" />
         </div>
@@ -60,7 +64,8 @@ function AuthCenter() {
           <SigilCard key={m.name} eyebrow={m.status} title={m.name}>
             <div className="flex items-end justify-between">
               <div className="font-numeric text-[36px] font-semibold tabular-nums">
-                {m.contribution}<span className="text-[14px] text-muted-foreground">%</span>
+                {m.contribution}
+                <span className="text-[14px] text-muted-foreground">%</span>
               </div>
               <span className="text-[11px] text-muted-foreground">Last · {m.last}</span>
             </div>
@@ -69,11 +74,14 @@ function AuthCenter() {
                 className="h-full rounded-full"
                 style={{
                   width: `${m.contribution}%`,
-                  background: "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
+                  background:
+                    "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
                 }}
               />
             </div>
-            <p className="mt-3 text-[11.5px] text-muted-foreground">Contribution to current confidence.</p>
+            <p className="mt-3 text-[11.5px] text-muted-foreground">
+              Contribution to current confidence.
+            </p>
           </SigilCard>
         ))}
       </section>
@@ -87,11 +95,21 @@ function AuthCenter() {
             <Mini label="Device" value="99%" spark={[95, 96, 97, 98, 98, 99, 99]} />
           </div>
         </SigilCard>
-        <SigilCard className="lg:col-span-5" eyebrow="Last 10" title="Recent authentications" to="/app/guard/auth-timeline">
+        <SigilCard
+          className="lg:col-span-5"
+          eyebrow="Last 10"
+          title="Recent authentications"
+          to="/app/guard/auth-timeline"
+        >
           <ul className="space-y-2">
             {RECENT.map((r, i) => (
-              <li key={i} className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2">
-                <span className="font-numeric text-[11px] tabular-nums text-muted-foreground w-10">{r.t}</span>
+              <li
+                key={i}
+                className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2"
+              >
+                <span className="font-numeric text-[11px] tabular-nums text-muted-foreground w-10">
+                  {r.t}
+                </span>
                 <span className="flex-1 text-[12.5px]">{r.w}</span>
                 <span className="font-numeric text-[12px] tabular-nums text-success">{r.c}%</span>
               </li>
@@ -108,7 +126,9 @@ function Mini({ label, value, spark }: { label: string; value: string; spark: nu
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
       <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</div>
       <div className="mt-1 font-numeric text-[22px] font-semibold tabular-nums">{value}</div>
-      <div className="mt-1"><Sparkline points={spark} width={120} height={22} /></div>
+      <div className="mt-1">
+        <Sparkline points={spark} width={120} height={22} />
+      </div>
     </div>
   );
 }

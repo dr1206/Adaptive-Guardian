@@ -4,12 +4,27 @@ import { useRouterState } from "@tanstack/react-router";
 import { SignalDot } from "./signal-dot";
 
 const breadcrumbMap: Record<string, string> = {
-  admin: "Cockpit", users: "Users", accounts: "Accounts", roles: "Roles & permissions",
-  sessions: "Auth sessions", challenges: "Challenge center", behavior: "Behavior analytics",
-  ai: "AI Core", live: "Live monitoring", models: "Model management", datasets: "Datasets",
-  explain: "Explainability", risk: "Risk center", anomalies: "Anomaly detection",
-  audit: "Audit logs", notifications: "Notifications", api: "API health", infra: "Infrastructure",
-  compliance: "Compliance", reports: "Reports", settings: "Settings",
+  admin: "Cockpit",
+  users: "Users",
+  accounts: "Accounts",
+  roles: "Roles & permissions",
+  sessions: "Auth sessions",
+  challenges: "Challenge center",
+  behavior: "Behavior analytics",
+  ai: "AI Core",
+  live: "Live monitoring",
+  models: "Model management",
+  datasets: "Datasets",
+  explain: "Explainability",
+  risk: "Risk center",
+  anomalies: "Anomaly detection",
+  audit: "Audit logs",
+  notifications: "Notifications",
+  api: "API health",
+  infra: "Infrastructure",
+  compliance: "Compliance",
+  reports: "Reports",
+  settings: "Settings",
 };
 
 export function OpsTopBar() {
@@ -24,7 +39,13 @@ export function OpsTopBar() {
           {segs.map((s, i) => (
             <span key={i} className="flex items-center gap-1.5 min-w-0">
               {i > 0 && <ChevronRight className="size-3.5 text-muted-foreground/60 shrink-0" />}
-              <span className={i === segs.length - 1 ? "text-foreground font-medium truncate" : "text-muted-foreground truncate"}>
+              <span
+                className={
+                  i === segs.length - 1
+                    ? "text-foreground font-medium truncate"
+                    : "text-muted-foreground truncate"
+                }
+              >
                 {breadcrumbMap[s] ?? s}
               </span>
             </span>
@@ -35,8 +56,12 @@ export function OpsTopBar() {
         <div className="ml-4 flex-1 max-w-2xl">
           <button className="w-full group flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.05] hover:border-white/[0.12] px-3.5 py-2 text-left transition-colors">
             <Search className="size-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground flex-1">Search users · sessions · models · logs · runbooks…</span>
-            <kbd className="inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground"><Command className="size-3" />K</kbd>
+            <span className="text-xs text-muted-foreground flex-1">
+              Search users · sessions · models · logs · runbooks…
+            </span>
+            <kbd className="inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+              <Command className="size-3" />K
+            </kbd>
           </button>
         </div>
 
@@ -46,7 +71,9 @@ export function OpsTopBar() {
         {/* Incidents */}
         <button className="relative size-9 rounded-xl border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.05] flex items-center justify-center transition-colors">
           <Bell className="size-4 text-muted-foreground" />
-          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-rose-500 text-[10px] font-mono flex items-center justify-center text-white">3</span>
+          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-rose-500 text-[10px] font-mono flex items-center justify-center text-white">
+            3
+          </span>
         </button>
       </div>
     </header>
@@ -55,9 +82,9 @@ export function OpsTopBar() {
 
 function SystemPulseCluster() {
   const items: { label: string; signal: "ok" | "watch" | "alert" | "critical" }[] = [
-    { label: "API",   signal: "ok" },
-    { label: "ML",    signal: "watch" },
-    { label: "DB",    signal: "ok" },
+    { label: "API", signal: "ok" },
+    { label: "ML", signal: "watch" },
+    { label: "DB", signal: "ok" },
     { label: "Queue", signal: "ok" },
   ];
   return (
@@ -65,7 +92,9 @@ function SystemPulseCluster() {
       {items.map((it) => (
         <div key={it.label} className="flex items-center gap-1.5 px-1.5">
           <SignalDot signal={it.signal} />
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{it.label}</span>
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            {it.label}
+          </span>
         </div>
       ))}
     </div>

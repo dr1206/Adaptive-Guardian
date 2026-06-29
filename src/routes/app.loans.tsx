@@ -21,7 +21,10 @@ function LoansPage() {
       >
         <div className="grid gap-4 lg:grid-cols-2">
           {(loans ?? []).map((l) => (
-            <article key={l.id} className="rounded-[24px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-transparent p-6">
+            <article
+              key={l.id}
+              className="rounded-[24px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-transparent p-6"
+            >
               <header className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 <span>Loan</span>
                 <span className="text-accent">Active</span>
@@ -31,7 +34,14 @@ function LoansPage() {
                 <Stat k="Remaining" v={fmt(l.remaining)} />
                 <Stat k="Principal" v={fmt(l.principal)} />
                 <Stat k="Rate" v={`${l.ratePct}%`} />
-                <Stat k="Next EMI" v={fmt(l.nextAmount)} sub={new Date(l.nextDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} />
+                <Stat
+                  k="Next EMI"
+                  v={fmt(l.nextAmount)}
+                  sub={new Date(l.nextDate).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                />
               </div>
               <div className="mt-5">
                 <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
@@ -39,7 +49,10 @@ function LoansPage() {
                   <span>{100 - l.paidPct}% remaining</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div className="h-full rounded-full bg-gradient-to-r from-accent to-purple" style={{ width: `${l.paidPct}%` }} />
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-accent to-purple"
+                    style={{ width: `${l.paidPct}%` }}
+                  />
                 </div>
               </div>
               <div className="mt-5 rounded-xl border border-accent/15 bg-accent/5 px-3 py-2 text-[12px] text-accent">
@@ -52,7 +65,6 @@ function LoansPage() {
     </div>
   );
 }
-
 
 function Stat({ k, v, sub }: { k: string; v: string; sub?: string }) {
   return (

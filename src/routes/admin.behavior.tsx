@@ -4,32 +4,66 @@ import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { HeatGrid } from "@/components/admin/heat-grid";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { RiverChart } from "@/components/admin/river-chart";
-import { seedSeries, seedHeat } from "@/lib/admin-data";
+import { seedSeries, seedHeat } from "@/lib/admin-signal";
 
 export const Route = createFileRoute("/admin/behavior")({
   component: BehaviorPage,
 });
 
 function BehaviorPage() {
-  const [tab, setTab] = useState<"typing"|"mouse"|"drift"|"cohorts">("typing");
+  const [tab, setTab] = useState<"typing" | "mouse" | "drift" | "cohorts">("typing");
   return (
     <div className="space-y-6">
       <header>
-        <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">Identity ops · behavior</div>
+        <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">
+          Identity ops · behavior
+        </div>
         <h1 className="text-2xl font-semibold tracking-tight mt-1">Behavior analytics</h1>
-        <p className="text-sm text-muted-foreground mt-1">Population-level signal across typing, mouse, drift and cohort overlays</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Population-level signal across typing, mouse, drift and cohort overlays
+        </p>
       </header>
 
       <div className="grid grid-cols-4 gap-3">
-        <MetricCell label="Avg stability" value={0.987} delta={+0.004} signal="ok" series={seedSeries(31)} />
-        <MetricCell label="Typing rhythm" value={0.94} delta={+0.01} signal="ok" series={seedSeries(32)} />
-        <MetricCell label="Mouse fidelity" value={0.92} delta={-0.02} signal="watch" series={seedSeries(33)} />
-        <MetricCell label="Outliers (24h)" value={28} delta={+4} signal="watch" series={seedSeries(34)} />
+        <MetricCell
+          label="Avg stability"
+          value={0.987}
+          delta={+0.004}
+          signal="ok"
+          series={seedSeries(31)}
+        />
+        <MetricCell
+          label="Typing rhythm"
+          value={0.94}
+          delta={+0.01}
+          signal="ok"
+          series={seedSeries(32)}
+        />
+        <MetricCell
+          label="Mouse fidelity"
+          value={0.92}
+          delta={-0.02}
+          signal="watch"
+          series={seedSeries(33)}
+        />
+        <MetricCell
+          label="Outliers (24h)"
+          value={28}
+          delta={+4}
+          signal="watch"
+          series={seedSeries(34)}
+        />
       </div>
 
       <div className="flex items-center gap-1 rounded-xl border border-white/[0.06] p-1 w-fit text-xs">
-        {(["typing","mouse","drift","cohorts"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg capitalize ${tab === t ? "bg-white/[0.08] text-foreground" : "text-muted-foreground"}`}>{t}</button>
+        {(["typing", "mouse", "drift", "cohorts"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-3 py-1.5 rounded-lg capitalize ${tab === t ? "bg-white/[0.08] text-foreground" : "text-muted-foreground"}`}
+          >
+            {t}
+          </button>
         ))}
       </div>
 
@@ -44,7 +78,12 @@ function BehaviorPage() {
                 </linearGradient>
               </defs>
               <path d="M0 25 Q25 5 50 8 T100 25 L100 50 L0 50 Z" fill="url(#violin)" />
-              <path d="M0 25 Q25 5 50 8 T100 25" fill="none" stroke="oklch(0.71 0.135 215)" strokeWidth="0.6" />
+              <path
+                d="M0 25 Q25 5 50 8 T100 25"
+                fill="none"
+                stroke="oklch(0.71 0.135 215)"
+                strokeWidth="0.6"
+              />
             </svg>
           </div>
         </InstrumentPanel>

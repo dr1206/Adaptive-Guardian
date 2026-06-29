@@ -11,17 +11,45 @@ export const Route = createFileRoute("/app/guard/explainability")({
 });
 
 const PLAIN: Petal[] = [
-  { label: "Familiar typing rhythm", weight: 42, sentence: "Your inter-key timing matched your 30-day signature." },
+  {
+    label: "Familiar typing rhythm",
+    weight: 42,
+    sentence: "Your inter-key timing matched your 30-day signature.",
+  },
   { label: "Recognized device", weight: 28, sentence: "MacBook Pro · trusted for 312 days." },
-  { label: "Usual evening session", weight: 18, sentence: "You typically bank between 18:00 and 21:00." },
-  { label: "Consistent mouse precision", weight: 12, sentence: "Pointer paths matched your previous sessions." },
+  {
+    label: "Usual evening session",
+    weight: 18,
+    sentence: "You typically bank between 18:00 and 21:00.",
+  },
+  {
+    label: "Consistent mouse precision",
+    weight: 12,
+    sentence: "Pointer paths matched your previous sessions.",
+  },
 ];
 
 const TECH: Petal[] = [
-  { label: "rhythm_match (SHAP)", weight: 0.42, sentence: "Δ flight-time MAE = 6.2 ms vs baseline." } as unknown as Petal,
-  { label: "device_fp (SHAP)", weight: 0.28, sentence: "Fingerprint hash stable; cosine sim = 0.998." } as unknown as Petal,
-  { label: "time_prior (SHAP)", weight: 0.18, sentence: "P(active|hour) = 0.91." } as unknown as Petal,
-  { label: "mouse_smoothness (SHAP)", weight: 0.12, sentence: "Jerk variance within 1σ of baseline." } as unknown as Petal,
+  {
+    label: "rhythm_match (SHAP)",
+    weight: 0.42,
+    sentence: "Δ flight-time MAE = 6.2 ms vs baseline.",
+  } as unknown as Petal,
+  {
+    label: "device_fp (SHAP)",
+    weight: 0.28,
+    sentence: "Fingerprint hash stable; cosine sim = 0.998.",
+  } as unknown as Petal,
+  {
+    label: "time_prior (SHAP)",
+    weight: 0.18,
+    sentence: "P(active|hour) = 0.91.",
+  } as unknown as Petal,
+  {
+    label: "mouse_smoothness (SHAP)",
+    weight: 0.12,
+    sentence: "Jerk variance within 1σ of baseline.",
+  } as unknown as Petal,
 ].map((p) => ({ ...p, weight: (p.weight as unknown as number) * 100 }));
 
 const COUNTER = [
@@ -66,7 +94,8 @@ function Explainability() {
               Four reasons the Guardian recognized you.
             </h2>
             <p className="mt-2 text-[13px] text-muted-foreground">
-              The Guardian doesn't decide with a single signal. It weighs many quiet ones and explains every contribution.
+              The Guardian doesn't decide with a single signal. It weighs many quiet ones and
+              explains every contribution.
             </p>
             <div className="mt-5">
               <DecisionWaterfall petals={tech ? TECH : PLAIN} />
@@ -76,7 +105,11 @@ function Explainability() {
       </SigilCard>
 
       <section className="grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-7" eyebrow="What would change the decision" title="Counterfactuals">
+        <SigilCard
+          className="lg:col-span-7"
+          eyebrow="What would change the decision"
+          title="Counterfactuals"
+        >
           <ul className="space-y-2.5">
             {COUNTER.map((c, i) => (
               <li
@@ -95,14 +128,22 @@ function Explainability() {
           </ul>
         </SigilCard>
 
-        <SigilCard className="lg:col-span-5" eyebrow="You today vs you this week" title="Side by side">
+        <SigilCard
+          className="lg:col-span-5"
+          eyebrow="You today vs you this week"
+          title="Side by side"
+        >
           <div className="space-y-3">
             <div>
-              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Today</div>
+              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Today
+              </div>
               <WaveformTrace seed={5} height={60} baseline={false} />
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">This week (avg)</div>
+              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                This week (avg)
+              </div>
               <WaveformTrace seed={2} height={60} baseline={false} color="oklch(0.635 0.215 295)" />
             </div>
           </div>

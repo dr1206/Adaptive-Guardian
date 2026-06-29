@@ -17,7 +17,11 @@ function InsightsPage() {
   const { data: insights, isLoading, error } = useInsights();
   return (
     <div>
-      <PageHeader eyebrow="Intelligence" title="Insights" subtitle="Aegis observations, never interruptions." />
+      <PageHeader
+        eyebrow="Intelligence"
+        title="Insights"
+        subtitle="Aegis observations, never interruptions."
+      />
       <div className="mb-6 flex flex-wrap gap-1.5">
         {FILTERS.map((x) => (
           <button
@@ -25,7 +29,9 @@ function InsightsPage() {
             onClick={() => setF(x)}
             className={cn(
               "rounded-full border px-3 py-1 text-[11px] transition-colors",
-              f === x ? "border-accent/40 bg-accent/15 text-accent" : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground",
+              f === x
+                ? "border-accent/40 bg-accent/15 text-accent"
+                : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground",
             )}
           >
             {x}
@@ -47,4 +53,3 @@ function InsightsPage() {
     </div>
   );
 }
-

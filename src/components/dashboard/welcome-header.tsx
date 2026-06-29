@@ -21,11 +21,23 @@ export function WelcomeHeader({ name = "Amal" }: { name?: string }) {
 
   const stats = [
     { label: "Available", value: "248,902.14", prefix: "€", spark: [40, 42, 48, 46, 52, 58, 64] },
-    { label: "Today", value: "+ 1,420.40", prefix: "€", positive: true, spark: [20, 28, 22, 36, 30, 44, 56] },
+    {
+      label: "Today",
+      value: "+ 1,420.40",
+      prefix: "€",
+      positive: true,
+      spark: [20, 28, 22, 36, 30, 44, 56],
+    },
     { label: "In (Jun)", value: "14,230", prefix: "€", spark: [12, 18, 25, 30, 28, 32, 40] },
     { label: "Out (Jun)", value: "9,184", prefix: "€", spark: [22, 26, 22, 28, 30, 26, 24] },
     { label: "Savings", value: "62,400", prefix: "€", spark: [38, 40, 42, 45, 48, 51, 54] },
-    { label: "Investments", value: "2.48", prefix: "€", suffix: "M", spark: [30, 36, 32, 40, 44, 48, 56] },
+    {
+      label: "Investments",
+      value: "2.48",
+      prefix: "€",
+      suffix: "M",
+      spark: [30, 36, 32, 40, 44, 48, 56],
+    },
   ];
 
   return (
@@ -73,10 +85,7 @@ function StatCell({
     <div className="bg-[oklch(0.13_0.025_264/0.4)] px-4 py-3.5">
       <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div
-        className={cn(
-          "mt-1 flex items-baseline gap-1 font-numeric",
-          positive && "text-success",
-        )}
+        className={cn("mt-1 flex items-baseline gap-1 font-numeric", positive && "text-success")}
       >
         {prefix && <span className="text-[11px] opacity-70">{prefix}</span>}
         <span className="text-[18px] font-semibold tracking-tight">{value}</span>

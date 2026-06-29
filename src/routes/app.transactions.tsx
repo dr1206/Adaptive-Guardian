@@ -38,7 +38,6 @@ function TransactionsPage() {
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [filtered]);
 
-
   return (
     <div>
       <PageHeader eyebrow="Money" title="Transactions" subtitle="Every move, fully searchable." />
@@ -123,7 +122,6 @@ function TransactionsPage() {
       </AsyncBoundary>
     </div>
   );
-
 }
 
 function Expanded({ tx }: { tx: Transaction }) {
@@ -136,10 +134,18 @@ function Expanded({ tx }: { tx: Transaction }) {
       <Field k="Aegis check" v={`✓ ${tx.confidence}% confidence`} tone="accent" />
       <Field k="Risk" v="0.02" />
       <div className="md:col-span-3 mt-2 flex gap-2">
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">Export PDF</button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">Split</button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">Dispute</button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">Attach receipt</button>
+        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
+          Export PDF
+        </button>
+        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
+          Split
+        </button>
+        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
+          Dispute
+        </button>
+        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
+          Attach receipt
+        </button>
       </div>
     </div>
   );
@@ -158,5 +164,9 @@ function formatDay(d: string) {
   const today = "2026-06-28";
   if (d === today) return "Today · 28 Jun";
   if (d === "2026-06-27") return "Yesterday · 27 Jun";
-  return new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return new Date(d).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 }

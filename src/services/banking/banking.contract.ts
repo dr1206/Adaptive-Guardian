@@ -68,10 +68,7 @@ export interface BankingService {
   listLoans(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<LoanRecord>>;
   listCurrencies(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Currency>>;
   listInsights(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Insight>>;
-  initiateTransfer(
-    input: TransferInput,
-    opts?: { signal?: AbortSignal },
-  ): Promise<TransferResult>;
+  initiateTransfer(input: TransferInput, opts?: { signal?: AbortSignal }): Promise<TransferResult>;
 }
 
 export type InsightTone = "down" | "up" | "calendar" | "shield" | "saving" | "growth";

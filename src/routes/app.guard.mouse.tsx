@@ -28,7 +28,9 @@ function Mouse() {
         {KPI.map((k) => (
           <SigilCard key={k.label} eyebrow={k.label}>
             <div className="font-numeric text-[28px] font-semibold tabular-nums">{k.value}</div>
-            <div className="mt-2"><Sparkline points={k.spark} width={200} height={28} /></div>
+            <div className="mt-2">
+              <Sparkline points={k.spark} width={200} height={28} />
+            </div>
           </SigilCard>
         ))}
       </section>
@@ -112,7 +114,10 @@ function Heatmap() {
           key={i}
           className="aspect-square rounded-[2px]"
           style={{
-            background: v < 0.02 ? "oklch(1 0 0 / 0.03)" : `oklch(0.6 0.17 ${258 - v * 80} / ${0.2 + v * 0.7})`,
+            background:
+              v < 0.02
+                ? "oklch(1 0 0 / 0.03)"
+                : `oklch(0.6 0.17 ${258 - v * 80} / ${0.2 + v * 0.7})`,
           }}
         />
       ))}

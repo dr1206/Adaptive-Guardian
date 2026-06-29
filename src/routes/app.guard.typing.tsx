@@ -10,10 +10,30 @@ export const Route = createFileRoute("/app/guard/typing")({
 });
 
 const KPI = [
-  { label: "Speed", value: "72 wpm", spark: [68, 70, 71, 73, 72, 74, 72], note: "Slightly faster than usual — within range." },
-  { label: "Rhythm", value: "96%", spark: [92, 93, 94, 94, 95, 96, 96], note: "Your rhythm remains consistent." },
-  { label: "Cadence", value: "142 ms", spark: [150, 148, 145, 143, 144, 142, 142], note: "Stable inter-key timing." },
-  { label: "Hold time", value: "84 ms", spark: [80, 82, 83, 85, 84, 83, 84], note: "Matches your signature." },
+  {
+    label: "Speed",
+    value: "72 wpm",
+    spark: [68, 70, 71, 73, 72, 74, 72],
+    note: "Slightly faster than usual — within range.",
+  },
+  {
+    label: "Rhythm",
+    value: "96%",
+    spark: [92, 93, 94, 94, 95, 96, 96],
+    note: "Your rhythm remains consistent.",
+  },
+  {
+    label: "Cadence",
+    value: "142 ms",
+    spark: [150, 148, 145, 143, 144, 142, 142],
+    note: "Stable inter-key timing.",
+  },
+  {
+    label: "Hold time",
+    value: "84 ms",
+    spark: [80, 82, 83, 85, 84, 83, 84],
+    note: "Matches your signature.",
+  },
 ];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -43,7 +63,9 @@ function Typing() {
         {KPI.map((k) => (
           <SigilCard key={k.label} eyebrow={k.label}>
             <div className="font-numeric text-[28px] font-semibold tabular-nums">{k.value}</div>
-            <div className="mt-2"><Sparkline points={k.spark} width={200} height={28} /></div>
+            <div className="mt-2">
+              <Sparkline points={k.spark} width={200} height={28} />
+            </div>
             <div className="mt-2 text-[11.5px] text-muted-foreground">{k.note}</div>
           </SigilCard>
         ))}
@@ -78,7 +100,9 @@ function Typing() {
           <div className="grid grid-cols-7 gap-3">
             {DAYS.map((d, i) => (
               <div key={d} className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-2.5">
-                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{d}</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {d}
+                </div>
                 <WaveformTrace seed={i + 2} height={48} baseline={false} />
               </div>
             ))}

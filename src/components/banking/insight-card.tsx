@@ -23,10 +23,19 @@ export function InsightCard({
   const t = TONE[tone] ?? TONE.shield;
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-colors hover:border-accent/20">
-      <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-30 blur-2xl" style={{ background: t.color }} />
+      <div
+        className="absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-30 blur-2xl"
+        style={{ background: t.color }}
+      />
       <div className="relative">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]" style={{ color: t.color }}>
-          <span className="grid h-6 w-6 place-items-center rounded-lg" style={{ background: `${t.color}25` }}>
+        <div
+          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]"
+          style={{ color: t.color }}
+        >
+          <span
+            className="grid h-6 w-6 place-items-center rounded-lg"
+            style={{ background: `${t.color}25` }}
+          >
             {t.icon}
           </span>
           Aegis insight

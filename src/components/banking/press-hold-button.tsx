@@ -57,7 +57,12 @@ export function PressHoldButton({
         className,
       )}
     >
-      <svg className="absolute right-3 top-1/2 -translate-y-1/2" width="48" height="48" viewBox="0 0 50 50">
+      <svg
+        className="absolute right-3 top-1/2 -translate-y-1/2"
+        width="48"
+        height="48"
+        viewBox="0 0 50 50"
+      >
         <circle cx="25" cy="25" r={r} stroke="oklch(1 0 0 / 0.12)" strokeWidth="2" fill="none" />
         <circle
           cx="25"

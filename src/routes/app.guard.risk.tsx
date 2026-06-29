@@ -34,13 +34,23 @@ function Risk() {
       <section className="grid gap-5 lg:grid-cols-12">
         <SigilCard className="lg:col-span-4" eyebrow="Now" title="Current risk">
           <div className="flex items-end justify-between">
-            <div className="font-numeric text-[64px] font-semibold leading-none tracking-tight">0.04</div>
-            <span className="rounded-full bg-success/12 px-2.5 py-1 text-[11px] text-success">Low</span>
+            <div className="font-numeric text-[64px] font-semibold leading-none tracking-tight">
+              0.04
+            </div>
+            <span className="rounded-full bg-success/12 px-2.5 py-1 text-[11px] text-success">
+              Low
+            </span>
           </div>
           <div className="mt-4">
-            <Sparkline points={[0.12, 0.09, 0.07, 0.06, 0.05, 0.04, 0.04]} width={300} height={40} />
+            <Sparkline
+              points={[0.12, 0.09, 0.07, 0.06, 0.05, 0.04, 0.04]}
+              width={300}
+              height={40}
+            />
           </div>
-          <p className="mt-3 text-[11.5px] text-muted-foreground">30-day trend — steadily lower as the model learns.</p>
+          <p className="mt-3 text-[11.5px] text-muted-foreground">
+            30-day trend — steadily lower as the model learns.
+          </p>
         </SigilCard>
 
         <SigilCard className="lg:col-span-4" eyebrow="By source" title="Risk distribution">
@@ -53,11 +63,14 @@ function Risk() {
                     className="h-full rounded-full"
                     style={{
                       width: `${d.value}%`,
-                      background: "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
+                      background:
+                        "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
                     }}
                   />
                 </div>
-                <span className="font-numeric w-8 text-right text-[11px] tabular-nums text-muted-foreground">{d.value}%</span>
+                <span className="font-numeric w-8 text-right text-[11px] tabular-nums text-muted-foreground">
+                  {d.value}%
+                </span>
               </li>
             ))}
           </ul>
@@ -69,9 +82,13 @@ function Risk() {
               <li key={i} className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[12.5px] font-medium">{b.label}</span>
-                  <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">risk {b.risk.toFixed(2)}</span>
+                  <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">
+                    risk {b.risk.toFixed(2)}
+                  </span>
                 </div>
-                <div className="mt-0.5 text-[11.5px] text-muted-foreground">{b.t} · {b.note}</div>
+                <div className="mt-0.5 text-[11.5px] text-muted-foreground">
+                  {b.t} · {b.note}
+                </div>
               </li>
             ))}
           </ul>

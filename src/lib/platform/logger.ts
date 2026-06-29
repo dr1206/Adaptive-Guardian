@@ -106,13 +106,10 @@ export function createLogger(opts: LoggerOptions): Logger {
     const line = JSON.stringify(record);
     // Single sink across runtimes. console.* is the only allowed primitive here.
     if (level === "error" || level === "fatal") {
-      // eslint-disable-next-line no-console
       console.error(line);
     } else if (level === "warn") {
-      // eslint-disable-next-line no-console
       console.warn(line);
     } else {
-      // eslint-disable-next-line no-console
       console.log(line);
     }
   }

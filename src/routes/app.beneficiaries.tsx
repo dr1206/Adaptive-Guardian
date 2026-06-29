@@ -26,7 +26,9 @@ function BeneficiariesPage() {
         .filter(
           (b) =>
             (cat === "All" || b.category === cat) &&
-            (q === "" || b.name.toLowerCase().includes(q.toLowerCase()) || b.bank.toLowerCase().includes(q.toLowerCase())),
+            (q === "" ||
+              b.name.toLowerCase().includes(q.toLowerCase()) ||
+              b.bank.toLowerCase().includes(q.toLowerCase())),
         )
         .slice()
         .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite)),
@@ -54,7 +56,9 @@ function BeneficiariesPage() {
       <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
         <aside className="space-y-4">
           <div>
-            <h3 className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Categories</h3>
+            <h3 className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Categories
+            </h3>
             <ul className="space-y-1">
               {CATEGORIES.map((c) => (
                 <li key={c}>
@@ -62,7 +66,9 @@ function BeneficiariesPage() {
                     onClick={() => setCat(c)}
                     className={cn(
                       "w-full rounded-lg px-3 py-1.5 text-left text-[12px] transition-colors",
-                      cat === c ? "bg-white/[0.06] text-foreground" : "text-muted-foreground hover:bg-white/[0.03] hover:text-foreground",
+                      cat === c
+                        ? "bg-white/[0.06] text-foreground"
+                        : "text-muted-foreground hover:bg-white/[0.03] hover:text-foreground",
                     )}
                   >
                     {c}
@@ -72,10 +78,17 @@ function BeneficiariesPage() {
             </ul>
           </div>
           <div>
-            <h3 className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Index</h3>
+            <h3 className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Index
+            </h3>
             <div className="flex flex-wrap gap-1 font-numeric text-[11px]">
               {letters.map((l) => (
-                <span key={l} className="grid h-6 w-6 place-items-center rounded-md bg-white/[0.04] text-muted-foreground">{l}</span>
+                <span
+                  key={l}
+                  className="grid h-6 w-6 place-items-center rounded-md bg-white/[0.04] text-muted-foreground"
+                >
+                  {l}
+                </span>
               ))}
             </div>
           </div>
@@ -108,4 +121,3 @@ function BeneficiariesPage() {
     </div>
   );
 }
-

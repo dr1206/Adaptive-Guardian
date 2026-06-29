@@ -13,7 +13,11 @@ export function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-[640px]">
       {/* glow rings */}
-      <div aria-hidden className="absolute -inset-10 -z-10 opacity-70 blur-3xl" style={{ background: "var(--gradient-cyber)" }} />
+      <div
+        aria-hidden
+        className="absolute -inset-10 -z-10 opacity-70 blur-3xl"
+        style={{ background: "var(--gradient-cyber)" }}
+      />
 
       {/* main dashboard mock */}
       <div className="surface-card relative overflow-hidden rounded-3xl p-5">
@@ -122,9 +126,7 @@ export function HeroVisual() {
           <Sparkles className="h-4 w-4" />
         </span>
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            SHAP
-          </div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">SHAP</div>
           <div className="text-xs font-semibold">Explainable</div>
         </div>
       </div>

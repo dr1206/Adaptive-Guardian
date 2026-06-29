@@ -24,7 +24,11 @@ const COLLECT = [
   { icon: Keyboard, label: "Typing rhythm", note: "To recognize you without passwords." },
   { icon: MousePointer2, label: "Mouse movement", note: "To detect that the human is you." },
   { icon: Clock, label: "Interaction timing", note: "To learn your natural cadence." },
-  { icon: Activity, label: "Session patterns", note: "To detect unusual behavior, not your actions." },
+  {
+    icon: Activity,
+    label: "Session patterns",
+    note: "To detect unusual behavior, not your actions.",
+  },
 ];
 
 const NEVER = [
@@ -54,14 +58,13 @@ function Privacy() {
       />
 
       <section className="grid gap-5 lg:grid-cols-2">
-        <SigilCard
-          eyebrow="Collected"
-          title="What the Guardian sees"
-          className="border-accent/20"
-        >
+        <SigilCard eyebrow="Collected" title="What the Guardian sees" className="border-accent/20">
           <ul className="space-y-2.5">
             {COLLECT.map((c) => (
-              <li key={c.label} className="flex items-start gap-3 rounded-xl border border-accent/15 bg-accent/[0.04] p-3">
+              <li
+                key={c.label}
+                className="flex items-start gap-3 rounded-xl border border-accent/15 bg-accent/[0.04] p-3"
+              >
                 <c.icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <div>
                   <div className="text-[13px] font-medium">{c.label}</div>
@@ -75,7 +78,10 @@ function Privacy() {
         <SigilCard eyebrow="Not collected" title="What we never touch">
           <ul className="grid gap-2 sm:grid-cols-2">
             {NEVER.map((n) => (
-              <li key={n.label} className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.01] p-3">
+              <li
+                key={n.label}
+                className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.01] p-3"
+              >
                 <span className="grid h-8 w-8 place-items-center rounded-md bg-white/[0.03]">
                   <n.icon className="h-4 w-4 text-muted-foreground/60" />
                 </span>
@@ -92,7 +98,10 @@ function Privacy() {
         <SigilCard className="lg:col-span-7" eyebrow="Your controls" title="What you can turn off">
           <ul className="space-y-2.5">
             {TOGGLES.map((t) => (
-              <li key={t.label} className="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+              <li
+                key={t.label}
+                className="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
+              >
                 <div className="flex-1">
                   <div className="text-[13px] font-medium">{t.label}</div>
                   <div className="text-[12px] text-muted-foreground">{t.note}</div>
@@ -135,7 +144,6 @@ function Privacy() {
           <div className="mt-5 flex flex-wrap gap-2">
             <PressHoldButton label="Hold to export my data" onComplete={() => {}} />
             <PressHoldButton label="Hold to delete my signature" onComplete={() => {}} />
-
           </div>
         </SigilCard>
       </section>

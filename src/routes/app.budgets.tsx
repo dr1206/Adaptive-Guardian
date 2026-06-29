@@ -22,7 +22,11 @@ function BudgetsPage() {
   const totalSpent = ENVELOPES.reduce((s, e) => s + e.spent, 0);
   return (
     <div>
-      <PageHeader eyebrow="Grow" title="Budgets" subtitle="Envelopes for each category, every month." />
+      <PageHeader
+        eyebrow="Grow"
+        title="Budgets"
+        subtitle="Envelopes for each category, every month."
+      />
       <div className="mb-6 grid gap-3 sm:grid-cols-4">
         <KPI k="Total budget" v={fmt(totalBudget)} />
         <KPI k="Total spent" v={fmt(totalSpent)} />
@@ -34,7 +38,10 @@ function BudgetsPage() {
           const pct = Math.min(100, (e.spent / e.budget) * 100);
           const over = e.spent > e.budget;
           return (
-            <article key={e.name} className="rounded-[20px] border border-white/[0.06] bg-white/[0.025] p-5">
+            <article
+              key={e.name}
+              className="rounded-[20px] border border-white/[0.06] bg-white/[0.025] p-5"
+            >
               <header className="mb-3 flex items-center justify-between">
                 <h3 className="font-display text-[14px] font-semibold">{e.name}</h3>
                 <span className={`text-[11px] ${over ? "text-warning" : "text-muted-foreground"}`}>
@@ -61,7 +68,11 @@ function KPI({ k, v, tone }: { k: string; v: string; tone?: "success" }) {
   return (
     <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
       <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{k}</div>
-      <div className={`mt-1 font-numeric text-[18px] font-semibold ${tone === "success" ? "text-success" : ""}`}>{v}</div>
+      <div
+        className={`mt-1 font-numeric text-[18px] font-semibold ${tone === "success" ? "text-success" : ""}`}
+      >
+        {v}
+      </div>
     </div>
   );
 }

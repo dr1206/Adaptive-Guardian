@@ -12,13 +12,7 @@ export const Route = createFileRoute("/app/guard/reports")({
 
 const PERIODS = ["Daily", "Weekly", "Monthly"] as const;
 
-const PREV = [
-  "Week of Mar 17",
-  "Week of Mar 10",
-  "Week of Mar 3",
-  "Feb 2026",
-  "Jan 2026",
-];
+const PREV = ["Week of Mar 17", "Week of Mar 10", "Week of Mar 3", "Feb 2026", "Jan 2026"];
 
 function Reports() {
   const [period, setPeriod] = useState<(typeof PERIODS)[number]>("Weekly");
@@ -73,18 +67,29 @@ function Reports() {
           </ul>
         </SigilCard>
 
-        <SigilCard className="lg:col-span-9" eyebrow={period + " · Mar 17–23"} title="Security report">
+        <SigilCard
+          className="lg:col-span-9"
+          eyebrow={period + " · Mar 17–23"}
+          title="Security report"
+        >
           <div className="grid items-center gap-6 border-b border-white/[0.05] pb-6 md:grid-cols-[auto_1fr_auto]">
             <ConfidenceRing value={98.1} size="md" label="Confidence" />
             <div>
-              <h2 className="font-display text-[22px] font-medium leading-tight">A calm week — recognized in every session.</h2>
+              <h2 className="font-display text-[22px] font-medium leading-tight">
+                A calm week — recognized in every session.
+              </h2>
               <p className="mt-2 text-[12.5px] text-muted-foreground">
-                The Guardian recognized you in 41 of 41 sessions. One step-up OTP completed in 4 seconds.
+                The Guardian recognized you in 41 of 41 sessions. One step-up OTP completed in 4
+                seconds.
               </p>
             </div>
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Trust</div>
-              <div className="font-numeric text-[28px] font-semibold">9.4<span className="text-[14px] text-muted-foreground">/10</span></div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                Trust
+              </div>
+              <div className="font-numeric text-[28px] font-semibold">
+                9.4<span className="text-[14px] text-muted-foreground">/10</span>
+              </div>
             </div>
           </div>
 
@@ -96,13 +101,17 @@ function Reports() {
           </div>
 
           <div className="mt-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Trust trend</div>
-            <div className="mt-2"><Sparkline points={[9.0, 9.1, 9.2, 9.3, 9.3, 9.4, 9.4]} width={600} height={40} /></div>
+            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Trust trend
+            </div>
+            <div className="mt-2">
+              <Sparkline points={[9.0, 9.1, 9.2, 9.3, 9.3, 9.4, 9.4]} width={600} height={40} />
+            </div>
           </div>
 
           <div className="mt-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-[12.5px] text-muted-foreground">
-            <span className="text-accent">Aegis · </span>
-            A calm week — the Guardian recognized you 41 of 41 sessions, with one quick step-up to confirm a new beneficiary.
+            <span className="text-accent">Aegis · </span>A calm week — the Guardian recognized you
+            41 of 41 sessions, with one quick step-up to confirm a new beneficiary.
           </div>
         </SigilCard>
       </section>

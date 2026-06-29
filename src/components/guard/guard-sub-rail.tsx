@@ -58,8 +58,7 @@ export function GuardSubRail() {
           </span>
           {g.items.map((it) => {
             const active =
-              pathname === it.to ||
-              (it.to !== "/app/guard" && pathname.startsWith(it.to));
+              pathname === it.to || (it.to !== "/app/guard" && pathname.startsWith(it.to));
             return (
               <Link
                 key={it.to}

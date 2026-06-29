@@ -73,16 +73,26 @@ function AccountDetailPage() {
             <section className="relative overflow-hidden rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 backdrop-blur-xl">
               <div className="flex flex-wrap items-end justify-between gap-6">
                 <div>
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Available</div>
-                  <div className="mt-1 font-numeric text-[56px] font-semibold tracking-tight">{fmt(accountQ.data.balance)}</div>
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                    Available
+                  </div>
+                  <div className="mt-1 font-numeric text-[56px] font-semibold tracking-tight">
+                    {fmt(accountQ.data.balance)}
+                  </div>
                   <div className="mt-1 text-[12px] text-muted-foreground">
                     {accountQ.data.pending ? `Pending ${fmt(accountQ.data.pending)} · ` : ""}
                     <span className={accountQ.data.deltaPct >= 0 ? "text-success" : "text-warning"}>
-                      {accountQ.data.deltaPct >= 0 ? "↑" : "↓"} {Math.abs(accountQ.data.deltaPct).toFixed(2)}% today
+                      {accountQ.data.deltaPct >= 0 ? "↑" : "↓"}{" "}
+                      {Math.abs(accountQ.data.deltaPct).toFixed(2)}% today
                     </span>
                   </div>
                 </div>
-                <Sparkline points={accountQ.data.spark} width={420} height={80} color="oklch(0.715 0.135 215)" />
+                <Sparkline
+                  points={accountQ.data.spark}
+                  width={420}
+                  height={80}
+                  color="oklch(0.715 0.135 215)"
+                />
               </div>
             </section>
 
@@ -97,7 +107,9 @@ function AccountDetailPage() {
                   )}
                 >
                   {t}
-                  <kbd className="ml-2 font-numeric text-[9px] text-muted-foreground/50">⌘{i + 1}</kbd>
+                  <kbd className="ml-2 font-numeric text-[9px] text-muted-foreground/50">
+                    ⌘{i + 1}
+                  </kbd>
                   {tab === t && (
                     <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-gradient-to-r from-accent to-purple" />
                   )}
@@ -106,17 +118,21 @@ function AccountDetailPage() {
             </nav>
 
             <section className="mt-6">
-              <AsyncBoundary
-                isLoading={txsQ.isLoading}
-                error={txsQ.error}
-                isEmpty={false}
-              >
-                {tab === "Overview" && <OverviewTab spark={accountQ.data.spark} txs={txsQ.data ?? []} />}
+              <AsyncBoundary isLoading={txsQ.isLoading} error={txsQ.error} isEmpty={false}>
+                {tab === "Overview" && (
+                  <OverviewTab spark={accountQ.data.spark} txs={txsQ.data ?? []} />
+                )}
                 {tab === "Transactions" && <TxsTab txs={txsQ.data ?? []} />}
-                {tab === "Analytics" && <PlaceholderTab label="Analytics — charts coming online." />}
-                {tab === "Statements" && <PlaceholderTab label="Statements scoped to this account." />}
+                {tab === "Analytics" && (
+                  <PlaceholderTab label="Analytics — charts coming online." />
+                )}
+                {tab === "Statements" && (
+                  <PlaceholderTab label="Statements scoped to this account." />
+                )}
                 {tab === "Scheduled" && <PlaceholderTab label="Standing orders & direct debits." />}
-                {tab === "Security" && <PlaceholderTab label="Aegis verification events for this account." />}
+                {tab === "Security" && (
+                  <PlaceholderTab label="Aegis verification events for this account." />
+                )}
                 {tab === "Documents" && <PlaceholderTab label="KYC, statements, certificates." />}
               </AsyncBoundary>
             </section>
@@ -135,7 +151,10 @@ function OverviewTab({ spark, txs }: { spark: number[]; txs: ReadonlyArray<Trans
           <h3 className="font-display text-[14px] font-semibold">Cash flow · 90 days</h3>
           <div className="flex gap-1 text-[11px]">
             {["1W", "1M", "3M", "1Y"].map((p) => (
-              <button key={p} className="rounded-md px-2 py-0.5 text-muted-foreground hover:bg-white/5 hover:text-foreground">
+              <button
+                key={p}
+                className="rounded-md px-2 py-0.5 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+              >
                 {p}
               </button>
             ))}
@@ -150,13 +169,25 @@ function OverviewTab({ spark, txs }: { spark: number[]; txs: ReadonlyArray<Trans
         </div>
       </article>
       <div className="lg:col-span-4 grid gap-4">
-        <InsightCard tone="down" title="Dining down 18%" body="You've trimmed weekday lunches. €212 vs €258 last month." action="See transactions" />
-        <InsightCard tone="calendar" title="Rent due Wednesday" body="€1,250 scheduled to Marta Silva." action="View payment" />
+        <InsightCard
+          tone="down"
+          title="Dining down 18%"
+          body="You've trimmed weekday lunches. €212 vs €258 last month."
+          action="See transactions"
+        />
+        <InsightCard
+          tone="calendar"
+          title="Rent due Wednesday"
+          body="€1,250 scheduled to Marta Silva."
+          action="View payment"
+        />
       </div>
       <article className="lg:col-span-12 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-6">
         <header className="mb-3 flex items-center justify-between">
           <h3 className="font-display text-[14px] font-semibold">Recent activity</h3>
-          <Link to="/app/transactions" className="text-[11px] text-accent">View all →</Link>
+          <Link to="/app/transactions" className="text-[11px] text-accent">
+            View all →
+          </Link>
         </header>
         <TxsTab txs={txs.slice(0, 6)} compact />
       </article>
@@ -168,16 +199,32 @@ function KPI({ label, value, tone }: { label: string; value: string; tone?: "suc
   return (
     <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
       <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
-      <div className={cn("mt-1 font-numeric text-[18px] font-semibold", tone === "success" && "text-success")}>{value}</div>
+      <div
+        className={cn(
+          "mt-1 font-numeric text-[18px] font-semibold",
+          tone === "success" && "text-success",
+        )}
+      >
+        {value}
+      </div>
     </div>
   );
 }
 
 function TxsTab({ txs, compact }: { txs: ReadonlyArray<Transaction>; compact?: boolean }) {
   if (txs.length === 0)
-    return <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-10 text-center text-[13px] text-muted-foreground">Your ledger is quiet.</div>;
+    return (
+      <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-10 text-center text-[13px] text-muted-foreground">
+        Your ledger is quiet.
+      </div>
+    );
   return (
-    <ul className={cn("divide-y divide-white/[0.04]", !compact && "rounded-2xl border border-white/[0.06] bg-white/[0.02]")}>
+    <ul
+      className={cn(
+        "divide-y divide-white/[0.04]",
+        !compact && "rounded-2xl border border-white/[0.06] bg-white/[0.02]",
+      )}
+    >
       {txs.map((t) => (
         <li key={t.id} className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -186,10 +233,17 @@ function TxsTab({ txs, compact }: { txs: ReadonlyArray<Transaction>; compact?: b
             </span>
             <div>
               <div className="text-[13px] font-medium">{t.merchant}</div>
-              <div className="text-[10px] text-muted-foreground">{t.category} · {t.time}</div>
+              <div className="text-[10px] text-muted-foreground">
+                {t.category} · {t.time}
+              </div>
             </div>
           </div>
-          <span className={cn("font-numeric text-[13px] font-medium", t.amount >= 0 ? "text-success" : "text-foreground")}>
+          <span
+            className={cn(
+              "font-numeric text-[13px] font-medium",
+              t.amount >= 0 ? "text-success" : "text-foreground",
+            )}
+          >
             {fmt(t.amount)}
           </span>
         </li>

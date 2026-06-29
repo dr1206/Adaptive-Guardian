@@ -29,10 +29,7 @@ export function ConfidenceRing({
   const id = `cr-${size}-${Math.round(value * 10)}`;
 
   return (
-    <div
-      className="relative grid place-items-center"
-      style={{ width: d.box, height: d.box }}
-    >
+    <div className="relative grid place-items-center" style={{ width: d.box, height: d.box }}>
       <svg viewBox={`0 0 ${d.box} ${d.box}`} className="absolute inset-0 -rotate-90">
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
@@ -41,7 +38,14 @@ export function ConfidenceRing({
             <stop offset="100%" stopColor="oklch(0.635 0.215 295)" />
           </linearGradient>
         </defs>
-        <circle cx={cx} cy={cx} r={d.r} stroke="oklch(1 0 0 / 0.05)" strokeWidth={d.sw} fill="none" />
+        <circle
+          cx={cx}
+          cy={cx}
+          r={d.r}
+          stroke="oklch(1 0 0 / 0.05)"
+          strokeWidth={d.sw}
+          fill="none"
+        />
         {gOff != null && (
           <circle
             cx={cx}
@@ -75,9 +79,14 @@ export function ConfidenceRing({
       </svg>
       <div className="relative text-center">
         {showShield && size !== "sm" && (
-          <Shield size={size === "xl" ? 26 : size === "lg" ? 22 : 16} className="mx-auto opacity-70" />
+          <Shield
+            size={size === "xl" ? 26 : size === "lg" ? 22 : 16}
+            className="mx-auto opacity-70"
+          />
         )}
-        <div className={`mt-0.5 font-numeric ${d.numeric} font-semibold tracking-tight tabular-nums`}>
+        <div
+          className={`mt-0.5 font-numeric ${d.numeric} font-semibold tracking-tight tabular-nums`}
+        >
           {value.toFixed(size === "sm" ? 0 : 1)}
           {size !== "sm" && <span className="ml-0.5 text-[0.4em] text-muted-foreground">%</span>}
         </div>

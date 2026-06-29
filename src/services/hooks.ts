@@ -16,12 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { services } from "./registry";
-import type {
-  AegisSnapshot,
-  Decision,
-  Device,
-  RiskEvent,
-} from "./aegis/aegis.contract";
+import type { AegisSnapshot, Decision, Device, RiskEvent } from "./aegis/aegis.contract";
 import type {
   EnrollmentSample,
   EnrollmentSummary,
@@ -45,10 +40,26 @@ import type {
   TransferResult,
 } from "./banking/banking.contract";
 import type {
-  AdminSession,
+  AdminAccount,
   AdminUser,
-  AuditEvent,
-  ModelInfo,
+  AnomalySignature,
+  ApiService,
+  AuditEntry,
+  ChallengeReason,
+  ChallengeRecord,
+  ComplianceControl,
+  Dataset,
+  GeoDot,
+  GlobalMetric,
+  Incident,
+  InfraSnapshot,
+  Kpi,
+  LiveSession,
+  ModelVersion,
+  NotificationGroup,
+  Permission,
+  ReportTemplate,
+  Role,
 } from "./admin/admin.contract";
 
 export const queryKeys = {
@@ -68,10 +79,27 @@ export const queryKeys = {
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
   aegisRisk: ["aegis", "risk"] as const,
+  adminAccounts: ["admin", "accounts"] as const,
+  adminAnomalySignatures: ["admin", "anomaly-signatures"] as const,
+  adminKpis: ["admin", "kpis"] as const,
+  adminGlobalMetrics: ["admin", "global-metrics"] as const,
+  adminLiveSessions: ["admin", "live-sessions"] as const,
   adminUsers: ["admin", "users"] as const,
-  adminSessions: ["admin", "sessions"] as const,
+  adminIncidents: ["admin", "incidents"] as const,
   adminModels: ["admin", "models"] as const,
+  adminDatasets: ["admin", "datasets"] as const,
+  adminApiServices: ["admin", "api-services"] as const,
+  adminControls: ["admin", "controls"] as const,
+  adminReportTemplates: ["admin", "report-templates"] as const,
   adminAudit: ["admin", "audit"] as const,
+  adminChallengeReasons: ["admin", "challenge-reasons"] as const,
+  adminChallenges: ["admin", "challenges"] as const,
+  adminRoles: ["admin", "roles"] as const,
+  adminPermissions: ["admin", "permissions"] as const,
+  adminRolePermissions: ["admin", "role-permissions"] as const,
+  adminNotificationGroups: ["admin", "notification-groups"] as const,
+  adminGeoDots: ["admin", "geo-dots"] as const,
+  adminInfra: ["admin", "infra"] as const,
 };
 
 // ----------------------------------------------------------------------------
@@ -287,27 +315,129 @@ export function useRiskEvents() {
 // Admin
 // ----------------------------------------------------------------------------
 
+export function useAdminKpis() {
+  return useQuery<ReadonlyArray<Kpi>>({
+    queryKey: queryKeys.adminKpis,
+    queryFn: ({ signal }) => services.admin.listKpis({ signal }),
+  });
+}
+export function useAdminGlobalMetrics() {
+  return useQuery<ReadonlyArray<GlobalMetric>>({
+    queryKey: queryKeys.adminGlobalMetrics,
+    queryFn: ({ signal }) => services.admin.listGlobalMetrics({ signal }),
+  });
+}
+export function useAdminLiveSessions() {
+  return useQuery<ReadonlyArray<LiveSession>>({
+    queryKey: queryKeys.adminLiveSessions,
+    queryFn: ({ signal }) => services.admin.listLiveSessions({ signal }),
+  });
+}
 export function useAdminUsers() {
   return useQuery<ReadonlyArray<AdminUser>>({
     queryKey: queryKeys.adminUsers,
     queryFn: ({ signal }) => services.admin.listUsers({ signal }),
   });
 }
-export function useAdminSessions() {
-  return useQuery<ReadonlyArray<AdminSession>>({
-    queryKey: queryKeys.adminSessions,
-    queryFn: ({ signal }) => services.admin.listSessions({ signal }),
+export function useAdminIncidents() {
+  return useQuery<ReadonlyArray<Incident>>({
+    queryKey: queryKeys.adminIncidents,
+    queryFn: ({ signal }) => services.admin.listIncidents({ signal }),
   });
 }
 export function useAdminModels() {
-  return useQuery<ReadonlyArray<ModelInfo>>({
+  return useQuery<ReadonlyArray<ModelVersion>>({
     queryKey: queryKeys.adminModels,
     queryFn: ({ signal }) => services.admin.listModels({ signal }),
   });
 }
+export function useAdminDatasets() {
+  return useQuery<ReadonlyArray<Dataset>>({
+    queryKey: queryKeys.adminDatasets,
+    queryFn: ({ signal }) => services.admin.listDatasets({ signal }),
+  });
+}
+export function useAdminApiServices() {
+  return useQuery<ReadonlyArray<ApiService>>({
+    queryKey: queryKeys.adminApiServices,
+    queryFn: ({ signal }) => services.admin.listApiServices({ signal }),
+  });
+}
+export function useAdminControls() {
+  return useQuery<ReadonlyArray<ComplianceControl>>({
+    queryKey: queryKeys.adminControls,
+    queryFn: ({ signal }) => services.admin.listControls({ signal }),
+  });
+}
+export function useAdminReportTemplates() {
+  return useQuery<ReadonlyArray<ReportTemplate>>({
+    queryKey: queryKeys.adminReportTemplates,
+    queryFn: ({ signal }) => services.admin.listReportTemplates({ signal }),
+  });
+}
 export function useAdminAudit() {
-  return useQuery<ReadonlyArray<AuditEvent>>({
+  return useQuery<ReadonlyArray<AuditEntry>>({
     queryKey: queryKeys.adminAudit,
     queryFn: ({ signal }) => services.admin.listAudit({ signal }),
+  });
+}
+export function useAdminChallengeReasons() {
+  return useQuery<ReadonlyArray<ChallengeReason>>({
+    queryKey: queryKeys.adminChallengeReasons,
+    queryFn: ({ signal }) => services.admin.listChallengeReasons({ signal }),
+  });
+}
+export function useAdminChallenges() {
+  return useQuery<ReadonlyArray<ChallengeRecord>>({
+    queryKey: queryKeys.adminChallenges,
+    queryFn: ({ signal }) => services.admin.listChallenges({ signal }),
+  });
+}
+export function useAdminRoles() {
+  return useQuery<ReadonlyArray<Role>>({
+    queryKey: queryKeys.adminRoles,
+    queryFn: ({ signal }) => services.admin.listRoles({ signal }),
+  });
+}
+export function useAdminPermissions() {
+  return useQuery<ReadonlyArray<Permission>>({
+    queryKey: queryKeys.adminPermissions,
+    queryFn: ({ signal }) => services.admin.listPermissions({ signal }),
+  });
+}
+export function useAdminRolePermissions() {
+  return useQuery<Readonly<Record<string, ReadonlyArray<string>>>>({
+    queryKey: queryKeys.adminRolePermissions,
+    queryFn: ({ signal }) => services.admin.getRolePermissions({ signal }),
+  });
+}
+export function useAdminNotificationGroups() {
+  return useQuery<ReadonlyArray<NotificationGroup>>({
+    queryKey: queryKeys.adminNotificationGroups,
+    queryFn: ({ signal }) => services.admin.listNotificationGroups({ signal }),
+  });
+}
+export function useAdminGeoDots() {
+  return useQuery<ReadonlyArray<GeoDot>>({
+    queryKey: queryKeys.adminGeoDots,
+    queryFn: ({ signal }) => services.admin.listGeoDots({ signal }),
+  });
+}
+export function useAdminInfra() {
+  return useQuery<InfraSnapshot>({
+    queryKey: queryKeys.adminInfra,
+    queryFn: ({ signal }) => services.admin.getInfraSnapshot({ signal }),
+  });
+}
+export function useAdminAccounts() {
+  return useQuery<ReadonlyArray<AdminAccount>>({
+    queryKey: queryKeys.adminAccounts,
+    queryFn: ({ signal }) => services.admin.listAdminAccounts({ signal }),
+  });
+}
+export function useAdminAnomalySignatures() {
+  return useQuery<ReadonlyArray<AnomalySignature>>({
+    queryKey: queryKeys.adminAnomalySignatures,
+    queryFn: ({ signal }) => services.admin.listAnomalySignatures({ signal }),
   });
 }

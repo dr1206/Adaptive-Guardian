@@ -39,24 +39,92 @@ const GROUPS: { label: string; txs: Tx[] }[] = [
   {
     label: "Today · 28 Jun",
     txs: [
-      { id: "1", merchant: "Wolt", category: "Food", time: "13:02", amount: 18.4, direction: "out", glyph: "coffee", card: "•• 4218" },
-      { id: "2", merchant: "EasyPark", category: "Transport", time: "10:11", amount: 4.5, direction: "out", glyph: "shop", card: "•• 4218" },
-      { id: "3", merchant: "Banco Atlântico · Salary", category: "Income", time: "09:00", amount: 6400, direction: "in", glyph: "salary" },
+      {
+        id: "1",
+        merchant: "Wolt",
+        category: "Food",
+        time: "13:02",
+        amount: 18.4,
+        direction: "out",
+        glyph: "coffee",
+        card: "•• 4218",
+      },
+      {
+        id: "2",
+        merchant: "EasyPark",
+        category: "Transport",
+        time: "10:11",
+        amount: 4.5,
+        direction: "out",
+        glyph: "shop",
+        card: "•• 4218",
+      },
+      {
+        id: "3",
+        merchant: "Banco Atlântico · Salary",
+        category: "Income",
+        time: "09:00",
+        amount: 6400,
+        direction: "in",
+        glyph: "salary",
+      },
     ],
   },
   {
     label: "Yesterday · 27 Jun",
     txs: [
-      { id: "4", merchant: "British Airways", category: "Travel", time: "21:40", amount: 1284, direction: "out", glyph: "plane", card: "•• 4218" },
-      { id: "5", merchant: "Octopus Energy", category: "Utilities", time: "18:00", amount: 142, direction: "out", glyph: "energy" },
-      { id: "6", merchant: "Goldsmiths", category: "Lifestyle", time: "14:22", amount: 612.5, direction: "out", glyph: "shop", card: "•• 4218" },
+      {
+        id: "4",
+        merchant: "British Airways",
+        category: "Travel",
+        time: "21:40",
+        amount: 1284,
+        direction: "out",
+        glyph: "plane",
+        card: "•• 4218",
+      },
+      {
+        id: "5",
+        merchant: "Octopus Energy",
+        category: "Utilities",
+        time: "18:00",
+        amount: 142,
+        direction: "out",
+        glyph: "energy",
+      },
+      {
+        id: "6",
+        merchant: "Goldsmiths",
+        category: "Lifestyle",
+        time: "14:22",
+        amount: 612.5,
+        direction: "out",
+        glyph: "shop",
+        card: "•• 4218",
+      },
     ],
   },
   {
     label: "Mon · 26 Jun",
     txs: [
-      { id: "7", merchant: "A. Mehta · Transfer", category: "Transfer", time: "11:08", amount: 2400, direction: "in", glyph: "salary" },
-      { id: "8", merchant: "Landlord Carvalho", category: "Rent", time: "09:30", amount: 1420, direction: "out", glyph: "home" },
+      {
+        id: "7",
+        merchant: "A. Mehta · Transfer",
+        category: "Transfer",
+        time: "11:08",
+        amount: 2400,
+        direction: "in",
+        glyph: "salary",
+      },
+      {
+        id: "8",
+        merchant: "Landlord Carvalho",
+        category: "Rent",
+        time: "09:30",
+        amount: 1420,
+        direction: "out",
+        glyph: "home",
+      },
     ],
   },
 ];
@@ -67,7 +135,9 @@ export function TransactionFeed() {
       <header className="flex items-center justify-between gap-3 border-b border-white/[0.05] p-5">
         <div>
           <h3 className="font-display text-[15px] font-semibold tracking-tight">Transactions</h3>
-          <p className="text-[11px] text-muted-foreground">{GROUPS.reduce((a, g) => a + g.txs.length, 0)} this week · live</p>
+          <p className="text-[11px] text-muted-foreground">
+            {GROUPS.reduce((a, g) => a + g.txs.length, 0)} this week · live
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative hidden md:block">
@@ -126,7 +196,12 @@ function Row({ tx }: { tx: Tx }) {
             <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5">{tx.category}</span>
             <span>·</span>
             <span>{tx.time}</span>
-            {tx.card && <><span>·</span><span className="font-numeric">{tx.card}</span></>}
+            {tx.card && (
+              <>
+                <span>·</span>
+                <span className="font-numeric">{tx.card}</span>
+              </>
+            )}
           </div>
         </div>
         <span
@@ -136,13 +211,24 @@ function Row({ tx }: { tx: Tx }) {
           )}
         >
           {incoming ? "+" : "−"} €
-          {tx.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {tx.amount.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </span>
-        <span className={cn("grid h-6 w-6 place-items-center rounded-md", incoming ? "bg-success/15 text-success" : "bg-white/[0.04] text-muted-foreground")}>
+        <span
+          className={cn(
+            "grid h-6 w-6 place-items-center rounded-md",
+            incoming ? "bg-success/15 text-success" : "bg-white/[0.04] text-muted-foreground",
+          )}
+        >
           {incoming ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
         </span>
         <ChevronDown
-          className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", open && "rotate-180")}
+          className={cn(
+            "h-3.5 w-3.5 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
         />
       </button>
       {open && (
@@ -166,8 +252,19 @@ function Row({ tx }: { tx: Tx }) {
   );
 }
 
-function Field({ k, v, mono, tone }: { k: string; v: string; mono?: boolean; tone?: "success" | "accent" }) {
-  const color = tone === "success" ? "text-success" : tone === "accent" ? "text-accent" : "text-foreground";
+function Field({
+  k,
+  v,
+  mono,
+  tone,
+}: {
+  k: string;
+  v: string;
+  mono?: boolean;
+  tone?: "success" | "accent";
+}) {
+  const color =
+    tone === "success" ? "text-success" : tone === "accent" ? "text-accent" : "text-foreground";
   return (
     <div>
       <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{k}</div>

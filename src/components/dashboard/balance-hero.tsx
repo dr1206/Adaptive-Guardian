@@ -123,7 +123,9 @@ export function BalanceHero() {
             <span className="text-[56px] font-semibold tracking-tight">••• ••• ,••</span>
           ) : (
             <>
-              <span className="text-[56px] font-semibold tracking-tight leading-none">{integer}</span>
+              <span className="text-[56px] font-semibold tracking-tight leading-none">
+                {integer}
+              </span>
               <span className="text-[32px] opacity-60">.{decimals}</span>
             </>
           )}
@@ -173,7 +175,9 @@ function HeroChart() {
     const y = h - ((p - min) / (max - min)) * (h - 12) - 4;
     return [x, y] as const;
   });
-  const line = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const line = coords
+    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(" ");
   const area = `${line} L ${w},${h} L 0,${h} Z`;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="mt-5 h-[110px] w-full">

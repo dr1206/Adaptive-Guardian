@@ -19,9 +19,7 @@ export type Device = {
 export function DeviceCard({ device }: { device: Device }) {
   const Icon = ICONS[device.kind];
   return (
-    <article
-      className="group relative overflow-hidden rounded-[24px] border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] p-6 backdrop-blur-2xl transition-transform hover:-translate-y-0.5"
-    >
+    <article className="group relative overflow-hidden rounded-[24px] border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] p-6 backdrop-blur-2xl transition-transform hover:-translate-y-0.5">
       {device.primary && (
         <span
           className="pointer-events-none absolute -top-12 left-1/2 h-28 w-56 -translate-x-1/2 rounded-full opacity-40 blur-3xl"
@@ -56,14 +54,21 @@ export function DeviceCard({ device }: { device: Device }) {
 
       <div className="relative mt-5 flex items-center justify-between">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Last active</div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Last active
+          </div>
           <div className="mt-0.5 font-numeric text-[13px] tabular-nums">{device.lastActive}</div>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.02] px-2.5 py-1 text-[11px]">
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Trust {device.trust.toFixed(1)} / 10
           </div>
         </div>
-        <ConfidenceRing value={device.confidence} size="md" label="Recognition" showShield={false} />
+        <ConfidenceRing
+          value={device.confidence}
+          size="md"
+          label="Recognition"
+          showShield={false}
+        />
       </div>
 
       <footer className="relative mt-5 flex items-center gap-2 border-t border-white/[0.05] pt-4">

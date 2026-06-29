@@ -31,12 +31,18 @@ function Session() {
         <SigilCard className="lg:col-span-5" eyebrow="Session" title="Consistency">
           <div className="grid place-items-center py-2">
             <ConfidenceRing value={96.2} size="lg" label="Consistency" />
-            <div className="mt-5 w-full"><AuroraStrip /></div>
+            <div className="mt-5 w-full">
+              <AuroraStrip />
+            </div>
           </div>
         </SigilCard>
 
         <SigilCard className="lg:col-span-7" eyebrow="Last hour" title="Behavior overlay">
-          <Sparkline points={[80, 85, 88, 90, 92, 91, 93, 94, 95, 96, 95, 96]} width={600} height={120} />
+          <Sparkline
+            points={[80, 85, 88, 90, 92, 91, 93, 94, 95, 96, 95, 96]}
+            width={600}
+            height={120}
+          />
         </SigilCard>
       </section>
 
@@ -47,7 +53,10 @@ function Session() {
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.05]">
               <div
                 className="h-full w-3/4 rounded-full"
-                style={{ background: "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))" }}
+                style={{
+                  background:
+                    "linear-gradient(90deg, oklch(0.655 0.195 258), oklch(0.715 0.135 215))",
+                }}
               />
             </div>
           </SigilCard>

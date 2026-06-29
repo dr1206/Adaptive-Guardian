@@ -28,9 +28,7 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
       <nav
         className={`flex w-full max-w-[1400px] items-center justify-between rounded-2xl border px-4 py-2.5 transition-all duration-300 ${
-          scrolled
-            ? "glass-panel border-border/60 shadow-lg"
-            : "border-transparent bg-transparent"
+          scrolled ? "glass-panel border-border/60 shadow-lg" : "border-transparent bg-transparent"
         }`}
       >
         <Link to="/" className="flex items-center gap-2.5 pl-1">
