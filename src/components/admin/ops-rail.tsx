@@ -85,9 +85,17 @@ const groups: Group[] = [
   },
 ];
 
-export function OpsRail() {
+export function OpsRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" }) {
+  const isDrawer = variant === "drawer";
   return (
-    <aside className="fixed left-4 top-4 bottom-4 w-[240px] z-40 flex flex-col rounded-2xl border border-white/[0.06] bg-[oklch(0.16_0.025_264/0.85)] backdrop-blur-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)] overflow-hidden">
+    <aside
+      aria-label="Admin navigation"
+      className={
+        isDrawer
+          ? "h-full w-full flex flex-col border-r border-white/[0.06] bg-[oklch(0.16_0.025_264/0.95)] backdrop-blur-2xl overflow-hidden"
+          : "fixed left-4 top-4 bottom-4 w-[240px] z-40 flex flex-col rounded-2xl border border-white/[0.06] bg-[oklch(0.16_0.025_264/0.85)] backdrop-blur-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)] overflow-hidden"
+      }
+    >
       {/* Org switcher */}
       <div className="px-4 py-4 border-b border-white/[0.05]">
         <div className="flex items-center gap-2.5">
