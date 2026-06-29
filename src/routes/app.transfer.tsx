@@ -2,11 +2,23 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useMemo, useState } from "react";
 import { ArrowRight, Search, Calendar, Repeat, Check } from "lucide-react";
-import { ACCOUNTS, BENEFICIARIES, CURRENCIES, fmt } from "@/lib/banking-data";
 import { PageHeader } from "@/components/banking/page-header";
 import { Shield } from "@/components/brand/shield";
 import { SignatureGlyph } from "@/components/brand/signature-glyph";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import {
+  useAccounts,
+  useBeneficiaries,
+  useCurrencies,
+  useInitiateTransfer,
+} from "@/services/hooks";
+import type {
+  Account,
+  Beneficiary,
+  Currency,
+} from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 const search = z.object({ to: z.string().optional(), from: z.string().optional() });
@@ -22,6 +34,11 @@ const STEPS = ["Source", "Recipient", "Amount", "Review", "Done"];
 function TransferPage() {
   const { to: presetTo, from: presetFrom } = Route.useSearch();
   const navigate = useNavigate();
+  const accountsQ = useAccounts();
+  const beneficiariesQ = useBeneficiaries();
+  const currenciesQ = useCurrencies();
+  const transferMutation = useInitiateTransfer();
+
   const [step, setStep] = useState<Step>(presetTo ? 2 : 0);
   const [sourceId, setSourceId] = useState<string>(presetFrom ?? "primary");
   const [recipientId, setRecipientId] = useState<string | null>(presetTo ?? null);
@@ -31,15 +48,29 @@ function TransferPage() {
   const [note, setNote] = useState("June");
   const [done, setDone] = useState(false);
 
-  const source = ACCOUNTS.find((a) => a.id === sourceId)!;
-  const recipient = BENEFICIARIES.find((b) => b.id === recipientId);
+  const accounts = accountsQ.data ?? [];
+  const beneficiaries = beneficiariesQ.data ?? [];
+  const currencies = currenciesQ.data ?? [];
+  const source = accounts.find((a) => a.id === sourceId) ?? accounts[0];
+  const recipient = beneficiaries.find((b) => b.id === recipientId);
 
   const next = () => setStep((s) => Math.min(4, s + 1) as Step);
   const back = () => setStep((s) => Math.max(0, s - 1) as Step);
 
+  const isLoading = accountsQ.isLoading || beneficiariesQ.isLoading || currenciesQ.isLoading;
+  const error = accountsQ.error ?? beneficiariesQ.error ?? currenciesQ.error;
+
   return (
     <div>
       <PageHeader eyebrow="Money" title="Transfer" subtitle="A calm, four-step motion. Aegis verifies along the way." />
+
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={accounts.length === 0 || beneficiaries.length === 0 || currencies.length === 0}
+        emptyLabel="Transfer setup unavailable."
+      >
+
 
       {/* Stepper */}
       <div className="mb-8 grid grid-cols-5 gap-2">
