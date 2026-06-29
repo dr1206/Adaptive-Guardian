@@ -16,8 +16,8 @@ function Bar({ className }: { className?: string }) {
   return <div className={cn("h-3 rounded-md", SHIMMER, className)} />;
 }
 
-function Block({ className }: { className?: string }) {
-  return <div className={cn("rounded-xl", SHIMMER, className)} />;
+function Block({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return <div className={cn("rounded-xl", SHIMMER, className)} style={style} />;
 }
 
 export function ListSkeleton({ rows = 6 }: { rows?: number }) {

@@ -1,5 +1,14 @@
 import { mockResolve } from "../_transport/mock";
-import type { AegisService, AegisSnapshot, Decision, Device, RiskEvent } from "./aegis.contract";
+import type {
+  AegisService,
+  AegisSnapshot,
+  Decision,
+  DecisionReplay,
+  Device,
+  DeviceProfile,
+  RiskEvent,
+} from "./aegis.contract";
+import { DECISION_REPLAYS, DEVICE_PROFILES } from "./aegis.fixtures";
 
 const TREND_LEN = 60;
 const trend: number[] = Array.from({ length: TREND_LEN }, (_, i) =>
@@ -111,5 +120,11 @@ export const mockAegisService: AegisService = {
   },
   async listRiskEvents({ signal } = {}) {
     return mockResolve(RISK, { signal });
+  },
+  async listDeviceProfiles({ signal } = {}) {
+    return mockResolve<ReadonlyArray<DeviceProfile>>(DEVICE_PROFILES, { signal });
+  },
+  async listDecisionReplays({ signal } = {}) {
+    return mockResolve<ReadonlyArray<DecisionReplay>>(DECISION_REPLAYS, { signal });
   },
 };
