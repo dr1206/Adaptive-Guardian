@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowDownUp, Plus } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { Sparkline } from "@/components/banking/sparkline";
-import { CURRENCIES } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
+import { useCurrencies } from "@/services/hooks";
 
 export const Route = createFileRoute("/app/exchange")({
   component: ExchangePage,
@@ -13,10 +14,18 @@ export const Route = createFileRoute("/app/exchange")({
 const POPULAR = ["EUR/USD", "EUR/GBP", "USD/JPY", "EUR/BRL", "GBP/INR"];
 
 function ExchangePage() {
+  const { data: currencies, isLoading, error } = useCurrencies();
   const [send, setSend] = useState({ code: "EUR", amount: "1000.00" });
   const [recv, setRecv] = useState("USD");
-  const sRate = CURRENCIES.find((c) => c.code === send.code)!.rate;
-  const rRate = CURRENCIES.find((c) => c.code === recv)!.rate;
+
+  const { sRate, rRate } = useMemo(() => {
+    const list = currencies ?? [];
+    return {
+      sRate: list.find((c) => c.code === send.code)?.rate ?? 1,
+      rRate: list.find((c) => c.code === recv)?.rate ?? 1,
+    };
+  }, [currencies, send.code, recv]);
+
   const rate = rRate / sRate;
   const out = (Number(send.amount || 0) * rate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -24,6 +33,8 @@ function ExchangePage() {
     setSend((s) => ({ code: recv, amount: s.amount }));
     setRecv(send.code);
   };
+
+
 
   return (
     <div>
