@@ -2,8 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Calendar as CalIcon, List, Pause, Pencil, X } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { PAYMENTS, fmt } from "@/lib/banking-data";
 import { InsightCard } from "@/components/banking/insight-card";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { usePayments } from "@/services/hooks";
+import type { Payment } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/payments")({
@@ -12,6 +15,8 @@ export const Route = createFileRoute("/app/payments")({
 
 function PaymentsPage() {
   const [view, setView] = useState<"timeline" | "calendar">("timeline");
+  const { data: payments, isLoading, error } = usePayments();
+  const list = payments ?? [];
 
   return (
     <div>
@@ -27,24 +32,31 @@ function PaymentsPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div>
-          {view === "timeline" ? <Timeline /> : <CalendarView />}
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        isEmpty={list.length === 0}
+        emptyLabel="No scheduled payments."
+      >
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+          <div>
+            {view === "timeline" ? <Timeline payments={list} /> : <CalendarView payments={list} />}
+          </div>
+          <aside className="space-y-4">
+            <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
+              <h3 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Committed this month</h3>
+              <div className="mt-2 font-numeric text-[28px] font-semibold">{fmt(list.reduce((s, p) => s + p.amount, 0))}</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                Fixed 86% · Variable 14%
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="h-full w-[86%] rounded-full bg-gradient-to-r from-accent to-purple" />
+              </div>
+            </article>
+            <InsightCard tone="up" title="Subscriptions grew €12" body="Netflix increased on 4 Jun." action="Review" />
+          </aside>
         </div>
-        <aside className="space-y-4">
-          <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-            <h3 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Committed this month</h3>
-            <div className="mt-2 font-numeric text-[28px] font-semibold">{fmt(PAYMENTS.reduce((s, p) => s + p.amount, 0))}</div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              Fixed 86% · Variable 14%
-            </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-              <div className="h-full w-[86%] rounded-full bg-gradient-to-r from-accent to-purple" />
-            </div>
-          </article>
-          <InsightCard tone="up" title="Subscriptions grew €12" body="Netflix increased on 4 Jun." action="Review" />
-        </aside>
-      </div>
+      </AsyncBoundary>
     </div>
   );
 }
@@ -63,10 +75,10 @@ function ViewBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
   );
 }
 
-function Timeline() {
+function Timeline({ payments }: { payments: ReadonlyArray<Payment> }) {
   return (
     <ul className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
-      {PAYMENTS.map((p) => (
+      {payments.map((p) => (
         <li key={p.id} className="flex items-center justify-between gap-4 border-b border-white/[0.04] px-4 py-3 last:border-b-0">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-white/[0.04] text-[11px] font-semibold">
@@ -101,10 +113,10 @@ function IconBtn({ icon }: { icon: React.ReactNode }) {
   return <button className="grid h-7 w-7 place-items-center rounded-md bg-white/[0.03] text-muted-foreground transition-colors hover:bg-white/[0.08] hover:text-foreground">{icon}</button>;
 }
 
-function CalendarView() {
+function CalendarView({ payments }: { payments: ReadonlyArray<Payment> }) {
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
-  const payByDay = new Map<number, typeof PAYMENTS>();
-  PAYMENTS.forEach((p) => {
+  const payByDay = new Map<number, Payment[]>();
+  payments.forEach((p) => {
     const d = Number(p.nextDate.slice(-2));
     payByDay.set(d, [...(payByDay.get(d) ?? []), p]);
   });
@@ -137,3 +149,4 @@ function CalendarView() {
     </div>
   );
 }
+
