@@ -26,6 +26,7 @@ const PHRASES = [
 function CalibrateScreen() {
   const { e } = Route.useSearch();
   const nav = useNavigate();
+  const enroll = useSubmitEnrollment();
 
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [typed, setTyped] = useState("");
@@ -33,6 +34,9 @@ function CalibrateScreen() {
   const [mouseDist, setMouseDist] = useState(0);
   const [mousePts, setMousePts] = useState<Array<[number, number]>>([]);
   const [finalizing, setFinalizing] = useState(false);
+
+  const keyTimings = useRef<number[]>([]);
+  const lastKeyAt = useRef<number | null>(null);
 
   const padRef = useRef<HTMLDivElement>(null);
   const lastPt = useRef<[number, number] | null>(null);
@@ -46,9 +50,24 @@ function CalibrateScreen() {
   useEffect(() => {
     if (ready && !finalizing) {
       setFinalizing(true);
-      setTimeout(() => nav({ to: "/auth/signature", search: { e } }), 1400);
+      const samples: EnrollmentSample[] = [
+        {
+          kind: "keystroke",
+          features: keyTimings.current.slice(-64),
+          capturedAt: new Date().toISOString(),
+        },
+        {
+          kind: "mouse",
+          features: mousePts.flatMap(([x, y]) => [x, y]).slice(-128),
+          capturedAt: new Date().toISOString(),
+        },
+      ];
+      enroll
+        .mutateAsync(samples)
+        .catch(() => null)
+        .finally(() => nav({ to: "/auth/signature", search: { e } }));
     }
-  }, [ready, finalizing, nav, e]);
+  }, [ready, finalizing, nav, e, enroll, mousePts]);
 
   function onType(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
