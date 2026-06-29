@@ -165,12 +165,11 @@ function TransferPage() {
               setDone(true);
               transferMutation.mutate(
                 {
-                  sourceAccountId: source.id,
+                  fromAccountId: source.id,
                   beneficiaryId: recipient.id,
                   amount: Number(amount || 0),
                   currency,
-                  purpose,
-                  note,
+                  reference: `${purpose}${note ? ` — ${note}` : ""}`,
                 },
                 { onSettled: () => setTimeout(() => setStep(4), 700) },
               );
