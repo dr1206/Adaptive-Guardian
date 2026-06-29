@@ -6,6 +6,8 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { ApertureSpinner } from "@/components/brand/shield";
 import { BalanceTile } from "@/components/banking/balance-tile";
 import { SignatureGlyph } from "@/components/brand/signature-glyph";
+import { useSubmitEnrollment } from "@/services/hooks";
+import type { EnrollmentSample } from "@/services";
 import { cn } from "@/lib/utils";
 
 const search = z.object({ e: z.string().optional() });
