@@ -1,6 +1,6 @@
 import { Shield } from "@/components/brand/shield";
 import { cn } from "@/lib/utils";
-import type { BankCard as TCard } from "@/lib/banking-data";
+import type { BankCard as TCard } from "@/services/banking/banking.contract";
 
 const FINISH: Record<TCard["finish"], { bg: string; accent: string }> = {
   obsidian: { bg: "linear-gradient(135deg,#1a1d24 0%,#0c0e12 60%,#23262d 100%)", accent: "#cdd3e0" },
