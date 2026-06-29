@@ -264,7 +264,8 @@ function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: Readonly
       <aside className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
         {picked ? (
           (() => {
-            const b = BENEFICIARIES.find((x) => x.id === picked)!;
+            const b = beneficiaries.find((x) => x.id === picked);
+            if (!b) return null;
             return (
               <div>
                 <div className="mb-4 flex items-center gap-3">
