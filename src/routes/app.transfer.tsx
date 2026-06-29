@@ -301,6 +301,7 @@ function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: Readonly
 }
 
 function AmountStage({
+  currencies,
   amount,
   setAmount,
   currency,
@@ -311,6 +312,7 @@ function AmountStage({
   setNote,
   onNext,
 }: {
+  currencies: ReadonlyArray<Currency>;
   amount: string;
   setAmount: (s: string) => void;
   currency: string;
@@ -321,12 +323,15 @@ function AmountStage({
   setNote: (s: string) => void;
   onNext: () => void;
 }) {
-  const c = CURRENCIES.find((x) => x.code === currency)!;
+  const c = currencies.find((x) => x.code === currency) ?? currencies[0];
+  const usdC = currencies.find((x) => x.code === "USD") ?? c;
   const value = Number(amount || 0);
-  const usd = (value * (CURRENCIES.find((x) => x.code === "USD")!.rate / c.rate)).toLocaleString("en-US", {
+  const rate = c ? usdC.rate / c.rate : 1;
+  const usd = (value * rate).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
       <div className="rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 text-center">
@@ -336,7 +341,7 @@ function AmountStage({
             onChange={(e) => setCurrency(e.target.value)}
             className="bg-transparent text-foreground focus:outline-none"
           >
-            {CURRENCIES.map((cc) => (
+            {currencies.map((cc) => (
               <option key={cc.code} value={cc.code} className="bg-background">
                 {cc.flag} {cc.code}
               </option>
@@ -378,7 +383,7 @@ function AmountStage({
             <span className="font-numeric text-[18px] font-semibold">${usd}</span>
           </div>
           <div className="mt-2 text-[10px] text-muted-foreground">
-            Rate <span className="font-numeric">{(CURRENCIES.find((x) => x.code === "USD")!.rate / c.rate).toFixed(4)}</span> · spread 0.42%
+            Rate <span className="font-numeric">{rate.toFixed(4)}</span> · spread 0.42%
           </div>
         </article>
 
