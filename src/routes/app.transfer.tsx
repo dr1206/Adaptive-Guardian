@@ -97,7 +97,7 @@ function TransferPage() {
         {step === 0 && (
           <StepShell title="Pick a source account">
             <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {ACCOUNTS.filter((a) => a.type !== "credit").map((a) => (
+              {accounts.filter((a) => a.type !== "credit").map((a) => (
                 <button
                   key={a.id}
                   onClick={() => {
@@ -123,6 +123,7 @@ function TransferPage() {
         {step === 1 && (
           <StepShell title="Who's it for?">
             <Recipients
+              beneficiaries={beneficiaries}
               onPick={(id) => {
                 setRecipientId(id);
                 setTimeout(next, 250);
@@ -135,6 +136,7 @@ function TransferPage() {
         {step === 2 && (
           <StepShell title="How much?">
             <AmountStage
+              currencies={currencies}
               amount={amount}
               setAmount={setAmount}
               currency={currency}
@@ -161,7 +163,17 @@ function TransferPage() {
             onEdit={back}
             onSend={() => {
               setDone(true);
-              setTimeout(() => setStep(4), 700);
+              transferMutation.mutate(
+                {
+                  sourceAccountId: source.id,
+                  beneficiaryId: recipient.id,
+                  amount: Number(amount || 0),
+                  currency,
+                  purpose,
+                  note,
+                },
+                { onSettled: () => setTimeout(() => setStep(4), 700) },
+              );
             }}
             sent={done}
           />
