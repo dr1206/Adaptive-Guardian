@@ -8,7 +8,7 @@ export function OpsTable<T>({
   density = "comfortable",
 }: {
   columns: { key: string; label: string; width?: string; align?: "left" | "right"; render: (row: T) => React.ReactNode }[];
-  rows: T[];
+  rows: ReadonlyArray<T>;
   rowKey: (row: T) => string;
   onRow?: (row: T) => void;
   density?: "comfortable" | "compact" | "dense";
