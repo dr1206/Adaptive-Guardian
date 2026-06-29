@@ -13,6 +13,11 @@ Every material technical decision lives here as a numbered ADR. Format: [MADR-li
 | [0007](0007-event-driven-roadmap.md) | Event-Driven Roadmap — Kafka, Outbox Pattern | Accepted |
 | [0008](0008-deployment-strategy.md) | Deployment — EKS + ArgoCD GitOps | Accepted |
 | [0009](0009-feature-flags.md) | Feature Flags — LaunchDarkly (Unleash fallback) | Accepted |
+| [0010](0010-monorepo-tooling.md) | Monorepo Tooling — pnpm + Turborepo | Accepted |
+| [0011](0011-lint-and-format.md) | Lint & Format — Biome + ESLint shim | Accepted |
+| [0012](0012-logging.md) | Logging — pino + isomorphic edge transport | Accepted |
+| [0013](0013-error-framework.md) | Error Framework — Typed AppError hierarchy | Accepted |
+| [0014](0014-observability.md) | Observability — OpenTelemetry + Sentry split | Accepted |
 
 ## Template
 
