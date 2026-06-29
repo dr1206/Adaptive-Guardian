@@ -25,9 +25,13 @@ export function SecurityStrip() {
   }, []);
 
   return (
-    <div className="fixed bottom-0 left-[300px] right-0 z-20 pointer-events-none">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-0 left-0 lg:left-[300px] right-0 z-20 pointer-events-none hidden md:block"
+    >
       <div
-        className="mx-8 mb-3 flex items-center gap-4 rounded-full border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.78)] px-4 py-2 text-[11px] text-muted-foreground backdrop-blur-2xl pointer-events-auto transition-colors"
+        className="mx-4 lg:mx-8 mb-3 flex items-center gap-3 lg:gap-4 rounded-full border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.78)] px-4 py-2 text-xs text-muted-foreground backdrop-blur-2xl pointer-events-auto transition-colors overflow-x-auto"
         style={{
           borderColor: pulse ? "oklch(0.715 0.135 215 / 0.5)" : undefined,
         }}
