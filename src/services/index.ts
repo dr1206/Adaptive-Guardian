@@ -53,6 +53,8 @@ export type {
 } from "./aegis/aegis.contract";
 
 export type {
+  AdminAccount,
+  AnomalySignature,
   AdminService,
   AdminUser,
   ApiService,

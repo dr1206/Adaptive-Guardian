@@ -86,6 +86,8 @@ export const queryKeys = {
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
   aegisRisk: ["aegis", "risk"] as const,
+  adminAccounts: ["admin", "accounts"] as const,
+  adminAnomalySignatures: ["admin", "anomaly-signatures"] as const,
   adminKpis: ["admin", "kpis"] as const,
   adminGlobalMetrics: ["admin", "global-metrics"] as const,
   adminLiveSessions: ["admin", "live-sessions"] as const,
