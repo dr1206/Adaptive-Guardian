@@ -437,4 +437,16 @@ export function useAdminInfra() {
     queryFn: ({ signal }) => services.admin.getInfraSnapshot({ signal }),
   });
 }
+export function useAdminAccounts() {
+  return useQuery<ReadonlyArray<AdminAccount>>({
+    queryKey: queryKeys.adminAccounts,
+    queryFn: ({ signal }) => services.admin.listAdminAccounts({ signal }),
+  });
+}
+export function useAdminAnomalySignatures() {
+  return useQuery<ReadonlyArray<AnomalySignature>>({
+    queryKey: queryKeys.adminAnomalySignatures,
+    queryFn: ({ signal }) => services.admin.listAnomalySignatures({ signal }),
+  });
+}
 
