@@ -45,11 +45,26 @@ import type {
   TransferResult,
 } from "./banking/banking.contract";
 import type {
-  AdminSession,
   AdminUser,
-  AuditEvent,
-  ModelInfo,
+  ApiService,
+  AuditEntry,
+  ChallengeReason,
+  ChallengeRecord,
+  ComplianceControl,
+  Dataset,
+  GeoDot,
+  GlobalMetric,
+  Incident,
+  InfraSnapshot,
+  Kpi,
+  LiveSession,
+  ModelVersion,
+  NotificationGroup,
+  Permission,
+  ReportTemplate,
+  Role,
 } from "./admin/admin.contract";
+
 
 export const queryKeys = {
   session: ["auth", "session"] as const,

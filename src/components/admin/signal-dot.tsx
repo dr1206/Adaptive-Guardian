@@ -1,4 +1,4 @@
-import type { Signal } from "@/lib/admin-data";
+import type { Signal } from "@/lib/admin-signal";
 
 const tones: Record<Signal, string> = {
   ok: "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.6)]",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { signalTone, type Signal } from "@/lib/admin-data";
+import { signalTone, type Signal } from "@/lib/admin-signal";
 import { SignalDot } from "./signal-dot";
 
 function useCountUp(target: number, duration = 700) {
