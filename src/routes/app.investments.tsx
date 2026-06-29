@@ -89,32 +89,41 @@ function InvestmentsPage() {
       </nav>
 
       {tab === "Holdings" && (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-          <table className="w-full text-[12px]">
-            <thead className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-              <tr className="border-b border-white/[0.05]">
-                <Th>Instrument</Th><Th right>Units</Th><Th right>Avg cost</Th><Th right>Price</Th><Th right>Day Δ</Th><Th right>Value</Th><Th right>Weight</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {HOLDINGS.map((h) => (
-                <tr key={h.symbol} className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02]">
-                  <td className="px-4 py-2.5">
-                    <div className="font-display text-[13px] font-semibold">{h.symbol}</div>
-                    <div className="text-[10px] text-muted-foreground">{h.name}</div>
-                  </td>
-                  <Td right>{h.units}</Td>
-                  <Td right>{fmt(h.avg)}</Td>
-                  <Td right>{fmt(h.price)}</Td>
-                  <Td right tone={h.dayPct >= 0 ? "success" : "warning"}>{(h.dayPct >= 0 ? "+" : "")}{h.dayPct.toFixed(2)}%</Td>
-                  <Td right>{fmt(h.value)}</Td>
-                  <Td right>{h.weightPct.toFixed(1)}%</Td>
+        <AsyncBoundary
+          isLoading={isLoading}
+          error={error}
+          isEmpty={!holdings || holdings.length === 0}
+          emptyLabel="No holdings yet."
+        >
+          <div className="mt-5 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+            <table className="w-full text-[12px]">
+              <thead className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                <tr className="border-b border-white/[0.05]">
+                  <Th>Instrument</Th><Th right>Units</Th><Th right>Avg cost</Th><Th right>Price</Th><Th right>Day Δ</Th><Th right>Value</Th><Th right>Weight</Th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {(holdings ?? []).map((h) => (
+                  <tr key={h.symbol} className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02]">
+                    <td className="px-4 py-2.5">
+                      <div className="font-display text-[13px] font-semibold">{h.symbol}</div>
+                      <div className="text-[10px] text-muted-foreground">{h.name}</div>
+                    </td>
+                    <Td right>{h.units}</Td>
+                    <Td right>{fmt(h.avg)}</Td>
+                    <Td right>{fmt(h.price)}</Td>
+                    <Td right tone={h.dayPct >= 0 ? "success" : "warning"}>{(h.dayPct >= 0 ? "+" : "")}{h.dayPct.toFixed(2)}%</Td>
+                    <Td right>{fmt(h.value)}</Td>
+                    <Td right>{h.weightPct.toFixed(1)}%</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </AsyncBoundary>
       )}
+
+
 
       {tab === "Insights" && (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
