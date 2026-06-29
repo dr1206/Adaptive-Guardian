@@ -7,8 +7,10 @@
 
 import { mockResolve } from "../_transport/mock";
 import type {
+  AdminAccount,
   AdminService,
   AdminUser,
+  AnomalySignature,
   ApiService,
   AuditEntry,
   ChallengeReason,
@@ -28,7 +30,9 @@ import type {
   Role,
 } from "./admin.contract";
 import {
+  adminAccounts,
   adminUsers,
+  anomalySignatures,
   auditLog,
   challengeReasons,
   challenges,
