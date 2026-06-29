@@ -16,7 +16,14 @@ import {
 import { useEffect, useState } from "react";
 
 import { services } from "./registry";
-import type { AegisSnapshot, Decision, Device, RiskEvent } from "./aegis/aegis.contract";
+import type {
+  AegisSnapshot,
+  Decision,
+  DecisionReplay,
+  Device,
+  DeviceProfile,
+  RiskEvent,
+} from "./aegis/aegis.contract";
 import type {
   EnrollmentSample,
   EnrollmentSummary,
