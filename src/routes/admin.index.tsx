@@ -5,9 +5,9 @@ import { RiverChart } from "@/components/admin/river-chart";
 import { PipelineFlow } from "@/components/admin/pipeline-flow";
 import { LiveTape } from "@/components/admin/live-tape";
 import { SignalDot } from "@/components/admin/signal-dot";
-import {
-  kpis, liveSessions, incidents, seedSeries, signalTone,
-} from "@/lib/admin-data";
+import { seedSeries, signalTone } from "@/lib/admin-signal";
+import { useAdminIncidents, useAdminKpis, useAdminLiveSessions } from "@/services/hooks";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { AlertOctagon, ChevronRight, Cpu, MemoryStick, HardDrive, Activity } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
@@ -15,6 +15,13 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function PulsePage() {
+  const kpisQ = useAdminKpis();
+  const sessionsQ = useAdminLiveSessions();
+  const incidentsQ = useAdminIncidents();
+  const kpis = kpisQ.data ?? [];
+  const liveSessions = sessionsQ.data ?? [];
+  const incidents = incidentsQ.data ?? [];
+
   const river = seedSeries(901, 96, 0.86, 0.99, 0.7);
   const pins = [
     { at: 18, severity: "watch" as const },
@@ -24,7 +31,12 @@ function PulsePage() {
   ];
 
   return (
+    <AsyncBoundary
+      isLoading={kpisQ.isLoading || sessionsQ.isLoading || incidentsQ.isLoading}
+      error={(kpisQ.error ?? sessionsQ.error ?? incidentsQ.error) as Error | null}
+    >
     <div className="space-y-6">
+
       {/* Hero */}
       <div className="flex items-end justify-between gap-6">
         <div>
@@ -186,5 +198,7 @@ function PulsePage() {
         </div>
       </div>
     </div>
+    </AsyncBoundary>
   );
 }
+
