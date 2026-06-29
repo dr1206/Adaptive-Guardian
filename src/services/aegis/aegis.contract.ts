@@ -42,6 +42,40 @@ export interface RiskEvent {
   summary: string;
 }
 
+/** Rich trusted-device profile (Guard / Devices presentation surface). */
+export interface DeviceProfile {
+  id: string;
+  name: string;
+  kind: "laptop" | "phone" | "tablet" | "desktop";
+  os: string;
+  browser: string;
+  location: string;
+  lastActive: string;
+  /** 0..100 Aegis confidence for this device. */
+  confidence: number;
+  /** 0..10 trust score derived from history. */
+  trust: number;
+  primary?: boolean;
+}
+
+/** Weighted contribution for a single decision factor. */
+export interface DecisionPetal {
+  label: string;
+  /** Signed weight (-100..100). Negative values pulled the decision down. */
+  weight: number;
+  sentence: string;
+}
+
+/** Decision replay with human-language explanation (Guard / Decisions). */
+export interface DecisionReplay {
+  id: string;
+  time: string;
+  title: string;
+  outcome: "Allowed silently" | "Step-up OTP" | "Trusted";
+  confidence: number;
+  petals: ReadonlyArray<DecisionPetal>;
+}
+
 export interface AegisService {
   getSnapshot(opts?: { signal?: AbortSignal }): Promise<AegisSnapshot>;
   /** Subscribe to live confidence updates. Returns unsubscribe. */
@@ -49,4 +83,6 @@ export interface AegisService {
   listDecisions(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Decision>>;
   listDevices(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Device>>;
   listRiskEvents(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<RiskEvent>>;
+  listDeviceProfiles(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DeviceProfile>>;
+  listDecisionReplays(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DecisionReplay>>;
 }

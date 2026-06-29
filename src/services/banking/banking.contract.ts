@@ -9,12 +9,17 @@
 import type {
   Account,
   AccountType,
+  ActivityEvent,
+  ActivityEventType,
   BankCard,
   Beneficiary,
+  BudgetEnvelope,
   Currency,
   Holding,
   Payment,
   SavingsGoal,
+  StatementSample,
+  StatementYearGroup,
   LoanRecord,
   Transaction,
 } from "./banking.fixtures";
@@ -22,12 +27,17 @@ import type {
 export type {
   Account,
   AccountType,
+  ActivityEvent,
+  ActivityEventType,
   BankCard,
   Beneficiary,
+  BudgetEnvelope,
   Currency,
   Holding,
   Payment,
   SavingsGoal,
+  StatementSample,
+  StatementYearGroup,
   LoanRecord,
   Transaction,
 };
@@ -53,6 +63,11 @@ export interface TransactionQuery {
   limit?: number;
 }
 
+export interface StatementQuery {
+  year: number;
+  month: number;
+}
+
 export interface BankingService {
   listAccounts(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Account>>;
   getAccount(id: string, opts?: { signal?: AbortSignal }): Promise<Account>;
@@ -68,6 +83,10 @@ export interface BankingService {
   listLoans(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<LoanRecord>>;
   listCurrencies(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Currency>>;
   listInsights(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Insight>>;
+  listStatementYears(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<StatementYearGroup>>;
+  getStatement(query: StatementQuery, opts?: { signal?: AbortSignal }): Promise<StatementSample>;
+  listActivity(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<ActivityEvent>>;
+  listBudgets(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<BudgetEnvelope>>;
   initiateTransfer(input: TransferInput, opts?: { signal?: AbortSignal }): Promise<TransferResult>;
 }
 

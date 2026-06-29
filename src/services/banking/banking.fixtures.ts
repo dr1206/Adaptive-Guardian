@@ -868,10 +868,189 @@ export const INSIGHTS = [
   },
 ];
 
-export function fmt(n: number, c = "€", min = 2) {
-  const s = Math.abs(n).toLocaleString("en-US", {
-    minimumFractionDigits: min,
-    maximumFractionDigits: 2,
-  });
-  return `${n < 0 ? "−" : ""}${c} ${s}`;
+// ----------------------------------------------------------------------------
+// Statements
+// ----------------------------------------------------------------------------
+
+export type StatementMonth = { year: number; month: number; label: string };
+export type StatementYearGroup = {
+  year: number;
+  count: number;
+  months: ReadonlyArray<StatementMonth>;
+};
+
+export type StatementLineItem = { date: string; name: string; amount: string };
+
+export type StatementSample = {
+  year: number;
+  month: number;
+  accountHolder: string;
+  iban: string;
+  openingBalance: string;
+  inflows: string;
+  outflows: string;
+  closingBalance: string;
+  net: string;
+  transactions: number;
+  selected: ReadonlyArray<StatementLineItem>;
+};
+
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+function monthsFor(year: number): ReadonlyArray<StatementMonth> {
+  return MONTH_LABELS.map((label, i) => ({ year, month: i, label }));
 }
+
+export const STATEMENT_YEARS: ReadonlyArray<StatementYearGroup> = [
+  { year: 2026, count: 12, months: monthsFor(2026) },
+  { year: 2025, count: 12, months: monthsFor(2025) },
+  { year: 2024, count: 12, months: monthsFor(2024) },
+];
+
+export const STATEMENT_SAMPLE: StatementSample = {
+  year: 2026,
+  month: 5,
+  accountHolder: "Amal Kareem",
+  iban: "PT50 0033 0000 4523 9876 3491 5",
+  openingBalance: "€ 243,481.74",
+  inflows: "€ 14,230.00",
+  outflows: "€ 9,184.32",
+  closingBalance: "€ 248,527.42",
+  net: "€ 5,045.68",
+  transactions: 48,
+  selected: [
+    { date: "28 Jun", name: "Wolt · Food", amount: "− €18.40" },
+    { date: "27 Jun", name: "FNAC · Shopping", amount: "− €84.00" },
+    { date: "26 Jun", name: "Marta Silva · Rent", amount: "− €1,250.00" },
+    { date: "22 Jun", name: "A. Mehta · Inbound", amount: "+ €2,400.00" },
+    { date: "01 Jun", name: "Banco Atlântico · Salary", amount: "+ €6,400.00" },
+  ],
+};
+
+// ----------------------------------------------------------------------------
+// Activity timeline
+// ----------------------------------------------------------------------------
+
+export type ActivityEventType = "tx" | "auth" | "card" | "transfer" | "settings" | "invest";
+
+export type ActivityEvent = {
+  id: string;
+  ts: string;
+  type: ActivityEventType;
+  title: string;
+  sub: string;
+};
+
+export const ACTIVITY_EVENTS: ReadonlyArray<ActivityEvent> = [
+  {
+    id: "e1",
+    ts: "2026-06-28 14:32",
+    type: "auth",
+    title: "Aegis re-verified",
+    sub: "Confidence 99.4% · MacBook Pro · Lisbon",
+  },
+  {
+    id: "e2",
+    ts: "2026-06-28 13:02",
+    type: "tx",
+    title: "Wolt · €18.40",
+    sub: "Visa ••4912 · Food",
+  },
+  {
+    id: "e3",
+    ts: "2026-06-28 09:00",
+    type: "tx",
+    title: "Salary inbound · €6,400",
+    sub: "Banco Atlântico",
+  },
+  {
+    id: "e4",
+    ts: "2026-06-27 22:48",
+    type: "card",
+    title: "Travel card frozen",
+    sub: "MC ••6645 · by you",
+  },
+  {
+    id: "e5",
+    ts: "2026-06-26 12:00",
+    type: "transfer",
+    title: "Sent €1,250 to Marta Silva",
+    sub: "Verified · 1.1s hold",
+  },
+  {
+    id: "e6",
+    ts: "2026-06-25 16:22",
+    type: "tx",
+    title: "British Airways · €1,284",
+    sub: "Visa ••4912 · Travel",
+  },
+  {
+    id: "e7",
+    ts: "2026-06-25 09:12",
+    type: "settings",
+    title: "International payments enabled",
+    sub: "MC ••3340",
+  },
+  {
+    id: "e8",
+    ts: "2026-06-24 14:18",
+    type: "auth",
+    title: "New session",
+    sub: "Lisbon · Safari 17",
+  },
+  {
+    id: "e9",
+    ts: "2026-06-23 11:00",
+    type: "invest",
+    title: "Bought VWCE × 5",
+    sub: "@ €123.40 · €617.00",
+  },
+];
+
+// ----------------------------------------------------------------------------
+// Budget envelopes
+// ----------------------------------------------------------------------------
+
+export type BudgetEnvelope = {
+  id: string;
+  name: string;
+  spent: number;
+  budget: number;
+  color: string;
+};
+
+export const BUDGET_ENVELOPES: ReadonlyArray<BudgetEnvelope> = [
+  { id: "food", name: "Food", spent: 412, budget: 600, color: "oklch(0.71 0.155 165)" },
+  { id: "transport", name: "Transport", spent: 184, budget: 250, color: "oklch(0.715 0.135 215)" },
+  {
+    id: "subscriptions",
+    name: "Subscriptions",
+    spent: 102,
+    budget: 120,
+    color: "oklch(0.635 0.215 295)",
+  },
+  { id: "shopping", name: "Shopping", spent: 612, budget: 500, color: "oklch(0.78 0.155 75)" },
+  { id: "bills", name: "Bills", spent: 226, budget: 400, color: "oklch(0.655 0.195 258)" },
+  { id: "health", name: "Health", spent: 27, budget: 200, color: "oklch(0.71 0.155 165)" },
+  {
+    id: "entertainment",
+    name: "Entertainment",
+    spent: 88,
+    budget: 150,
+    color: "oklch(0.635 0.215 295)",
+  },
+  { id: "travel", name: "Travel", spent: 1284, budget: 1500, color: "oklch(0.715 0.135 215)" },
+];

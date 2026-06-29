@@ -2,15 +2,20 @@ import { NotFoundError, ValidationError } from "../../lib/platform/errors";
 import { mockReject, mockResolve } from "../_transport/mock";
 import type {
   Account,
+  ActivityEvent,
   BankCard,
   BankingService,
   Beneficiary,
+  BudgetEnvelope,
   Currency,
   Holding,
   Insight,
   LoanRecord,
   Payment,
   SavingsGoal,
+  StatementQuery,
+  StatementSample,
+  StatementYearGroup,
   Transaction,
   TransactionQuery,
   TransferInput,
@@ -18,7 +23,9 @@ import type {
 } from "./banking.contract";
 import {
   ACCOUNTS,
+  ACTIVITY_EVENTS,
   BENEFICIARIES,
+  BUDGET_ENVELOPES,
   CARDS,
   CURRENCIES,
   GOALS,
@@ -26,6 +33,8 @@ import {
   INSIGHTS,
   LOANS,
   PAYMENTS,
+  STATEMENT_SAMPLE,
+  STATEMENT_YEARS,
   TRANSACTIONS,
 } from "./banking.fixtures";
 
@@ -68,6 +77,20 @@ export const mockBankingService: BankingService = {
   },
   async listInsights({ signal } = {}) {
     return mockResolve<ReadonlyArray<Insight>>(INSIGHTS, { signal });
+  },
+  async listStatementYears({ signal } = {}) {
+    return mockResolve<ReadonlyArray<StatementYearGroup>>(STATEMENT_YEARS, { signal });
+  },
+  async getStatement(_query: StatementQuery, { signal } = {}) {
+    // Demo data: same sample regardless of year/month — preserves layout
+    // for archive browsing without inventing fake historical numbers.
+    return mockResolve<StatementSample>(STATEMENT_SAMPLE, { signal });
+  },
+  async listActivity({ signal } = {}) {
+    return mockResolve<ReadonlyArray<ActivityEvent>>(ACTIVITY_EVENTS, { signal });
+  },
+  async listBudgets({ signal } = {}) {
+    return mockResolve<ReadonlyArray<BudgetEnvelope>>(BUDGET_ENVELOPES, { signal });
   },
   async initiateTransfer(input: TransferInput, { signal } = {}) {
     if (input.amount <= 0) {
