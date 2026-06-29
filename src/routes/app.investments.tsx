@@ -3,7 +3,9 @@ import { useState } from "react";
 import { PageHeader } from "@/components/banking/page-header";
 import { Sparkline } from "@/components/banking/sparkline";
 import { InsightCard } from "@/components/banking/insight-card";
-import { HOLDINGS, fmt } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { useHoldings } from "@/services/hooks";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/investments")({
@@ -16,9 +18,11 @@ const TABS = ["Holdings", "Watchlist", "Orders", "Insights", "Research"];
 function InvestmentsPage() {
   const [range, setRange] = useState("1M");
   const [tab, setTab] = useState("Holdings");
-  const total = HOLDINGS.reduce((s, h) => s + h.value, 0);
+  const { data: holdings, isLoading, error } = useHoldings();
+  const total = (holdings ?? []).reduce((s, h) => s + h.value, 0);
   const dayDelta = 1.84;
   const lifeDelta = 28.4;
+
 
   return (
     <div>
