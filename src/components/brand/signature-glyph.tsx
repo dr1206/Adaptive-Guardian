@@ -91,8 +91,11 @@ export function SignatureGlyph({
         stroke={`url(#sg-${seed}-g)`}
         strokeWidth="1.2"
         strokeLinejoin="round"
-        style={animated ? { animation: "sg-breathe 6s cubic-bezier(0.65,0,0.35,1) infinite" } : undefined}
-        transform-origin={`${cx} ${cy}`}
+        style={
+          animated
+            ? { animation: "sg-breathe 6s cubic-bezier(0.65,0,0.35,1) infinite", transformOrigin: `${cx}px ${cy}px` }
+            : { transformOrigin: `${cx}px ${cy}px` }
+        }
       />
       {points.map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r="1.4" fill="oklch(0.95 0.04 215)" />
