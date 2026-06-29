@@ -7,6 +7,7 @@ import { OtpPucks } from "@/components/auth/otp-pucks";
 import { ApertureSpinner } from "@/components/brand/shield";
 import { BalanceTile } from "@/components/banking/balance-tile";
 import { TransactionRow, sampleTxs } from "@/components/banking/transaction-row";
+import { useVerifyOtp } from "@/services/hooks";
 
 const search = z.object({ e: z.string().optional() });
 
@@ -18,12 +19,20 @@ export const Route = createFileRoute("/auth/verify")({
 function VerifyScreen() {
   const { e } = Route.useSearch();
   const nav = useNavigate();
-  const [verifying, setVerifying] = useState(false);
+  const verify = useVerifyOtp();
+  const verifying = verify.isPending;
+  const [otpError, setOtpError] = useState<string | null>(null);
 
-  function onComplete(_code: string) {
-    setVerifying(true);
-    setTimeout(() => nav({ to: "/auth/calibrate", search: { e } }), 900);
+  async function onComplete(code: string) {
+    setOtpError(null);
+    try {
+      await verify.mutateAsync({ email: e ?? "", code });
+      nav({ to: "/auth/calibrate", search: { e } });
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : "Verification failed.");
+    }
   }
+
 
   const masked = e ? e.replace(/^(.).+(@.+)$/, "$1•••••$2") : "your inbox";
 
