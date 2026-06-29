@@ -45,7 +45,9 @@ import type {
   TransferResult,
 } from "./banking/banking.contract";
 import type {
+  AdminAccount,
   AdminUser,
+  AnomalySignature,
   ApiService,
   AuditEntry,
   ChallengeReason,
@@ -64,6 +66,7 @@ import type {
   ReportTemplate,
   Role,
 } from "./admin/admin.contract";
+
 
 
 export const queryKeys = {

@@ -54,6 +54,10 @@ import {
 } from "./admin.fixtures";
 
 export const mockAdminService: AdminService = {
+  listAdminAccounts: ({ signal } = {}) =>
+    mockResolve(adminAccounts as ReadonlyArray<AdminAccount>, { signal }),
+  listAnomalySignatures: ({ signal } = {}) =>
+    mockResolve(anomalySignatures as ReadonlyArray<AnomalySignature>, { signal }),
   listKpis: ({ signal } = {}) => mockResolve(kpis as ReadonlyArray<Kpi>, { signal }),
   listGlobalMetrics: ({ signal } = {}) =>
     mockResolve(globalMetrics as ReadonlyArray<GlobalMetric>, { signal }),
