@@ -360,3 +360,30 @@ export const infra = {
   jobsFailed: 1,
   inferenceQueue: 7,
 };
+
+// Admin-side institutional accounts (was inline in admin.accounts.tsx) ---------
+export const adminAccounts = Array.from({ length: 20 }, (_, i) => {
+  const rng = mulberry32(800 + i);
+  const products = ["Current","Savings","Treasury","Card","FX","Loan"] as const;
+  const holders = ["Aurora Mfg LLC","Helios Capital","Northwind GmbH","Atlas Trust","Vega Holdings","Solstice LP","Halcyon Inc"];
+  const currencies = ["USD","EUR","GBP","SGD"];
+  const flags = i % 5 === 0 ? "AML review" : i % 7 === 0 ? "frozen" : "—";
+  return {
+    id: `ACC-${(90000 + i).toString(16).toUpperCase()}`,
+    holder: holders[i % holders.length],
+    product: products[i % products.length],
+    balance: 12_000 + Math.floor(rng() * 8_000_000),
+    currency: currencies[i % currencies.length],
+    flags,
+    opened: ["2021","2022","2023","2024","2025"][i % 5],
+  };
+});
+
+// Anomaly signatures (was inline in admin.anomalies.tsx) ----------------------
+export const anomalySignatures = [
+  { name: "Behavior drift > 3σ",       count: 12, last: "8m ago",   severity: "alert"    as Signal },
+  { name: "New device burst (>5/min)", count: 6,  last: "21m ago",  severity: "watch"    as Signal },
+  { name: "Impossible travel",          count: 3,  last: "47m ago",  severity: "critical" as Signal },
+  { name: "Velocity check failed",      count: 18, last: "1h ago",   severity: "watch"    as Signal },
+  { name: "Model uncertainty spike",    count: 2,  last: "34m ago",  severity: "alert"    as Signal },
+];

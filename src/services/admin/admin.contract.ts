@@ -176,6 +176,23 @@ export interface GeoDot {
   anomaly: boolean;
 }
 
+export interface AdminAccount {
+  id: string;
+  holder: string;
+  product: "Current" | "Savings" | "Treasury" | "Card" | "FX" | "Loan";
+  balance: number;
+  currency: string;
+  flags: string;
+  opened: string;
+}
+
+export interface AnomalySignature {
+  name: string;
+  count: number;
+  last: string;
+  severity: Signal;
+}
+
 export interface InfraSnapshot {
   cpu: { value: number; series: number[] };
   memory: { value: number; series: number[] };
@@ -191,7 +208,10 @@ export interface InfraSnapshot {
 }
 
 export interface AdminService {
+  listAdminAccounts(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<AdminAccount>>;
+  listAnomalySignatures(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<AnomalySignature>>;
   listKpis(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Kpi>>;
+
   listGlobalMetrics(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<GlobalMetric>>;
   listLiveSessions(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<LiveSession>>;
   listUsers(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<AdminUser>>;
