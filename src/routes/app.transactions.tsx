@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Download, ChevronDown } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { TRANSACTIONS, fmt, type Transaction } from "@/lib/banking-data";
+import { AsyncBoundary } from "@/components/ui/async-boundary";
+import { fmt } from "@/lib/format";
+import { useTransactions } from "@/services/hooks";
+import type { Transaction } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/transactions")({
@@ -12,16 +15,17 @@ export const Route = createFileRoute("/app/transactions")({
 function TransactionsPage() {
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const { data: transactions, isLoading, error } = useTransactions({});
 
   const filtered = useMemo(
     () =>
-      TRANSACTIONS.filter(
+      (transactions ?? []).filter(
         (t) =>
           q === "" ||
           t.merchant.toLowerCase().includes(q.toLowerCase()) ||
           t.category.toLowerCase().includes(q.toLowerCase()),
       ),
-    [q],
+    [transactions, q],
   );
 
   const groups = useMemo(() => {
@@ -33,6 +37,7 @@ function TransactionsPage() {
     });
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [filtered]);
+
 
   return (
     <div>
