@@ -72,6 +72,11 @@ function CalibrateScreen() {
   function onType(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
     setTyped(v);
+    const now = performance.now();
+    if (lastKeyAt.current != null) {
+      keyTimings.current.push(Math.min(2000, now - lastKeyAt.current));
+    }
+    lastKeyAt.current = now;
     setKbStrokes((s) => s + 1);
     if (v.length >= phrase.length) {
       setTimeout(() => {
