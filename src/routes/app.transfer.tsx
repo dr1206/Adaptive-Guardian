@@ -199,7 +199,9 @@ function TransferPage() {
           </button>
         </div>
       )}
+      </AsyncBoundary>
     </div>
+
   );
 }
 
@@ -213,9 +215,12 @@ function StepShell({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function Recipients({ picked, onPick }: { picked: string | null; onPick: (id: string) => void }) {
+function Recipients({ beneficiaries, picked, onPick }: { beneficiaries: ReadonlyArray<Beneficiary>; picked: string | null; onPick: (id: string) => void }) {
   const [q, setQ] = useState("");
-  const list = BENEFICIARIES.filter((b) => b.name.toLowerCase().includes(q.toLowerCase()));
+  const list = useMemo(
+    () => beneficiaries.filter((b) => b.name.toLowerCase().includes(q.toLowerCase())),
+    [beneficiaries, q],
+  );
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <div>
