@@ -110,7 +110,7 @@ function StatementsPage() {
                     <h4 className="mb-2 font-semibold">Selected transactions</h4>
                     <ul className="divide-y divide-black/10">
                       {sample.selected.map((line) => (
-                        <li key={line.name} className="flex justify-between py-1.5">
+                        <li key={line.id ?? line.name} className="flex justify-between py-1.5">
                           <span>
                             {line.date} · {line.name}
                           </span>
