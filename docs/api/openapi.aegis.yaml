@@ -1,0 +1,400 @@
+openapi: 3.1.0
+info:
+  title: AdaptiveGuard Aegis API — Behavioral Auth & Decision Engine
+  version: 1.0.0
+  description: |
+    Behavioral telemetry ingestion, real-time authentication scoring,
+    decision history, device trust, risk events, and SHAP explainability.
+
+    Generated from frontend service contract `src/services/aegis/aegis.contract.ts`.
+    Frozen before Sprint 2–3 backend implementation.
+
+    The frontend polls `GET /aegis/snapshot` every ~2 seconds for the live
+    confidence ring. Actual scoring runs server-side on 60-second window
+    boundaries when `POST /events/batch` is received.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development (Docker Compose)
+security:
+  - bearerAuth: []
+paths:
+  # ---------------------------------------------------------------------------
+  # Behavioral Event Ingestion
+  # ---------------------------------------------------------------------------
+  /events/batch:
+    post:
+      summary: Submit a 60-second window of aggregated behavioral features
+      description: |
+        The browser-side collector aggregates keystroke and mouse events into
+        feature vectors per ADR-0005 (aggregated features only — no raw events).
+        The backend scores the window synchronously and returns the verdict.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeatureWindow' }
+      responses:
+        '200':
+          description: Window scored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScoreResult' }
+        '422': { $ref: '#/components/responses/Validation' }
+
+  # ---------------------------------------------------------------------------
+  # Live Snapshot (polled by Aegis widget)
+  # ---------------------------------------------------------------------------
+  /aegis/snapshot:
+    get:
+      summary: Latest authentication snapshot for the current session
+      description: |
+        Returns the most recent confidence score, risk value, whisper text,
+        and trend line. Polled every ~2 seconds by the frontend Aegis widget.
+        The backend caches the latest snapshot in Redis; actual re-scoring
+        happens on window boundaries (every 60s).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AegisSnapshot' }
+
+  # ---------------------------------------------------------------------------
+  # Score History
+  # ---------------------------------------------------------------------------
+  /scores/history:
+    get:
+      summary: Score timeline for the current session
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 60 }
+        - name: before
+          in: query
+          required: false
+          description: Cursor (ISO timestamp) for pagination
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ScoreResult' }
+
+  # ---------------------------------------------------------------------------
+  # Current Score
+  # ---------------------------------------------------------------------------
+  /scores/current:
+    get:
+      summary: Current authentication score with SHAP explanation
+      description: Alias for /aegis/snapshot with richer detail.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScoreResult' }
+
+  # ---------------------------------------------------------------------------
+  # SHAP Explainability
+  # ---------------------------------------------------------------------------
+  /scores/shap/{decisionId}:
+    get:
+      summary: Detailed SHAP report for a specific decision
+      parameters:
+        - name: decisionId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShapReport' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------------------
+  # Decisions
+  # ---------------------------------------------------------------------------
+  /aegis/decisions:
+    get:
+      summary: Decision history for the current session
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Decision' }
+  /aegis/decision-replays:
+    get:
+      summary: Decision replays with human-language explanations and SHAP petals
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DecisionReplay' }
+
+  # ---------------------------------------------------------------------------
+  # Devices
+  # ---------------------------------------------------------------------------
+  /aegis/devices:
+    get:
+      summary: List trusted/recognized/new devices for the authenticated user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Device' }
+  /aegis/device-profiles:
+    get:
+      summary: Rich device profiles with confidence and trust scores
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DeviceProfile' }
+
+  # ---------------------------------------------------------------------------
+  # Risk Events
+  # ---------------------------------------------------------------------------
+  /aegis/risk-events:
+    get:
+      summary: Recent risk events for the current user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RiskEvent' }
+
+# =============================================================================
+# Components
+# =============================================================================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Validation:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    # --- Envelope ---
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+
+    # --- Feature Window (ingestion) ---
+    FeatureWindow:
+      type: object
+      required: [sessionId, windowStart, windowEnd, features]
+      properties:
+        sessionId: { type: string, format: uuid }
+        windowStart: { type: string, format: date-time }
+        windowEnd: { type: string, format: date-time }
+        features:
+          type: object
+          description: |
+            Aggregated behavioral features per ADR-0005.
+            36 mRMR-selected features after feature extraction.
+          additionalProperties: { type: number }
+
+    # --- Aegis Snapshot ---
+    AegisSnapshot:
+      type: object
+      required: [confidence, risk, whisper, observedAt, trend]
+      properties:
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability the current session is the enrolled human
+        risk:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: 1 - confidence with hysteresis
+        whisper:
+          type: string
+          description: Short human-readable status for the security strip
+        observedAt:
+          type: string
+          format: date-time
+        trend:
+          type: array
+          description: Last 60 confidence samples for sparkline
+          items: { type: number }
+
+    # --- Score Result ---
+    ScoreResult:
+      type: object
+      required: [windowId, verdict, fusedScore, lightgbmScore, ocsvmScore, evaluatedAt]
+      properties:
+        windowId: { type: string, format: uuid }
+        verdict:
+          type: string
+          enum: [allow, challenge, step_up, block]
+        fusedScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        lightgbmScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        ocsvmScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        challengeId:
+          type: string
+          format: uuid
+          description: Present when verdict is challenge or step_up
+        evaluatedAt:
+          type: string
+          format: date-time
+
+    # --- SHAP Report ---
+    ShapReport:
+      type: object
+      required: [decisionId, baseValue, features]
+      properties:
+        decisionId: { type: string }
+        baseValue:
+          type: number
+          description: Expected model output (baseline)
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              value: { type: number }
+              contribution: { type: number }
+
+    # --- Decision ---
+    Decision:
+      type: object
+      required: [id, occurredAt, action, reason, topFeatures]
+      properties:
+        id: { type: string }
+        occurredAt: { type: string, format: date-time }
+        action:
+          type: string
+          enum: [allow, challenge, step_up, deny]
+        reason: { type: string }
+        topFeatures:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              contribution: { type: number }
+
+    # --- Decision Replay ---
+    DecisionReplay:
+      type: object
+      required: [id, time, title, outcome, confidence, petals]
+      properties:
+        id: { type: string }
+        time: { type: string }
+        title: { type: string }
+        outcome:
+          type: string
+          enum: ['Allowed silently', 'Step-up OTP', 'Trusted']
+        confidence: { type: number }
+        petals:
+          type: array
+          items: { $ref: '#/components/schemas/DecisionPetal' }
+    DecisionPetal:
+      type: object
+      required: [label, weight, sentence]
+      properties:
+        label: { type: string }
+        weight: { type: number }
+        sentence: { type: string }
+
+    # --- Device ---
+    Device:
+      type: object
+      required: [id, label, os, trust, lastSeenAt, city]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        os: { type: string }
+        trust:
+          type: string
+          enum: [trusted, recognized, new]
+        lastSeenAt: { type: string, format: date-time }
+        city: { type: string }
+
+    # --- Device Profile ---
+    DeviceProfile:
+      type: object
+      required: [id, name, kind, os, browser, location, lastActive, confidence, trust]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        kind:
+          type: string
+          enum: [laptop, phone, tablet, desktop]
+        os: { type: string }
+        browser: { type: string }
+        location: { type: string }
+        lastActive: { type: string }
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 100
+        trust:
+          type: number
+          minimum: 0
+          maximum: 10
+        primary: { type: boolean }
+
+    # --- Risk Event ---
+    RiskEvent:
+      type: object
+      required: [id, occurredAt, severity, summary]
+      properties:
+        id: { type: string }
+        occurredAt: { type: string, format: date-time }
+        severity:
+          type: string
+          enum: [info, warn, critical]
+        summary: { type: string }

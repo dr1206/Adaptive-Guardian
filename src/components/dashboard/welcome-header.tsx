@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import type { Account } from "@/services/banking/banking.contract";
+import type { Session } from "@/services/auth/auth.contract";
 
-export function WelcomeHeader({ name = "Amal" }: { name?: string }) {
+interface WelcomeHeaderProps {
+  name?: string;
+  session?: Session | null;
+  accounts?: Account[];
+}
+
+export function WelcomeHeader({ name = "Amal", accounts }: WelcomeHeaderProps) {
   const [greeting, setGreeting] = useState("");
   const [date, setDate] = useState("");
 
@@ -10,8 +18,9 @@ export function WelcomeHeader({ name = "Amal" }: { name?: string }) {
     setGreeting(
       h < 5 ? "Working late" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening",
     );
+    const now = new Date();
     setDate(
-      new Date().toLocaleDateString("en-GB", {
+      now.toLocaleDateString("en-GB", {
         weekday: "short",
         day: "numeric",
         month: "short",
@@ -19,25 +28,22 @@ export function WelcomeHeader({ name = "Amal" }: { name?: string }) {
     );
   }, []);
 
+  const accts = accounts ?? [];
+  const totalBalance = accts.reduce((sum, a) => sum + a.balance, 0);
+  const savingsBalance = accts.filter((a) => a.type === "savings").reduce((sum, a) => sum + a.balance, 0);
+  const investBalance = accts.filter((a) => a.type === "investment").reduce((sum, a) => sum + a.balance, 0);
+  const primaryAccount = accts.find((a) => a.type === "primary");
+
+  const fmt = (n: number) => Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const fmtLarge = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(2)}` : fmt(n));
+
   const stats = [
-    { label: "Available", value: "248,902.14", prefix: "€", spark: [40, 42, 48, 46, 52, 58, 64] },
-    {
-      label: "Today",
-      value: "+ 1,420.40",
-      prefix: "€",
-      positive: true,
-      spark: [20, 28, 22, 36, 30, 44, 56],
-    },
-    { label: "In (Jun)", value: "14,230", prefix: "€", spark: [12, 18, 25, 30, 28, 32, 40] },
-    { label: "Out (Jun)", value: "9,184", prefix: "€", spark: [22, 26, 22, 28, 30, 26, 24] },
-    { label: "Savings", value: "62,400", prefix: "€", spark: [38, 40, 42, 45, 48, 51, 54] },
-    {
-      label: "Investments",
-      value: "2.48",
-      prefix: "€",
-      suffix: "M",
-      spark: [30, 36, 32, 40, 44, 48, 56],
-    },
+    { label: "Available", value: fmt(totalBalance), prefix: "$", spark: primaryAccount?.spark ?? [40, 42, 48] },
+    { label: "Today", value: `+ ${fmt(totalBalance * 0.005)}`, prefix: "$", positive: true, spark: [20, 28, 22, 36, 30, 44, 56] },
+    { label: "In (Jun)", value: fmt(totalBalance * 0.06), prefix: "$", spark: [12, 18, 25, 30, 28, 32, 40] },
+    { label: "Out (Jun)", value: fmt(totalBalance * 0.037), prefix: "$", spark: [22, 26, 22, 28, 30, 26, 24] },
+    { label: "Savings", value: fmt(savingsBalance), prefix: "$", spark: [38, 40, 42, 45, 48, 51, 54] },
+    { label: "Investments", value: fmtLarge(investBalance), prefix: "$", suffix: investBalance >= 1_000_000 ? "M" : undefined, spark: [30, 36, 32, 40, 44, 48, 56] },
   ];
 
   return (

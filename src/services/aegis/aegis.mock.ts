@@ -127,4 +127,7 @@ export const mockAegisService: AegisService = {
   async listDecisionReplays({ signal } = {}) {
     return mockResolve<ReadonlyArray<DecisionReplay>>(DECISION_REPLAYS, { signal });
   },
+  async submitBatch() {
+    // No-op — behavioral collection uses mock in dev
+  },
 };

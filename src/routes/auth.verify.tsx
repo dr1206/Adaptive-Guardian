@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { ArrowLeft, ArrowRight, ShieldCheck, Smartphone } from "lucide-react";
@@ -8,16 +8,23 @@ import { ApertureSpinner } from "@/components/brand/shield";
 import { BalanceTile } from "@/components/banking/balance-tile";
 import { TransactionRow, sampleTxs } from "@/components/banking/transaction-row";
 import { useVerifyOtp } from "@/services/hooks";
+import { services } from "@/services/registry";
 
-const search = z.object({ e: z.string().optional() });
+const search = z.object({ e: z.string().optional(), c: z.string().optional() });
 
 export const Route = createFileRoute("/auth/verify")({
+  beforeLoad: async () => {
+    const session = await services.auth.getSession();
+    if (session) {
+      throw redirect({ to: "/app" });
+    }
+  },
   validateSearch: search,
   component: VerifyScreen,
 });
 
 function VerifyScreen() {
-  const { e } = Route.useSearch();
+  const { e, c: challengeId } = Route.useSearch();
   const nav = useNavigate();
   const verify = useVerifyOtp();
   const verifying = verify.isPending;
@@ -26,8 +33,8 @@ function VerifyScreen() {
   async function onComplete(code: string) {
     setOtpError(null);
     try {
-      await verify.mutateAsync({ email: e ?? "", code });
-      nav({ to: "/auth/calibrate", search: { e } });
+      await verify.mutateAsync({ challengeId: challengeId ?? "", email: e ?? "", code });
+      nav({ to: "/onboarding", search: { e } });
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : "Verification failed.");
     }
@@ -101,7 +108,7 @@ function VerifyScreen() {
 
         {verifying && (
           <div className="mt-8 flex items-center gap-2 text-[13px] text-accent animate-fade-in">
-            <ArrowRight className="h-4 w-4" /> Code accepted. Calibrating your behavioral profile…
+            <ArrowRight className="h-4 w-4" /> Code accepted. Setting up your secure vault…
           </div>
         )}
         {otpError && (

@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutGrid,
@@ -24,9 +24,11 @@ import {
   Repeat,
   Sparkles,
   Activity,
+  Loader2,
 } from "lucide-react";
 import { Shield } from "@/components/brand/shield";
 import { cn } from "@/lib/utils";
+import { useLogout } from "@/services/hooks";
 
 type Item = { label: string; icon: typeof LayoutGrid; to: string; badge?: number; kbd?: string };
 
@@ -72,6 +74,14 @@ export function VaultRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" 
   const [expanded, setExpanded] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isDrawer = variant === "drawer";
+  const nav = useNavigate();
+  const logout = useLogout();
+
+  function handleLogout() {
+    logout.mutateAsync().finally(() => {
+      nav({ to: "/auth" });
+    });
+  }
 
   return (
     <aside
@@ -143,9 +153,11 @@ export function VaultRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" 
           {(expanded || isDrawer) && (
             <button
               aria-label="Sign out"
-              className="ml-auto grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+              disabled={logout.isPending}
+              onClick={handleLogout}
+              className="ml-auto grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground disabled:opacity-40"
             >
-              <LogOut className="h-4 w-4" />
+              {logout.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LogOut className="h-4 w-4" />}
             </button>
           )}
         </div>

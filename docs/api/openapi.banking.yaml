@@ -1,0 +1,555 @@
+openapi: 3.1.0
+info:
+  title: AdaptiveGuard Banking API
+  version: 1.0.0
+  description: |
+    FinTech banking surfaces — accounts, transactions, transfers, beneficiaries,
+    cards, payments, savings, holdings, loans, currencies, insights, statements,
+    activity, and budgets.
+
+    Generated from frontend service contract `src/services/banking/banking.contract.ts`.
+    Frozen before Sprint 4 backend implementation.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development (Docker Compose)
+security:
+  - bearerAuth: []
+paths:
+  # ---------------------------------------------------------------------------
+  # Accounts
+  # ---------------------------------------------------------------------------
+  /accounts:
+    get:
+      summary: List all accounts for the authenticated user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Account' }
+  /accounts/{accountId}:
+    get:
+      summary: Get a single account by ID
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------------------
+  # Transactions
+  # ---------------------------------------------------------------------------
+  /transactions:
+    get:
+      summary: List transactions, optionally filtered by account
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Transaction' }
+
+  # ---------------------------------------------------------------------------
+  # Transfers
+  # ---------------------------------------------------------------------------
+  /transfers:
+    post:
+      summary: Initiate a fund transfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TransferInput' }
+      responses:
+        '201':
+          description: Transfer scheduled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResult' }
+        '422': { $ref: '#/components/responses/Validation' }
+
+  # ---------------------------------------------------------------------------
+  # Beneficiaries
+  # ---------------------------------------------------------------------------
+  /beneficiaries:
+    get:
+      summary: List saved beneficiaries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Beneficiary' }
+    post:
+      summary: Add a new beneficiary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BeneficiaryInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Beneficiary' }
+        '422': { $ref: '#/components/responses/Validation' }
+
+  # ---------------------------------------------------------------------------
+  # Cards
+  # ---------------------------------------------------------------------------
+  /cards:
+    get:
+      summary: List bank cards
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BankCard' }
+
+  # ---------------------------------------------------------------------------
+  # Payments
+  # ---------------------------------------------------------------------------
+  /payments:
+    get:
+      summary: List scheduled/recurring payments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Payment' }
+
+  # ---------------------------------------------------------------------------
+  # Savings Goals
+  # ---------------------------------------------------------------------------
+  /savings-goals:
+    get:
+      summary: List savings goals
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SavingsGoal' }
+
+  # ---------------------------------------------------------------------------
+  # Holdings (Investments)
+  # ---------------------------------------------------------------------------
+  /holdings:
+    get:
+      summary: List investment holdings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Holding' }
+
+  # ---------------------------------------------------------------------------
+  # Loans
+  # ---------------------------------------------------------------------------
+  /loans:
+    get:
+      summary: List loans
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/LoanRecord' }
+
+  # ---------------------------------------------------------------------------
+  # Currencies
+  # ---------------------------------------------------------------------------
+  /currencies:
+    get:
+      summary: List available currencies with exchange rates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Currency' }
+
+  # ---------------------------------------------------------------------------
+  # Insights
+  # ---------------------------------------------------------------------------
+  /insights:
+    get:
+      summary: List AI-generated financial insights
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Insight' }
+
+  # ---------------------------------------------------------------------------
+  # Statements
+  # ---------------------------------------------------------------------------
+  /statements/years:
+    get:
+      summary: List available statement year groups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/StatementYearGroup' }
+  /statements/{year}/{month}:
+    get:
+      summary: Get a statement sample for a specific year and month
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: month
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 12 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatementSample' }
+
+  # ---------------------------------------------------------------------------
+  # Activity
+  # ---------------------------------------------------------------------------
+  /activity:
+    get:
+      summary: List recent account activity events
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ActivityEvent' }
+
+  # ---------------------------------------------------------------------------
+  # Budgets
+  # ---------------------------------------------------------------------------
+  /budgets:
+    get:
+      summary: List budget envelopes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BudgetEnvelope' }
+
+# =============================================================================
+# Components
+# =============================================================================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Validation:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    # --- Envelope ---
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+
+    # --- Account ---
+    Account:
+      type: object
+      required: [id, name, type, currency, balance, iban, deltaPct, spark, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type:
+          type: string
+          enum: [primary, savings, investment, credit, business, fixed]
+        currency: { type: string }
+        balance: { type: number }
+        pending: { type: number }
+        iban: { type: string }
+        deltaPct: { type: number }
+        spark:
+          type: array
+          items: { type: number }
+        status:
+          type: string
+          enum: [active, frozen]
+
+    # --- Transaction ---
+    Transaction:
+      type: object
+      required: [id, date, description, amount, currency, type, status]
+      properties:
+        id: { type: string }
+        date: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        currency: { type: string }
+        type:
+          type: string
+          enum: [credit, debit]
+        status:
+          type: string
+          enum: [completed, pending, failed]
+        category: { type: string }
+        beneficiary: { type: string }
+        reference: { type: string }
+
+    # --- Transfer ---
+    TransferInput:
+      type: object
+      required: [fromAccountId, beneficiaryId, amount, currency]
+      properties:
+        fromAccountId: { type: string }
+        beneficiaryId: { type: string }
+        amount: { type: number, exclusiveMinimum: 0 }
+        currency: { type: string }
+        reference: { type: string }
+        dwellMs: { type: number, description: Press-and-hold dwell time for behavioral signal }
+    TransferResult:
+      type: object
+      required: [transactionId, scheduledFor, signature]
+      properties:
+        transactionId: { type: string }
+        scheduledFor: { type: string }
+        signature: { type: string }
+
+    # --- Beneficiary ---
+    Beneficiary:
+      type: object
+      required: [id, name, iban, bank]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        iban: { type: string }
+        bank: { type: string }
+        currency: { type: string }
+        lastUsed: { type: string }
+    BeneficiaryInput:
+      type: object
+      required: [name, iban, bank]
+      properties:
+        name: { type: string }
+        iban: { type: string }
+        bank: { type: string }
+        currency: { type: string }
+
+    # --- BankCard ---
+    BankCard:
+      type: object
+      required: [id, label, kind, network, last4, holder, exp, frozen, finish, limits, spentMonth]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        kind:
+          type: string
+          enum: [primary, virtual, credit, travel]
+        network:
+          type: string
+          enum: [visa, mastercard]
+        last4: { type: string }
+        holder: { type: string }
+        exp: { type: string }
+        frozen: { type: boolean }
+        finish:
+          type: string
+          enum: [obsidian, champagne, iris, graphite, platinum]
+        limits:
+          type: object
+          properties:
+            daily: { type: number }
+            monthly: { type: number }
+            atm: { type: number }
+            usedDaily: { type: number }
+            usedMonthly: { type: number }
+            usedAtm: { type: number }
+        spentMonth: { type: number }
+
+    # --- Payment ---
+    Payment:
+      type: object
+      required: [id, description, amount, currency, nextDate, frequency, beneficiary]
+      properties:
+        id: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        currency: { type: string }
+        nextDate: { type: string }
+        frequency:
+          type: string
+          enum: [weekly, monthly, quarterly, yearly]
+        beneficiary: { type: string }
+
+    # --- SavingsGoal ---
+    SavingsGoal:
+      type: object
+      required: [id, name, target, current, currency, deadline]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        target: { type: number }
+        current: { type: number }
+        currency: { type: string }
+        deadline: { type: string }
+        image: { type: string }
+
+    # --- Holding ---
+    Holding:
+      type: object
+      required: [id, symbol, name, quantity, price, currency, deltaPct]
+      properties:
+        id: { type: string }
+        symbol: { type: string }
+        name: { type: string }
+        quantity: { type: number }
+        price: { type: number }
+        currency: { type: string }
+        deltaPct: { type: number }
+
+    # --- LoanRecord ---
+    LoanRecord:
+      type: object
+      required: [id, name, principal, remaining, currency, rate, nextPayment]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        principal: { type: number }
+        remaining: { type: number }
+        currency: { type: string }
+        rate: { type: number }
+        nextPayment: { type: string }
+
+    # --- Currency ---
+    Currency:
+      type: object
+      required: [code, name, rate, symbol]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        rate: { type: number }
+        symbol: { type: string }
+
+    # --- Insight ---
+    Insight:
+      type: object
+      required: [id, tone, title, body, action]
+      properties:
+        id: { type: string }
+        tone:
+          type: string
+          enum: [down, up, calendar, shield, saving, growth]
+        title: { type: string }
+        body: { type: string }
+        action: { type: string }
+
+    # --- Statement ---
+    StatementYearGroup:
+      type: object
+      required: [year, months]
+      properties:
+        year: { type: integer }
+        months:
+          type: array
+          items: { type: integer }
+    StatementSample:
+      type: object
+      required: [year, month, openingBalance, closingBalance, transactions]
+      properties:
+        year: { type: integer }
+        month: { type: integer }
+        openingBalance: { type: number }
+        closingBalance: { type: number }
+        transactions:
+          type: array
+          items: { $ref: '#/components/schemas/Transaction' }
+
+    # --- Activity ---
+    ActivityEvent:
+      type: object
+      required: [id, type, description, occurredAt]
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [login, transfer, beneficiary_added, card_frozen, statement_viewed]
+        description: { type: string }
+        occurredAt: { type: string }
+
+    # --- Budget ---
+    BudgetEnvelope:
+      type: object
+      required: [id, category, budgeted, spent, currency]
+      properties:
+        id: { type: string }
+        category: { type: string }
+        budgeted: { type: number }
+        spent: { type: number }
+        currency: { type: string }
+        color: { type: string }

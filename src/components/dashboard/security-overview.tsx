@@ -5,70 +5,97 @@ import {
   CircleDot,
   Cpu,
   Fingerprint,
+  Loader2,
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
-
-const CARDS = [
-  {
-    icon: ShieldCheck,
-    title: "Auth confidence",
-    metric: "99.2%",
-    note: "30-day high",
-    status: "pass",
-    action: "View",
-  },
-  {
-    icon: Smartphone,
-    title: "Trusted device",
-    metric: "MacBook · Lisbon",
-    note: "Bound 18 days ago",
-    status: "pass",
-    action: "Manage",
-  },
-  {
-    icon: Fingerprint,
-    title: "Recent verification",
-    metric: "12 ms ago",
-    note: "Behavioral · silent",
-    status: "pass",
-    action: "View",
-  },
-  {
-    icon: Activity,
-    title: "Behavior stability",
-    metric: "Stable",
-    note: "± 0.4σ from signature",
-    status: "pass",
-    action: "View",
-  },
-  {
-    icon: CircleDot,
-    title: "Session integrity",
-    metric: "A+",
-    note: "2h 14m active",
-    status: "pass",
-    action: "Re-verify",
-  },
-  {
-    icon: Brain,
-    title: "AI monitoring",
-    metric: "Active",
-    note: "LightGBM · OC-SVM",
-    status: "pass",
-    action: "View",
-  },
-  {
-    icon: Cpu,
-    title: "Risk assessment",
-    metric: "0.04",
-    note: "Low · normal range",
-    status: "pass",
-    action: "View",
-  },
-] as const;
+import { useAegisSnapshot, useSecurityOverview, useDevices } from "@/services/hooks";
 
 export function SecurityOverview() {
+  const { data: snapshot, isLoading: snapLoading } = useAegisSnapshot();
+  const { data: overview, isLoading: ovLoading } = useSecurityOverview();
+  const { data: devices, isLoading: devLoading } = useDevices();
+
+  const isLoading = snapLoading && ovLoading && devLoading;
+
+  const confidence = snapshot?.confidence != null ? `${(snapshot.confidence * 100).toFixed(1)}%` : "—";
+  const risk = overview?.riskTrend != null
+    ? (overview.riskTrend[overview.riskTrend.length - 1] ?? 0).toFixed(2)
+    : "—";
+  const trustedDevice = devices?.[0];
+  const deviceLabel = trustedDevice
+    ? `${trustedDevice.label} · ${trustedDevice.city}`
+    : "—";
+  const activeSessions = overview?.activeSessions ?? 0;
+  const flagged24h = overview?.flaggedEvents24h ?? 0;
+
+  if (isLoading) {
+    return (
+      <article className="flex items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.025] p-8 backdrop-blur-xl">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/40" />
+      </article>
+    );
+  }
+
+  const cards = [
+    {
+      icon: ShieldCheck,
+      title: "Auth confidence",
+      metric: confidence,
+      note: "Current session",
+      status: "pass" as const,
+      action: "View",
+    },
+    {
+      icon: Smartphone,
+      title: "Trusted device",
+      metric: deviceLabel,
+      note: trustedDevice ? `Trust: ${trustedDevice.trust}` : "No device",
+      status: "pass" as const,
+      action: "Manage",
+    },
+    {
+      icon: Fingerprint,
+      title: "Active sessions",
+      metric: String(activeSessions),
+      note: "Recognized sessions",
+      status: "pass" as const,
+      action: "View",
+    },
+    {
+      icon: Activity,
+      title: "Flagged events",
+      metric: String(flagged24h),
+      note: "Last 24 hours",
+      status: (flagged24h === 0 ? "pass" : "warn") as const,
+      action: "View",
+    },
+    {
+      icon: CircleDot,
+      title: "Session integrity",
+      metric: "A+",
+      note: "End-to-end protected",
+      status: "pass" as const,
+      action: "Re-verify",
+    },
+    {
+      icon: Brain,
+      title: "AI monitoring",
+      metric: "Active",
+      note: "LightGBM · OC-SVM",
+      status: "pass" as const,
+      action: "View",
+    },
+    {
+      icon: Cpu,
+      title: "Risk assessment",
+      metric: risk,
+      note: flagged24h === 0 ? "Low · normal range" : "Review recommended",
+      status: (flagged24h === 0 ? "pass" : "warn") as const,
+      action: "View",
+    },
+  ];
+
   return (
     <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5 backdrop-blur-xl">
       <header className="mb-4 flex items-end justify-between">
@@ -85,18 +112,21 @@ export function SecurityOverview() {
         </button>
       </header>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {CARDS.map((c) => {
+        {cards.map((c) => {
           const Icon = c.icon;
+          const iconBg = c.status === "pass" ? "bg-success/10 text-success" : "bg-warning/10 text-warning";
           return (
             <div
               key={c.title}
               className="group rounded-xl border border-white/[0.05] bg-white/[0.015] p-3.5 transition-colors hover:border-success/30"
             >
               <div className="flex items-center justify-between">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-success/10 text-success">
+                <span className={`grid h-8 w-8 place-items-center rounded-lg ${iconBg}`}>
                   <Icon className="h-4 w-4" />
                 </span>
-                <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                <CheckCircle2
+                  className={`h-3.5 w-3.5 ${c.status === "pass" ? "text-success" : "text-warning"}`}
+                />
               </div>
               <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                 {c.title}

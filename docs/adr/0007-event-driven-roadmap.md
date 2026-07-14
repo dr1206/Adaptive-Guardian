@@ -1,4 +1,7 @@
-# ADR 0007 — Event-Driven Roadmap
+# ADR 0007 — Event-Driven Roadmap (Kafka Deferred; REST Synchronous for Delivery)
+
+> **Scoped by ADR-0015:** Kafka + outbox pattern are deferred to the production pathway. This project uses REST-based synchronous scoring with Redis pub/sub as an optional async fallback. See ADR-0015.
+
 **Status:** Accepted · **Date:** 2026-06-29 · **Deciders:** Staff Architect, Principal BE
 
 ## Context

@@ -76,6 +76,31 @@ export interface DecisionReplay {
   petals: ReadonlyArray<DecisionPetal>;
 }
 
+export interface FeatureWindow {
+  windowStart: number;
+  windowEnd: number;
+  dwellMeanMs: number;
+  dwellStdMs: number;
+  flightMeanMs: number;
+  flightStdMs: number;
+  keysPerSec: number;
+  velocityMean: number;
+  velocityStd: number;
+  accelerationMean: number;
+  accelerationStd: number;
+  curvatureMean: number;
+  curvatureStd: number;
+  clickCount: number;
+  scrollAmount: number;
+  mouseTravelPx: number;
+  deviceInfo: {
+    userAgent: string;
+    viewport: string;
+    platform: string;
+    timezone: string;
+  };
+}
+
 export interface AegisService {
   getSnapshot(opts?: { signal?: AbortSignal }): Promise<AegisSnapshot>;
   /** Subscribe to live confidence updates. Returns unsubscribe. */
@@ -85,4 +110,6 @@ export interface AegisService {
   listRiskEvents(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<RiskEvent>>;
   listDeviceProfiles(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DeviceProfile>>;
   listDecisionReplays(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DecisionReplay>>;
+  /** Submit behavioral feature windows for continuous authentication. */
+  submitBatch?(windows: ReadonlyArray<FeatureWindow>): Promise<void>;
 }

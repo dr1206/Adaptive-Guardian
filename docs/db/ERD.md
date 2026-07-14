@@ -1,167 +1,177 @@
-# Database Design — ERD & Strategy
+# Database Design — MongoDB Atlas Document Model
 
-**Engine:** PostgreSQL 16 (OLTP) · **Cache/Session:** Redis 7 · **Analytics:** ClickHouse · **Cold:** S3
+**Engine:** MongoDB Atlas (M0 free tier) · **Cache/Session:** Redis 7 · **Object Store:** MinIO
 
-## Schemas
+## Collections
 
-- `public` — application tables (RLS enforced).
-- `audit` — append-only ledger, chain-hashed.
-- `ml` — model registry pointers, feature snapshots, decisions.
-- `ops` — feature flags fallback, queues metadata.
+All collections live in the `adaptive_guardian` database. MongoDB Atlas handles all document storage. No relational schemas — the document model matches the heterogeneous nature of behavioral biometrics data.
 
-## Sprint 1 Core ERD
+## Sprint 1 Core Document Model
 
-```mermaid
-erDiagram
-  users ||--o{ user_roles : has
-  users ||--|| user_profiles : has
-  users ||--o{ otp_challenges : issues
-  users ||--o{ sessions : opens
-  users ||--|| behavior_baselines : owns
-  sessions ||--o{ behavior_windows : produces
-  sessions ||--o{ decisions : triggers
-  sessions ||--o{ trusted_devices : binds
-  users ||--o{ audit_events : actsOn
+```
+┌─────────────────────────────────────────────────────────────┐
+│  users                                                       │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ email: string (unique index)                            ││
+│  │ password_hash: string                                   ││
+│  │ full_name: string                                       ││
+│  │ is_active: bool                                         ││
+│  │ roles: [string]           ← embedded, no join needed    ││
+│  │ created_at: ISODate                                     ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
 
-  users {
-    uuid id PK
-    citext email UK
-    text password_hash
-    text full_name
-    text status "pending|active|locked"
-    timestamptz created_at
-    timestamptz updated_at
-  }
-  user_profiles {
-    uuid user_id PK,FK
-    text avatar_url
-    text locale
-    text timezone
-  }
-  user_roles {
-    uuid id PK
-    uuid user_id FK
-    app_role role
-    timestamptz granted_at
-  }
-  otp_challenges {
-    uuid id PK
-    uuid user_id FK
-    text code_hash
-    text purpose "register|login|step_up"
-    timestamptz expires_at
-    int attempts
-    timestamptz consumed_at
-  }
-  sessions {
-    uuid id PK
-    uuid user_id FK
-    text refresh_token_hash
-    text device_fingerprint
-    inet ip
-    text user_agent
-    timestamptz created_at
-    timestamptz last_seen_at
-    timestamptz revoked_at
-  }
-  trusted_devices {
-    uuid id PK
-    uuid user_id FK
-    text fingerprint UK
-    text label
-    timestamptz trusted_at
-  }
-  behavior_baselines {
-    uuid user_id PK,FK
-    jsonb keyboard_profile
-    jsonb mouse_profile
-    numeric confidence
-    timestamptz updated_at
-  }
-  behavior_windows {
-    uuid id PK
-    uuid session_id FK
-    timestamptz window_start
-    timestamptz window_end
-    jsonb features
-  }
-  decisions {
-    uuid id PK
-    uuid session_id FK
-    text outcome "allow|challenge|step_up|block"
-    numeric score
-    jsonb top_contributors
-    timestamptz evaluated_at
-  }
-  audit_events {
-    uuid id PK
-    text actor_type
-    uuid actor_id
-    text action
-    text target
-    jsonb payload
-    text prev_hash
-    text hash
-    timestamptz occurred_at
-  }
+┌─────────────────────────────────────────────────────────────┐
+│  sessions                                                    │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ user_id: UUID                                           ││
+│  │ refresh_token_hash: string (index)                      ││
+│  │ device_fingerprint: string                              ││
+│  │ expires_at: ISODate (TTL index)                         ││
+│  │ revoked: bool                                           ││
+│  │ created_at: ISODate                                     ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  otp_challenges                                              │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ user_id: UUID                                           ││
+│  │ code_hash: string                                       ││
+│  │ purpose: "register"|"login"|"step_up"                  ││
+│  │ expires_at: ISODate (TTL index)                         ││
+│  │ attempts: int (max 5)                                   ││
+│  │ verified: bool                                          ││
+│  │ consumed_at: ISODate                                    ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  behavior_baselines (one doc per user)                       │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ user_id: UUID (unique index)                            ││
+│  │ keyboard_profile: { ... }  ← heterogeneous features     ││
+│  │ mouse_profile: { ... }     ← heterogeneous features     ││
+│  │ confidence: float                                       ││
+│  │ profile_windows_count: int                              ││
+│  │ updated_at: ISODate                                     ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  behavior_windows                                            │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ session_id: UUID                                        ││
+│  │ window_start: ISODate                                   ││
+│  │ window_end: ISODate                                     ││
+│  │ features: { ... }         ← variable feature vector     ││
+│  │ created_at: ISODate                                     ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  decisions                                                   │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ session_id: UUID                                        ││
+│  │ outcome: "allow"|"challenge"|"step_up"|"block"         ││
+│  │ score: float                                            ││
+│  │ top_contributors: [{ name, contribution }]              ││
+│  │ evaluated_at: ISODate                                   ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  device_profiles                                             │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ user_id: UUID                                           ││
+│  │ fingerprint: string                                     ││
+│  │ label: string                                           ││
+│  │ kind: "laptop"|"phone"|"tablet"|"desktop"              ││
+│  │ os: string                                              ││
+│  │ browser: string                                         ││
+│  │ trust: "trusted"|"recognized"|"new"                    ││
+│  │ last_active: ISODate                                    ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  audit_events                                                │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ _id: ObjectId                                           ││
+│  │ actor_type: string                                      ││
+│  │ actor_id: UUID                                          ││
+│  │ action: string                                          ││
+│  │ target: string                                          ││
+│  │ payload: { ... }                                        ││
+│  │ prev_hash: string                                       ││
+│  │ hash: string (sha256 chain)                             ││
+│  │ occurred_at: ISODate                                    ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Indexes
 
-| Table | Index | Reason |
-| --- | --- | --- |
-| `users` | `UNIQUE (email)` | Lookup, uniqueness |
-| `user_roles` | `UNIQUE (user_id, role)` | Idempotent grants |
-| `otp_challenges` | `(user_id, purpose, expires_at DESC)` | Latest unconsumed lookup |
-| `sessions` | `(user_id, revoked_at) WHERE revoked_at IS NULL` | Active sessions |
-| `sessions` | `(refresh_token_hash)` | Refresh rotation |
-| `trusted_devices` | `UNIQUE (user_id, fingerprint)` | Dedup |
-| `behavior_windows` | `(session_id, window_start DESC)` | Recent windows |
-| `decisions` | `(session_id, evaluated_at DESC)` | Session timeline |
-| `audit_events` | `(occurred_at DESC)`, `(actor_id, occurred_at DESC)` | Audit scans |
+| Collection | Index | Reason |
+|---|---|---|
+| `users` | `{ email: 1 }` unique | Lookup, uniqueness |
+| `users` | `{ roles: 1 }` | Admin user queries |
+| `sessions` | `{ refresh_token_hash: 1 }` | Refresh rotation |
+| `sessions` | `{ user_id: 1, revoked: 1 }` | Active sessions |
+| `sessions` | `{ expires_at: 1 }` TTL | Auto-expire sessions |
+| `otp_challenges` | `{ user_id: 1, purpose: 1 }` | Latest unconsumed lookup |
+| `otp_challenges` | `{ expires_at: 1 }` TTL | Auto-purge |
+| `behavior_baselines` | `{ user_id: 1 }` unique | One baseline per user |
+| `behavior_windows` | `{ session_id: 1, window_start: -1 }` | Recent windows |
+| `behavior_windows` | `{ created_at: 1 }` TTL | Retention policy |
+| `decisions` | `{ session_id: 1, evaluated_at: -1 }` | Session timeline |
+| `device_profiles` | `{ user_id: 1, fingerprint: 1 }` unique | Dedup devices |
+| `audit_events` | `{ occurred_at: -1 }` | Audit scans |
+| `audit_events` | `{ actor_id: 1, occurred_at: -1 }` | Per-actor audit |
 
-## Constraints
+## Constraints (Application Layer)
 
-- `users.email` CITEXT + CHECK length ≤ 254.
-- `otp_challenges.attempts` CHECK between 0 and 5.
-- `decisions.outcome` CHECK in enum.
-- Every public-schema table has `GRANT` to `authenticated` + `service_role` per repo policy.
-
-## RLS Sketch (public tables)
-
-- `users`: user can `SELECT` only own row; admins (`has_role('admin')`) full read.
-- `user_roles`: user can `SELECT` own roles; only admins INSERT/UPDATE/DELETE.
-- `sessions`, `trusted_devices`, `behavior_baselines`, `behavior_windows`, `decisions`: scoped to `auth.uid()`; admins read-all.
-- `audit_events`: no writes from app role — only `service_role` (relay).
+- `users.email` unique index, format validated via Pydantic EmailStr.
+- `otp_challenges.attempts` validated in service layer (0–5).
+- `decisions.outcome` validated via Pydantic Literal enum.
+- `sessions.expires_at` enforced via MongoDB TTL index — auto-deletion after expiry.
+- Access control enforced at the API/middleware layer (JWT claims → user-scoped queries).
 
 ## Retention
 
-| Data | Hot (Postgres) | Warm (ClickHouse) | Cold (S3) | Total Retention |
-| --- | --- | --- | --- | --- |
-| OTP challenges | 24 h | — | — | 24 h then purge |
-| Sessions | 30 d | 180 d | 7 y (audit subset) | 7 y |
-| Behavior windows | 7 d | 90 d | — | 90 d |
-| Behavior baselines | indefinite (per user) | — | — | until deletion request |
-| Decisions | 90 d | 13 mo | 7 y | 7 y |
-| Audit events | 90 d | 13 mo | 7 y (Glacier after 90 d) | 7 y |
+| Data | MongoDB | Retention |
+|---|---|---|
+| OTP challenges | TTL index (24h) | Auto-deleted after 24h |
+| Sessions | TTL index (30d) | Auto-deleted after 30d |
+| Behavior windows | TTL index (7d) | Auto-deleted after 7d |
+| Behavior baselines | Indefinite (per user) | Until deletion request |
+| Decisions | TTL index (90d) | Auto-deleted after 90d |
+| Audit events | TTL index (90d) | Warm after 90d; cold export to MinIO |
 
-User-initiated deletion (GDPR Art. 17) purges hot + warm; audit retains hashed pseudonyms only.
+User-initiated deletion (GDPR Art. 17): Delete user document + cascade-delete all associated collections. Audit retains anonymized hashes.
 
 ## Encryption Strategy
 
-- **At rest:** Postgres TDE via AWS RDS/Aurora; S3 SSE-KMS; ClickHouse disk encryption.
-- **Field-level:** `password_hash` (Argon2id), `otp_challenges.code_hash` (HMAC-SHA256 with KMS-managed key), `sessions.refresh_token_hash` (HMAC-SHA256).
-- **In transit:** TLS 1.3 everywhere; mTLS service-to-service inside the mesh.
-- **Keys:** AWS KMS, automatic annual rotation, per-environment isolation.
+- **At rest:** MongoDB Atlas encryption-at-rest (enabled by default on all tiers).
+- **Field-level:** `password_hash` (bcrypt), `otp_challenges.code_hash` (HMAC-SHA256), `sessions.refresh_token_hash` (HMAC-SHA256).
+- **In transit:** TLS 1.3; Atlas connection strings use `mongodb+srv://` with mandatory TLS.
 
 ## Audit Strategy
 
-- `audit_events` is append-only. `hash = sha256(prev_hash || canonical(payload))`.
-- Daily anchor: latest hash written to S3 Object Lock + emitted to a public transparency log.
-- Admin reads through `/admin/audit`; verifier job runs hourly and alerts on chain break.
+- `audit_events` is append-only. `hash = sha256(prev_hash || canonical_json(payload))`.
+- Chain verification: hourly job walks the hash chain and alerts on break.
+- Daily anchor: latest hash exported to MinIO as a tamper-evident checkpoint.
 
-## Migrations
+## Data Access Layer
 
-- Tool: `sqlx` migrations under `db/migrations/` (sequential, timestamped).
-- Every migration that creates a public table includes the GRANT block per repo policy (see Master PRD §10).
-- Migrations are forward-only; rollback via compensating migration.
+- **Driver:** Motor 3.x (async MongoDB)
+- **ODM:** Beanie 1.27+ (Pydantic v2 compatible)
+- **Index management:** Beanie declarative indexes in Document `Settings` class
+- **Migrations:** Beanie migration engine for index lifecycle; application-level data migrations for document shape changes

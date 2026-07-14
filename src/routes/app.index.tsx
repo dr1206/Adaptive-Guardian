@@ -8,6 +8,7 @@ import { ActionDock } from "@/components/dashboard/action-dock";
 import { WidgetMosaic } from "@/components/dashboard/widget-mosaic";
 import { TransactionFeed } from "@/components/dashboard/transaction-feed";
 import { SecurityOverview } from "@/components/dashboard/security-overview";
+import { useAccounts, useSession, useTransactions } from "@/services/hooks";
 
 const search = z.object({ e: z.string().optional() });
 
@@ -19,17 +20,32 @@ export const Route = createFileRoute("/app/")({
 function DashboardPage() {
   const { e } = Route.useSearch();
   const name = e ? deriveName(e) : "Amal";
+  const { data: accounts } = useAccounts();
+  const { data: session } = useSession();
+  const { data: transactions } = useTransactions({});
+
+  const accountCards = (accounts ?? []).map((a) => ({
+    id: a.id,
+    label: a.name,
+    amount: a.balance,
+    currency: a.currency,
+    type: a.type,
+    pending: a.pending,
+    iban: a.iban,
+    deltaPct: a.delta_pct,
+    spark: a.spark,
+  }));
 
   return (
     <div className="pb-16">
-      <WelcomeHeader name={name} />
+      <WelcomeHeader name={name} session={session} accounts={accounts ?? []} />
 
       <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-12">
         <div className="lg:col-span-8">
-          <BalanceHero />
+          <BalanceHero accounts={accountCards} />
         </div>
         <div className="lg:col-span-4">
-          <AegisWidget value={99.2} />
+          <AegisWidget />
         </div>
       </section>
 
@@ -48,7 +64,7 @@ function DashboardPage() {
 
       <section className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-12">
         <div className="lg:col-span-8">
-          <TransactionFeed />
+          <TransactionFeed transactions={transactions ?? []} />
         </div>
         <div className="lg:col-span-4">
           <SecurityOverview />

@@ -58,6 +58,7 @@ export type {
   DecisionReplay,
   Device,
   DeviceProfile,
+  FeatureWindow,
   RiskEvent,
 } from "./aegis/aegis.contract";
 
@@ -85,3 +86,61 @@ export type {
   Role,
   Signal,
 } from "./admin/admin.contract";
+
+export type {
+  DashboardService,
+  DashboardSummary,
+  SummaryCard,
+  TrendPoint,
+  TrendSeries,
+  TrendResponse,
+  CategorySlice,
+  AnalyticsResponse,
+  DashboardNotification,
+  NotificationFeed,
+} from "./dashboard/dashboard.contract";
+
+export type {
+  SecurityService,
+  SecurityOverview,
+  SessionTimelineEvent,
+  SessionTimelineResponse,
+  DailySecurityReport,
+  ReportDevice,
+  ReportSummary,
+  RiskEventItem,
+  RiskEventFeed,
+  HourlyBucket,
+  LocationBucket,
+  LoginAnalytics,
+  DeviceHealthItem,
+  DeviceHealthResponse,
+} from "./security/security.contract";
+
+export type {
+  NotificationsService,
+  NotificationItem,
+  NotificationInbox,
+  NotificationPreferences,
+  PreferenceUpdateRequest,
+} from "./notifications/notifications.contract";
+
+export type {
+  AuditService,
+  AuditEntryItem,
+  AuditQueryResponse,
+  AuditSummaryItem,
+  AuditSummaryResponse,
+} from "./audit/audit.contract";
+
+export type { CollectorStatus, BehavioralSessionDump } from "./behavioral/collector";
+export { useBehavioralStatus, useBehavioralExport } from "./behavioral/BehavioralCollectorProvider";
+export {
+  persistSession,
+  getStoredDataset,
+  clearStoredDataset,
+  datasetStats,
+  downloadAsJson,
+  downloadAsCsv,
+  downloadFullDataset,
+} from "./behavioral/export";

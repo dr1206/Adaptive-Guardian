@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Continuous User Authentication Using Behavioral Biometrics — SAD · AI/ML Blueprint · Execution Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-sidebar: #0a0e13;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --border-color: #30363d;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --yellow: #d29922;
+  --red: #f85149;
+  --purple: #a371f7;
+  --code-bg: #0d1117;
+  --table-stripe: #161b22;
+  --shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.4);
+  --card-bg: #161b22;
+  --gradient-hero: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f35 100%);
+  --sidebar-width: 300px;
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-sidebar: #f6f8fa;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --border-color: #d0d7de;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --code-bg: #f6f8fa;
+  --table-stripe: #f6f8fa;
+  --shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.08);
+  --card-bg: #ffffff;
+  --gradient-hero: linear-gradient(135deg, #f6f8fa 0%, #eaeef2 50%, #d8dee4 100%);
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 15px; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ===== Progress Bar ===== */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  z-index: 10000; transition: width 0.1s linear;
+}
+
+/* ===== Sidebar ===== */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+  background: var(--bg-sidebar); border-right: 1px solid var(--border-color);
+  overflow-y: auto; z-index: 1000; display: flex; flex-direction: column;
+  transition: transform 0.3s, background 0.3s;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.25rem; border-bottom: 1px solid var(--border-color);
+  position: sticky; top: 0; background: var(--bg-sidebar); z-index: 2;
+}
+.sidebar-header h2 { font-size: 0.95rem; font-weight: 700; color: var(--accent); letter-spacing: -0.01em; }
+.sidebar-header .sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+.sidebar-nav { flex: 1; padding: 0.75rem 0; }
+.sidebar-nav a {
+  display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.45rem 1.25rem;
+  font-size: 0.8rem; color: var(--text-secondary); text-decoration: none;
+  border-left: 3px solid transparent; transition: all 0.15s; line-height: 1.4;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  color: var(--text-primary); background: var(--bg-tertiary);
+  border-left-color: var(--accent);
+}
+.sidebar-nav a .num { color: var(--accent); font-weight: 600; min-width: 1.3rem; font-size: 0.7rem; }
+
+.sidebar-footer {
+  padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);
+  font-size: 0.7rem; color: var(--text-muted); position: sticky; bottom: 0;
+  background: var(--bg-sidebar);
+}
+
+/* ===== Main Content ===== */
+#main-content {
+  margin-left: var(--sidebar-width); flex: 1; min-width: 0;
+  padding: 3rem 4rem; max-width: 1000px; transition: margin 0.3s;
+}
+
+/* ===== Theme Toggle & Mobile Menu ===== */
+.top-actions {
+  position: fixed; top: 1rem; right: 1.5rem; z-index: 5000; display: flex; gap: 0.5rem;
+}
+.top-actions button {
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  color: var(--text-primary); padding: 0.5rem 0.85rem; border-radius: 8px;
+  cursor: pointer; font-size: 0.82rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;
+}
+.top-actions button:hover { background: var(--bg-secondary); border-color: var(--accent); }
+#menu-toggle { display: none; }
+
+/* ===== Typography ===== */
+h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 0.5rem; }
+h2 { font-size: 1.55rem; font-weight: 700; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); letter-spacing: -0.01em; }
+h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text-primary); }
+h4 { font-size: 1.0rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+p { margin-bottom: 1rem; }
+strong { color: var(--text-primary); font-weight: 600; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+em { color: var(--text-secondary); }
+
+/* ===== Hero Section ===== */
+.hero {
+  background: var(--gradient-hero); border: 1px solid var(--border-color);
+  border-radius: 16px; padding: 2.5rem 3rem; margin-bottom: 3rem;
+  box-shadow: var(--shadow);
+}
+.hero h1 { margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+.hero .meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.hero .badge { display: inline-block; background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 0.15rem 0.6rem; border-radius: 6px; font-size: 0.72rem; color: var(--text-secondary); }
+.hero hr { border: none; border-top: 1px solid var(--border-color); margin: 1.25rem 0; }
+
+/* ===== Tables ===== */
+.table-wrap { overflow-x: auto; margin: 1.25rem 0; border: 1px solid var(--border-color); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead { background: var(--bg-tertiary); }
+th { text-align: left; padding: 0.7rem 1rem; font-weight: 600; font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+td { padding: 0.6rem 1rem; border-top: 1px solid var(--border-color); vertical-align: top; }
+tbody tr:nth-child(even) { background: var(--table-stripe); }
+tbody tr:hover { background: var(--bg-tertiary); }
+
+/* ===== Code Blocks ===== */
+.code-block { position: relative; margin: 1.25rem 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); }
+.code-block pre { margin: 0; padding: 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.55; }
+.code-block code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Consolas, monospace; }
+.code-lang { position: absolute; top: 0.4rem; right: 3.5rem; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; background: var(--bg-tertiary); padding: 0.15rem 0.6rem; border-radius: 4px; z-index: 1; }
+.copy-btn { position: absolute; top: 0.4rem; right: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.2rem 0.55rem; border-radius: 5px; cursor: pointer; font-size: 0.68rem; transition: all 0.15s; z-index: 1; }
+.copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* ===== ASCII Diagrams / Component Trees ===== */
+.ascii-block {
+  background: var(--code-bg); border: 1px solid var(--border-color);
+  border-radius: 10px; padding: 1.25rem; overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.55; margin: 1.25rem 0;
+  white-space: pre; color: var(--text-primary);
+}
+
+/* ===== Mermaid ===== */
+.mermaid-block {
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: 10px; padding: 1.5rem; margin: 1.25rem 0; overflow-x: auto;
+  text-align: center;
+}
+
+/* ===== Lists ===== */
+ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+li { margin-bottom: 0.35rem; }
+li > ul, li > ol { margin-top: 0.3rem; margin-bottom: 0; }
+
+/* ===== Blockquote ===== */
+blockquote {
+  border-left: 3px solid var(--accent); background: var(--bg-secondary);
+  padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: 0 8px 8px 0;
+  color: var(--text-secondary); font-style: italic;
+}
+
+/* ===== Highlight Boxes ===== */
+.info-box {
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.25rem 0;
+  border-left: 3px solid var(--accent);
+}
+.info-box.warn { border-left-color: var(--yellow); }
+.info-box.success { border-left-color: var(--green); }
+.info-box h4 { margin-top: 0; color: var(--text-primary); }
+
+/* ===== Horizontal Rule ===== */
+hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+
+/* ===== Score Badges ===== */
+.score { display: inline-block; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.82rem; }
+.score-high { background: rgba(63,185,80,0.15); color: var(--green); }
+.score-mid { background: rgba(210,153,34,0.15); color: var(--yellow); }
+.score-low { background: rgba(248,81,73,0.15); color: var(--red); }
+
+/* ===== Footer ===== */
+.doc-footer {
+  text-align: center; padding: 3rem 0 1.5rem; margin-top: 3rem;
+  border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted);
+}
+.doc-footer strong { color: var(--text-secondary); }
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  #main-content { padding: 2rem 1.5rem; }
+}
+@media (max-width: 860px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0; padding: 2rem 1.25rem; }
+  #menu-toggle { display: flex; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; }
+  .hero { padding: 1.5rem; }
+  .mermaid-block { padding: 0.75rem; }
+}
+
+/* ===== Print ===== */
+@media print {
+  #sidebar, .top-actions, #progress-bar, .copy-btn, .code-lang { display: none !important; }
+  #main-content { margin-left: 0; padding: 0; max-width: 100%; }
+  body { font-size: 11pt; color: #000; background: #fff; }
+  pre, code { background: #f4f4f4; color: #000; }
+  h2 { page-break-before: always; }
+}
+
+/* ===== Mermaid Overrides ===== */
+.mermaid-block svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h2>Behavioral Biometrics</h2>
+    <div class="sub">SAD · AI/ML Blueprint · Execution Guide</div>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#section-1"><span class="num">1.</span> Project Overview</a>
+    <a href="#section-2"><span class="num">2.</span> Critical Evaluation</a>
+    <a href="#section-3"><span class="num">3.</span> System Architecture</a>
+    <a href="#section-4"><span class="num">4.</span> Core Features & Modules</a>
+    <a href="#section-5"><span class="num">5.</span> Technology Stack</a>
+    <a href="#section-6"><span class="num">6.</span> AI/ML Blueprint</a>
+    <a href="#section-7"><span class="num">7.</span> Database Design</a>
+    <a href="#section-8"><span class="num">8.</span> API Design</a>
+    <a href="#section-9"><span class="num">9.</span> Frontend Design</a>
+    <a href="#section-10"><span class="num">10.</span> Development Roadmap</a>
+    <a href="#section-11"><span class="num">11.</span> Deployment Strategy</a>
+    <a href="#section-12"><span class="num">12.</span> Testing Strategy</a>
+    <a href="#section-13"><span class="num">13.</span> Security</a>
+    <a href="#section-14"><span class="num">14.</span> Folder Structure</a>
+    <a href="#section-15"><span class="num">15.</span> Git Workflow & CI/CD</a>
+    <a href="#section-16"><span class="num">16.</span> Risk Management</a>
+    <a href="#section-17"><span class="num">17.</span> Future Scope</a>
+    <a href="#section-18"><span class="num">18.</span> Deliverables & References</a>
+  </div>
+  <div class="sidebar-footer">Group 17 · Pillai College of Engineering<br>University of Mumbai · 2025–2026</div>
+</nav>
+
+<!-- TOP ACTIONS -->
+<div class="top-actions">
+  <button id="menu-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
+  <button id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <span id="theme-icon">☀️</span> <span id="theme-label">Light</span>
+  </button>
+</div>
+
+<!-- MAIN CONTENT -->
+<main id="main-content">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Adaptive Continuous User Authentication<br>Using Behavioral Biometrics</h1>
+  <p class="subtitle">Software Architecture Document · AI/ML Implementation Blueprint · Technical Execution Guide</p>
+  <hr>
+  <p>
+    <span class="badge">B.Tech Computer Engineering</span>
+    <span class="badge">Major Project · Group 17</span>
+  </p>
+  <p class="meta">
+    <span>Pillai College of Engineering, University of Mumbai</span>
+    <span>2025–2026</span>
+  </p>
+</div>
+
+<!-- ================================================================== -->
+<!-- SECTION 1 -->
+<!-- ================================================================== -->
+<h2 id="section-1">1. Project Overview &amp; Vision</h2>
+
+<h3>1.1 The Problem</h3>
+<p>Traditional authentication (passwords, PINs, OTPs) is a <strong>single-point gate</strong>. Once a user logs in, the system has zero ability to verify that the same legitimate user is still at the keyboard. This creates an enormous attack surface:</p>
+<ul>
+  <li><strong>Session hijacking</strong> — an attacker takes over an already-authenticated session</li>
+  <li><strong>Insider threats</strong> — legitimate credentials used by unauthorized actors</li>
+  <li><strong>Device theft</strong> — post-login device compromise with full session access</li>
+  <li><strong>Coercion</strong> — a legitimate user forced to authenticate under duress</li>
+</ul>
+<p>Identity theft losses reached approximately <strong>USD 43 billion annually</strong> according to industry reports. The fundamental flaw is architectural: authentication happens once, then trust is assumed indefinitely.</p>
+
+<h3>1.2 Our Solution</h3>
+<p>A <strong>Secure Adaptive Multimodal Continuous Authentication System</strong> that silently verifies user identity throughout the entire session by analyzing how they interact with their keyboard and mouse — behavioral patterns that are unique, difficult to forge, and impossible to steal.</p>
+<p>The system extracts behavioral features (keystroke hold time, flight time, typing rhythm, cursor speed, trajectory curvature, click patterns), selects the most discriminative features using mRMR, balances training data with SMOTE, and deploys a hybrid model (LightGBM classifier + One-Class SVM anomaly detector) that continuously scores user behavior against their stored profile. When anomalies are detected, step-up authentication (OTP) is triggered. Critically, the user's behavioral profile <strong>adapts over time</strong> through a sliding-window update mechanism, accommodating natural evolution in typing speed, new keyboards, fatigue, and aging.</p>
+
+<h3>1.3 Scope &amp; Intended Users</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Dimension</th><th>Scope</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Modalities</strong></td><td>Keystroke dynamics + Mouse dynamics (hybrid)</td></tr>
+    <tr><td><strong>Delivery</strong></td><td>Web-based application (browser-accessible)</td></tr>
+    <tr><td><strong>Environment</strong></td><td>Desktop/laptop users with standard keyboard + mouse</td></tr>
+    <tr><td><strong>Primary Domains</strong></td><td>Online banking, enterprise systems, secure web portals</td></tr>
+    <tr><td><strong>ML Models</strong></td><td>LightGBM (supervised) + One-Class SVM (anomaly detection)</td></tr>
+    <tr><td><strong>Adaptivity</strong></td><td>Sliding-window profile update with periodic model retraining</td></tr>
+    <tr><td><strong>Explainability</strong></td><td>SHAP values for audit-ready authentication decisions</td></tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 2 -->
+<!-- ================================================================== -->
+<h2 id="section-2">2. Critical Evaluation: FinTech Implementation vs Alternatives</h2>
+
+<h3>2.1 Decision Matrix</h3>
+<p>The implementation domain must be selected against nine weighted criteria. Each domain is scored 1–10 and weighted by importance.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Criteria</th><th>Weight</th><th>FinTech Web App</th><th>Enterprise SSO</th><th>Desktop Agent</th><th>Mobile Banking</th><th>Academic Demo</th></tr></thead>
+  <tbody>
+    <tr><td>Innovation</td><td>0.15</td><td class="score-high"><strong>9</strong></td><td>7</td><td>6</td><td>8</td><td>5</td></tr>
+    <tr><td>Industry Relevance</td><td>0.15</td><td class="score-high"><strong>10</strong></td><td>9</td><td>5</td><td>8</td><td>4</td></tr>
+    <tr><td>AI/ML Complexity</td><td>0.15</td><td>8</td><td>7</td><td>7</td><td>8</td><td class="score-high"><strong>9</strong></td></tr>
+    <tr><td>Resume Value</td><td>0.12</td><td class="score-high"><strong>10</strong></td><td>8</td><td>5</td><td>7</td><td>4</td></tr>
+    <tr><td>Research Alignment</td><td>0.10</td><td>8</td><td>7</td><td>6</td><td>8</td><td class="score-high"><strong>10</strong></td></tr>
+    <tr><td>Scalability</td><td>0.10</td><td class="score-high"><strong>9</strong></td><td class="score-high">9</td><td>4</td><td>7</td><td>6</td></tr>
+    <tr><td>Practical Deployment</td><td>0.08</td><td class="score-high"><strong>9</strong></td><td>8</td><td>5</td><td>7</td><td>3</td></tr>
+    <tr><td>Future Expansion</td><td>0.08</td><td class="score-high"><strong>9</strong></td><td>8</td><td>5</td><td>7</td><td>6</td></tr>
+    <tr><td>Ease of Demo</td><td>0.07</td><td class="score-high"><strong>9</strong></td><td>6</td><td>6</td><td>7</td><td class="score-high">9</td></tr>
+    <tr style="font-weight:700"><td>Weighted Total</td><td>1.00</td><td class="score-high"><strong>9.15</strong></td><td>7.67</td><td>5.52</td><td>7.53</td><td>6.12</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>2.2 Analysis</h3>
+<div class="info-box success">
+  <h4>FinTech Web Application (Score: 9.15/10) — RECOMMENDED</h4>
+  <p>The FinTech domain is the optimal delivery vehicle for six reasons:</p>
+</div>
+<ol>
+  <li><strong>Natural behavioral signal richness.</strong> Banking workflows involve both heavy typing (beneficiary names, amounts, passwords, notes) and dense mouse interaction (navigation, form-filling). Dual-modality richness for high-confidence authentication.</li>
+  <li><strong>Security expectations align.</strong> FinTech users expect and tolerate security friction (OTP challenges, session timeouts). Anomaly-triggered re-authentication operates without harming UX.</li>
+  <li><strong>Regulatory tailwinds.</strong> RBI guidelines, PSD2/SCA in Europe, and FFIEC guidance push toward continuous risk-based authentication.</li>
+  <li><strong>Clear demo narrative.</strong> "A banking session where the system silently verifies the user and only challenges when behavior deviates."</li>
+  <li><strong>Resume differentiation.</strong> A FinTech security product with behavioral ML and SHAP explainability is a strong portfolio piece.</li>
+  <li><strong>Scale path.</strong> Containerized, cloud-deployable, and demonstrable with real user data — production-grade by design.</li>
+</ol>
+
+<p><strong>Why not the alternatives:</strong></p>
+<ul>
+  <li><strong>Enterprise SSO:</strong> Requires integration with identity providers (Okta, Azure AD), adding deployment complexity.</li>
+  <li><strong>Standalone Desktop Agent:</strong> Native OS listeners are harder to demonstrate and limit cross-platform reach.</li>
+  <li><strong>Mobile Banking App:</strong> Mobile behavioral biometrics is a different research track (sensor-based). Our literature foundation is desktop-focused.</li>
+  <li><strong>Academic Demo Portal:</strong> Sacrifices industry relevance and resume value.</li>
+</ul>
+
+<h3>2.3 Recommended Execution</h3>
+<p>Build the system as a <strong>FinTech Web Application</strong> — a realistic banking dashboard (accounts, transfers, transaction history, beneficiary management) that embeds behavioral data collection transparently. The core deliverable is the continuous authentication engine; the banking UI is the vehicle, not the product.</p>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 3 -->
+<!-- ================================================================== -->
+<h2 id="section-3">3. System Architecture</h2>
+
+<h3>3.1 High-Level Architecture</h3>
+<div class="mermaid-block"><pre class="mermaid">
+graph TB
+    subgraph Client["🖥 Browser (Client-Side)"]
+        UI["FinTech Dashboard UI"]
+        BDC["Behavioral Data Collector&lt;br/&gt;Key Events + Mouse Events"]
+        WSB["WebSocket Bridge&lt;br/&gt;Batched Event Streaming"]
+    end
+    subgraph API["⚙ Application Layer"]
+        GW["API Gateway&lt;br/&gt;Rate Limiting · JWT Validation"]
+        AUTH["Auth Controller&lt;br/&gt;Login · OTP · Session Mgmt"]
+        COLL["Collection Controller&lt;br/&gt;Event Ingestion · Validation"]
+        SCORING["Scoring Controller&lt;br/&gt;Real-Time Auth Decisions"]
+    end
+    subgraph ML["🧠 ML Inference Pipeline"]
+        FE["Feature Extractor&lt;br/&gt;Keystroke + Mouse Features"]
+        MRMR["mRMR Selector&lt;br/&gt;Top-36 Features"]
+        LGBM["LightGBM Classifier&lt;br/&gt;Genuine vs Impostor"]
+        OCSVM["One-Class SVM&lt;br/&gt;Anomaly Detector"]
+        SHAP["SHAP Explainer&lt;br/&gt;Decision Attribution"]
+        FUSION["Score Fusion&lt;br/&gt;Weighted Ensemble"]
+    end
+    subgraph STORE["💾 Data Layer"]
+        MongoDB["MongoDB&lt;br/&gt;Event Store · Profiles"]
+        Redis["Redis&lt;br/&gt;Cache · Rate Limits · OTP"]
+        MINIO["MinIO / S3&lt;br/&gt;Model Artifacts"]
+    end
+    subgraph TRAIN["📊 Offline Training Pipeline"]
+        PREP["Data Preparation"]
+        SMOTE["SMOTE Resampler"]
+        TRAINER["Model Trainer&lt;br/&gt;LGBM + OCSVM"]
+        EVAL["Evaluator"]
+    end
+    UI --> BDC --> WSB
+    WSB -- "WSS (TLS)" --> GW
+    GW --> AUTH & COLL & SCORING
+    COLL --> MongoDB & Redis
+    SCORING --> FE --> MRMR --> LGBM & OCSVM
+    LGBM & OCSVM --> FUSION --> SHAP
+    FUSION -- "Score + Verdict" --> SCORING
+    MongoDB --> PREP --> SMOTE --> TRAINER --> EVAL
+    TRAINER -- "model.pkl" --> MINIO
+    MINIO -- "Load" --> LGBM & OCSVM
+</pre></div>
+
+<h3>3.2 Data Flow: Authentication Lifecycle</h3>
+<div class="mermaid-block"><pre class="mermaid">
+sequenceDiagram
+    participant U as 👤 User Browser
+    participant C as Collector.js
+    participant W as WebSocket Server
+    participant API as API Gateway
+    participant ML as ML Pipeline
+    participant DB as MongoDB
+    participant R as Redis
+    Note over U,R: Phase 1: Initial Login
+    U->>API: POST /auth/login
+    API->>DB: Validate credentials
+    API->>R: Create session (JWT)
+    API-->>U: JWT + Start Collection
+    Note over U,R: Phase 2: Continuous Monitoring
+    loop Every 60s Window
+        C->>C: Collect events
+        C->>W: Batch events
+        W->>API: POST /events/batch
+        API->>ML: Extract → Score
+        ML-->>API: {score, shap}
+        alt Score > Threshold
+            API-->>U: Silent continue
+            API->>DB: Update profile
+        else Score <= Threshold
+            API-->>U: OTP Challenge
+            U->>API: Verify OTP
+            API-->>U: Restored / Terminated
+        end
+    end
+    Note over U,R: Phase 3: Periodic Retraining
+    DB->>ML: Pull high-confidence windows
+    ML->>ML: Incremental retrain
+    ML->>DB: Store updated model
+</pre></div>
+
+<h3>3.3 Component Architecture</h3>
+<p>The system follows a <strong>modular microservices-lite</strong> architecture:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>Client</td><td>React 18 + TypeScript</td><td>FinTech dashboard; embeds behavioral collectors</td></tr>
+    <tr><td>API Gateway</td><td>FastAPI (Python 3.11+)</td><td>Route requests, validate JWTs, rate limiting</td></tr>
+    <tr><td>WebSocket Server</td><td>FastAPI WebSocket</td><td>Receive batched behavioral event streams</td></tr>
+    <tr><td>ML Inference</td><td>scikit-learn + lightgbm</td><td>Real-time feature extraction, scoring, SHAP</td></tr>
+    <tr><td>Model Training</td><td>Python scripts (offline)</td><td>Data prep, SMOTE, training, evaluation</td></tr>
+    <tr><td>Primary DB</td><td>MongoDB 7</td><td>Event store, user profiles, feature vectors</td></tr>
+    <tr><td>Cache</td><td>Redis 7</td><td>Session state, OTP store, rate limit counters</td></tr>
+    <tr><td>Object Store</td><td>MinIO (dev) / S3 (prod)</td><td>Serialized models, SHAP reports</td></tr>
+    <tr><td>Message Queue</td><td>Redis Streams</td><td>Decouple event ingestion from scoring</td></tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 4 -->
+<!-- ================================================================== -->
+<h2 id="section-4">4. Core Features &amp; Modules</h2>
+
+<h3>4.1 Feature Catalogue</h3>
+<h4>Phase 1 — User Enrollment &amp; Profile Creation</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Account Registration</td><td>Email + password signup; initial behavioral profiling during onboarding</td></tr>
+    <tr><td>Baseline Collection</td><td>3–5 minute guided typing + mouse task during registration</td></tr>
+    <tr><td>Profile Storage</td><td>Feature vector template stored in MongoDB; model trained per-user</td></tr>
+    <tr><td>Minimum Viable Profile</td><td>System enforces minimum 120+ keystrokes and 60+ mouse movements</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Phase 2 — FinTech Dashboard Features (The Vehicle)</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Account Overview</td><td>Balance display, recent transactions (natural mouse movement)</td></tr>
+    <tr><td>Fund Transfer</td><td>Beneficiary selection, amount entry — dense typing + mouse</td></tr>
+    <tr><td>Transaction History</td><td>Paginated list with filters — sustained scrolling and clicking</td></tr>
+    <tr><td>Beneficiary Management</td><td>Add/edit/delete — typing names, account numbers, IFSC codes</td></tr>
+    <tr><td>Profile Settings</td><td>User preferences — varied interaction patterns</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Phase 3 — Continuous Authentication Engine (The Core)</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Silent Behavioral Collection</td><td>JavaScript event listeners: keydown/keyup timestamps, mouse x/y, clicks</td></tr>
+    <tr><td>Sliding Window Segmentation</td><td>60-second windows with 50% overlap → feature vector</td></tr>
+    <tr><td>mRMR Feature Selection</td><td>Online selection of top-36 features from ~120 extracted</td></tr>
+    <tr><td>LightGBM Classification</td><td>Real-time genuine vs impostor probability</td></tr>
+    <tr><td>One-Class SVM Detection</td><td>Anomaly score from deviation against "normal behavior" hypersphere</td></tr>
+    <tr><td>Score Fusion</td><td><code>final = 0.6 × LGBM_prob + 0.4 × (1 − OCSVM_anomaly)</code></td></tr>
+    <tr><td>SHAP Explainability</td><td>Per-decision waterfall — which features drove the decision</td></tr>
+    <tr><td>Threshold-Based Action</td><td>≥0.85 = pass · 0.60−0.85 = warn · <0.60 = OTP challenge</td></tr>
+    <tr><td>Adaptive Profile Update</td><td>High-confidence windows (≥0.90) appended; oldest retired</td></tr>
+    <tr><td>Periodic Retraining</td><td>Models retrained every N hours or after M new windows</td></tr>
+    <tr><td>Admin Dashboard</td><td>Session monitoring, anomaly logs, SHAP viz, FAR/FRR trends</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>4.2 Feature Prioritization (MoSCoW)</h3>
+
+<div class="info-box success"><h4>Must Have (MVP)</h4>
+<ul>
+  <li>Behavioral data collection (keystroke + mouse) via browser JavaScript</li>
+  <li>Sliding window segmentation · Feature extraction (HT, DD, UD, flight time, cursor speed, trajectory, click patterns)</li>
+  <li>LightGBM + One-Class SVM classifiers · Score fusion and threshold-based decision</li>
+  <li>Re-authentication trigger (OTP challenge) · Basic FinTech UI</li>
+  <li>User registration with baseline behavioral profiling</li>
+</ul></div>
+
+<div class="info-box"><h4>Should Have</h4>
+<ul>
+  <li>mRMR online selection · SHAP explainability dashboard · Adaptive profile update</li>
+  <li>Periodic retraining · Admin monitoring dashboard · Redis caching · WebSocket event streaming</li>
+</ul></div>
+
+<div class="info-box warn"><h4>Could Have</h4>
+<ul>
+  <li>SMOTE in online pipeline · Model A/B testing · Multi-device profiles</li>
+  <li>Exportable audit logs · Docker Compose one-command deployment</li>
+</ul></div>
+
+<p><strong>Won't Have (Phase 1):</strong> Mobile/touchscreen auth · Homomorphic encryption · Acoustic keystroke analysis (SoundAuth) · LLM-based coercion detection · Gait analysis</p>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 5 -->
+<!-- ================================================================== -->
+<h2 id="section-5">5. Technology Stack</h2>
+
+<h3>5.1 Complete Stack Matrix</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Version</th><th>Justification</th></tr></thead>
+  <tbody>
+    <tr><td>Frontend Framework</td><td>React + TypeScript</td><td>18.x / 5.x</td><td>Industry standard; type safety</td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS</td><td>3.x</td><td>Utility-first; rapid development; responsive</td></tr>
+    <tr><td>State Management</td><td>Zustand</td><td>4.x</td><td>Lightweight; simpler than Redux</td></tr>
+    <tr><td>HTTP Client</td><td>Axios</td><td>1.x</td><td>JWT interceptors; request cancellation</td></tr>
+    <tr><td>WebSocket Client</td><td>Native API</td><td>—</td><td>Zero-dependency event streaming</td></tr>
+    <tr><td>Charts</td><td>Recharts</td><td>2.x</td><td>React-native; SHAP visualization</td></tr>
+    <tr><td>Backend Framework</td><td>FastAPI</td><td>0.110+</td><td>Async-native; auto OpenAPI docs; WebSocket</td></tr>
+    <tr><td>WSGI/ASGI</td><td>Uvicorn + Gunicorn</td><td>0.30+</td><td>Production-grade async serving</td></tr>
+    <tr><td>Auth</td><td>python-jose + passlib</td><td>—</td><td>JWT + bcrypt hashing</td></tr>
+    <tr><td>ML: Classifier</td><td>LightGBM</td><td>4.x</td><td>94.68% accuracy; histogram-based; fast</td></tr>
+    <tr><td>ML: Anomaly</td><td>scikit-learn (OneClassSVM)</td><td>1.5+</td><td>RBF kernel for behavioral boundaries</td></tr>
+    <tr><td>ML: Feature Select</td><td>mrmr-selection (custom)</td><td>—</td><td>Peng et al. 2005 algorithm</td></tr>
+    <tr><td>ML: Balancing</td><td>imbalanced-learn (SMOTE)</td><td>0.12+</td><td>Class imbalance mitigation</td></tr>
+    <tr><td>ML: Explainability</td><td>SHAP</td><td>0.44+</td><td>TreeExplainer + KernelExplainer</td></tr>
+    <tr><td>Data Processing</td><td>NumPy + Pandas</td><td>1.26+ / 2.x</td><td>Feature engineering</td></tr>
+    <tr><td>Primary DB</td><td>MongoDB</td><td>7.x</td><td>Flexible schema for heterogeneous events</td></tr>
+    <tr><td>Cache / MQ</td><td>Redis</td><td>7.x</td><td>Session caching; rate limiting; streams</td></tr>
+    <tr><td>Object Store</td><td>MinIO</td><td>Latest</td><td>S3-compatible; dev-to-prod path</td></tr>
+    <tr><td>Containerization</td><td>Docker + Compose</td><td>25+</td><td>Reproducible; one-command setup</td></tr>
+    <tr><td>CI/CD</td><td>GitHub Actions</td><td>—</td><td>Free; matrix testing</td></tr>
+    <tr><td>Code Quality</td><td>Ruff + mypy + pytest</td><td>—</td><td>Modern Python tooling</td></tr>
+    <tr><td>Frontend Tooling</td><td>Vite</td><td>5.x</td><td>Fast dev; optimized builds</td></tr>
+    <tr><td>Monitoring</td><td>Prometheus + Grafana</td><td>—</td><td>ML metrics + system health</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>5.2 Why This Stack</h3>
+<p><strong>FastAPI over Flask/Django:</strong> The project report mentions Flask, but FastAPI offers native async (critical for WebSocket streaming), automatic OpenAPI docs, and better concurrent event-ingestion performance.</p>
+<p><strong>MongoDB over PostgreSQL:</strong> Behavioral event data is heterogeneous — keystroke events differ from mouse events. MongoDB's flexible document model naturally accommodates this without complex EAV tables.</p>
+<p><strong>Why NOT TensorFlow/PyTorch:</strong> Literature shows gradient-boosted trees and kernel methods match or exceed deep learning for tabular behavioral features with smaller datasets (~50 users, ~20K samples). Deep learning adds complexity and GPU dependency without proportional gains at this scale.</p>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 6 -->
+<!-- ================================================================== -->
+<h2 id="section-6">6. AI/ML Implementation Blueprint</h2>
+
+<h3>6.1 Feature Engineering</h3>
+<h4>6.1.1 Keystroke Features (per window)</h4>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python"># Feature extraction from raw keystroke events within a 60s window
+KEYSTROKE_FEATURES = {
+    # Hold Time (HT) — duration a key remains pressed
+    "ht_mean": "Mean hold time across all keys",
+    "ht_std": "Standard deviation of hold times",
+    "ht_median": "Median hold time",
+    "ht_min": "Minimum hold time",
+    "ht_max": "Maximum hold time",
+
+    # Flight Time / Down-Down (DD) — time between pressing consecutive keys
+    "dd_mean": "Mean down-down latency",
+    "dd_std": "Standard deviation of down-down latency",
+
+    # Up-Down (UD) — time between releasing one key and pressing the next
+    "ud_mean": "Mean up-down latency",
+    "ud_std": "Standard deviation of up-down latency",
+
+    # Typing Rate
+    "typing_speed": "Characters per minute (CPM)",
+    "typing_bursts": "Rapid-fire key sequences (>5 keys/sec)",
+
+    # Error Patterns
+    "backspace_rate": "Backspace events / total key events",
+    "delete_rate": "Delete events / total key events",
+    "correction_latency_mean": "Mean time from typo to backspace",
+
+    # Digraph Specific (th, he, in, er, an, on, at, en, nd, ti, es, or)
+    "digraph_ht_ratio": "Hold time ratio for known digraph pairs",
+    "digraph_dd_mean": "Mean DD for specific digraphs",
+
+    # Rhythm
+    "rhythm_regularity": "CV of inter-key intervals",
+    "pause_count": "Pauses > 500ms within window",
+    "pause_duration_mean": "Mean pause duration",
+}</code></pre></div>
+
+<h4>6.1.2 Mouse Features (per window)</h4>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">MOUSE_FEATURES = {
+    # Velocity
+    "velocity_mean": "Mean cursor speed (pixels/sec)",
+    "velocity_std": "Std dev of speed",
+    "velocity_max": "Maximum speed in window",
+
+    # Acceleration & Jerk
+    "acceleration_mean": "Mean rate of speed change",
+    "jerk_mean": "Mean jerk (smoothness indicator)",
+
+    # Trajectory Geometry
+    "straightness_mean": "Displacement / path length (1 = straight)",
+    "angle_of_curvature_mean": "Mean angle between movement vectors",
+
+    # Click Behavior
+    "click_rate": "Clicks per minute",
+    "click_duration_mean": "Mean button press duration",
+    "double_click_speed": "Mean interval between double-clicks",
+    "right_click_ratio": "Right-click / total clicks",
+
+    # Movement Patterns
+    "idle_time_ratio": "Fraction with no movement",
+    "movement_episodes": "Distinct movement bursts",
+    "x_displacement": "Net horizontal displacement",
+    "y_displacement": "Net vertical displacement",
+    "path_length": "Total cursor travel distance",
+
+    # Scroll
+    "scroll_events": "Number of scroll events",
+    "scroll_speed_mean": "Mean scroll speed",
+}</code></pre></div>
+<p><strong>Total raw features per window: ~120</strong> (60 keystroke + 60 mouse)</p>
+
+<h3>6.2 mRMR Feature Selection</h3>
+<p>Reduces ~120 extracted features to <strong>36 most discriminative features</strong>.</p>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">import numpy as np
+from sklearn.feature_selection import mutual_info_classif
+
+def mrmr_feature_selection(X, y, k=36):
+    """Min Redundancy Max Relevance — selects k best features."""
+    n_features = X.shape[1]
+    remaining = set(range(n_features))
+    selected = []
+    mi_scores = mutual_info_classif(X, y, random_state=42)
+    first = np.argmax(mi_scores)
+    selected.append(first); remaining.remove(first)
+
+    for _ in range(k - 1):
+        best_score, best_feature = -np.inf, None
+        for f in remaining:
+            relevance = mi_scores[f]
+            redundancy = np.mean([
+                np.abs(np.corrcoef(X[:, f], X[:, s])[0, 1])
+                for s in selected
+            ])
+            score = relevance - redundancy
+            if score > best_score:
+                best_score, best_feature = score, f
+        selected.append(best_feature)
+        remaining.remove(best_feature)
+    return selected</code></pre></div>
+<p><strong>Why 36:</strong> Wang & Hou (2024) and Krishnamoorthy et al. (2018) found ~30–40 features represent the knee of the relevance-redundancy curve.</p>
+
+<h3>6.3 Handling Class Imbalance with SMOTE</h3>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">from imblearn.over_sampling import SMOTE
+from collections import Counter
+
+def balance_dataset(X, y, random_state=42):
+    print(f"Before SMOTE: {Counter(y)}")  # e.g., {0: 50, 1: 2200}
+    smote = SMOTE(sampling_strategy='auto', k_neighbors=5, random_state=random_state)
+    X_bal, y_bal = smote.fit_resample(X, y)
+    print(f"After SMOTE:  {Counter(y_bal)}")  # {0: 2200, 1: 2200}
+    return X_bal, y_bal</code></pre></div>
+
+<h3>6.4 Model Architecture</h3>
+<h4>6.4.1 LightGBM Classifier ("The Discriminator")</h4>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">import lightgbm as lgb
+
+def train_lightgbm(X_train, y_train, X_val, y_val):
+    params = {
+        'objective': 'binary', 'metric': 'binary_logloss',
+        'boosting_type': 'gbdt', 'num_leaves': 31,
+        'learning_rate': 0.05, 'feature_fraction': 0.8,
+        'bagging_fraction': 0.8, 'bagging_freq': 5,
+        'min_data_in_leaf': 20, 'lambda_l1': 0.1,
+        'lambda_l2': 0.1, 'seed': 42, 'verbose': -1,
+    }
+    train_data = lgb.Dataset(X_train, label=y_train)
+    val_data = lgb.Dataset(X_val, label=y_val, reference=train_data)
+    model = lgb.train(params, train_data, num_boost_round=500,
+        valid_sets=[val_data],
+        callbacks=[lgb.early_stopping(30), lgb.log_evaluation(50)])
+    return model</code></pre></div>
+<p><strong>Expected performance:</strong> Accuracy <span class="score score-high">94.68%</span> · F1-Score <span class="score score-high">~0.94</span> · AUC-ROC <span class="score score-high">~0.98</span></p>
+
+<h4>6.4.2 One-Class SVM ("The Gatekeeper")</h4>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">from sklearn.svm import OneClassSVM
+from sklearn.preprocessing import StandardScaler
+
+def train_ocsvm(X_genuine_only, nu=0.05, gamma='scale'):
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X_genuine_only)
+    model = OneClassSVM(kernel='rbf', nu=nu, gamma=gamma, tol=1e-3)
+    model.fit(X_scaled)
+    return model, scaler</code></pre></div>
+
+<h4>How They Work Together</h4>
+<div class="ascii-block">                  ┌─────────────────────────┐
+                  │   Raw Behavioral Events   │
+                  └───────────┬───────────────┘
+                              │
+                  ┌───────────▼───────────────┐
+                  │  Feature Extraction        │
+                  │  (~120 features per 60s)   │
+                  └───────────┬───────────────┘
+                              │
+                  ┌───────────▼───────────────┐
+                  │  mRMR Selector (top-36)   │
+                  └───────────┬───────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              │                               │
+    ┌─────────▼──────────┐      ┌────────────▼──────────┐
+    │  LightGBM           │      │  One-Class SVM         │
+    │  "Discriminator"    │      │  "Gatekeeper"          │
+    │  Output: P(genuine) │      │  Output: anomaly_score │
+    └─────────┬───────────┘      └────────────┬───────────┘
+              │                               │
+              └───────────────┬───────────────┘
+                              │
+                  ┌───────────▼───────────────┐
+                  │  Fusion Layer              │
+                  │  score = 0.6*P +           │
+                  │          0.4*norm(anomaly)  │
+                  └───────────┬───────────────┘
+                              │
+                  ┌───────────▼───────────────┐
+                  │  Decision                  │
+                  │  ≥ 0.85 → PASS            │
+                  │  0.60–0.85 → WARN + log   │
+                  │  < 0.60 → OTP Challenge   │
+                  └───────────────────────────┘</div>
+
+<h3>6.5 SHAP Explainability</h3>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">import shap
+
+def explain_decision(model, X_window, feature_names):
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_window)
+    shap.waterfall_plot(shap.Explanation(
+        values=shap_values[1][0],
+        base_values=explainer.expected_value[1],
+        data=X_window[0], feature_names=feature_names
+    ))
+    # → "Hold time variance contributed +0.12 to genuine score;
+    #    typing speed deviation contributed -0.08"</code></pre></div>
+<p>SHAP answers <em>why</em> a user was flagged — critical for audit trails and regulatory compliance.</p>
+
+<h3>6.6 Adaptive Profile Update</h3>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">class AdaptiveProfileManager:
+    def __init__(self, max_windows=500, retrain_interval=100):
+        self.profile_windows = deque(maxlen=max_windows)
+        self.retrain_counter = 0
+        self.retrain_interval = retrain_interval
+
+    def add_window(self, feature_vector, confidence_score, threshold=0.90):
+        if confidence_score >= threshold:
+            self.profile_windows.append(feature_vector)
+            self.retrain_counter += 1
+
+    def should_retrain(self):
+        return self.retrain_counter >= self.retrain_interval
+
+    def get_training_data(self):
+        return np.array(self.profile_windows)</code></pre></div>
+
+<h3>6.7 Model Persistence &amp; Versioning</h3>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">import joblib
+from datetime import datetime, timezone
+
+def save_model_artifact(lgbm, ocsvm, scaler, selector, metadata):
+    version = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    artifact = {
+        "version": version, "lightgbm": lgbm, "ocsvm": ocsvm,
+        "scaler": scaler, "mrmr_selector": selector,
+        "metadata": {**metadata, "created_at": datetime.now(timezone.utc).isoformat()}
+    }
+    joblib.dump(artifact, f"models/auth_model_v{version}.joblib")
+    return version</code></pre></div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 7 -->
+<!-- ================================================================== -->
+<h2 id="section-7">7. Database Design</h2>
+
+<h3>7.1 MongoDB Collections</h3>
+<h4><code>users</code></h4>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "_id": "ObjectId", "email": "user@example.com",
+  "password_hash": "$2b$12$...", "full_name": "John Doe",
+  "created_at": "ISODate", "is_active": true,
+  "behavioral_profile": {
+    "baseline_complete": true, "baseline_samples": 180,
+    "model_version": "20260215_143022",
+    "last_profile_update": "ISODate", "profile_windows_count": 450
+  },
+  "auth_config": {
+    "threshold_high": 0.85, "threshold_warn": 0.60,
+    "window_size_sec": 60, "reauth_method": "otp"
+  }
+}</code></pre></div>
+
+<h4><code>behavioral_events</code></h4>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "_id": "ObjectId", "user_id": "ObjectId",
+  "session_id": "uuid", "window_id": "uuid",
+  "window_start": "ISODate", "window_end": "ISODate",
+  "keystroke_events": [{
+    "key": "a", "press_time": 1769103586.86,
+    "release_time": 1769103587.04, "hold_time": 0.180
+  }],
+  "mouse_events": [{
+    "x": 941, "y": 847, "timestamp": 1769103583.70,
+    "speed": 11536.37, "event_type": "move"
+  }],
+  "features": { "ht_mean": 0.095, "velocity_mean": 2543.2 },
+  "scores": {
+    "lightgbm_score": 0.92, "ocsvm_score": 0.88,
+    "fused_score": 0.904, "verdict": "pass"
+  }
+}</code></pre></div>
+
+<h4><code>auth_decisions</code></h4>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "_id": "ObjectId", "user_id": "ObjectId",
+  "fused_score": 0.58, "verdict": "challenge",
+  "challenge_type": "otp", "challenge_result": "passed",
+  "shap_explanation": {
+    "top_features": [
+      {"feature": "ht_std", "contribution": -0.15},
+      {"feature": "typing_speed", "contribution": -0.09}
+    ]
+  }
+}</code></pre></div>
+
+<h4><code>model_artifacts</code></h4>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "_id": "ObjectId", "user_id": "ObjectId",
+  "version": "20260215_143022",
+  "file_path": "models/auth_model_v20260215_143022.joblib",
+  "metrics": { "f1_score": 0.94, "eer": 0.035, "auc_roc": 0.978 },
+  "training_config": {
+    "samples_used": 450, "features_used": 36,
+    "smote_applied": true, "lgbm_num_leaves": 31
+  }
+}</code></pre></div>
+
+<h3>7.2 Redis Key Schema</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Key Pattern</th><th>Type</th><th>TTL</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>session:{id}</code></td><td>Hash</td><td>30 min</td><td>Active session metadata</td></tr>
+    <tr><td><code>otp:{user_id}</code></td><td>String</td><td>5 min</td><td>OTP for re-auth</td></tr>
+    <tr><td><code>otp_rate:{user_id}</code></td><td>String</td><td>1 min</td><td>OTP rate limit counter</td></tr>
+    <tr><td><code>window_buffer:{id}</code></td><td>List</td><td>2 min</td><td>Accumulating current window</td></tr>
+    <tr><td><code>profile_lock:{uid}</code></td><td>String</td><td>10 sec</td><td>Distributed lock during update</td></tr>
+    <tr><td><code>rate_limit:{ip}</code></td><td>String</td><td>1 min</td><td>API rate limit counter</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>7.3 Indexing Strategy</h3>
+<div class="code-block"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-javascript">db.behavioral_events.createIndex({ "user_id": 1, "window_start": -1 });
+db.behavioral_events.createIndex({ "session_id": 1 });
+db.behavioral_events.createIndex({ "scores.verdict": 1, "created_at": -1 });
+db.auth_decisions.createIndex({ "user_id": 1, "timestamp": -1 });
+db.auth_decisions.createIndex({ "verdict": 1, "timestamp": -1 });
+db.users.createIndex({ "email": 1 }, { unique: true });</code></pre></div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 8 -->
+<!-- ================================================================== -->
+<h2 id="section-8">8. API Design</h2>
+
+<h3>8.1 REST API Endpoints</h3>
+
+<h4>Authentication</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+  <tbody>
+    <tr><td><code>POST</code></td><td><code>/api/v1/auth/register</code></td><td>Create account; trigger baseline collection</td><td>None</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/auth/login</code></td><td>Email + password → JWT</td><td>None</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/auth/verify-otp</code></td><td>Submit OTP for re-authentication</td><td>JWT</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/auth/logout</code></td><td>Invalidate session</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/auth/session-status</code></td><td>Current auth score; session health</td><td>JWT</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Behavioral Data</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+  <tbody>
+    <tr><td><code>WS</code></td><td><code>/ws/events/{session_id}</code></td><td>WebSocket event streaming</td><td>JWT</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/events/batch</code></td><td>REST fallback: submit window</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/events/summary</code></td><td>Behavioral stats summary</td><td>JWT</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Scores &amp; Decisions</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+  <tbody>
+    <tr><td><code>GET</code></td><td><code>/api/v1/scores/current</code></td><td>Latest score + SHAP</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/scores/history</code></td><td>Score timeline (paginated)</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/scores/shap/{id}</code></td><td>Detailed SHAP report</td><td>JWT</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Admin</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+  <tbody>
+    <tr><td><code>GET</code></td><td><code>/api/v1/admin/users</code></td><td>List users with auth metrics</td><td>Admin</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/admin/user/{id}</code></td><td>Detailed user + model info</td><td>Admin</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/admin/anomalies</code></td><td>Recent anomaly/challenge log</td><td>Admin</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/admin/retrain/{uid}</code></td><td>Trigger manual retraining</td><td>Admin</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/admin/metrics</code></td><td>Global FAR/FRR/EER dashboard</td><td>Admin</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>FinTech (The Vehicle)</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+  <tbody>
+    <tr><td><code>GET</code></td><td><code>/api/v1/accounts</code></td><td>User's bank accounts</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/accounts/{id}/transactions</code></td><td>Transaction history</td><td>JWT</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/transfers</code></td><td>Initiate fund transfer</td><td>JWT</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/v1/beneficiaries</code></td><td>List beneficiaries</td><td>JWT</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/v1/beneficiaries</code></td><td>Add beneficiary</td><td>JWT</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>8.2 WebSocket Protocol</h3>
+<p><strong>Client → Server (event batch):</strong></p>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "type": "event_batch", "session_id": "uuid", "window_id": "uuid",
+  "window_start": 1769103583.0, "window_end": 1769103643.0,
+  "keystroke_events": [
+    {"key": "a", "press_time": 1769103586.86, "release_time": 1769103587.04}
+  ],
+  "mouse_events": [
+    {"x": 941, "y": 847, "timestamp": 1769103583.70, "speed": 11536.37}
+  ]
+}</code></pre></div>
+
+<p><strong>Server → Client (verdict):</strong></p>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "type": "auth_verdict", "window_id": "uuid",
+  "verdict": "pass", "fused_score": 0.92,
+  "lightgbm_score": 0.94, "ocsvm_score": 0.89
+}</code></pre></div>
+
+<p><strong>Server → Client (challenge):</strong></p>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{
+  "type": "auth_challenge", "fused_score": 0.52,
+  "reason": "Behavioral deviation detected",
+  "challenge_type": "otp", "challenge_id": "uuid"
+}</code></pre></div>
+
+<h3>8.3 Common Response Envelope</h3>
+<div class="code-block"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-json">{"status":"success","data":{},"meta":{"timestamp":"2026-02-15T14:30:22Z","request_id":"uuid"}}
+{"status":"error","error":{"code":"AUTH_CHALLENGE_REQUIRED","message":"Behavioral anomaly detected; OTP verification required","challenge_id":"uuid"}}</code></pre></div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 9 -->
+<!-- ================================================================== -->
+<h2 id="section-9">9. Frontend Design</h2>
+
+<h3>9.1 Component Tree</h3>
+<div class="ascii-block">App
+├── AuthLayout
+│   ├── LoginPage
+│   ├── RegisterPage
+│   │   └── BaselineCollectionWizard    ← Guided typing + mouse tasks
+│   └── OTPChallengeModal               ← Triggered on anomaly
+│
+├── DashboardLayout
+│   ├── Sidebar (UserInfo + Navigation)
+│   ├── TopBar
+│   │   ├── AuthStatusIndicator         ← Green/yellow/red + score
+│   │   └── SessionTimer
+│   └── PageContent
+│       ├── AccountOverviewPage
+│       ├── TransferPage (Selector → Form → Confirmation)
+│       ├── TransactionHistoryPage
+│       ├── BeneficiaryPage
+│       └── ProfilePage
+│
+└── AdminLayout
+    ├── UserManagementPage
+    ├── AnomalyLogPage → SHAPWaterfallChart
+    └── MetricsDashboardPage (FAR/FRR · Score Distribution)</div>
+
+<h3>9.2 Behavioral Data Collector (Core Module)</h3>
+<div class="code-block"><span class="code-lang">TypeScript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-typescript">// collector/BehavioralCollector.ts
+interface KeystrokeEvent {
+  key: string; pressTime: number; releaseTime: number; holdTime: number;
+}
+
+class BehavioralCollector {
+  private keystrokeBuffer: KeystrokeEvent[] = [];
+  private mouseBuffer: MouseEvent[] = [];
+  private pressTimes: Map<string, number> = new Map();
+  private windowDuration = 60000; // 60 seconds
+  private sessionId: string;
+
+  constructor(sessionId: string, wsUrl: string) {
+    this.sessionId = sessionId;
+    this.connectWebSocket(wsUrl);
+    this.attachListeners();
+    this.startWindowTimer();
+  }
+
+  private attachListeners(): void {
+    document.addEventListener('keydown', this.onKeyDown.bind(this));
+    document.addEventListener('keyup', this.onKeyUp.bind(this));
+    document.addEventListener('mousemove', this.onMouseMove.bind(this));
+    document.addEventListener('click', this.onClick.bind(this));
+    document.addEventListener('wheel', this.onScroll.bind(this));
+  }
+
+  private onKeyUp(e: KeyboardEvent): void {
+    const t = performance.now() / 1000;
+    const pressTime = this.pressTimes.get(e.key);
+    if (pressTime) {
+      this.keystrokeBuffer.push({
+        key: e.key, pressTime, releaseTime: t, holdTime: t - pressTime
+      });
+    }
+  }
+
+  private onMouseMove(e: MouseEvent): void {
+    const t = performance.now() / 1000;
+    let speed = 0;
+    if (this.lastMousePos && this.lastMouseTime) {
+      const dx = e.clientX - this.lastMousePos[0];
+      const dy = e.clientY - this.lastMousePos[1];
+      const dt = t - this.lastMouseTime;
+      speed = dt > 0 ? Math.sqrt(dx*dx + dy*dy) / dt : 0;
+    }
+    this.mouseBuffer.push({ x: e.clientX, y: e.clientY, timestamp: t, speed, eventType: 'move' });
+    this.lastMousePos = [e.clientX, e.clientY];
+    this.lastMouseTime = t;
+  }
+  // ... onClick, onScroll, startWindowTimer, flushWindow, connectWebSocket
+}</code></pre></div>
+
+<h3>9.3 Auth Status Indicator</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>State</th><th>Color</th><th>Score Range</th><th>Visual</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Verified</strong></td><td><span class="score score-high">Green</span></td><td>≥ 0.85</td><td>Solid green dot + "Verified"</td></tr>
+    <tr><td><strong>Warning</strong></td><td><span class="score score-mid">Yellow</span></td><td>0.60–0.85</td><td>Pulsing yellow dot + "Monitoring"</td></tr>
+    <tr><td><strong>Challenge</strong></td><td><span class="score score-low">Red</span></td><td>&lt; 0.60</td><td>Red dot + OTP modal triggered</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>9.4 UX Principles</h3>
+<ol>
+  <li><strong>Zero-friction collection.</strong> Behavioral listeners operate passively — no "collecting data" UI.</li>
+  <li><strong>Graceful challenge.</strong> OTP explains <em>why</em>: "Your typing pattern changed. For security, please verify it's still you."</li>
+  <li><strong>SHAP transparency.</strong> Admin dashboard shows exactly which features contributed to each decision.</li>
+  <li><strong>Progressive enhancement.</strong> Password-only fallback; continuous auth is an additional layer, not a gate.</li>
+</ol>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 10 -->
+<!-- ================================================================== -->
+<h2 id="section-10">10. Development Roadmap</h2>
+
+<h3>10.1 Phase Breakdown (14 Weeks)</h3>
+<div class="mermaid-block"><pre class="mermaid">
+gantt
+    title Development Roadmap — 14 Weeks
+    dateFormat  YYYY-MM-DD
+    axisFormat  Week %W
+    section Phase 1: Foundation
+    Project Setup & Docker             :p1a, 2026-01-05, 7d
+    Database Schema & Models           :p1b, after p1a, 7d
+    Auth System (JWT, Register/Login)  :p1c, after p1a, 10d
+    section Phase 2: Data Pipeline
+    Behavioral Collector (JS)          :p2a, after p1c, 7d
+    WebSocket Event Streaming          :p2b, after p2a, 5d
+    Feature Extraction Pipeline        :p2c, after p2b, 7d
+    section Phase 3: AI/ML Core
+    Data Collection (Team + Friends)   :p3a, 2026-02-09, 10d
+    SMOTE + mRMR Implementation        :p3b, after p2c, 7d
+    LightGBM Training & Tuning         :p3c, after p3b, 7d
+    One-Class SVM Training             :p3d, after p3b, 7d
+    Score Fusion & Threshold Calib     :p3e, after p3c, 5d
+    section Phase 4: FinTech UI
+    Dashboard Layout + Pages           :p4a, after p1c, 14d
+    Auth Status Indicator              :p4b, after p4a, 3d
+    OTP Challenge Flow                 :p4c, after p4a, 5d
+    SHAP Visualization                 :p4d, after p3e, 7d
+    section Phase 5: Integration
+    End-to-End Integration             :p5a, after p4c, 7d
+    Admin Dashboard                    :p5b, after p4d, 7d
+    Adaptive Profile Update            :p5c, after p5a, 5d
+    section Phase 6: Polish
+    Testing (Unit + Integration + ML)  :p6a, after p5b, 10d
+    Documentation + Demo Script        :p6b, after p6a, 5d
+    Final Presentation Prep            :p6c, after p6b, 3d
+</pre></div>
+
+<h3>10.2 Detailed Phase Descriptions</h3>
+<div class="info-box"><h4>Phase 1: Foundation (Weeks 1–3)</h4>
+<p>Repository init; Docker Compose (MongoDB, Redis, MinIO); JWT auth; FastAPI routers; React + Vite + Tailwind scaffold.</p></div>
+<div class="info-box"><h4>Phase 2: Data Pipeline (Weeks 3–5)</h4>
+<p><code>BehavioralCollector.ts</code> for keyboard + mouse event capture; WebSocket server; Python feature extraction (HT, DD, UD, digraph speed, error rate, velocity, acceleration, jerk, straightness, click patterns).</p></div>
+<div class="info-box warn"><h4>Phase 3: AI/ML Core (Weeks 5–8) ← CRITICAL PATH</h4>
+<p>Collect training data from team + 20–30 volunteers. Implement SMOTE + mRMR. Train/tune LightGBM and One-Class SVM. Score fusion + EER-optimized threshold calibration. Serialize models to MinIO.</p></div>
+<div class="info-box"><h4>Phase 4: FinTech UI (Weeks 4–8, parallel)</h4>
+<p>Banking dashboard pages; AuthStatusIndicator; OTP challenge modal; SHAP waterfall visualization.</p></div>
+<div class="info-box"><h4>Phase 5: Integration &amp; Adaptivity (Weeks 8–11)</h4>
+<p>End-to-end: browser → WebSocket → features → scoring → verdict → UI. Admin dashboard. Adaptive profile update with sliding window + periodic retraining.</p></div>
+<div class="info-box success"><h4>Phase 6: Testing &amp; Polish (Weeks 11–14)</h4>
+<p>pytest + Vitest unit tests; integration tests; ML evaluation (FAR, FRR, EER, AUC-ROC, F1, G-Mean); documentation; demo script; presentation prep.</p></div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 11 -->
+<!-- ================================================================== -->
+<h2 id="section-11">11. Deployment Strategy</h2>
+
+<h3>11.1 Development Environment</h3>
+<div class="code-block"><span class="code-lang">YAML</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-yaml"># docker-compose.yml — One-command: `docker compose up -d`
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: ["mongo_data:/data/db"]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  minio:
+    image: minio/minio
+    ports: ["9000:9000", "9001:9001"]
+    command: server /data --console-address ":9001"
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    depends_on: [mongodb, redis, minio]
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - REDIS_URI=redis://redis:6379
+      - MINIO_ENDPOINT=minio:9000
+  frontend:
+    build: ./frontend
+    ports: ["5173:5173"]
+    depends_on: [backend]
+volumes:
+  mongo_data:
+  minio_data:</code></pre></div>
+
+<h3>11.2 Demo Environment</h3>
+<p>Runs entirely on a single machine matching the project report hardware spec (Intel i5, 8GB RAM, 512GB SSD). Evaluator opens <code>http://localhost:5173</code>, registers, completes 3-min baseline profiling, and uses the banking dashboard while continuous auth runs in the background.</p>
+<p><strong>Demo script:</strong></p>
+<ol>
+  <li><strong>Normal usage</strong> — Auth stays green (≥0.85). SHAP dashboard shows discriminative features.</li>
+  <li><strong>Simulated impostor</strong> — Different person takes over. Within 1–2 windows, score drops below 0.60 → OTP triggers.</li>
+  <li><strong>Behavioral drift</strong> — Demonstrator explains sliding-window adaptation.</li>
+</ol>
+
+<h3>11.3 Production Pathway</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Component</th><th>Dev</th><th>Production</th></tr></thead>
+  <tbody>
+    <tr><td>Backend</td><td>Single Uvicorn</td><td>Gunicorn + Uvicorn behind Nginx</td></tr>
+    <tr><td>Frontend</td><td>Vite dev server</td><td>Static build via Nginx/CDN</td></tr>
+    <tr><td>MongoDB</td><td>Single node</td><td>Atlas (managed) or replica set</td></tr>
+    <tr><td>Redis</td><td>Single node</td><td>Cluster or ElastiCache</td></tr>
+    <tr><td>Object Store</td><td>MinIO</td><td>AWS S3 / Cloudflare R2</td></tr>
+    <tr><td>CI/CD</td><td>GitHub Actions</td><td>GH Actions + ECR/ECS or K8s</td></tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 12 -->
+<!-- ================================================================== -->
+<h2 id="section-12">12. Testing Strategy</h2>
+
+<h3>12.1 Testing Pyramid</h3>
+<div class="ascii-block">         ╱─────╲
+        ╱  E2E  ╲           ← Playwright: auth flow, OTP challenge
+       ╱─────────╲
+      ╱Integration╲         ← pytest: API + DB + ML together
+     ╱───────────────╲
+    ╱   Unit Tests    ╲      ← pytest + Vitest: functions/components
+   ╱─────────────────────╲</div>
+
+<h3>12.2 ML-Specific Testing</h3>
+<h4>Offline Model Evaluation</h4>
+<div class="code-block"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-python">def evaluate_model(model, X_test, y_test) -> dict:
+    from sklearn.metrics import (
+        accuracy_score, precision_score, recall_score,
+        f1_score, roc_auc_score, confusion_matrix
+    )
+    y_pred = model.predict(X_test)
+    y_proba = model.predict_proba(X_test)[:, 1]
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    far = fp / (fp + tn)      # False Acceptance Rate
+    frr = fn / (fn + tp)      # False Rejection Rate
+    eer = compute_eer(y_test, y_proba)
+    return {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred),
+        "recall": recall_score(y_test, y_pred),
+        "f1_score": f1_score(y_test, y_pred),
+        "g_mean": np.sqrt(tp/(tp+fn) * tn/(tn+fp)),
+        "auc_roc": roc_auc_score(y_test, y_proba),
+        "far": far, "frr": frr, "eer": eer,
+    }</code></pre></div>
+
+<h4>Acceptance Criteria</h4>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Metric</th><th>Target</th><th>Benchmark Source</th></tr></thead>
+  <tbody>
+    <tr><td>F1-Score</td><td><span class="score score-high">≥ 0.90</span></td><td>Wang & Hou 2024 (0.88–0.96)</td></tr>
+    <tr><td>AUC-ROC</td><td><span class="score score-high">≥ 0.95</span></td><td>Muralidharan et al. 2025 (0.97–0.99)</td></tr>
+    <tr><td>EER</td><td><span class="score score-high">≤ 0.05</span></td><td>Industry standard</td></tr>
+    <tr><td>FAR</td><td><span class="score score-high">≤ 0.05</span></td><td>Adjustable threshold</td></tr>
+    <tr><td>FRR</td><td><span class="score score-high">≤ 0.10</span></td><td>Balanced against usability</td></tr>
+    <tr><td>G-Mean</td><td><span class="score score-high">≥ 0.90</span></td><td>Balanced for imbalanced data</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Live System Validation</h4>
+<ul>
+  <li><strong>Hold-out user test:</strong> Train 80% users; test remaining 20% as "impostors"</li>
+  <li><strong>Cross-session test:</strong> Same user across 3+ sessions (different days, times, fatigue)</li>
+  <li><strong>Hardware variation:</strong> Laptop keyboard vs external keyboard</li>
+  <li><strong>Attack simulation:</strong> Different person uses account; measure time-to-detection</li>
+</ul>
+
+<h3>12.3 Test Suite Structure</h3>
+<div class="ascii-block">tests/
+├── unit/
+│   ├── test_feature_extraction.py
+│   ├── test_mrmr.py / test_smote.py
+│   ├── test_score_fusion.py
+│   ├── test_adaptive_profile.py / test_auth.py
+├── integration/
+│   ├── test_event_pipeline.py
+│   ├── test_otp_flow.py / test_model_loading.py
+├── ml/
+│   ├── test_model_evaluation.py
+│   ├── test_cross_session.py / test_shap_explanations.py
+└── e2e/
+    ├── test_auth_flow.spec.ts
+    └── test_challenge_flow.spec.ts</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 13 -->
+<!-- ================================================================== -->
+<h2 id="section-13">13. Security Implementation</h2>
+
+<h3>13.1 Defense in Depth</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Layer</th><th>Mechanism</th><th>Implementation</th></tr></thead>
+  <tbody>
+    <tr><td>Transport</td><td>TLS 1.3</td><td>Nginx + Let's Encrypt (prod)</td></tr>
+    <tr><td>Authentication</td><td>JWT (RS256) + bcrypt</td><td>15-min access / 7-day refresh tokens</td></tr>
+    <tr><td>Password Storage</td><td>bcrypt (cost=12)</td><td>passlib; never log raw passwords</td></tr>
+    <tr><td>OTP</td><td>Time-based, 6 digits</td><td>5-min TTL; 3 attempts per 5 min</td></tr>
+    <tr><td>API</td><td>Rate limiting</td><td>Redis sliding window: 100 req/min per IP</td></tr>
+    <tr><td>Input Validation</td><td>Pydantic models</td><td>All inputs validated; no raw dict access</td></tr>
+    <tr><td>Session</td><td>Server-side invalidation</td><td>Redis store; logout clears immediately</td></tr>
+    <tr><td>Models</td><td>Access-controlled storage</td><td>MinIO presigned URLs; not directly exposed</td></tr>
+    <tr><td>Dependencies</td><td>pip-audit / npm audit</td><td>CI blocks builds on critical CVEs</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>13.2 Privacy Considerations</h3>
+<p>The behavioral data collected is <strong>not</strong> keystroke logging — no typed content is stored, only timing metadata and key identifiers. This is consistent with academic best practices (Baig et al. 2023, Abuhamad et al. 2020). Homomorphic encryption for scoring on encrypted vectors is identified as future work.</p>
+
+<h3>13.3 Threat Model</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Threat</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr><td>Session hijacking</td><td>Continuous auth detects change within 1–3 windows</td></tr>
+    <tr><td>Credential stuffing</td><td>Rate limiting + behavioral anomaly on login</td></tr>
+    <tr><td>Replay attacks</td><td>Timestamp verification; nonce per event batch</td></tr>
+    <tr><td>Model poisoning</td><td>Only high-confidence windows (≥0.90) used for update</td></tr>
+    <tr><td>Model extraction</td><td>No model endpoint; inference server-side only</td></tr>
+    <tr><td>Insider threat</td><td>Audit logs + SHAP reports for accountability</td></tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 14 -->
+<!-- ================================================================== -->
+<h2 id="section-14">14. Project Folder Structure</h2>
+<div class="ascii-block">MAJOR_PROJ/
+├── README.md                          ← Original documentation
+├── README.html                        ← This document (HTML version)
+├── docker-compose.yml                 ← One-command full stack
+├── .env.example / .gitignore
+├── .github/workflows/
+│   ├── ci.yml                         ← Lint + test + type check
+│   └── ml-eval.yml                    ← Model evaluation on PR
+├── backend/
+│   ├── Dockerfile / requirements.txt / pyproject.toml
+│   ├── app/
+│   │   ├── main.py / config.py
+│   │   ├── api/    (auth.py, events.py, scores.py, admin.py, fintech.py)
+│   │   ├── ws/     (event_stream.py)
+│   │   ├── ml/     (feature_extractor, mrmr_selector, smote_balancer,
+│   │   │            lightgbm_model, ocsvm_model, score_fusion,
+│   │   │            shap_explainer, adaptive_profile, model_registry)
+│   │   ├── db/     (mongodb.py, redis.py)
+│   │   ├── models/ (user.py, event.py, auth.py)
+│   │   ├── middleware/ (auth.py, rate_limit.py)
+│   │   └── utils/  (security.py, metrics.py)
+│   └── tests/      (unit/, integration/, ml/)
+├── frontend/
+│   ├── Dockerfile / package.json / vite.config.ts
+│   ├── tailwind.config.js / tsconfig.json
+│   ├── src/
+│   │   ├── main.tsx / App.tsx
+│   │   ├── api/ (client.ts)
+│   │   ├── collector/ (BehavioralCollector.ts)  ← Core module
+│   │   ├── components/ (auth/, dashboard/, banking/, admin/, shared/)
+│   │   ├── hooks/ (useAuth, useWebSocket, useBehavioralCollector)
+│   │   ├── store/ (authStore, dashboardStore)    ← Zustand
+│   │   ├── types/ (index.ts)
+│   │   └── utils/ (constants.ts)
+│   └── tests/ (e2e/)
+├── ml/
+│   ├── notebooks/ (01–08: exploration → evaluation)
+│   ├── scripts/ (train_pipeline, evaluate, export)
+│   └── data/ (raw/, processed/, models/)
+├── data_collection/                    ← Existing local scripts
+│   ├── collect_behavioral_data.py
+│   ├── keyboard_features.csv / keyboard_raw.csv / mouse_raw.csv
+├── docs/
+│   ├── architecture.md / api-spec.md
+│   ├── ml-pipeline.md / demo-script.md / images/
+└── research_papers/                    ← 12 reference papers</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 15 -->
+<!-- ================================================================== -->
+<h2 id="section-15">15. Git Workflow &amp; CI/CD</h2>
+
+<h3>15.1 Branch Strategy</h3>
+<div class="ascii-block">main                    ← Production-ready; protected
+  └── develop           ← Integration branch
+        ├── feat/collector-js
+        ├── feat/feature-extraction
+        ├── feat/lightgbm-training
+        ├── feat/fintech-ui
+        ├── feat/admin-dashboard
+        ├── fix/otp-rate-limit
+        └── docs/api-spec</div>
+
+<h3>15.2 Commit Convention</h3>
+<div class="code-block"><span class="code-lang">Bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-bash">feat: Add keystroke hold-time feature extraction
+fix: Correct mouse acceleration calculation in feature extractor
+docs: Document API endpoints in api-spec.md
+test: Add unit tests for mRMR selector
+refactor: Extract score fusion into separate module
+chore: Update Docker Compose to MongoDB 7</code></pre></div>
+
+<h3>15.3 CI Pipeline (GitHub Actions)</h3>
+<div class="code-block"><span class="code-lang">YAML</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-yaml">name: CI
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r backend/requirements.txt
+      - run: ruff check backend/
+      - run: mypy backend/app/
+      - run: pytest backend/tests/unit/ -v
+      - run: pytest backend/tests/integration/ -v
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci && npm run lint && npm run test
+        working-directory: frontend
+  ml-eval:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r backend/requirements.txt
+      - run: python backend/tests/ml/test_model_evaluation.py</code></pre></div>
+
+<h3>15.4 Pre-commit Hooks</h3>
+<div class="code-block"><span class="code-lang">YAML</span><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code class="language-yaml">repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy</code></pre></div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 16 -->
+<!-- ================================================================== -->
+<h2 id="section-16">16. Risk Management</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Risk</th><th>Prob</th><th>Impact</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1</td><td><strong>Insufficient training data</strong></td>
+      <td><span class="score score-low">High</span></td><td>Critical</td>
+      <td>Start early (Week 5); team + 20–30 volunteers; use CMU/Buffalo public datasets as fallback</td>
+    </tr>
+    <tr>
+      <td>2</td><td><strong>Poor model generalization</strong></td>
+      <td><span class="score score-mid">Med</span></td><td>High</td>
+      <td>Cross-session validation; multiple keyboards; adaptive update compensates drift</td>
+    </tr>
+    <tr>
+      <td>3</td><td><strong>Browser API timing precision</strong></td>
+      <td><span class="score score-mid">Med</span></td><td>Med</td>
+      <td>Accept 5–10ms variance; literature shows browser-collected features remain discriminative</td>
+    </tr>
+    <tr>
+      <td>4</td><td><strong>WebSocket scaling</strong></td>
+      <td><span class="score score-high">Low</span></td><td>Low</td>
+      <td>Demo scale (1–5 users) sufficient; production = horizontal scaling</td>
+    </tr>
+    <tr>
+      <td>5</td><td><strong>SMOTE O(n²) cost</strong></td>
+      <td><span class="score score-high">Low</span></td><td>Med</td>
+      <td>mRMR reduces to 36 features first; training is offline</td>
+    </tr>
+    <tr>
+      <td>6</td><td><strong>Threshold calibration</strong></td>
+      <td><span class="score score-mid">Med</span></td><td>High</td>
+      <td>EER-optimized; per-user adjustment; admin monitoring</td>
+    </tr>
+    <tr>
+      <td>7</td><td><strong>Cold start problem</strong></td>
+      <td><span class="score score-low">High</span></td><td>Med</td>
+      <td>3–5 min guided baseline; min 120 keystrokes + 60 mouse moves; password fallback</td>
+    </tr>
+    <tr>
+      <td>8</td><td><strong>Tab loses focus</strong></td>
+      <td><span class="score score-mid">Med</span></td><td>Med</td>
+      <td>Page Visibility API; pause scoring when hidden; resume on focus</td>
+    </tr>
+    <tr>
+      <td>9</td><td><strong>Hardware variation</strong></td>
+      <td><span class="score score-mid">Med</span></td><td>Med</td>
+      <td>Adaptive profile accommodates gradual change; flag sudden switches as anomalies</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 17 -->
+<!-- ================================================================== -->
+<h2 id="section-17">17. Future Scope &amp; Research Directions</h2>
+
+<h3>17.1 Near-Term Enhancements (Post-Project)</h3>
+<ol>
+  <li><strong>Privacy-Preserving (Homomorphic Encryption).</strong> Paillier cryptosystem for scoring on encrypted vectors (Baig et al. 2023).</li>
+  <li><strong>Deep Learning for Raw Temporal Modeling.</strong> CNN+GRU architecture learning from raw keystroke/mouse sequences (Kasprowski et al. 2022, Wycislik et al. 2024).</li>
+  <li><strong>SIURUA — Scene-Irrelated Features.</strong> Multiple Kernel Learning robust to <em>what</em> the user is doing (Wang et al. 2022).</li>
+  <li><strong>Coercion Detection via LLM.</strong> LLM-assisted multimodal pipeline analyzing stress/coercion indicators (Almehmadi 2025).</li>
+</ol>
+
+<h3>17.2 Research Directions</h3>
+<ol start="5">
+  <li><strong>Acoustic Keystroke Biometrics (SoundAuth).</strong> Fusion of keyboard acoustics + timing dynamics. 98.44% accuracy, 0.1% FAR (Liu et al. 2025).</li>
+  <li><strong>Cross-Device Behavioral Transfer.</strong> Domain adaptation from desktop keyboard/mouse to laptop touchpad.</li>
+  <li><strong>Federated Learning.</strong> Train on-device; only encrypted gradient updates to central server.</li>
+  <li><strong>Physiological-Behavioral Fusion.</strong> Keystroke timing + HRV from webcam PPG for multi-factor CA.</li>
+  <li><strong>Adversarial Robustness.</strong> Study and defend against synthetic event injection and replay attacks.</li>
+  <li><strong>Longitudinal Behavioral Study.</strong> 6–12 month deployment to study real drift patterns.</li>
+</ol>
+
+<hr>
+
+<!-- ================================================================== -->
+<!-- SECTION 18 -->
+<!-- ================================================================== -->
+<h2 id="section-18">18. Deliverables &amp; References</h2>
+
+<h3>18.1 Project Deliverables</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Deliverable</th><th>Format</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Source Code</td><td>Git Repository</td><td>Complete backend + frontend + ML pipeline</td></tr>
+    <tr><td>2</td><td>README.md</td><td>Markdown</td><td>Architecture, setup, deployment</td></tr>
+    <tr><td>3</td><td>API Documentation</td><td>OpenAPI</td><td>Swagger UI at <code>/docs</code></td></tr>
+    <tr><td>4</td><td>ML Model Artifacts</td><td>.joblib</td><td>Trained LGBM + OCSVM per user</td></tr>
+    <tr><td>5</td><td>Training Notebooks</td><td>Jupyter (.ipynb)</td><td>EDA, feature engineering, training, evaluation</td></tr>
+    <tr><td>6</td><td>Evaluation Report</td><td>PDF/Markdown</td><td>FAR, FRR, EER, AUC-ROC, F1, G-Mean</td></tr>
+    <tr><td>7</td><td>Demo Video</td><td>MP4</td><td>5–7 minute walkthrough</td></tr>
+    <tr><td>8</td><td>Presentation Slides</td><td>PPTX/PDF</td><td>15–20 slides for project defense</td></tr>
+    <tr><td>9</td><td>Project Report</td><td>PDF</td><td>Updated 57-page report with results</td></tr>
+    <tr><td>10</td><td>Docker Compose</td><td>YAML</td><td>One-command full-stack deployment</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>18.2 Core References</h3>
+<ol>
+  <li>Wang, X. &amp; Hou, D. (2024). "Enhancing Keystroke Dynamics Authentication with Ensemble Learning and Data Resampling Techniques." <em>Electronics</em>, 13(22), 4559.</li>
+  <li>Muralidharan, A., Eaman, A., &amp; Hassan, E. (2025). "A Comparative Analysis of Machine Learning Models for Behavioral Biometric Authentication Using Keystroke Dynamics." <em>Procedia Computer Science</em>, 265, 116–123.</li>
+  <li>Shadman, R. et al. (2025). "Keystroke Dynamics: Concepts, Techniques, and Applications." <em>ACM Computing Surveys</em>, 57(11).</li>
+  <li>Baig, A.F., Eskeland, S., &amp; Yang, B. (2023). "Privacy-Preserving Continuous Authentication Using Behavioral Biometrics." <em>Intl. J. Info Security</em>, 22, 1833–1847.</li>
+  <li>Uslu, U., Incel, O.D., &amp; Alptekin, G.I. (2023). "Evaluation of Deep Learning Models for Continuous Authentication Using Behavioral Biometrics." <em>Procedia CS</em>, 225, 1272–1281.</li>
+  <li>Kasprowski, P., Borowska, Z., &amp; Harezlak, K. (2022). "Biometric Identification Based on Keystroke Dynamics." <em>Sensors</em>, 22(9), 3158.</li>
+  <li>Wang, X. et al. (2022). "SIURUA — Scene-Irrelated Features in Hybrid Scenes." <em>Sensors</em>, 22(17), 6627.</li>
+  <li>Wyciślik, Ł., Wylężek, P., &amp; Momot, A. (2024). "Improved Biometric Identification via Deep Learning." <em>Sensors</em>, 24(12), 3763.</li>
+  <li>Liu, J., Wang, Y., &amp; Li, L. (2025). "SoundAuth: Keystroke Acoustic Biometrics with Triplet Networks." <em>IEEE SiPS</em>.</li>
+  <li>Almehmadi, A. (2025). "Cyber Coercion Detection Using LLM-Assisted Multimodal Biometric System." <em>Applied Sciences</em>, 15(19), 10658.</li>
+  <li>Jorgensen, Z. &amp; Yu, T. (2011). "On Mouse Dynamics as a Behavioral Biometric for Authentication." <em>Proc. ASIACCS</em>, 475–482.</li>
+  <li>Abuhamad, M. et al. (2020). "Sensor-Based Continuous Authentication of Smartphone Users: A Contemporary Survey." <em>arXiv:2001.08578</em>.</li>
+  <li>Krishnamoorthy, S. et al. (2018). "User Behavioral Biometrics via Keystroke Dynamics and Machine Learning." <em>Proc. ICBEA</em>, 50–57.</li>
+  <li>Subash, A. et al. (2026). "Adaptability of Behavioral Biometric Systems: A Survey." <em>Computers &amp; Security</em>, 160, 104731.</li>
+</ol>
+
+<hr>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <p><strong>Document Version:</strong> 1.0 · <strong>Last Updated:</strong> 2026-06-28</p>
+  <p><strong>Prepared for:</strong> B.Tech Computer Engineering Major Project (Group 17)</p>
+  <p><strong>Team:</strong> Amal Varghese · Manasa Premnathan · Vyas Angre · Dristi Barik</p>
+  <p><strong>Supervisor:</strong> Prof. Florence Simon</p>
+  <p style="margin-top:1rem"><em>Team member task assignments will be added after reviewing individual skills, strengths, and interests.</em></p>
+</div>
+
+</main>
+
+<script>
+// ===== Mermaid Init =====
+mermaid.initialize({ startOnLoad: true, theme: document.documentElement.dataset.theme === 'light' ? 'default' : 'dark', securityLevel: 'loose' });
+
+// ===== Highlight.js =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+});
+
+// ===== Theme Toggle =====
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.dataset.theme;
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.dataset.theme = next;
+  localStorage.setItem('theme', next);
+  document.getElementById('theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = next === 'dark' ? 'Light' : 'Dark';
+  // Update hljs theme
+  const hljsLink = document.getElementById('hljs-theme');
+  hljsLink.href = next === 'dark'
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  // Re-render mermaid
+  location.reload();
+}
+
+// Load saved theme
+(function() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.dataset.theme = saved;
+  document.getElementById('theme-icon').textContent = saved === 'dark' ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  const hljsLink = document.getElementById('hljs-theme');
+  hljsLink.href = saved === 'dark'
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+})();
+
+// ===== Mobile Sidebar =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+document.getElementById('main-content').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+});
+
+// ===== Copy Code =====
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const code = block.querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ===== Reading Progress Bar =====
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+// ===== Active Sidebar Link =====
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.sidebar-nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// ===== Re-trigger Mermaid on load =====
+window.addEventListener('load', () => {
+  mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+});
+</script>
+</body>
+</html>

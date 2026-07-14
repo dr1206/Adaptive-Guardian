@@ -7,37 +7,76 @@ import { WaveformTrace } from "@/components/guard/waveform-trace";
 import { SessionRiver } from "@/components/guard/session-river";
 import { Sparkline } from "@/components/banking/sparkline";
 import { Shield } from "@/components/brand/shield";
+import {
+  useAegisSnapshot,
+  useDevices,
+  useSecurityDeviceHealth,
+  useSecurityOverview,
+  useSecurityRiskEvents,
+} from "@/services/hooks";
 
 export const Route = createFileRoute("/app/guard/")({
   component: SecurityCenter,
 });
 
-const IDENTITY = [
-  { label: "Behavior", value: 98, note: "Typing & mouse match your signature." },
-  { label: "Device", value: 99, note: "MacBook Pro · trusted since Jan." },
-  { label: "Location", value: 96, note: "Lisbon · usual range." },
-  { label: "Session", value: 97, note: "Stable for 2h 14m." },
-  { label: "Network", value: 94, note: "Known ISP · low risk." },
-  { label: "History", value: 99, note: "312 of 312 sessions recognized." },
-];
-
-const TRUST = [
-  { label: "Device", value: 96, spark: [82, 85, 88, 90, 92, 94, 96] },
-  { label: "Location", value: 92, spark: [70, 74, 78, 82, 86, 90, 92] },
-  { label: "Behavior", value: 98, spark: [88, 91, 93, 94, 96, 97, 98] },
-  { label: "Session", value: 95, spark: [80, 82, 85, 88, 91, 94, 95] },
-  { label: "Historical", value: 99, spark: [92, 94, 95, 96, 97, 98, 99] },
-];
-
-const WHISPERS = [
-  { icon: "shield", text: "Recognized on trusted device.", time: "now" },
-  { icon: "shield", text: "Your typing rhythm is steady today.", time: "2m" },
-  { icon: "shield", text: "New trusted location learned: Lisbon.", time: "1h" },
-  { icon: "shield", text: "Challenge completed in 4 seconds.", time: "3h" },
-  { icon: "shield", text: "Session protected end-to-end.", time: "4h" },
-];
-
 function SecurityCenter() {
+  const { data: snapshot } = useAegisSnapshot();
+  const { data: overview } = useSecurityOverview();
+  const { data: deviceHealth } = useSecurityDeviceHealth();
+  const { data: riskFeed } = useSecurityRiskEvents();
+  const { data: devices } = useDevices();
+
+  const confidencePct = snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 98.4;
+  const riskScore = snapshot?.risk != null ? snapshot.risk : 0.04;
+  const ghostConfidence = 96.1; // AI placeholder — historical baseline from behavioral engine
+
+  // IDENTITY stack from real data
+  const behaviorScore = confidencePct;
+  const primaryDevice = devices?.[0];
+  const deviceScore = primaryDevice?.trust === "trusted" ? 99 : primaryDevice?.trust === "recognized" ? 90 : 75;
+  const topDeviceHealth = deviceHealth?.devices[0];
+  const deviceHealthScore = topDeviceHealth?.trustScore ?? 95;
+  const sessionsActive = overview?.activeSessions ?? 1;
+  const networkScore = 94; // AI placeholder — network analysis not yet implemented
+  const historyScore = 99; // AI placeholder — historical baseline not yet implemented
+
+  const IDENTITY = [
+    { label: "Behavior", value: behaviorScore, note: "Typing & mouse match your signature." },
+    { label: "Device", value: deviceScore, note: primaryDevice ? `${primaryDevice.label} · ${primaryDevice.trust}` : "Trusted device" },
+    { label: "Location", value: 96, note: "Lisbon · usual range." },
+    { label: "Session", value: sessionsActive > 0 ? 97 : 90, note: `${sessionsActive} active session${sessionsActive !== 1 ? "s" : ""}` },
+    { label: "Network", value: networkScore, note: "Known ISP · low risk." },
+    { label: "History", value: historyScore, note: "Session history recognized." },
+  ];
+
+  // TRUST factors from device health + overview
+  const TRUST = [
+    { label: "Device", value: deviceHealthScore, spark: [82, 85, 88, 90, 92, 94, deviceHealthScore] },
+    { label: "Location", value: 92, spark: [70, 74, 78, 82, 86, 90, 92] },
+    { label: "Behavior", value: Math.round(confidencePct), spark: [88, 91, 93, 94, 96, 97, Math.round(confidencePct)] },
+    { label: "Session", value: 95, spark: [80, 82, 85, 88, 91, 94, 95] },
+    { label: "Historical", value: 99, spark: [92, 94, 95, 96, 97, 98, 99] },
+  ];
+
+  // WHISPERS from risk events
+  const riskEvents = riskFeed?.events ?? [];
+  const WHISPERS = riskEvents.length > 0
+    ? riskEvents.slice(0, 5).map((e) => ({
+        icon: e.severity === "critical" ? ("alert" as const) : ("shield" as const),
+        text: e.summary,
+        time: formatTimeAgo(e.occurredAt),
+      }))
+    : [
+        { icon: "shield" as const, text: "Recognized on trusted device.", time: "now" },
+        { icon: "shield" as const, text: "Your typing rhythm is steady today.", time: "2m" },
+        { icon: "shield" as const, text: "Session protected end-to-end.", time: "4h" },
+      ];
+
+  // Overall trust from device health average
+  const trustScore = deviceHealth?.devices.length
+    ? deviceHealth.devices.reduce((s, d) => s + d.trustScore, 0) / deviceHealth.devices.length / 10
+    : 9.4;
+
   return (
     <>
       <PageHeader
@@ -51,7 +90,7 @@ function SecurityCenter() {
         <div className="lg:col-span-5">
           <SigilCard className="h-full">
             <div className="flex flex-col items-center pt-2">
-              <ConfidenceRing value={98.4} ghost={96.1} size="xl" label="Authentication" />
+              <ConfidenceRing value={confidencePct} ghost={ghostConfidence} size="xl" label="Authentication" />
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
                 <Pill tone="success">Recognized</Pill>
                 <Pill tone="accent">Trusted device</Pill>
@@ -95,12 +134,14 @@ function SecurityCenter() {
                 <Shield size={36} live />
                 <div>
                   <div className="text-[12px] text-muted-foreground">Session</div>
-                  <div className="font-numeric text-[20px] tabular-nums">02:14</div>
+                  <div className="font-numeric text-[20px] tabular-nums">
+                    {sessionsActive > 0 ? `0${sessionsActive}` : "01"}:00
+                  </div>
                 </div>
               </div>
               <p className="mt-auto pt-5 text-[12.5px] leading-relaxed text-muted-foreground">
                 <span className="text-accent">Aegis · </span>
-                You're typing the way you always do.
+                {snapshot?.whisper ?? "You're typing the way you always do."}
               </p>
             </div>
           </SigilCard>
@@ -114,7 +155,7 @@ function SecurityCenter() {
         </SigilCard>
       </section>
 
-      {/* Band 3 — Live Behavior Mosaic */}
+      {/* Band 3 — Live Behavior Mosaic (AI placeholders) */}
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
         <SigilCard eyebrow="Behavior" title="Typing rhythm" to="/app/guard/typing" live>
           <WaveformTrace seed={7} height={92} />
@@ -141,7 +182,7 @@ function SecurityCenter() {
             <div className="flex items-end gap-6">
               <div>
                 <div className="font-numeric text-[64px] font-semibold leading-none tracking-tight">
-                  9.4<span className="ml-1 text-[20px] text-muted-foreground">/10</span>
+                  {trustScore.toFixed(1)}<span className="ml-1 text-[20px] text-muted-foreground">/10</span>
                 </div>
                 <div className="mt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                   Overall · last 30 days
@@ -195,12 +236,27 @@ function SecurityCenter() {
                   </span>
                 </li>
               ))}
+              {WHISPERS.length === 0 && (
+                <li className="py-4 text-center text-[12px] text-muted-foreground/60">
+                  No recent security events
+                </li>
+              )}
             </ul>
           </SigilCard>
         </div>
       </section>
     </>
   );
+}
+
+function formatTimeAgo(iso: string): string {
+  const delta = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(delta / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  return `${Math.floor(hrs / 24)}d`;
 }
 
 function Pill({ children, tone }: { children: React.ReactNode; tone?: "success" | "accent" }) {
@@ -242,7 +298,6 @@ function Footnote({
 }
 
 function MouseFlowMini() {
-  // a faint glowing cursor trail
   const path = "M10 70 C 60 30, 120 100, 180 50 S 320 20, 400 70 S 540 110, 590 60";
   return (
     <svg viewBox="0 0 600 100" className="block w-full">

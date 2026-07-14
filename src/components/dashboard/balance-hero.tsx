@@ -12,25 +12,39 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ACCOUNTS = [
-  { id: "primary", label: "Primary", amount: 248902.14, currency: "EUR", tone: "silver" },
-  { id: "savings", label: "Savings", amount: 62400.0, currency: "EUR", tone: "champagne" },
-  { id: "invest", label: "Investments", amount: 2480120.55, currency: "EUR", tone: "obsidian" },
-  { id: "credit", label: "Credit", amount: -1240.5, currency: "EUR", tone: "obsidian" },
-];
+interface AccountCard {
+  id: string;
+  label: string;
+  amount: number;
+  currency: string;
+  type: string;
+  pending?: number;
+  iban?: string;
+  deltaPct?: number;
+  spark?: number[];
+}
 
-export function BalanceHero() {
-  const [accId, setAccId] = useState("primary");
+export function BalanceHero({ accounts }: { accounts?: AccountCard[] }) {
+  const cards = accounts ?? [];
+  const [accId, setAccId] = useState(cards[0]?.id ?? "");
   const [hide, setHide] = useState(false);
   const [open, setOpen] = useState(false);
-  const acc = ACCOUNTS.find((a) => a.id === accId)!;
+  const acc = cards.find((a) => a.id === accId) ?? cards[0];
 
-  const tone =
-    acc.tone === "champagne"
-      ? "linear-gradient(135deg,#2a2418 0%,#16120c 55%,#3d3320 100%)"
-      : acc.tone === "obsidian"
-        ? "linear-gradient(135deg,#15171c 0%,#0a0c10 60%,#1f2229 100%)"
-        : "linear-gradient(135deg,#1c2030 0%,#0f1320 60%,#262b3d 100%)";
+  if (!acc) {
+    return (
+      <article className="relative flex items-center justify-center overflow-hidden rounded-[28px] border border-white/[0.06] p-12"
+        style={{ background: "linear-gradient(135deg,#1c2030 0%,#0f1320 60%,#262b3d 100%)" }}>
+        <p className="text-[14px] text-muted-foreground/60">No accounts available</p>
+      </article>
+    );
+  }
+
+  const toneMap: Record<string, string> = {
+    savings: "linear-gradient(135deg,#2a2418 0%,#16120c 55%,#3d3320 100%)",
+    investment: "linear-gradient(135deg,#15171c 0%,#0a0c10 60%,#1f2229 100%)",
+  };
+  const tone = toneMap[acc.type] ?? "linear-gradient(135deg,#1c2030 0%,#0f1320 60%,#262b3d 100%)";
 
   const integer = Math.floor(Math.abs(acc.amount)).toLocaleString("en-US");
   const decimals = Math.abs(acc.amount % 1)
@@ -78,7 +92,7 @@ export function BalanceHero() {
             </button>
             {open && (
               <div className="absolute left-0 top-full z-20 mt-2 w-[220px] rounded-2xl border border-white/[0.08] bg-[oklch(0.18_0.03_264/0.95)] p-1.5 shadow-2xl backdrop-blur-2xl">
-                {ACCOUNTS.map((a) => (
+                {cards.map((a) => (
                   <button
                     key={a.id}
                     onClick={() => {
@@ -92,7 +106,8 @@ export function BalanceHero() {
                   >
                     <span>{a.label}</span>
                     <span className="font-numeric text-muted-foreground">
-                      €{Math.abs(a.amount).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                      {a.currency === "EUR" ? "€" : "$"}
+                      {Math.abs(a.amount).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </span>
                   </button>
                 ))}
@@ -118,7 +133,9 @@ export function BalanceHero() {
 
         {/* Balance */}
         <div className="mt-6 flex items-baseline gap-2 font-numeric text-white">
-          <span className="text-[18px] opacity-60">€</span>
+          <span className="text-[18px] opacity-60">
+            {acc.currency === "EUR" ? "€" : "$"}
+          </span>
           {hide ? (
             <span className="text-[56px] font-semibold tracking-tight">••• ••• ,••</span>
           ) : (
@@ -130,11 +147,11 @@ export function BalanceHero() {
             </>
           )}
           <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-medium text-success">
-            ↑ + €1,420.40 · 0.57%
+            {acc.deltaPct != null ? `↑ ${acc.deltaPct > 0 ? "+" : ""}${acc.deltaPct.toFixed(1)}%` : "↑ +0.57%"}
           </span>
         </div>
         <p className="mt-1 text-[12px] text-white/55">
-          Available · Pending €1,820.00 · IBAN PT50 0035 0000 0000 1234 567
+          Available{acc.pending != null ? ` · Pending ${acc.currency === "EUR" ? "€" : "$${acc.pending.toLocaleString()}"}` : ""}{acc.iban ? ` · IBAN ${acc.iban}` : ""}
         </p>
 
         {/* Area chart */}

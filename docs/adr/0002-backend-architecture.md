@@ -1,4 +1,7 @@
-# ADR 0002 — Backend Architecture: Python FastAPI Service Mesh
+# ADR 0002 — Backend Architecture: Python FastAPI (Monolith with Domain Modules)
+
+> **Scoped by ADR-0015:** The 6-service mesh is deferred to the production pathway. This project delivers a monolithic FastAPI app with domain-based modules that preserve the service boundaries for future extraction. See ADR-0015 for the full architecture resolution.
+
 **Status:** Accepted · **Date:** 2026-06-29 · **Deciders:** Staff Architect, Principal BE, ML Architect
 
 ## Context

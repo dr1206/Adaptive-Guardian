@@ -1,4 +1,7 @@
-# ADR 0006 — AI Inference Architecture
+# ADR 0006 — AI Inference Architecture (In-Process; Ray Serve Deferred)
+
+> **Scoped by ADR-0015:** Ray Serve is deferred to the production pathway. ML inference runs in-process within FastAPI using joblib-loaded models. See ADR-0015.
+
 **Status:** Accepted · **Date:** 2026-06-29 · **Deciders:** ML Architect, Staff Architect
 
 ## Context

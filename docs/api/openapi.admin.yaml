@@ -1,0 +1,651 @@
+openapi: 3.1.0
+info:
+  title: AdaptiveGuard Admin API — AI-SOC Cockpit
+  version: 1.0.0
+  description: |
+    Enterprise AI-SOC cockpit reads. All endpoints require the `admin` role.
+    Writes (user actions, role grants, model deploys) are deferred to Sprint 5.
+
+    Generated from frontend service contract `src/services/admin/admin.contract.ts`.
+    Frozen before Sprint 3 backend implementation.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development (Docker Compose)
+security:
+  - bearerAuth: []
+paths:
+  # ---------------------------------------------------------------------------
+  # KPIs & Global Metrics
+  # ---------------------------------------------------------------------------
+  /admin/kpis:
+    get:
+      summary: Key performance indicators for the cockpit header
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Kpi' }
+  /admin/global-metrics:
+    get:
+      summary: Global system metrics (FAR, FRR, active users, etc.)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GlobalMetric' }
+
+  # ---------------------------------------------------------------------------
+  # Live Sessions
+  # ---------------------------------------------------------------------------
+  /admin/sessions:
+    get:
+      summary: All active sessions across the platform
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/LiveSession' }
+
+  # ---------------------------------------------------------------------------
+  # Users
+  # ---------------------------------------------------------------------------
+  /admin/users:
+    get:
+      summary: List all users with behavioral auth metrics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AdminUser' }
+
+  # ---------------------------------------------------------------------------
+  # Incidents
+  # ---------------------------------------------------------------------------
+  /admin/incidents:
+    get:
+      summary: Security incidents (suspicious sessions, anomalies)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Incident' }
+
+  # ---------------------------------------------------------------------------
+  # ML Models
+  # ---------------------------------------------------------------------------
+  /admin/models:
+    get:
+      summary: Registered model versions with metrics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ModelVersion' }
+
+  # ---------------------------------------------------------------------------
+  # Datasets
+  # ---------------------------------------------------------------------------
+  /admin/datasets:
+    get:
+      summary: Training datasets used for model development
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Dataset' }
+
+  # ---------------------------------------------------------------------------
+  # API Services Health
+  # ---------------------------------------------------------------------------
+  /admin/api-services:
+    get:
+      summary: Health and latency of internal API services
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ApiService' }
+
+  # ---------------------------------------------------------------------------
+  # Compliance Controls
+  # ---------------------------------------------------------------------------
+  /admin/controls:
+    get:
+      summary: Compliance control coverage (SOC2, GDPR, etc.)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ComplianceControl' }
+
+  # ---------------------------------------------------------------------------
+  # Report Templates
+  # ---------------------------------------------------------------------------
+  /admin/report-templates:
+    get:
+      summary: Scheduled report templates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ReportTemplate' }
+
+  # ---------------------------------------------------------------------------
+  # Audit Log
+  # ---------------------------------------------------------------------------
+  /admin/audit:
+    get:
+      summary: Append-only audit trail
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 100 }
+        - name: before
+          in: query
+          required: false
+          description: Cursor (ISO timestamp)
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AuditEntry' }
+
+  # ---------------------------------------------------------------------------
+  # Challenges
+  # ---------------------------------------------------------------------------
+  /admin/challenge-reasons:
+    get:
+      summary: Aggregated challenge reasons (for pie/bar charts)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ChallengeReason' }
+  /admin/challenges:
+    get:
+      summary: Recent challenge records (OTP, step-up)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ChallengeRecord' }
+
+  # ---------------------------------------------------------------------------
+  # RBAC — Roles & Permissions
+  # ---------------------------------------------------------------------------
+  /admin/roles:
+    get:
+      summary: List roles with member counts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Role' }
+  /admin/permissions:
+    get:
+      summary: List permission resources and their allowed actions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Permission' }
+  /admin/role-permissions:
+    get:
+      summary: Get the full role-to-permission mapping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items: { type: string }
+
+  # ---------------------------------------------------------------------------
+  # Notification Groups
+  # ---------------------------------------------------------------------------
+  /admin/notification-groups:
+    get:
+      summary: Notification group subscriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/NotificationGroup' }
+
+  # ---------------------------------------------------------------------------
+  # Geo Map
+  # ---------------------------------------------------------------------------
+  /admin/geo-dots:
+    get:
+      summary: Geo-located session dots for the world map
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GeoDot' }
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure Snapshot
+  # ---------------------------------------------------------------------------
+  /admin/infra:
+    get:
+      summary: Real-time infrastructure health snapshot
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InfraSnapshot' }
+
+  # ---------------------------------------------------------------------------
+  # Admin Accounts (banking admin view)
+  # ---------------------------------------------------------------------------
+  /admin/accounts:
+    get:
+      summary: All bank accounts across the platform
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AdminAccount' }
+
+  # ---------------------------------------------------------------------------
+  # Anomaly Signatures
+  # ---------------------------------------------------------------------------
+  /admin/anomaly-signatures:
+    get:
+      summary: Detected behavioral anomaly signature types
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AnomalySignature' }
+
+# =============================================================================
+# Components
+# =============================================================================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Admin role required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    # --- Envelope ---
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+
+    # --- Signal enum ---
+    Signal:
+      type: string
+      enum: [green, yellow, red]
+
+    # --- KPI ---
+    Kpi:
+      type: object
+      required: [id, label, value, suffix, delta, signal, series]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        value: { type: number }
+        suffix: { type: string }
+        delta: { type: number }
+        signal: { $ref: '#/components/schemas/Signal' }
+        series:
+          type: array
+          items: { type: number }
+
+    # --- GlobalMetric ---
+    GlobalMetric:
+      type: object
+      required: [id, label, value, delta, signal, series]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        value: { type: string }
+        delta: { type: string }
+        signal: { $ref: '#/components/schemas/Signal' }
+        series:
+          type: array
+          items: { type: number }
+
+    # --- LiveSession ---
+    LiveSession:
+      type: object
+      required: [id, user, initials, device, page, confidence, risk, behavior, duration, activity, lastEvent, signal]
+      properties:
+        id: { type: string }
+        user: { type: string }
+        initials: { type: string }
+        device: { type: string }
+        page: { type: string }
+        confidence: { type: number }
+        risk: { type: number }
+        behavior: { type: number }
+        duration: { type: string }
+        activity: { type: string }
+        lastEvent: { type: string }
+        signal: { $ref: '#/components/schemas/Signal' }
+
+    # --- AdminUser ---
+    AdminUser:
+      type: object
+      required: [id, name, initials, email, status, tier, devices, trust, risk, lastSeen, country, signal]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        initials: { type: string }
+        email: { type: string }
+        status:
+          type: string
+          enum: [active, locked, enrolling, dormant]
+        tier:
+          type: string
+          enum: [Personal, Premium, Business, Enterprise]
+        devices: { type: integer }
+        trust: { type: number }
+        risk: { type: number }
+        lastSeen: { type: string }
+        country: { type: string }
+        signal: { $ref: '#/components/schemas/Signal' }
+
+    # --- Incident ---
+    Incident:
+      type: object
+      required: [id, title, severity, source, age, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        severity: { $ref: '#/components/schemas/Signal' }
+        user: { type: string }
+        source: { type: string }
+        age: { type: string }
+        status:
+          type: string
+          enum: [open, ack, resolved]
+
+    # --- ModelVersion ---
+    ModelVersion:
+      type: object
+      required: [version, status, trained, dataset, accuracy, precision, recall, f1, latencyMs, memoryMb]
+      properties:
+        version: { type: string }
+        status:
+          type: string
+          enum: [active, candidate, archived]
+        trained: { type: string }
+        dataset: { type: string }
+        accuracy: { type: number }
+        precision: { type: number }
+        recall: { type: number }
+        f1: { type: number }
+        latencyMs: { type: number }
+        memoryMb: { type: number }
+
+    # --- Dataset ---
+    Dataset:
+      type: object
+      required: [id, version, samples, users, sessions, features, quality, duplicates, coverage, created, status]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        samples: { type: integer }
+        users: { type: integer }
+        sessions: { type: integer }
+        features: { type: integer }
+        quality: { type: number }
+        duplicates: { type: number }
+        coverage: { type: number }
+        created: { type: string }
+        status:
+          type: string
+          enum: [production, staging, draft]
+
+    # --- ApiService ---
+    ApiService:
+      type: object
+      required: [name, status, latency, errorRate, uptime, series]
+      properties:
+        name: { type: string }
+        status: { $ref: '#/components/schemas/Signal' }
+        latency:
+          type: object
+          properties:
+            p50: { type: number }
+            p95: { type: number }
+            p99: { type: number }
+        errorRate: { type: number }
+        uptime: { type: number }
+        series:
+          type: array
+          items: { type: number }
+
+    # --- ComplianceControl ---
+    ComplianceControl:
+      type: object
+      required: [id, framework, coverage, status, evidence, owner, next]
+      properties:
+        id: { type: string }
+        framework: { type: string }
+        coverage: { type: number }
+        status: { $ref: '#/components/schemas/Signal' }
+        evidence: { type: integer }
+        owner: { type: string }
+        next: { type: string }
+
+    # --- ReportTemplate ---
+    ReportTemplate:
+      type: object
+      required: [name, cadence, last, owner, format]
+      properties:
+        name: { type: string }
+        cadence: { type: string }
+        last: { type: string }
+        owner: { type: string }
+        format: { type: string }
+
+    # --- AuditEntry ---
+    AuditEntry:
+      type: object
+      required: [id, time, actor, action, target, hash, class]
+      properties:
+        id: { type: string }
+        time: { type: string }
+        actor: { type: string }
+        action: { type: string }
+        target: { type: string }
+        hash: { type: string }
+        class: { type: string }
+
+    # --- ChallengeReason ---
+    ChallengeReason:
+      type: object
+      required: [reason, count, rate]
+      properties:
+        reason: { type: string }
+        count: { type: integer }
+        rate: { type: number }
+
+    # --- ChallengeRecord ---
+    ChallengeRecord:
+      type: object
+      required: [id, when, user, reason, confidence, outcome, duration, device]
+      properties:
+        id: { type: string }
+        when: { type: string }
+        user: { type: string }
+        reason: { type: string }
+        confidence: { type: number }
+        outcome:
+          type: string
+          enum: [passed, failed, abandoned]
+        duration: { type: string }
+        device: { type: string }
+
+    # --- Role ---
+    Role:
+      type: object
+      required: [id, label, members, color]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        members: { type: integer }
+        color: { type: string }
+
+    # --- Permission ---
+    Permission:
+      type: object
+      required: [resource, actions]
+      properties:
+        resource: { type: string }
+        actions:
+          type: array
+          items: { type: string }
+
+    # --- NotificationGroup ---
+    NotificationGroup:
+      type: object
+      required: [id, label, count, signal]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        count: { type: integer }
+        signal: { $ref: '#/components/schemas/Signal' }
+
+    # --- GeoDot ---
+    GeoDot:
+      type: object
+      required: [x, y, intensity, anomaly]
+      properties:
+        x: { type: number }
+        y: { type: number }
+        intensity: { type: number }
+        anomaly: { type: boolean }
+
+    # --- AdminAccount ---
+    AdminAccount:
+      type: object
+      required: [id, holder, product, balance, currency, flags, opened]
+      properties:
+        id: { type: string }
+        holder: { type: string }
+        product:
+          type: string
+          enum: [Current, Savings, Treasury, Card, FX, Loan]
+        balance: { type: number }
+        currency: { type: string }
+        flags: { type: string }
+        opened: { type: string }
+
+    # --- AnomalySignature ---
+    AnomalySignature:
+      type: object
+      required: [name, count, last, severity]
+      properties:
+        name: { type: string }
+        count: { type: integer }
+        last: { type: string }
+        severity: { $ref: '#/components/schemas/Signal' }
+
+    # --- InfraSnapshot ---
+    InfraSnapshot:
+      type: object
+      required: [cpu, memory, disk, gpu, network, containers, workers, jobsRunning, jobsQueued, jobsFailed, inferenceQueue]
+      properties:
+        cpu: { $ref: '#/components/schemas/ResourceMetric' }
+        memory: { $ref: '#/components/schemas/ResourceMetric' }
+        disk: { $ref: '#/components/schemas/ResourceMetric' }
+        gpu: { $ref: '#/components/schemas/ResourceMetric' }
+        network: { $ref: '#/components/schemas/ResourceMetric' }
+        containers: { type: integer }
+        workers: { type: integer }
+        jobsRunning: { type: integer }
+        jobsQueued: { type: integer }
+        jobsFailed: { type: integer }
+        inferenceQueue: { type: integer }
+    ResourceMetric:
+      type: object
+      required: [value, series]
+      properties:
+        value: { type: number }
+        series:
+          type: array
+          items: { type: number }

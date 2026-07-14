@@ -35,108 +35,57 @@ const ICONS = {
   home: Home,
 };
 
-const GROUPS: { label: string; txs: Tx[] }[] = [
-  {
-    label: "Today · 28 Jun",
-    txs: [
-      {
-        id: "1",
-        merchant: "Wolt",
-        category: "Food",
-        time: "13:02",
-        amount: 18.4,
-        direction: "out",
-        glyph: "coffee",
-        card: "•• 4218",
-      },
-      {
-        id: "2",
-        merchant: "EasyPark",
-        category: "Transport",
-        time: "10:11",
-        amount: 4.5,
-        direction: "out",
-        glyph: "shop",
-        card: "•• 4218",
-      },
-      {
-        id: "3",
-        merchant: "Banco Atlântico · Salary",
-        category: "Income",
-        time: "09:00",
-        amount: 6400,
-        direction: "in",
-        glyph: "salary",
-      },
-    ],
-  },
-  {
-    label: "Yesterday · 27 Jun",
-    txs: [
-      {
-        id: "4",
-        merchant: "British Airways",
-        category: "Travel",
-        time: "21:40",
-        amount: 1284,
-        direction: "out",
-        glyph: "plane",
-        card: "•• 4218",
-      },
-      {
-        id: "5",
-        merchant: "Octopus Energy",
-        category: "Utilities",
-        time: "18:00",
-        amount: 142,
-        direction: "out",
-        glyph: "energy",
-      },
-      {
-        id: "6",
-        merchant: "Goldsmiths",
-        category: "Lifestyle",
-        time: "14:22",
-        amount: 612.5,
-        direction: "out",
-        glyph: "shop",
-        card: "•• 4218",
-      },
-    ],
-  },
-  {
-    label: "Mon · 26 Jun",
-    txs: [
-      {
-        id: "7",
-        merchant: "A. Mehta · Transfer",
-        category: "Transfer",
-        time: "11:08",
-        amount: 2400,
-        direction: "in",
-        glyph: "salary",
-      },
-      {
-        id: "8",
-        merchant: "Landlord Carvalho",
-        category: "Rent",
-        time: "09:30",
-        amount: 1420,
-        direction: "out",
-        glyph: "home",
-      },
-    ],
-  },
-];
+const GLYPH_MAP: Record<string, keyof typeof ICONS> = {
+  groceries: "shop",
+  dining: "coffee",
+  transport: "shop",
+  utilities: "energy",
+  shopping: "shop",
+  subscriptions: "coffee",
+  travel: "plane",
+  payroll: "salary",
+  freelance: "salary",
+  investment: "salary",
+  transfer: "home",
+};
 
-export function TransactionFeed() {
+function toTx(t: import("@/services/banking/banking.contract").Transaction): Tx {
+  const date = new Date(t.date);
+  const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return {
+    id: t.id,
+    merchant: t.description,
+    category: t.category ?? "Other",
+    time,
+    amount: t.amount,
+    direction: t.type === "credit" ? "in" : "out",
+    glyph: GLYPH_MAP[t.category ?? ""] ?? "shop",
+  };
+}
+
+function groupByDate(txs: Tx[]): { label: string; txs: Tx[] }[] {
+  const groups: Record<string, Tx[]> = {};
+  for (const tx of txs) {
+    const key = tx.time;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(tx);
+  }
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return [{ label: `Recent · ${today}`, txs: txs.slice(0, 8) }];
+}
+
+export function TransactionFeed({ transactions }: { transactions?: import("@/services/banking/banking.contract").Transaction[] }) {
+  const txs = (transactions ?? []).slice(0, 8).map(toTx);
+  const groups = groupByDate(txs);
+  const total = txs.length;
+
   return (
     <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] backdrop-blur-xl">
       <header className="flex items-center justify-between gap-3 border-b border-white/[0.05] p-5">
         <div>
           <h3 className="font-display text-[15px] font-semibold tracking-tight">Transactions</h3>
           <p className="text-[11px] text-muted-foreground">
-            {GROUPS.reduce((a, g) => a + g.txs.length, 0)} this week · live
+            {total} this week · live
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -157,7 +106,7 @@ export function TransactionFeed() {
       </header>
 
       <div className="divide-y divide-white/[0.04]">
-        {GROUPS.map((g) => (
+        {groups.map((g) => (
           <section key={g.label}>
             <div className="sticky top-0 z-10 flex items-center justify-between bg-[oklch(0.16_0.03_264/0.6)] px-5 py-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground backdrop-blur-xl">
               <span>{g.label}</span>

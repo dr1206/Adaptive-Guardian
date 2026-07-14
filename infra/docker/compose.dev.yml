@@ -1,26 +1,11 @@
 # Local dev stack for AdaptiveGuard AI.
 # Boot with: docker compose -f infra/docker/compose.dev.yml up -d
+# MongoDB Atlas is used as the primary database (cloud-hosted, no local container).
 # All services bind to 127.0.0.1 only.
 
 name: adaptiveguard-dev
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: adaptiveguard
-      POSTGRES_PASSWORD: adaptiveguard
-      POSTGRES_DB: adaptiveguard
-    ports: ["127.0.0.1:5432:5432"]
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U adaptiveguard"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -93,6 +78,5 @@ services:
       - "127.0.0.1:8025:8025"  # Web UI
 
 volumes:
-  pg_data:
   redis_data:
   minio_data:

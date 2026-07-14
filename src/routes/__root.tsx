@@ -9,6 +9,9 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import type { Session } from "@/services/auth/auth.contract";
+import { BehavioralCollectorProvider } from "@/services/behavioral/BehavioralCollectorProvider";
+import { BehavioralExportPanel } from "@/services/behavioral/BehavioralExportPanel";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -72,12 +75,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient; session?: Session }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#0F172A" },
+      { name: "theme-color", content: "#0A1628" },
       { title: "AdaptiveGuard AI — Continuous Authentication. Invisible Security." },
       {
         name: "description",
@@ -135,8 +138,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <BehavioralCollectorProvider>
+        <Outlet />
+        <BehavioralExportPanel />
+      </BehavioralCollectorProvider>
     </QueryClientProvider>
   );
 }

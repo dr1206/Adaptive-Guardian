@@ -73,6 +73,25 @@ import type {
   ReportTemplate,
   Role,
 } from "./admin/admin.contract";
+import type {
+  AnalyticsResponse,
+  DashboardNotification,
+  DashboardSummary,
+  NotificationFeed,
+  TrendResponse,
+} from "./dashboard/dashboard.contract";
+import type {
+  DeviceHealthResponse,
+  LoginAnalytics,
+  RiskEventFeed,
+  SecurityOverview,
+  SessionTimelineResponse,
+} from "./security/security.contract";
+import type {
+  NotificationInbox,
+  NotificationPreferences,
+  PreferenceUpdateRequest,
+} from "./notifications/notifications.contract";
 
 export const queryKeys = {
   session: ["auth", "session"] as const,
@@ -118,6 +137,21 @@ export const queryKeys = {
   adminNotificationGroups: ["admin", "notification-groups"] as const,
   adminGeoDots: ["admin", "geo-dots"] as const,
   adminInfra: ["admin", "infra"] as const,
+  // Dashboard
+  dashboardSummary: ["dashboard", "summary"] as const,
+  dashboardTrends: (period: string) => ["dashboard", "trends", period] as const,
+  dashboardAnalytics: ["dashboard", "analytics"] as const,
+  dashboardNotifications: ["dashboard", "notifications"] as const,
+  // Security
+  securityOverview: ["security", "overview"] as const,
+  securityRiskEvents: (severity?: string) => ["security", "risk-events", severity ?? "all"] as const,
+  securityDeviceHealth: ["security", "device-health"] as const,
+  securityLoginAnalytics: (periodDays?: number) => ["security", "login-analytics", periodDays ?? 30] as const,
+  securityDailyReport: (date?: string) => ["security", "daily-report", date ?? "latest"] as const,
+  securitySessionTimeline: ["security", "session-timeline"] as const,
+  // Notifications
+  notificationsInbox: (unreadOnly?: boolean) => ["notifications", "inbox", unreadOnly ?? false] as const,
+  notificationsPreferences: ["notifications", "preferences"] as const,
 };
 
 // ----------------------------------------------------------------------------
@@ -502,3 +536,149 @@ export function useAdminAnomalySignatures() {
     queryFn: ({ signal }) => services.admin.listAnomalySignatures({ signal }),
   });
 }
+
+// ----------------------------------------------------------------------------
+// Dashboard
+// ----------------------------------------------------------------------------
+
+export function useDashboardSummary() {
+  return useQuery<DashboardSummary>({
+    queryKey: queryKeys.dashboardSummary,
+    queryFn: ({ signal }) => services.dashboard.getSummary({ signal }),
+    staleTime: 30_000,
+  });
+}
+
+export function useDashboardTrends(period: "7d" | "30d" | "90d" = "30d") {
+  return useQuery<TrendResponse>({
+    queryKey: queryKeys.dashboardTrends(period),
+    queryFn: ({ signal }) => services.dashboard.getTrends(period, { signal }),
+    staleTime: 30_000,
+  });
+}
+
+export function useDashboardAnalytics() {
+  return useQuery<AnalyticsResponse>({
+    queryKey: queryKeys.dashboardAnalytics,
+    queryFn: ({ signal }) => services.dashboard.getAnalytics({ signal }),
+    staleTime: 30_000,
+  });
+}
+
+export function useDashboardNotifications() {
+  return useQuery<NotificationFeed>({
+    queryKey: queryKeys.dashboardNotifications,
+    queryFn: ({ signal }) => services.dashboard.getNotifications({ signal }),
+    staleTime: 15_000,
+  });
+}
+
+// ----------------------------------------------------------------------------
+// Security
+// ----------------------------------------------------------------------------
+
+export function useSecurityOverview() {
+  return useQuery<SecurityOverview>({
+    queryKey: queryKeys.securityOverview,
+    queryFn: ({ signal }) => services.security.getOverview({ signal }),
+    staleTime: 15_000,
+  });
+}
+
+export function useSecurityRiskEvents(severity?: string) {
+  return useQuery<RiskEventFeed>({
+    queryKey: queryKeys.securityRiskEvents(severity),
+    queryFn: ({ signal }) => services.security.getRiskEvents({ severity, signal }),
+    staleTime: 15_000,
+  });
+}
+
+export function useSecurityDeviceHealth() {
+  return useQuery<DeviceHealthResponse>({
+    queryKey: queryKeys.securityDeviceHealth,
+    queryFn: ({ signal }) => services.security.getDeviceHealth({ signal }),
+    staleTime: 60_000,
+  });
+}
+
+export function useSecurityLoginAnalytics(periodDays?: number) {
+  return useQuery<LoginAnalytics>({
+    queryKey: queryKeys.securityLoginAnalytics(periodDays),
+    queryFn: ({ signal }) => services.security.getLoginAnalytics(periodDays, { signal }),
+    staleTime: 60_000,
+  });
+}
+
+export function useSecurityDailyReport(date?: string) {
+  return useQuery({
+    queryKey: queryKeys.securityDailyReport(date),
+    queryFn: ({ signal }) => services.security.getDailyReport(date, { signal }),
+    staleTime: 300_000,
+  });
+}
+
+export function useSecuritySessionTimeline() {
+  return useQuery<SessionTimelineResponse>({
+    queryKey: queryKeys.securitySessionTimeline,
+    queryFn: ({ signal }) => services.security.getSessionTimeline({ signal }),
+    staleTime: 15_000,
+  });
+}
+
+// ----------------------------------------------------------------------------
+// Notifications
+// ----------------------------------------------------------------------------
+
+export function useNotifications(unreadOnly?: boolean, limit?: number, offset?: number) {
+  return useQuery<NotificationInbox>({
+    queryKey: queryKeys.notificationsInbox(unreadOnly),
+    queryFn: ({ signal }) => services.notifications.getInbox({ unreadOnly, limit, offset, signal }),
+    staleTime: 15_000,
+  });
+}
+
+export function useNotificationPreferences() {
+  return useQuery<NotificationPreferences>({
+    queryKey: queryKeys.notificationsPreferences,
+    queryFn: ({ signal }) => services.notifications.getPreferences({ signal }),
+    staleTime: 300_000,
+  });
+}
+
+export function useMarkNotificationRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.notifications.markRead(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+      qc.invalidateQueries({ queryKey: ["dashboard", "notifications"] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => services.notifications.markAllRead(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+      qc.invalidateQueries({ queryKey: ["dashboard", "notifications"] });
+    },
+  });
+}
+
+export function useUpdateNotificationPreferences() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: PreferenceUpdateRequest) => services.notifications.updatePreferences(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.notificationsPreferences });
+    },
+  });
+}
+
+// ----------------------------------------------------------------------------
+// Behavioral
+// ----------------------------------------------------------------------------
+
+export { useBehavioralStatus } from "./behavioral/BehavioralCollectorProvider";

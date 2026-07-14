@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { Search, Bell, Plus, Command as CmdIcon } from "lucide-react";
 import { SignatureGlyph } from "@/components/brand/signature-glyph";
+import { useAegisSnapshot, useDashboardNotifications } from "@/services/hooks";
 import { cn } from "@/lib/utils";
 
 export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
   const [time, setTime] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const { data: snapshot } = useAegisSnapshot();
+  const { data: notifFeed } = useDashboardNotifications();
+
+  const confidence = snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 99.2;
+  const unreadCount = notifFeed?.unreadCount ?? 0;
 
   useEffect(() => {
     const tick = () =>
@@ -55,11 +61,11 @@ export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
         <div className="ml-auto flex items-center gap-2">
           {/* Aegis pill */}
           <button
-            aria-label="Aegis security · 99.2% confidence"
+            aria-label={`Aegis security · ${confidence.toFixed(1)}% confidence`}
             className="group inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 transition-colors hover:border-accent/30"
           >
-            <MicroRing value={99.2} />
-            <span className="font-numeric text-[12px] font-medium">99.2%</span>
+            <MicroRing value={confidence} />
+            <span className="font-numeric text-[12px] font-medium">{confidence.toFixed(1)}%</span>
             <span className="hidden text-[11px] text-muted-foreground sm:inline">Aegis</span>
           </button>
 
@@ -76,13 +82,15 @@ export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
 
           {/* Bell */}
           <button
-            aria-label="Notifications (3 unread)"
+            aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
             className="relative grid h-11 w-11 place-items-center rounded-xl border border-white/[0.06] bg-white/[0.03] transition-colors hover:border-white/15"
           >
             <Bell className="h-4 w-4" aria-hidden />
-            <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-accent text-[9px] font-semibold text-background">
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-accent text-[9px] font-semibold text-background">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
           </button>
 
           {/* Time */}

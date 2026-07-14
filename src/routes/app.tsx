@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { VaultAtmosphere } from "@/components/auth/vault-atmosphere";
@@ -7,8 +7,16 @@ import { CommandBar } from "@/components/dashboard/command-bar";
 import { SecurityStrip } from "@/components/banking/security-strip";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Shield } from "@/components/brand/shield";
+import { services } from "@/services/registry";
 
 export const Route = createFileRoute("/app")({
+  beforeLoad: async ({ location }) => {
+    const session = await services.auth.getSession();
+    if (!session) {
+      throw redirect({ to: "/auth", search: { redirect: location.href } });
+    }
+    return { session };
+  },
   component: AppLayout,
 });
 

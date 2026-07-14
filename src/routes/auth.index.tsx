@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AtSign, ArrowRight, Lock, Building2 } from "lucide-react";
 import { AuthShell } from "@/components/auth/auth-shell";
@@ -6,9 +6,17 @@ import { ApertureInput } from "@/components/auth/aperture-input";
 import { ApertureSpinner } from "@/components/brand/shield";
 import { BalanceTile } from "@/components/banking/balance-tile";
 import { TransactionRow, sampleTxs } from "@/components/banking/transaction-row";
-import { useRegister } from "@/services/hooks";
+import { useLogin, useRegister } from "@/services/hooks";
+import { services } from "@/services/registry";
+import { AuthenticationError } from "@/lib/platform/errors";
 
 export const Route = createFileRoute("/auth/")({
+  beforeLoad: async () => {
+    const session = await services.auth.getSession();
+    if (session) {
+      throw redirect({ to: "/app" });
+    }
+  },
   component: IdentityScreen,
 });
 
@@ -28,9 +36,14 @@ function IdentityScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailState, setEmailState] = useState<"idle" | "validating" | "valid" | "error">("idle");
+  const [passwordState, setPasswordState] = useState<"idle" | "validating" | "valid" | "error">("idle");
+  const login = useLogin();
   const register = useRegister();
-  const submitting = register.isPending;
-  const error = register.error;
+  const submitting = login.isPending || register.isPending;
+  const error = login.error ?? register.error;
+
+  const passwordMinLength = 12;
+  const canSubmit = emailState === "valid" && password.length >= passwordMinLength && !submitting;
 
   function checkEmail(v: string) {
     setEmail(v);
@@ -41,17 +54,31 @@ function IdentityScreen() {
     }, 500);
   }
 
+  function checkPassword(v: string) {
+    setPassword(v);
+    if (!v) return setPasswordState("idle");
+    setPasswordState(v.length >= passwordMinLength ? "valid" : "error");
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!canSubmit) return;
     try {
-      await register.mutateAsync({
+      const session = await login.mutateAsync({ email, password });
+      nav({ to: session.roles.includes("admin") ? "/admin" : "/app" });
+      return;
+    } catch (err) {
+      // Only attempt registration when the account genuinely doesn't exist
+      if (!(err instanceof AuthenticationError)) return;
+    }
+    try {
+      const result = await register.mutateAsync({
         email,
         password,
         displayName: deriveDisplayName(email),
         acceptedTerms: true,
       });
-      nav({ to: "/auth/verify", search: { e: email } });
+      nav({ to: "/auth/verify", search: { e: email, c: result.challengeId } });
     } catch {
       /* surfaced via register.error below */
     }
@@ -103,14 +130,17 @@ function IdentityScreen() {
             icon={Lock}
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => checkPassword(e.target.value)}
+            state={passwordState}
+            minLength={passwordMinLength}
+            hint={passwordState === "error" ? `Must be at least ${passwordMinLength} characters.` : undefined}
             whyWeAsk="Encrypted at rest with Argon2id. Never logged, never shared."
           />
 
           <button
             type="submit"
-            disabled={!email || !password || submitting}
-            className="group relative inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl gradient-cyber px-6 text-sm font-semibold text-primary-foreground shadow-glow transition-all duration-300 hover:translate-y-[-1px] disabled:opacity-40 disabled:hover:translate-y-0"
+            disabled={!canSubmit}
+            className="group relative inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-accent px-6 text-sm font-semibold text-accent-foreground shadow-gold transition-all duration-300 hover:bg-accent/90 hover:translate-y-[-1px] disabled:opacity-40 disabled:hover:translate-y-0"
           >
             {submitting ? (
               <ApertureSpinner size={18} />
@@ -128,17 +158,29 @@ function IdentityScreen() {
           ) : null}
         </form>
 
-        <div className="mt-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="mt-8 flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           <span className="h-px flex-1 bg-white/8" />
           or
           <span className="h-px flex-1 bg-white/8" />
         </div>
 
-        <button className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] text-sm text-foreground/90 transition-colors hover:border-white/20">
+        <button className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] text-sm text-foreground/90 transition-colors hover:border-accent/30 hover:bg-accent/[0.04]">
           <Building2 className="h-4 w-4 text-accent" /> Continue with Enterprise SSO
         </button>
 
-        <p className="mt-8 text-[11px] text-muted-foreground">
+        <div className="mt-8 flex items-center justify-center gap-6 text-[11px] text-muted-foreground/70">
+          <span className="inline-flex items-center gap-1">
+            <span className="h-1 w-1 rounded-full bg-success" /> AES-256
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="h-1 w-1 rounded-full bg-success" /> SOC 2
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="h-1 w-1 rounded-full bg-success" /> GDPR
+          </span>
+        </div>
+
+        <p className="mt-4 text-[11px] text-muted-foreground">
           By continuing you accept the AdaptiveGuard Trust Charter. Behavioral data is captured
           on-device; only an encrypted vector ever leaves your browser.
         </p>

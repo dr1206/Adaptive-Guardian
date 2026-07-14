@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdaptiveGuard — Complete Platform Guide</title>
+<style>
+  :root {
+    --bg: #0b0f18;
+    --surface: #131824;
+    --border: rgba(255,255,255,0.06);
+    --text: #e2e4ea;
+    --muted: #7c8191;
+    --accent: #5eeadb;
+    --accent-dim: #2dd4bf;
+    --danger: #f87171;
+    --success: #4ade80;
+    --warn: #fbbf24;
+    --code-bg: #0f1320;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h2 {
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    color: #c4b5fd;
+  }
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.4rem;
+    color: #e2e4ea;
+  }
+  .subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem; }
+  p { margin-bottom: 0.8rem; color: #c5c8d2; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: #c5c8d2; }
+  li { margin-bottom: 0.3rem; }
+  strong { color: var(--text); }
+
+  .nav-toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    columns: 3;
+  }
+  .nav-toc a { color: var(--accent-dim); text-decoration: none; font-size: 0.9rem; display: block; padding: 2px 0; }
+  .nav-toc a:hover { color: var(--accent); }
+
+  .page-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin: 1.2rem 0;
+  }
+  .page-card h4 { margin-top: 0; }
+  .page-card .route { color: var(--accent-dim); font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.85rem; }
+  .page-card .purpose { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .feature-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.3rem;
+  }
+  .feature-item .name { font-weight: 600; color: var(--accent); font-size: 0.95rem; }
+  .feature-item .desc { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
+  .feature-item .hook { font-style: italic; color: #818cf8; font-size: 0.8rem; margin-top: 0.3rem; }
+
+  .section-detail {
+    background: #0f1320;
+    border-left: 2px solid var(--accent-dim);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .section-detail .label { font-weight: 600; color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .section-detail .what { margin-top: 0.3rem; }
+  .section-detail .why { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th { text-align: left; color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); }
+  td { padding: 0.5rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem; color: #c5c8d2; }
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .badge-live { background: rgba(94,234,219,0.12); color: var(--accent); }
+  .badge-ai { background: rgba(129,140,248,0.12); color: #818cf8; }
+  .badge-db { background: rgba(74,222,128,0.12); color: var(--success); }
+  .badge-dev { background: rgba(251,191,36,0.12); color: var(--warn); }
+
+  code { font-family: 'Cascadia Code', 'Fira Code', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+  pre { background: var(--code-bg); padding: 1rem; border-radius: 10px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+
+  .toc-category { break-inside: avoid; margin-bottom: 0.6rem; }
+  .toc-category strong { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+
+  footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>AdaptiveGuard Platform Guide</h1>
+<p class="subtitle">Complete walkthrough of every page, feature, component, and why each exists. <br>For the fintech banking platform + AI behavioral authentication engine.</p>
+
+<!-- ============== TABLE OF CONTENTS ============== -->
+<div class="nav-toc">
+  <div class="toc-category"><strong>Auth Flow</strong></div>
+  <a href="#auth-identity">1. /auth — Identity</a>
+  <a href="#auth-verify">2. /auth/verify — OTP Verification</a>
+  <a href="#auth-calibrate">3. /auth/calibrate — Enrollment</a>
+  <a href="#auth-signature">4. /auth/signature — Signature</a>
+
+  <div class="toc-category" style="margin-top:8px;"><strong>Banking App</strong></div>
+  <a href="#app-dashboard">5. /app — Dashboard</a>
+  <a href="#app-accounts">6. /app/accounts — All Accounts</a>
+  <a href="#app-account-detail">7. /app/accounts/$id — Account Detail</a>
+  <a href="#app-cards">8. /app/cards — Bank Cards</a>
+  <a href="#app-transfer">9. /app/transfer — Money Transfer</a>
+  <a href="#app-transactions">10. /app/transactions — Transactions</a>
+  <a href="#app-payments">11. /app/payments — Scheduled</a>
+  <a href="#app-beneficiaries">12. /app/beneficiaries</a>
+  <a href="#app-statements">13. /app/statements</a>
+  <a href="#app-investments">14. /app/investments</a>
+  <a href="#app-savings">15. /app/savings — Goals</a>
+  <a href="#app-budgets">16. /app/budgets</a>
+  <a href="#app-loans">17. /app/loans</a>
+  <a href="#app-exchange">18. /app/exchange — FX</a>
+  <a href="#app-insights">19. /app/insights — AI Insights</a>
+  <a href="#app-activity">20. /app/activity — Audit Log</a>
+
+  <div class="toc-category" style="margin-top:8px;"><strong>Security Center</strong></div>
+  <a href="#guard-index">21. /app/guard — Security Center</a>
+  <a href="#guard-sub">22–32. /app/guard/* — 11 Sub-pages</a>
+
+  <div class="toc-category" style="margin-top:8px;"><strong>Admin Cockpit</strong></div>
+  <a href="#admin">33. /admin — Admin Cockpit</a>
+  <a href="#admin-sub">34–55. /admin/* — 22 Sub-pages</a>
+  <a href="#admin-deep">Admin Dashboard Deep Dive</a>
+
+  <div class="toc-category" style="margin-top:8px;"><strong>Global UI</strong></div>
+  <a href="#global-shell">Shell, Rails & Shared Components</a>
+  <a href="#backend-services">Backend Services & Data Flow</a>
+</div>
+
+<!-- ====================================================================== -->
+<!-- AUTH FLOW -->
+<!-- ====================================================================== -->
+<h2 id="auth-flow">Auth Flow (4 pages)</h2>
+
+<div class="page-card" id="auth-identity">
+  <h4>1. Identity Screen</h4>
+  <span class="route">/auth/</span>
+  <p class="purpose">The gate — adaptive login-or-register in a single form.</p>
+  <div class="section-detail">
+    <div class="label">Sections</div>
+    <div class="what">
+      <strong>Email input</strong> — client-side validation with live feedback (valid/invalid states). Auto-derives display name from email local-part.<br>
+      <strong>Password input</strong> — minimum 12 characters enforced. Shows "Must be at least 12 characters" hint when too short.<br>
+      <strong>Submit button</strong> — tries LOGIN first. If that fails (user doesn't exist), falls through to REGISTER. If register succeeds, navigates to OTP verification.<br>
+      <strong>Enterprise SSO button</strong> — placeholder for SAML/OIDC integration.<br>
+      <strong>Preview panel</strong> — decorative balance tiles and transaction rows (marketing, not real data).
+    </div>
+    <div class="why">Combining login and register behind one button eliminates the "do I have an account?" friction. The button does the right thing automatically. Password minimum is enforced client-side to avoid a confusing 422 from the backend.</div>
+  </div>
+</div>
+
+<div class="page-card" id="auth-verify">
+  <h4>2. OTP Verification</h4>
+  <span class="route">/auth/verify</span>
+  <p class="purpose">6-digit one-time password entry after registration.</p>
+  <div class="section-detail">
+    <div class="label">Sections</div>
+    <div class="what">
+      <strong>OTP Pucks</strong> — 6 animated input circles that glow in sequence as digits are entered. Visual feedback per digit.<br>
+      <strong>Resend timer</strong> — countdown before re-request (currently static "0:45").<br>
+      <strong>Device memo</strong> — "This device has not been seen before — we'll remember it."<br>
+      <strong>Calibration transition</strong> — spinner + "Code accepted. Calibrating your behavioral profile…" on success.<br>
+      <strong>Error hint</strong> — if OTP fails, suggests checking the backend terminal for the code.
+    </div>
+    <div class="why">OTP proves device/channel ownership before creating the account. The backend stores codes in Redis (5-minute TTL) and logs them to console — no SMTP integration yet. This will eventually send via email/SMS.</div>
+  </div>
+</div>
+
+<div class="page-card" id="auth-calibrate">
+  <h4>3. Behavioral Calibration (Enrollment)</h4>
+  <span class="route">/auth/calibrate</span>
+  <p class="purpose">Captures keystroke and mouse dynamics to build a behavioral baseline.</p>
+  <div class="section-detail">
+    <div class="label">Sections</div>
+    <div class="what">
+      <strong>Typing sample</strong> — prompts user to type a passphrase. Captures hold times (ms per key press) and flight times (ms between keys) — 10 features each.<br>
+      <strong>Mouse sample</strong> — prompts mouse movement. Captures velocity profile (5 features), curvature profile (5 features), and jerk profile (5 features).<br>
+      <strong>Progress bar</strong> — shows enrollment progress through both phases.<br>
+      <strong>Completion screen</strong> — shows baseline quality score (0-1 confidence) and navigates to signature page.
+    </div>
+    <div class="why">This is the AI enrollment phase. The behavioral biometric data is sent to the backend <code>POST /auth/enrollment</code> endpoint. Currently processed by a mock scoring service — will be replaced by the real Behavioral Authentication engine (LightGBM + One-Class SVM) in the AI phase.</div>
+  </div>
+</div>
+
+<div class="page-card" id="auth-signature">
+  <h4>4. Behavioral Signature</h4>
+  <span class="route">/auth/signature</span>
+  <p class="purpose">Displays the user's unique behavioral signature glyph and redirects to the app.</p>
+  <div class="section-detail">
+    <div class="label">Sections</div>
+    <div class="what">
+      <strong>SignatureGlyph</strong> — a unique geometric pattern derived from the user's enrollment data (hash-based visual fingerprint). Each user sees a different glyph.<br>
+      <strong>Auto-redirect</strong> — after a brief animation, navigates to <code>/app</code>.
+    </div>
+    <div class="why">Builds trust — the user sees a visual confirmation that their behavioral profile was captured. The glyph is deterministic from a hash seed, so it stays consistent across sessions.</div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- BANKING APP -->
+<!-- ====================================================================== -->
+<h2 id="app-dashboard">Banking App — Main Dashboard & All Pages</h2>
+
+<div class="page-card" id="app-dashboard">
+  <h4>5. Dashboard</h4>
+  <span class="route">/app/</span>
+  <p class="purpose">The command center — every banking widget and security metric on one screen.</p>
+  <div class="section-detail">
+    <div class="label">Sections (top to bottom)</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>CommandBar</strong> — global search input, Aegis confidence pill (live), notification bell (unread count), quick-transfer button, current time, avatar/SignatureGlyph. Sticky header that gains a backdrop-blur on scroll.
+    </div>
+    <div class="why">Persistent chrome. The confidence pill and notification bell give at-a-glance security status without navigating away. The avatar glyph is the user's behavioral signature — subtly reinforcing "the system knows it's you."</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>WelcomeHeader</strong> — greets user by display name, shows date, and displays 3 stat chips (accounts count, total transactions, active savings goals) — computed from real hook data.
+    </div>
+    <div class="why">Warm greeting with contextual stats. Uses real data from <code>useAccounts()</code> and <code>useTransactions()</code>.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>BalanceHero</strong> — the main balance card showing selected account's balance (€/$, large 56px font), delta percentage, account switcher dropdown, IBAN, pending amount, and a mini area chart (HeroChart). Has hide/reveal toggle and action buttons (Transfer, Deposit, Pay, Exchange, Statement). Falls back to "No accounts available" if empty.
+    </div>
+    <div class="why">The most prominent financial element. The account switcher lets users flip between checking/savings/investment/business accounts. The hero chart is decorative but follows a positive trend to convey growth visually.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>AegisWidget</strong> — 6-row security card: Confidence ring (live %), Trust level (computed from confidence), Active Sessions count, Device Trust, Behavioral Match, Risk Score. Also shows Whisper text — a natural-language security note from the backend.
+    </div>
+    <div class="why">Brings security transparency to the dashboard. Every metric is live from <code>useAegisSnapshot()</code> and <code>useSecurityOverview()</code>. No hardcoded values. The whisper text will eventually be AI-generated explanations.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>SecurityOverview</strong> — 7-card grid: Auth Confidence, Trusted Device, Active Sessions, Flagged Events (24h), Session Integrity (grade), AI Monitoring (status), Risk Assessment (computed). Each card has a label, value, and descriptive note.
+    </div>
+    <div class="why">Quick security posture snapshot. The 7 dimensions mirror real security operations: who, what device, how many sessions, any flags, session quality, AI status, and risk level.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>WidgetMosaic</strong> — 7 self-contained sub-widgets:
+      <ul>
+        <li><strong>InsightsCard</strong> — AI-generated financial insights (e.g. "Spending increased 12%", "Subscription overlap detected"). Shows tone icon (up/down/saving/shield/growth), title, body, and action button.</li>
+        <li><strong>SpendDonut</strong> — donut chart of spending by category (Housing, Groceries, Transport, etc.) with total and category breakdown. Uses <code>useBudgets()</code> + <code>useDashboardAnalytics()</code>.</li>
+        <li><strong>CashFlow</strong> — income vs. expense visualization with totals. Uses <code>useDashboardAnalytics()</code>.</li>
+        <li><strong>SavingsGoalWidget</strong> — first savings goal progress bar (e.g. "Vacation Fund: 67.5%"). Uses <code>useSavingsGoals()</code>.</li>
+        <li><strong>PortfolioCard</strong> — total portfolio value, allocation breakdown by holding, day change %. Uses <code>useHoldings()</code>.</li>
+        <li><strong>FxCard</strong> — live exchange rates (USD, EUR, GBP, JPY, CHF, CAD, AUD, INR). Uses <code>useCurrencies()</code>.</li>
+        <li><strong>BeneficiariesCard</strong> — top favorite beneficiaries with initials and last-used info. Uses <code>useBeneficiaries()</code>.</li>
+      </ul>
+    </div>
+    <div class="why">Each sub-widget is independently data-fetching via its own React Query hook. No data flows through props — each component calls its hook internally. This means widgets can be rearranged or extracted without breaking data flow. Loading skeletons, empty states, and error boundaries guard every widget.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>TransactionFeed</strong> — list of recent transactions with description, amount, currency, category, date, and status (completed/pending). Pulls from <code>useTransactions()</code>.
+    </div>
+    <div class="why">Quick transaction review without navigating to the full transactions page. Uses real MongoDB data seeded on first access.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>AttentionLane</strong> — alert-style notifications (e.g. "Unrecognized login attempt", "Large transfer pending"). Currently uses a static seed — will be driven by the AI anomaly detection pipeline.
+    </div>
+    <div class="why">Security alerts where users need them — on the dashboard. Future: AI-generated anomaly notifications from the behavioral engine.</div>
+
+    <div class="what" style="margin-top:0.5rem;">
+      <strong>ActionDock</strong> — 6 quick-action shortcuts at the bottom: Transfer, Pay, Deposit, Exchange, Statement, Investments. Always visible, no scrolling needed.
+    </div>
+    <div class="why">Reduces clicks for frequent actions. Mobile-friendly persistent toolbar.</div>
+  </div>
+</div>
+
+<!-- Remaining banking pages -->
+<div class="page-card" id="app-accounts">
+  <h4>6. Accounts List</h4>
+  <span class="route">/app/accounts</span>
+  <p class="purpose">All bank accounts with balances, types, and IBANs.</p>
+  <div class="section-detail">
+    <div class="what"><strong>AccountCard</strong> per account — name, balance (with hide/reveal), type (primary/savings/investment/business), currency, IBAN, delta %, sparkline mini-chart. Links to detail view.</div>
+    <div class="why">Full account overview. Uses <code>useAccounts()</code> — data from MongoDB via seed-on-first-access pattern.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-account-detail">
+  <h4>7. Account Detail</h4>
+  <span class="route">/app/accounts/$id</span>
+  <p class="purpose">Deep view of a single account with all transactions.</p>
+  <div class="section-detail">
+    <div class="what"><strong>BalanceHero</strong> for that account + filtered <strong>TransactionFeed</strong> showing only that account's transactions. Uses <code>useAccount(id)</code> and filtered <code>useTransactions({ accountId: id })</code>.</div>
+    <div class="why">Transaction history filtered by account. The dynamic route parameter drives the data fetching.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-cards">
+  <h4>8. Bank Cards</h4>
+  <span class="route">/app/cards</span>
+  <p class="purpose">All debit/credit/virtual cards with limits and spending.</p>
+  <div class="section-detail">
+    <div class="what"><strong>BankCard / CardObject</strong> — card visual with network logo (Visa/Mastercard), last 4 digits, holder name, expiry, frozen status, finish style (platinum/champagne/iris), daily/monthly/ATM limits, spending progress. Uses <code>useCards()</code>.</div>
+    <div class="why">Card management overview. The card object component renders a realistic card visual with finish gradients.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-transfer">
+  <h4>9. Money Transfer</h4>
+  <span class="route">/app/transfer</span>
+  <p class="purpose">Initiate a transfer to a beneficiary.</p>
+  <div class="section-detail">
+    <div class="what"><strong>Form</strong> — from account selector, beneficiary selector, amount input, currency, reference field. <strong>PressHoldButton</strong> — requires press-and-hold to confirm (prevents accidental transfers). Uses <code>useInitiateTransfer()</code> mutation.</div>
+    <div class="why">The press-and-hold confirmation is a behavioral security measure — it's harder to trigger accidentally or via script. Transfer invalidates account and transaction caches on success.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-transactions">
+  <h4>10. Transactions</h4>
+  <span class="route">/app/transactions</span>
+  <p class="purpose">Full transaction history with search and filter.</p>
+  <div class="section-detail">
+    <div class="what"><strong>TransactionRow</strong> list — description, amount (color-coded credit/debit), currency, category, date, status, beneficiary, reference. Uses <code>useTransactions()</code> — 50 most recent from MongoDB.</div>
+    <div class="why">Complete financial history. Transaction data is deterministic per user (seeded from user_id hash), so it's consistent across sessions.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-payments">
+  <h4>11. Scheduled Payments</h4>
+  <span class="route">/app/payments</span>
+  <p class="purpose">Recurring payments — rent, insurance, subscriptions.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>ScheduledPayment</strong> entries: description, amount, currency, next date, frequency (monthly/quarterly), beneficiary. Uses <code>usePayments()</code>.</div>
+    <div class="why">Forward-looking cash flow visibility. Helps users plan around recurring obligations.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-beneficiaries">
+  <h4>12. Beneficiaries</h4>
+  <span class="route">/app/beneficiaries</span>
+  <p class="purpose">Saved payees for transfers.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>BeneficiaryCard</strong> items: name, IBAN, bank, currency, favorites indicator. Uses <code>useBeneficiaries()</code>. New beneficiaries can be added via a form.</div>
+    <div class="why">Transfer recipients management. Beneficiaries are stored in MongoDB and linked to transfers.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-statements">
+  <h4>13. Statements</h4>
+  <span class="route">/app/statements</span>
+  <p class="purpose">Monthly bank statements with year/month navigation.</p>
+  <div class="section-detail">
+    <div class="what"><strong>Year/month picker</strong> — select a year (current year - 2 through current) and month. <strong>Statement view</strong> — opening balance, closing balance, list of transactions for that month. Uses <code>useStatementYears()</code> and <code>useStatement({ year, month })</code>.</div>
+    <div class="why">Traditional bank statement format for reconciliation and record-keeping. Data is computed from transaction history.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-investments">
+  <h4>14. Investments / Portfolio</h4>
+  <span class="route">/app/investments</span>
+  <p class="purpose">Portfolio holdings with performance metrics.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>Holding</strong> entries: symbol, name, quantity, price, total value, currency, delta %. Total portfolio value at top. Uses <code>useHoldings()</code>.</div>
+    <div class="why">Portfolio tracking. Holdings seeded per-user (AAPL, VTI, BTC, SPY, GOOGL) with realistic prices and jitter.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-savings">
+  <h4>15. Savings Goals</h4>
+  <span class="route">/app/savings</span>
+  <p class="purpose">Goal-based savings tracker.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>SavingsGoal</strong> entries: name, target amount, current amount, progress %, deadline, image (beach/car/shield). Includes progress bars. Uses <code>useSavingsGoals()</code>.</div>
+    <div class="why">Goal-oriented savings psychology — visualizing progress toward a named goal increases motivation and retention.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-budgets">
+  <h4>16. Budgets</h4>
+  <span class="route">/app/budgets</span>
+  <p class="purpose">Category-based budget envelopes with spending tracking.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>BudgetEnvelope</strong> entries: category (Housing, Groceries, Transport, Dining, Entertainment, Utilities, Shopping, Healthcare), budgeted amount, spent amount, remaining %, color-coded progress bars, currency. Uses <code>useBudgets()</code>.</div>
+    <div class="why">Envelope budgeting method — allocate money to categories and track spending against each envelope. Color coding gives visual spending health at a glance.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-loans">
+  <h4>17. Loans</h4>
+  <span class="route">/app/loans</span>
+  <p class="purpose">Active loans with repayment tracking.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>LoanRecord</strong> entries: name (Home Mortgage, Auto Loan), principal, remaining, currency, interest rate %, next payment date, progress bar (paid vs remaining). Uses <code>useLoans()</code>.</div>
+    <div class="why">Debt visibility. Shows both the remaining amount and how close the loan is to being paid off.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-exchange">
+  <h4>18. Foreign Exchange</h4>
+  <span class="route">/app/exchange</span>
+  <p class="purpose">Live currency exchange rates.</p>
+  <div class="section-detail">
+    <div class="what">Grid of <strong>Currency</strong> entries: code, name, rate (vs USD), symbol. 8 currencies: USD, EUR, GBP, JPY, CHF, CAD, AUD, INR. Uses <code>useCurrencies()</code>. Global data — same for all users.</div>
+    <div class="why">Quick FX reference for international banking. Rates have micro-jitter to simulate live fluctuation.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-insights">
+  <h4>19. AI Insights</h4>
+  <span class="route">/app/insights</span>
+  <p class="purpose">AI-generated financial recommendations and alerts.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>InsightCard</strong> items: tone icon (up=spending increase, down=subscription alert, saving=goal progress, shield=security, calendar=upcoming payment, growth=portfolio gain), title, body text, action button. Uses <code>useInsights()</code>.</div>
+    <div class="why">Actionable financial intelligence. Each insight has a clear tone (emotional valence) and a specific action. Future: AI-generated from transaction patterns.</div>
+  </div>
+</div>
+
+<div class="page-card" id="app-activity">
+  <h4>20. Activity Log</h4>
+  <span class="route">/app/activity</span>
+  <p class="purpose">Audit trail of user actions.</p>
+  <div class="section-detail">
+    <div class="what">List of <strong>ActivityEvent</strong> entries: type (login/transfer/beneficiary_added/card_frozen/statement_viewed), description, timestamp. Uses <code>useActivity()</code>.</div>
+    <div class="why">Transparency — users can see every action taken on their account. Builds trust and aids security investigation.</div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- SECURITY CENTER -->
+<!-- ====================================================================== -->
+<h2 id="security-center">Security Center (12 pages)</h2>
+
+<div class="page-card" id="guard-index">
+  <h4>21. Security Center (Index)</h4>
+  <span class="route">/app/guard/</span>
+  <p class="purpose">AI Security Operations — the behavioral authentication command center.</p>
+  <div class="section-detail">
+    <div class="label">Sections</div>
+    <div class="what">
+      <strong>Band 1 — Aegis Hero:</strong> ConfidenceRing (live auth confidence % with ghost baseline comparison), status pills (Recognized / Trusted device / Session stable), identity stack card (6 rows: Behavior, Device, Location, Session, Network, History — each with confidence % and note), Aegis pulse card (AuroraStrip live signal visualization, session duration, whisper text).<br><br>
+      <strong>Band 2 — Session Timeline:</strong> SessionRiver visualization showing today's authentication events as a flowing timeline. Links to full auth-timeline.<br><br>
+      <strong>Band 3 — Live Behavior Mosaic (4 cards):</strong>
+      <ul>
+        <li><strong>Typing Rhythm</strong> — WaveformTrace visualization. AI placeholder.</li>
+        <li><strong>Mouse Flow</strong> — MouseFlowMini SVG path. AI placeholder.</li>
+        <li><strong>Interaction Pattern</strong> — InteractionBars (24-bar rhythm). AI placeholder.</li>
+        <li><strong>Behavior Drift</strong> — DualLine chart (baseline vs current). AI placeholder.</li>
+      </ul>
+      These are visualizations of the behavioral biometric signals that the AI engine will analyze.<br><br>
+      <strong>Band 4 — Trust + Whispers:</strong>
+      Trust score (0-10, computed from device health average), 5 trust factor sparklines (Device, Location, Behavior, Session, Historical) each with progress bar and sparkline chart. Aegis notifications (WHISPERS) from risk events with severity icons and timestamps.
+    </div>
+    <div class="why">This is the crown-jewel page of the platform. It visualizes continuous behavioral authentication — proving identity moment by moment from typing rhythm, mouse movement, and device signal. The 6 identity factors create a multi-dimensional trust model. The behavior mosaic cards are the primary visualization surfaces for the AI engine (Feature Extraction, LightGBM, One-Class SVM, SHAP).</div>
+  </div>
+</div>
+
+<div class="page-card" id="guard-sub">
+  <h4>22–32. Security Center Sub-pages</h4>
+  <p class="purpose">11 dedicated analysis pages for each security dimension.</p>
+  <table>
+    <tr><th>Route</th><th>Page</th><th>What It Shows</th><th>Status</th></tr>
+    <tr><td><code>/app/guard/authentication</code></td><td>Auth Timeline</td><td>Chronological list of auth events with confidence values, IPs, and device info</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/auth-timeline</code></td><td>Full Session Timeline</td><td>SessionRiver + detailed session event log</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/behavior</code></td><td>Behavior Overview</td><td>Aggregate behavioral metrics — typing consistency, mouse precision, interaction cadence</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/behavior-timeline</code></td><td>Behavior Over Time</td><td>Drift-band chart showing how behavior changes across sessions</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/typing</code></td><td>Keystroke Analysis</td><td>Detailed keystroke dynamics — heatmap, hold times, flight times, rhythm patterns</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/mouse</code></td><td>Mouse Flow Analysis</td><td>Mouse movement trajectories, velocity/curvature/jerk profiles</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/session</code></td><td>Session Behavior</td><td>Per-session interaction patterns and anomaly flags</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/devices</code></td><td>Device Management</td><td>Trusted devices list, trust scores, last seen, device labels</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/risk</code></td><td>Risk Dashboard</td><td>Risk heatmap, risk events by severity, risk score history</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/decisions</code></td><td>Decision Waterfall</td><td>Audit trail of every allow/deny/challenge decision</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/challenges</code></td><td>Challenge History</td><td>Step-up authentication challenges issued with reasons and outcomes</td><td><span class="badge badge-live">Live Data</span></td></tr>
+    <tr><td><code>/app/guard/learning</code></td><td>Behavior Learning</td><td>Model training progress, baseline updates, concept drift monitoring</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/explainability</code></td><td>SHAP Explainability</td><td>Per-decision feature attribution — "why was this flagged?"</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/reports</code></td><td>Security Reports</td><td>Downloadable/emailable security posture reports</td><td><span class="badge badge-ai">AI Placeholder</span></td></tr>
+    <tr><td><code>/app/guard/privacy</code></td><td>Privacy Controls</td><td>Data retention, behavioral data export, consent management</td><td><span class="badge badge-dev">Dev</span></td></tr>
+  </table>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ADMIN -->
+<!-- ====================================================================== -->
+<h2 id="admin">Admin Cockpit (23 pages)</h2>
+
+<div class="page-card" id="admin">
+  <h4>33. Admin Cockpit — Pulse Dashboard</h4>
+  <span class="route">/admin/</span>
+  <p class="purpose">Real-time operations dashboard for the behavioral authentication platform.</p>
+
+  <div class="section-detail" id="admin-deep">
+    <div class="label">Admin Cockpit Deep Dive — Every Section Explained</div>
+
+    <!-- ---- Hero ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">A. Hero Header</h4>
+    <div class="what">
+      <strong>Today's overview</strong> — date stamp (e.g. "Sun 28 Jun") with monospace styling.<br>
+      <strong>Title: "Cockpit"</strong> — signals this is the ops/engineering view.<br>
+      <strong>Stat line</strong> — "Behavioral biometrics in production · 124,891 enrolled users · model v2.4.1".<br>
+      <strong>Live indicator</strong> — pulsing green dot + "aegis online · 1.24k predictions/s".
+    </div>
+    <div class="why">Establishes the admin as an operational dashboard (not a marketing page). The enrolled user count and model version establish scale and versioning awareness. The predictions/s metric shows inference throughput.</div>
+
+    <!-- ---- KPI Grid ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">B. KPI Grid (4 MetricCells)</h4>
+    <div class="what">
+      4 key performance indicators fetched from <code>useAdminKpis()</code>:
+      <ul>
+        <li><strong>Active Users</strong> — current 24h active user count with delta and sparkline</li>
+        <li><strong>Auth Success Rate</strong> — % of authentications that passed (no challenge)</li>
+        <li><strong>Avg Confidence</strong> — mean behavioral confidence across all active sessions</li>
+        <li><strong>Flagged Sessions</strong> — sessions currently in warning/critical status</li>
+      </ul>
+      Each KPI shows value, suffix, delta %, signal color (green/yellow/red), and a mini sparkline.
+    </div>
+    <div class="why">Executive summary in 4 numbers. The signal color gives instant health assessment. The sparkline shows the trend — is it getting better or worse? These are the metrics an operations team watches on a wall monitor.</div>
+
+    <!-- ---- Confidence River ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">C. Confidence River</h4>
+    <div class="what">
+      <strong>RiverChart</strong> — a 901-point time series of authentication confidence over the last 24 hours. Height: 180px. Pinned events at specific indices: watch (yellow), alert (orange), critical (red), ok (green). Header shows min/max range and "stable" status.
+    </div>
+    <div class="why">The river chart is the tactical heartbeat of the platform. A sudden dip in confidence across all users could indicate a system-wide issue (model degradation, data pipeline failure). The pins mark incident timestamps for correlation.</div>
+
+    <!-- ---- Live Sessions ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">D. Live Sessions Table</h4>
+    <div class="what">
+      <strong>LiveTape</strong> — real-time table of the 8 most recent active sessions. Columns: User (with initials avatar), Page (current route), Confidence % (with SignalDot color), Risk score (numeric, red if > 0.5), Activity (what they're doing), Last event timestamp. Fetched from <code>useAdminLiveSessions()</code>.
+    </div>
+    <div class="why">Like an air-traffic control radar — see every active user, their confidence level, and risk score in real time. Operators can spot a session whose confidence is dropping and intervene before it becomes a security incident.</div>
+
+    <!-- ---- Model Engine ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">E. Model Engine (AI Pulse Card)</h4>
+    <div class="what">
+      <strong>Circular gauge</strong> — 99.2% health with "healthy" label and "v2.4.1" version.<br>
+      <strong>3 sub-metrics:</strong> 1.24k predictions/second, 12ms p50 latency, 38ms p99 latency.<br>
+      <strong>Link:</strong> "Open Live AI Monitor →" navigates to <code>/admin/ai/live</code>.
+    </div>
+    <div class="why">Model health at a glance. The p50/p99 latency split is critical — high p99 means some users are experiencing slow auth decisions. The version number ensures operators know which model is in production.</div>
+
+    <!-- ---- Decision Flow ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">F. Decision Flow (PipelineFlow)</h4>
+    <div class="what">
+      <strong>PipelineFlow</strong> — visual representation of the inference pipeline stages: Feature Extraction → LightGBM Scoring → One-Class SVM → Threshold Decision → Action (Allow/Challenge/Deny). Shows which stage is currently active (stage 3 = SVM). "all stages green" status.
+    </div>
+    <div class="why">Operations transparency into the AI pipeline. If a stage goes red, operators know exactly where the failure is without digging through logs.</div>
+
+    <!-- ---- Open Incidents ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">G. Open Incidents (Attention Lane)</h4>
+    <div class="what">
+      List of <strong>Incident</strong> entries from <code>useAdminIncidents()</code>: ID, severity badge (critical/alert/watch/info) with color coding, source system, age, title, "Triage" action button. Top 5 shown, link to full list.
+    </div>
+    <div class="why">Incident response queue. Severity color coding follows ITIL standards (critical=red, alert=orange, watch=yellow, info=blue). The triage button is the entry point for incident management workflow.</div>
+
+    <!-- ---- System Health ---- -->
+    <h4 style="color:var(--accent); margin-top:1rem;">H. System Health</h4>
+    <div class="what">
+      4 resource gauges with icons and progress bars:
+      <ul>
+        <li><strong>CPU</strong> — 38% utilization. Icon: Cpu.</li>
+        <li><strong>Memory</strong> — 62% utilization. Icon: MemoryStick.</li>
+        <li><strong>Disk</strong> — 41% utilization. Icon: HardDrive.</li>
+        <li><strong>Inference</strong> — 71% utilization. Icon: Activity.</li>
+      </ul>
+      Color gradient: green below 75%, red above 75%. Link to full infrastructure page.
+    </div>
+    <div class="why">DevOps health monitoring. Inference utilization is separated from general CPU because it's the most critical metric — high inference load means the behavioral auth pipeline is saturated.</div>
+  </div>
+</div>
+
+<div class="page-card" id="admin-sub">
+  <h4>34–55. Admin Sub-pages (22 pages)</h4>
+  <table>
+    <tr><th>Route</th><th>Page</th><th>What It Shows</th></tr>
+    <tr><td><code>/admin/users</code></td><td>User Management</td><td>All registered users — email, full name, roles, enrollment status, account status. Admin can view details, disable accounts.</td></tr>
+    <tr><td><code>/admin/accounts</code></td><td>Account Management</td><td>All bank accounts across all users — balances, types, currencies. Financial oversight view.</td></tr>
+    <tr><td><code>/admin/roles</code></td><td>Roles & Permissions</td><td>RBAC management — roles (admin/analyst/user), permissions matrix, role assignment.</td></tr>
+    <tr><td><code>/admin/sessions</code></td><td>Auth Sessions</td><td>All active and historical sessions — user, IP, user agent, device, confidence, risk score. Revocation capability.</td></tr>
+    <tr><td><code>/admin/challenges</code></td><td>Challenge Center</td><td>Step-up authentication challenges issued — reason, user, outcome (passed/failed/pending).</td></tr>
+    <tr><td><code>/admin/behavior</code></td><td>Behavior Analytics</td><td>Aggregate behavioral metrics across user population — typing patterns, mouse dynamics, drift detection.</td></tr>
+    <tr><td><code>/admin/ai/live</code></td><td>Live AI Monitoring</td><td>Real-time inference dashboard — prediction rate, latency distribution, confidence distribution, model throughput.</td></tr>
+    <tr><td><code>/admin/ai/models</code></td><td>Model Management</td><td>Model registry — versioned models (LightGBM, OC-SVM), training dates, accuracy, deployment status.</td></tr>
+    <tr><td><code>/admin/ai/datasets</code></td><td>Dataset Management</td><td>Training datasets — size, features, labels, creation dates, data quality metrics.</td></tr>
+    <tr><td><code>/admin/ai/explain</code></td><td>AI Explainability</td><td>Per-prediction SHAP values — why the model made a specific decision. Feature importance rankings.</td></tr>
+    <tr><td><code>/admin/ai</code></td><td>AI Overview</td><td>Consolidated AI dashboard — all models, datasets, and explainability in one view.</td></tr>
+    <tr><td><code>/admin/anomalies</code></td><td>Anomaly Signatures</td><td>Detected behavioral anomalies — pattern type, severity, affected users, detection timestamp.</td></tr>
+    <tr><td><code>/admin/api</code></td><td>API Services</td><td>Internal/external API service registry — endpoints, health status, rate limits, versioning.</td></tr>
+    <tr><td><code>/admin/audit</code></td><td>Audit Trail</td><td>Full system audit log — who did what, when, from where. Searchable, filterable.</td></tr>
+    <tr><td><code>/admin/compliance</code></td><td>Compliance Controls</td><td>GDPR/SOC2 compliance framework — control status, evidence, last review date.</td></tr>
+    <tr><td><code>/admin/infra</code></td><td>Infrastructure</td><td>Server/infrastructure health — CPU, memory, disk, network, Redis, MongoDB, MinIO.</td></tr>
+    <tr><td><code>/admin/notifications</code></td><td>Notification Groups</td><td>System notification management — alert routing, escalation policies, notification channels.</td></tr>
+    <tr><td><code>/admin/reports</code></td><td>Report Templates</td><td>Security report generation — templates for daily/weekly/monthly reports, export formats.</td></tr>
+    <tr><td><code>/admin/risk</code></td><td>Risk Dashboard</td><td>Platform-wide risk assessment — risk heatmap, geo-risk distribution, risk score trends.</td></tr>
+    <tr><td><code>/admin/settings</code></td><td>Platform Settings</td><td>Global configuration — thresholds, TTLs, feature flags, rate limits.</td></tr>
+    <tr><td><code>/admin/accounts</code></td><td>Admin Accounts</td><td>Financial account oversight — all user accounts, balances, flags, activity status.</td></tr>
+    <tr><td><code>/admin/sessions</code></td><td>Session Management</td><td>Active session monitoring with forced-logout and session investigation tools.</td></tr>
+  </table>
+</div>
+
+<!-- ====================================================================== -->
+<!-- GLOBAL SHELL -->
+<!-- ====================================================================== -->
+<h2 id="global-shell">Global UI Shell & Shared Components</h2>
+
+<div class="page-card">
+  <h4>App Shell (Desktop)</h4>
+  <div class="section-detail">
+    <div class="label">Components always visible</div>
+    <div class="what">
+      <strong>VaultRail</strong> — left sidebar navigation (300px wide). 4 groups:
+      <ul>
+        <li><strong>PRIMARY:</strong> Dashboard, Accounts, Cards, Transfer, Payments, Transactions, Beneficiaries, Statements</li>
+        <li><strong>GROW:</strong> Investments, Savings, Budgets, Loans, Exchange</li>
+        <li><strong>INTEL:</strong> Insights, Activity</li>
+        <li><strong>GUARD:</strong> Security Center, Authentication, Devices + 11 more security sub-pages</li>
+      </ul>
+      Bottom section: Settings, Help, Logout. Keyboard shortcuts (⌘1-⌘6) shown for primary items.<br><br>
+      <strong>CommandBar</strong> — sticky top bar: search, Aegis pill, transfer button, notification bell, clock, avatar (SignatureGlyph).<br><br>
+      <strong>SecurityStrip</strong> — fixed bottom bar: Aegis confidence %, "Behavior stable", "Trusted device", session timer, rotating whisper text, "AES-256 · v4.2.1". Pulsing green accent on security events.<br><br>
+      <strong>VaultAtmosphere</strong> — full-screen animated gradient background (0.85 opacity). Creates the "inside a secure vault" ambiance.
+    </div>
+    <div class="why">The shell provides consistent navigation, security status, and atmosphere across every page. The rail groups organize 30+ pages into logical domains. The SecurityStrip is always visible — continuous security reassurance.</div>
+  </div>
+</div>
+
+<div class="page-card">
+  <h4>Admin Shell (Desktop)</h4>
+  <div class="section-detail">
+    <div class="label">Components always visible</div>
+    <div class="what">
+      <strong>OpsRail</strong> — left sidebar (268px wide). 7 groups:
+      <ul>
+        <li><strong>PULSE:</strong> Dashboard</li>
+        <li><strong>PEOPLE:</strong> Users, Accounts, Roles & Permissions</li>
+        <li><strong>IDENTITY OPS:</strong> Auth Sessions, Challenge Center, Behavior Analytics</li>
+        <li><strong>AI CORE:</strong> Live AI Monitoring, Model Management, Dataset Management, Explainability</li>
+        <li><strong>RISK:</strong> Risk Dashboard, Anomaly Signatures, Compliance Controls</li>
+        <li><strong>SYSTEMS:</strong> Infrastructure, API Services, Audit Trail, Notification Groups</li>
+        <li><strong>CONFIGURE:</strong> Report Templates, Platform Settings</li>
+      </ul>
+      <strong>OpsTopBar</strong> — admin top bar with search and quick stats.<br>
+      <strong>OpsStatusBar</strong> — fixed bottom bar showing system status, model version, uptime.<br>
+      <strong>AegisConsole</strong> — collapsible side panel with AI decision log and live inference feed.<br>
+      <strong>VaultAtmosphere</strong> — same ambient background at 0.35 opacity + faint cockpit graticule overlay.
+    </div>
+    <div class="why">The admin shell is visually distinct from the user app — lighter background, graticule grid, different rail — to prevent confusion between user and admin contexts. The AegisConsole floating panel gives ops engineers a persistent AI decision feed.</div>
+  </div>
+</div>
+
+<div class="page-card">
+  <h4>Shared Brand & UI Components</h4>
+  <table>
+    <tr><th>Component</th><th>Location</th><th>Purpose</th></tr>
+    <tr><td><strong>Shield</strong></td><td>brand/</td><td>Animated logo shield with live pulse mode. Used in nav, auth pages, security center.</td></tr>
+    <tr><td><strong>SignatureGlyph</strong></td><td>brand/</td><td>Unique geometric avatar derived from behavioral signature seed. Used as user avatar.</td></tr>
+    <tr><td><strong>Wordmark</strong></td><td>brand/</td><td>"adaptiveguard.ai" text logo.</td></tr>
+    <tr><td><strong>ApertureInput</strong></td><td>auth/</td><td>56px banking-grade input with floating label, icon, validity glyph (spinner → check), hint text, "Why we ask" tooltip.</td></tr>
+    <tr><td><strong>AuthShell</strong></td><td>auth/</td><td>Split-screen layout for auth pages — form on left, preview panel on right.</td></tr>
+    <tr><td><strong>OtpPucks</strong></td><td>auth/</td><td>6 animated circles for OTP entry. Glow in sequence as digits are typed.</td></tr>
+    <tr><td><strong>PageHeader</strong></td><td>banking/</td><td>Consistent page header with eyebrow (category), title, and subtitle.</td></tr>
+    <tr><td><strong>EmptyState</strong></td><td>banking/</td><td>Standardized empty state with icon, title, description, and optional action button.</td></tr>
+    <tr><td><strong>PressHoldButton</strong></td><td>banking/</td><td>Button requiring press-and-hold to confirm (anti-accidental-transfer).</td></tr>
+    <tr><td><strong>Sparkline</strong></td><td>banking/</td><td>Mini SVG sparkline chart used in account cards, trust factors, and KPIs.</td></tr>
+    <tr><td><strong>ConfidenceRing</strong></td><td>guard/</td><td>Circular confidence gauge with SVG arc, ghost comparison ring, and label. Sizes: sm, md, xl.</td></tr>
+    <tr><td><strong>SigilCard</strong></td><td>guard/</td><td>Security-themed card container with eyebrow, title, live indicator dot, and navigation link.</td></tr>
+    <tr><td><strong>AuroraStrip</strong></td><td>guard/</td><td>Animated live signal bar — visual representation of Aegis confidence stream.</td></tr>
+    <tr><td><strong>WaveformTrace</strong></td><td>guard/</td><td>Keystroke rhythm visualization. AI placeholder.</td></tr>
+    <tr><td><strong>SessionRiver</strong></td><td>guard/</td><td>Session timeline visualization. AI placeholder.</td></tr>
+    <tr><td><strong>RiskGauge</strong></td><td>admin/</td><td>Radial risk gauge with multi-color zones.</td></tr>
+    <tr><td><strong>HeatGrid</strong></td><td>admin/</td><td>Geo-risk heatmap grid.</td></tr>
+    <tr><td><strong>GeoMap</strong></td><td>admin/</td><td>Geographic distribution of sessions/risks.</td></tr>
+    <tr><td><strong>InstrumentPanel</strong></td><td>admin/</td><td>Admin card container with eyebrow, title, actions slot, and content.</td></tr>
+    <tr><td><strong>MetricCell</strong></td><td>admin/</td><td>Single KPI cell — label, value, suffix, delta, signal dot, sparkline.</td></tr>
+    <tr><td><strong>LiveTape</strong></td><td>admin/</td><td>Real-time data table with configurable columns, signal dots, and styling.</td></tr>
+    <tr><td><strong>SignalDot</strong></td><td>admin/</td><td>Colored status dot (green/yellow/red) with optional pulse animation.</td></tr>
+    <tr><td><strong>RiverChart</strong></td><td>admin/</td><td>Time-series line chart with event pins for confidence monitoring.</td></tr>
+    <tr><td><strong>PipelineFlow</strong></td><td>admin/</td><td>Inference pipeline stage visualization.</td></tr>
+  </table>
+</div>
+
+<!-- ====================================================================== -->
+<!-- BACKEND -->
+<!-- ====================================================================== -->
+<h2 id="backend-services">Backend Services & Data Flow</h2>
+
+<div class="page-card">
+  <h4>How Data Gets to the UI</h4>
+  <div class="section-detail">
+    <div class="label">The full data pipeline</div>
+    <div class="what">
+      <pre style="margin-top:0.5rem;">
+  MongoDB Atlas (Beanie ODM)
+       ↓
+  Backend Service (FastAPI + Pydantic v2)
+       ↓  serialization_alias → camelCase JSON
+  React HTTP Adapter (fetch + silent token refresh)
+       ↓  TypeScript contract types
+  React Query Hook (caching, retry, stale-while-revalidate)
+       ↓  useQuery / useMutation
+  React Component (loading → data → empty → error states)
+      </pre>
+    </div>
+    <div class="why">Every layer is typed and validated. MongoDB documents → Pydantic schemas → camelCase JSON → TypeScript contracts → React hooks → UI components. No data goes through untyped channels. The serialization_alias system ensures Python snake_case fields become JavaScript camelCase without manual transformation.</div>
+  </div>
+</div>
+
+<div class="page-card">
+  <h4>Active Backend Services</h4>
+  <table>
+    <tr><th>Service</th><th>Endpoints</th><th>Data Source</th><th>Status</th></tr>
+    <tr><td><strong>Auth</strong></td><td>register, verify-otp, login, logout, refresh, me, sessions, devices, enrollment, login-history, password-reset, risk</td><td>MongoDB + Redis (OTP)</td><td><span class="badge badge-live">Live</span></td></tr>
+    <tr><td><strong>Banking</strong></td><td>accounts, transactions, cards, payments, savings-goals, holdings, loans, currencies, insights, statements, activity, budgets, beneficiaries, transfers</td><td>MongoDB (seed-on-first-access)</td><td><span class="badge badge-db">Live DB</span></td></tr>
+    <tr><td><strong>Aegis</strong></td><td>snapshot, decisions, devices, risk-events, device-profiles, decision-replays</td><td>Mock (deterministic)</td><td><span class="badge badge-ai">AI Mock</span></td></tr>
+    <tr><td><strong>Dashboard</strong></td><td>summary, trends, analytics, notifications</td><td>Computed from Banking + Aegis</td><td><span class="badge badge-live">Live</span></td></tr>
+    <tr><td><strong>Security</strong></td><td>overview, risk-events, device-health, login-analytics, daily-report, session-timeline</td><td>Computed from Auth + Aegis</td><td><span class="badge badge-live">Live</span></td></tr>
+    <tr><td><strong>Notifications</strong></td><td>inbox, mark-read, mark-all-read, preferences</td><td>MongoDB</td><td><span class="badge badge-db">Live DB</span></td></tr>
+    <tr><td><strong>Audit</strong></td><td>query, summary</td><td>MongoDB</td><td><span class="badge badge-db">Live DB</span></td></tr>
+    <tr><td><strong>Admin</strong></td><td>kpis, live-sessions, incidents, models, datasets, api-services, controls, report-templates, audit, challenge-reasons, challenges, roles, permissions, geo, infra, accounts, anomaly-signatures, users, global-metrics, notification-groups</td><td>Mixed (DB + mock)</td><td><span class="badge badge-dev">Partial</span></td></tr>
+  </table>
+</div>
+
+<div class="page-card">
+  <h4>What's Real vs. What's Placeholder</h4>
+  <div class="section-detail">
+    <div class="label">Production-Ready (Live Data from MongoDB)</div>
+    <div class="what">
+      Authentication (register, login, OTP, JWT, refresh, sessions, devices), Banking (all 14 domains), Dashboard (summary, analytics, trends), SecurityCenter (overview, device health, risk events, login analytics, session timeline), Notifications (inbox, preferences, read markers), Audit (query, summary), Admin (KPIs, live sessions, users, roles, permissions, incident feeds, audit trail, system health).
+    </div>
+  </div>
+  <div class="section-detail" style="border-left-color: #818cf8;">
+    <div class="label" style="color:#818cf8;">AI Placeholders (Future Behavioral Authentication Engine)</div>
+    <div class="what">
+      Aegis service (snapshot, decisions, risk scoring — currently deterministic mock), all behavioral visualization components (WaveformTrace, MouseFlowMini, InteractionBars, DualLine, SessionRiver, AuroraStrip), security sub-pages (typing analysis, mouse flow, behavior drift, learning, SHAP explainability, security reports), admin AI pages (live AI monitoring, model management, dataset management, explainability, anomalies).
+    </div>
+    <div class="why" style="color:#a5b4fc;">These are the modules that will be built in the next phase: Feature Extraction (keystroke dynamics, mouse dynamics), LightGBM classification, One-Class SVM anomaly detection, SHAP explainability, and Continuous Authentication scoring pipeline.</div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- SUMMARY TABLE -->
+<!-- ====================================================================== -->
+<h2>Complete Page Inventory</h2>
+
+<table>
+  <tr><th>#</th><th>Route</th><th>Page Name</th><th>Data Source</th><th>Auth Required</th></tr>
+  <tr><td>1</td><td><code>/auth/</code></td><td>Identity (Login/Register)</td><td>Auth API</td><td>No</td></tr>
+  <tr><td>2</td><td><code>/auth/verify</code></td><td>OTP Verification</td><td>Auth API + Redis</td><td>No</td></tr>
+  <tr><td>3</td><td><code>/auth/calibrate</code></td><td>Behavioral Enrollment</td><td>Auth API</td><td>No</td></tr>
+  <tr><td>4</td><td><code>/auth/signature</code></td><td>Behavioral Signature</td><td>Computed from enrollment</td><td>No</td></tr>
+  <tr><td>5</td><td><code>/app/</code></td><td>Dashboard</td><td>Banking + Aegis + Security + Dashboard APIs</td><td>Yes</td></tr>
+  <tr><td>6</td><td><code>/app/accounts</code></td><td>Accounts List</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>7</td><td><code>/app/accounts/$id</code></td><td>Account Detail</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>8</td><td><code>/app/cards</code></td><td>Bank Cards</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>9</td><td><code>/app/transfer</code></td><td>Money Transfer</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>10</td><td><code>/app/transactions</code></td><td>Transaction History</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>11</td><td><code>/app/payments</code></td><td>Scheduled Payments</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>12</td><td><code>/app/beneficiaries</code></td><td>Beneficiaries</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>13</td><td><code>/app/statements</code></td><td>Bank Statements</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>14</td><td><code>/app/investments</code></td><td>Portfolio / Holdings</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>15</td><td><code>/app/savings</code></td><td>Savings Goals</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>16</td><td><code>/app/budgets</code></td><td>Budget Envelopes</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>17</td><td><code>/app/loans</code></td><td>Loan Records</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>18</td><td><code>/app/exchange</code></td><td>Currency Exchange</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>19</td><td><code>/app/insights</code></td><td>AI Insights</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>20</td><td><code>/app/activity</code></td><td>Activity Log</td><td>Banking API</td><td>Yes</td></tr>
+  <tr><td>21</td><td><code>/app/guard/</code></td><td>Security Center</td><td>Aegis + Security + Devices APIs</td><td>Yes</td></tr>
+  <tr><td>22</td><td><code>/app/guard/authentication</code></td><td>Auth Timeline</td><td>Aegis API</td><td>Yes</td></tr>
+  <tr><td>23</td><td><code>/app/guard/auth-timeline</code></td><td>Session Timeline</td><td>Security API</td><td>Yes</td></tr>
+  <tr><td>24</td><td><code>/app/guard/behavior</code></td><td>Behavior Overview</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>25</td><td><code>/app/guard/behavior-timeline</code></td><td>Behavior Timeline</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>26</td><td><code>/app/guard/typing</code></td><td>Keystroke Analysis</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>27</td><td><code>/app/guard/mouse</code></td><td>Mouse Flow Analysis</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>28</td><td><code>/app/guard/session</code></td><td>Session Behavior</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>29</td><td><code>/app/guard/devices</code></td><td>Device Management</td><td>Aegis Devices API</td><td>Yes</td></tr>
+  <tr><td>30</td><td><code>/app/guard/risk</code></td><td>Risk Dashboard</td><td>Security API</td><td>Yes</td></tr>
+  <tr><td>31</td><td><code>/app/guard/decisions</code></td><td>Decision Waterfall</td><td>Aegis API</td><td>Yes</td></tr>
+  <tr><td>32</td><td><code>/app/guard/challenges</code></td><td>Challenge History</td><td>Admin API</td><td>Yes</td></tr>
+  <tr><td>33</td><td><code>/app/guard/learning</code></td><td>Behavior Learning</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>34</td><td><code>/app/guard/explainability</code></td><td>SHAP Explainability</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>35</td><td><code>/app/guard/reports</code></td><td>Security Reports</td><td>AI Placeholder</td><td>Yes</td></tr>
+  <tr><td>36</td><td><code>/app/guard/privacy</code></td><td>Privacy Controls</td><td>In Development</td><td>Yes</td></tr>
+  <tr><td>37</td><td><code>/admin/</code></td><td>Admin Cockpit</td><td>Admin APIs</td><td>Yes (admin)</td></tr>
+  <tr><td>38</td><td><code>/admin/users</code></td><td>User Management</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>39</td><td><code>/admin/accounts</code></td><td>Account Management</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>40</td><td><code>/admin/roles</code></td><td>Roles & Permissions</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>41</td><td><code>/admin/sessions</code></td><td>Session Management</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>42</td><td><code>/admin/challenges</code></td><td>Challenge Center</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>43</td><td><code>/admin/behavior</code></td><td>Behavior Analytics</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>44</td><td><code>/admin/ai/live</code></td><td>Live AI Monitoring</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>45</td><td><code>/admin/ai/models</code></td><td>Model Management</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>46</td><td><code>/admin/ai/datasets</code></td><td>Dataset Management</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>47</td><td><code>/admin/ai/explain</code></td><td>AI Explainability</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>48</td><td><code>/admin/ai</code></td><td>AI Overview</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>49</td><td><code>/admin/anomalies</code></td><td>Anomaly Detection</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>50</td><td><code>/admin/api</code></td><td>API Services</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>51</td><td><code>/admin/audit</code></td><td>Audit Trail</td><td>Audit API</td><td>Yes (admin)</td></tr>
+  <tr><td>52</td><td><code>/admin/compliance</code></td><td>Compliance Controls</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>53</td><td><code>/admin/infra</code></td><td>Infrastructure</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>54</td><td><code>/admin/notifications</code></td><td>Notification Groups</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>55</td><td><code>/admin/reports</code></td><td>Report Templates</td><td>Admin API</td><td>Yes (admin)</td></tr>
+  <tr><td>56</td><td><code>/admin/risk</code></td><td>Risk Dashboard</td><td>AI Placeholder</td><td>Yes (admin)</td></tr>
+  <tr><td>57</td><td><code>/admin/settings</code></td><td>Platform Settings</td><td>Admin API</td><td>Yes (admin)</td></tr>
+</table>
+
+<!-- ====================================================================== -->
+<!-- STATS -->
+<!-- ====================================================================== -->
+<h2>Platform Statistics</h2>
+
+<div class="feature-grid">
+  <div class="feature-item">
+    <div class="name">57 Total Pages</div>
+    <div class="desc">4 auth, 16 banking, 15 security, 22 admin</div>
+  </div>
+  <div class="feature-item">
+    <div class="name">65+ React Query Hooks</div>
+    <div class="desc">Every data access is cached, retryable, abortable</div>
+  </div>
+  <div class="feature-item">
+    <div class="name">8 Backend Services</div>
+    <div class="desc">Auth, Banking, Aegis, Dashboard, Security, Notifications, Audit, Admin</div>
+  </div>
+  <div class="feature-item">
+    <div class="name">14 MongoDB Collections</div>
+    <div class="desc">Seed-on-first-access pattern for deterministic per-user data</div>
+  </div>
+  <div class="feature-item">
+    <div class="name">12 AI Placeholder Pages</div>
+    <div class="desc">Ready for Behavioral Auth, Feature Extraction, LightGBM, OC-SVM, SHAP</div>
+  </div>
+  <div class="feature-item">
+    <div class="name">30+ Shared UI Components</div>
+    <div class="desc">Auth, Banking, Dashboard, Guard, Admin, Brand, UI primitives</div>
+  </div>
+</div>
+
+<footer>
+  <p>AdaptiveGuard — Fintech Banking Platform + Behavioral Authentication Engine<br>
+  Generated: June 30, 2026 · Version: pre-AI-freeze</p>
+</footer>
+
+</div>
+</body>
+</html>

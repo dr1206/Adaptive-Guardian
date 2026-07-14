@@ -6,7 +6,7 @@ Every material technical decision lives here as a numbered ADR. Format: [MADR-li
 | --- | --- | --- |
 | [0001](0001-frontend-framework.md) | Frontend Framework — TanStack Start | Accepted |
 | [0002](0002-backend-architecture.md) | Backend Architecture — Python FastAPI Service Mesh | Accepted |
-| [0003](0003-database-selection.md) | Database Selection — PostgreSQL + Redis + ClickHouse | Accepted |
+| [0003](0003-database-selection.md) | Database Selection — MongoDB Atlas + Redis (PostgreSQL + ClickHouse Deferred) | Accepted |
 | [0004](0004-authentication-strategy.md) | Authentication Strategy — Short-lived JWT + Scoped Refresh Cookie | Accepted |
 | [0005](0005-behavioral-telemetry-design.md) | Behavioral Telemetry — Aggregated Features Only | Accepted |
 | [0006](0006-ai-inference-architecture.md) | AI Inference — LightGBM + OC-SVM + SHAP, Ray Serve | Accepted |
@@ -18,6 +18,7 @@ Every material technical decision lives here as a numbered ADR. Format: [MADR-li
 | [0012](0012-logging.md) | Logging — pino + isomorphic edge transport | Accepted |
 | [0013](0013-error-framework.md) | Error Framework — Typed AppError hierarchy | Accepted |
 | [0014](0014-observability.md) | Observability — OpenTelemetry + Sentry split | Accepted |
+| [0015](0015-pragmatic-architecture-resolution.md) | Pragmatic Architecture Resolution — Monolith, Docker Compose, In-Process ML | Accepted |
 
 ## Template
 

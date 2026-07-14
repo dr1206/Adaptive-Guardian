@@ -13,12 +13,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
-import { Route as AuthSignatureRouteImport } from './routes/auth.signature'
-import { Route as AuthCalibrateRouteImport } from './routes/auth.calibrate'
 import { Route as AppTransferRouteImport } from './routes/app.transfer'
 import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
 import { Route as AppStatementsRouteImport } from './routes/app.statements'
@@ -92,6 +91,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/onboarding/',
+  path: '/onboarding/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -110,16 +114,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AuthVerifyRoute = AuthVerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthSignatureRoute = AuthSignatureRouteImport.update({
-  id: '/signature',
-  path: '/signature',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthCalibrateRoute = AuthCalibrateRouteImport.update({
-  id: '/calibrate',
-  path: '/calibrate',
   getParentRoute: () => AuthRoute,
 } as any)
 const AppTransferRoute = AppTransferRouteImport.update({
@@ -420,12 +414,11 @@ export interface FileRoutesByFullPath {
   '/app/statements': typeof AppStatementsRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
-  '/auth/calibrate': typeof AuthCalibrateRoute
-  '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/admin/ai/datasets': typeof AdminAiDatasetsRoute
   '/admin/ai/explain': typeof AdminAiExplainRoute
   '/admin/ai/live': typeof AdminAiLiveRoute
@@ -480,12 +473,11 @@ export interface FileRoutesByTo {
   '/app/statements': typeof AppStatementsRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
-  '/auth/calibrate': typeof AuthCalibrateRoute
-  '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
   '/admin/ai/datasets': typeof AdminAiDatasetsRoute
   '/admin/ai/explain': typeof AdminAiExplainRoute
   '/admin/ai/live': typeof AdminAiLiveRoute
@@ -545,12 +537,11 @@ export interface FileRoutesById {
   '/app/statements': typeof AppStatementsRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
-  '/auth/calibrate': typeof AuthCalibrateRoute
-  '/auth/signature': typeof AuthSignatureRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/admin/ai/datasets': typeof AdminAiDatasetsRoute
   '/admin/ai/explain': typeof AdminAiExplainRoute
   '/admin/ai/live': typeof AdminAiLiveRoute
@@ -611,12 +602,11 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/app/transfer'
-    | '/auth/calibrate'
-    | '/auth/signature'
     | '/auth/verify'
     | '/admin/'
     | '/app/'
     | '/auth/'
+    | '/onboarding/'
     | '/admin/ai/datasets'
     | '/admin/ai/explain'
     | '/admin/ai/live'
@@ -671,12 +661,11 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/app/transfer'
-    | '/auth/calibrate'
-    | '/auth/signature'
     | '/auth/verify'
     | '/admin'
     | '/app'
     | '/auth'
+    | '/onboarding'
     | '/admin/ai/datasets'
     | '/admin/ai/explain'
     | '/admin/ai/live'
@@ -735,12 +724,11 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/app/transfer'
-    | '/auth/calibrate'
-    | '/auth/signature'
     | '/auth/verify'
     | '/admin/'
     | '/app/'
     | '/auth/'
+    | '/onboarding/'
     | '/admin/ai/datasets'
     | '/admin/ai/explain'
     | '/admin/ai/live'
@@ -769,6 +757,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -801,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/': {
       id: '/auth/'
       path: '/'
@@ -827,20 +823,6 @@ declare module '@tanstack/react-router' {
       path: '/verify'
       fullPath: '/auth/verify'
       preLoaderRoute: typeof AuthVerifyRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/auth/signature': {
-      id: '/auth/signature'
-      path: '/signature'
-      fullPath: '/auth/signature'
-      preLoaderRoute: typeof AuthSignatureRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/auth/calibrate': {
-      id: '/auth/calibrate'
-      path: '/calibrate'
-      fullPath: '/auth/calibrate'
-      preLoaderRoute: typeof AuthCalibrateRouteImport
       parentRoute: typeof AuthRoute
     }
     '/app/transfer': {
@@ -1364,15 +1346,11 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface AuthRouteChildren {
-  AuthCalibrateRoute: typeof AuthCalibrateRoute
-  AuthSignatureRoute: typeof AuthSignatureRoute
   AuthVerifyRoute: typeof AuthVerifyRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthCalibrateRoute: AuthCalibrateRoute,
-  AuthSignatureRoute: AuthSignatureRoute,
   AuthVerifyRoute: AuthVerifyRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
@@ -1384,7 +1362,18 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  OnboardingIndexRoute: OnboardingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

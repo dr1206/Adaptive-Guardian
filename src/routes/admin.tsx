@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { VaultAtmosphere } from "@/components/auth/vault-atmosphere";
@@ -6,8 +6,19 @@ import { OpsRail } from "@/components/admin/ops-rail";
 import { OpsTopBar, OpsStatusBar } from "@/components/admin/ops-chrome";
 import { AegisConsole } from "@/components/admin/aegis-console";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { services } from "@/services/registry";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: async ({ location }) => {
+    const session = await services.auth.getSession();
+    if (!session) {
+      throw redirect({ to: "/auth", search: { redirect: location.href } });
+    }
+    if (!session.roles.includes("admin")) {
+      throw redirect({ to: "/app" });
+    }
+    return { session };
+  },
   component: AdminLayout,
 });
 

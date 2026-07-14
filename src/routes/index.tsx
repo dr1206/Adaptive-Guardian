@@ -104,7 +104,7 @@ function Hero() {
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.575 0.215 263 / 0.25), transparent 60%), radial-gradient(ellipse 60% 50% at 80% 30%, oklch(0.715 0.135 215 / 0.18), transparent 60%), radial-gradient(ellipse 50% 40% at 20% 40%, oklch(0.635 0.215 295 / 0.15), transparent 60%)",
+            "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.76 0.12 85 / 0.18), transparent 60%), radial-gradient(ellipse 60% 50% at 80% 30%, oklch(0.38 0.08 256 / 0.20), transparent 60%), radial-gradient(ellipse 50% 40% at 20% 40%, oklch(0.58 0.19 290 / 0.12), transparent 60%)",
         }}
       />
       {/* grid */}

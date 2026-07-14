@@ -28,6 +28,7 @@ export interface RegisterInput {
 }
 
 export interface VerifyOtpInput {
+  challengeId: string;
   email: string;
   code: string;
 }

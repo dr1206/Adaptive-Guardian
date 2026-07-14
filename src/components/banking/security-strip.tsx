@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck, Smartphone, Activity, Clock } from "lucide-react";
+import { ShieldCheck, Smartphone, Activity, Clock, Keyboard, MousePointer2 } from "lucide-react";
+import { useAegisSnapshot, useBehavioralStatus } from "@/services/hooks";
 
 const WHISPERS = [
   "Session stable.",
@@ -12,6 +13,12 @@ const WHISPERS = [
 export function SecurityStrip() {
   const [pulse, setPulse] = useState(false);
   const [w, setW] = useState(0);
+  const { data: snapshot } = useAegisSnapshot();
+  const colStatus = useBehavioralStatus();
+
+  const confidence = snapshot?.confidence != null ? (snapshot.confidence * 100).toFixed(1) : "99.2";
+  const isCollecting = colStatus.state === "collecting";
+
   useEffect(() => {
     const a = setInterval(() => {
       setPulse(true);
@@ -33,7 +40,7 @@ export function SecurityStrip() {
       <div
         className="mx-4 lg:mx-8 mb-3 flex items-center gap-3 lg:gap-4 rounded-full border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.78)] px-4 py-2 text-xs text-muted-foreground backdrop-blur-2xl pointer-events-auto transition-colors overflow-x-auto"
         style={{
-          borderColor: pulse ? "oklch(0.715 0.135 215 / 0.5)" : undefined,
+          borderColor: pulse ? "oklch(0.76 0.12 85 / 0.45)" : undefined,
         }}
       >
         <span className="inline-flex items-center gap-1.5">
@@ -44,19 +51,32 @@ export function SecurityStrip() {
             />
             <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
           </span>
-          <span className="font-numeric text-foreground">Aegis 99.2</span>
+          <span className="font-numeric text-foreground">Aegis {confidence}</span>
         </span>
         <Sep />
-        <span className="inline-flex items-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-success" /> Behavior stable
-        </span>
+        {isCollecting ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-500/60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+            </span>
+            <Keyboard className="h-3 w-3" />
+            <span className="font-numeric text-foreground/80">{colStatus.keystrokesCaptured}</span>
+            <MousePointer2 className="h-3 w-3" />
+            <span className="font-numeric text-foreground/80">{colStatus.mouseEventsCaptured}</span>
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5">
+            <ShieldCheck className="h-3 w-3 text-success" /> Behavior stable
+          </span>
+        )}
         <Sep />
         <span className="inline-flex items-center gap-1.5">
           <Smartphone className="h-3 w-3" /> Trusted device
         </span>
         <Sep />
         <span className="inline-flex items-center gap-1.5 font-numeric">
-          <Clock className="h-3 w-3" /> Session 02:14
+          <Clock className="h-3 w-3" /> Session {isCollecting ? `${Math.floor(colStatus.uptimeMs / 60000)}m` : "02:14"}
         </span>
         <Sep />
         <span className="inline-flex items-center gap-1.5">
@@ -66,7 +86,7 @@ export function SecurityStrip() {
             className="text-foreground/80"
             style={{ animation: "ag-strip-fade .4s ease-out" }}
           >
-            {WHISPERS[w]}
+            {isCollecting ? `Learning · ${colStatus.windowsSent} windows sent` : WHISPERS[w]}
           </span>
         </span>
         <span className="ml-auto font-numeric text-[10px] text-muted-foreground/60">

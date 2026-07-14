@@ -1,4 +1,7 @@
-# ADR 0008 — Deployment Strategy: EKS + ArgoCD GitOps
+# ADR 0008 — Deployment Strategy: Docker Compose (EKS + ArgoCD Deferred)
+
+> **Scoped by ADR-0015:** EKS + ArgoCD GitOps are deferred to the production pathway. This project deploys via Docker Compose on a single host. See ADR-0015.
+
 **Status:** Accepted · **Date:** 2026-06-29 · **Deciders:** DevOps Lead, Staff Architect
 
 ## Context
