@@ -6,8 +6,10 @@ challenges) stay mock — they represent AI/ML infrastructure not yet built.
 """
 
 from __future__ import annotations
+from fastapi import Response
 
 from app.domain.admin import mock_data
+from app.domain.admin.export_builder import _write_behavior_windows, _write_behavioral_events, build_user_export_zip
 from app.domain.admin.schemas import (
     AdminAccountItem,
     AdminAccountList,
@@ -51,10 +53,15 @@ from app.domain.admin.schemas import (
     RolePermissionsResponse,
     ServiceHealth,
 )
+import csv
+import io
 import uuid
+import zipfile
 
 from app.domain.audit.models import AuditRecord
 from app.domain.auth.models import Session, User
+from app.domain.training.models import TrainingEvent, TrainingFeature, TrainingSession
+from app.domain.aegis.models import BehavioralEvent, BehaviorWindow, DeviceProfile
 
 
 def _fmt_dt(dt):
@@ -157,6 +164,103 @@ async def list_all_users(limit: int = 20, offset: int = 0) -> AdminUserList:
         for u in users
     ]
     return AdminUserList(users=items, total=total)
+
+
+def _group_behavioral_data_by_session(behavioral_events, behavior_windows):
+    """Group behavioral events and windows by session_id."""
+    events_by_session = {}
+    windows_by_session = {}
+
+    for event in behavioral_events:
+        session_id = str(event.session_id)
+        if session_id not in events_by_session:
+            events_by_session[session_id] = []
+        events_by_session[session_id].append(event)
+
+    for window in behavior_windows:
+        session_id = str(window.session_id)
+        if session_id not in windows_by_session:
+            windows_by_session[session_id] = []
+        windows_by_session[session_id].append(window)
+
+    return events_by_session, windows_by_session
+
+
+async def get_user_details(user_id: uuid.UUID, group_by_session: bool = False) -> dict:
+    """Get detailed information for a specific user including all related data."""
+    # Get basic user info
+    user = await User.find_one(User.id == user_id)
+    if not user:
+        return None
+
+    # Get auth sessions
+    auth_sessions = await Session.find(Session.user_id == user_id).to_list()
+
+    # Get training data
+    training_sessions = await TrainingSession.find(TrainingSession.user_id == user_id).to_list()
+    training_events = await TrainingEvent.find(TrainingEvent.user_id == user_id).to_list()
+    training_features = await TrainingFeature.find(TrainingFeature.user_id == user_id).to_list()
+
+    # Get behavioral data
+    behavioral_events = await BehavioralEvent.find(BehavioralEvent.user_id == user_id).to_list()
+    behavior_windows = await BehaviorWindow.find(BehaviorWindow.user_id == user_id).to_list()
+
+    # Get device profiles
+    device_profiles = await DeviceProfile.find(DeviceProfile.user_id == user_id).to_list()
+
+    # Group behavioral data by session if requested.
+    # NOTE: we must NOT mutate the Beanie/Session documents (pydantic v2 raises
+    # on assigning an undefined field). Build plain serializable dicts instead.
+    if group_by_session:
+        events_by_session, windows_by_session = _group_behavioral_data_by_session(behavioral_events, behavior_windows)
+        auth_sessions = [
+            {
+                "id": str(s.id),
+                "user_id": str(s.user_id),
+                "device_id": s.device_id,
+                "ip_address": s.ip_address,
+                "user_agent": s.user_agent,
+                "expires_at": _fmt_dt(s.expires_at),
+                "revoked": s.revoked,
+                "logged_out_at": _fmt_dt(s.logged_out_at) if s.logged_out_at else None,
+                "last_active_at": _fmt_dt(s.last_active_at),
+                "created_at": _fmt_dt(s.created_at),
+                "behavioral_events": events_by_session.get(str(s.id), []),
+                "behavior_windows": windows_by_session.get(str(s.id), []),
+            }
+            for s in sorted(auth_sessions, key=lambda x: x.created_at, reverse=True)
+        ]
+
+    # Return all data
+    return {
+        "user": user,
+        "auth_sessions": auth_sessions,
+        "training_sessions": training_sessions,
+        "training_events": training_events,
+        "training_features": training_features,
+        "behavioral_events": behavioral_events,
+        "behavior_windows": behavior_windows,
+        "device_profiles": device_profiles
+    }
+
+
+async def get_user_sessions(user_id: uuid.UUID) -> dict:
+    """Get auth sessions for a user with behavioral data grouped by session."""
+    # Get basic user info
+    user = await User.find_one(User.id == user_id)
+    if not user:
+        return None
+
+    # Get auth sessions with grouped behavioral data
+    details = await get_user_details(user_id, group_by_session=True)
+    if not details:
+        return None
+
+    # Return only the auth sessions with their grouped behavioral data
+    return {
+        "user": details["user"],
+        "auth_sessions": details["auth_sessions"]
+    }
 
 
 async def update_user(user_id: str, data: AdminUserUpdateRequest) -> AdminUserItem:
@@ -396,3 +500,258 @@ async def list_admin_accounts(limit: int = 20, offset: int = 0) -> AdminAccountL
 async def list_anomaly_signatures() -> AnomalySignatureList:
     sigs = mock_data.generate_anomaly_signatures()
     return AnomalySignatureList(signatures=[AnomalySignature(**s) for s in sigs])
+
+
+# ── Training Export ───────────────────────────────────────────
+
+
+async def export_training_data() -> Response:
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+
+    sessions = await TrainingSession.find_all().to_list()
+    writer.writerow([
+        "session_id",
+        "user_id",
+        "task_type",
+        "status",
+        "started_at",
+        "completed_at",
+        "sample_count",
+        "device_id",
+    ])
+    for s in sessions:
+        writer.writerow([
+            str(s.session_id),
+            str(s.user_id),
+            s.task_type,
+            s.status,
+            _fmt_dt(s.started_at),
+            _fmt_dt(s.completed_at),
+            s.sample_count,
+            s.device_id or "",
+        ])
+
+    writer.writerow([])
+
+    events = await TrainingEvent.find_all().to_list()
+    writer.writerow([
+        "event_id",
+        "session_id",
+        "user_id",
+        "task_type",
+        "event_type",
+        "timestamp",
+        "event_index",
+        "trial_index",
+        "key_code",
+        "key_char",
+        "dwell_time_ms",
+        "flight_time_ms",
+        "x",
+        "y",
+        "target_id",
+        "target_size",
+        "click_duration_ms",
+        "delta_y",
+        "total_duration_ms",
+        "pause_duration_ms",
+        "page",
+        "device_id",
+    ])
+    for e in events:
+        writer.writerow([
+            str(e.id),
+            str(e.session_id),
+            str(e.user_id),
+            e.task_type,
+            e.event_type,
+            _fmt_dt(e.timestamp),
+            e.task_index,
+            e.trial_index,
+            e.key_code,
+            e.key_char or "",
+            e.dwell_time_ms,
+            e.flight_time_ms,
+            e.x,
+            e.y,
+            e.target_id or "",
+            e.target_size or "",
+            e.click_duration_ms,
+            e.delta_y,
+            e.total_duration_ms,
+            e.pause_duration_ms,
+            e.page or "",
+            e.device_id or "",
+        ])
+
+    writer.writerow([])
+
+    features = await TrainingFeature.find_all().to_list()
+    writer.writerow([
+        "feature_id",
+        "session_id",
+        "user_id",
+        "task_type",
+        "task_index",
+        "trial_index",
+        "typing_speed",
+        "mean_key_hold",
+        "std_key_hold",
+        "mean_flight_time",
+        "std_flight_time",
+        "backspace_rate",
+        "correction_rate",
+        "pause_mean",
+        "pause_std",
+        "total_duration_ms",
+        "mouse_speed_mean",
+        "mouse_speed_std",
+        "mouse_acceleration",
+        "click_interval_mean",
+        "scroll_speed",
+        "trajectory_length",
+        "direction_changes",
+        "target_acquisition_mean",
+        "device_id",
+        "created_at",
+    ])
+    for f in features:
+        writer.writerow([
+            str(f.id),
+            str(f.session_id),
+            str(f.user_id),
+            f.task_type,
+            f.task_index,
+            f.trial_index,
+            f.typing_speed,
+            f.mean_key_hold,
+            f.std_key_hold,
+            f.mean_flight_time,
+            f.std_flight_time,
+            f.backspace_rate,
+            f.correction_rate,
+            f.pause_mean,
+            f.pause_std,
+            f.total_duration_ms,
+            f.mouse_speed_mean,
+            f.mouse_speed_std,
+            f.mouse_acceleration,
+            f.click_interval_mean,
+            f.scroll_speed,
+            f.trajectory_length,
+            f.direction_changes,
+            f.target_acquisition_mean,
+            f.device_id or "",
+            _fmt_dt(f.created_at),
+        ])
+
+    return Response(
+        content=buffer.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": 'attachment; filename="training_data.csv"',
+        },
+    )
+
+
+async def export_training_data_by_users(user_id: uuid.UUID = None) -> Response:
+    # If user_id is provided, export only that user's data
+    if user_id is not None:
+        users = await User.find(User.id == user_id).to_list()
+        if not users:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Fetch ONLY this user's data - query with user_id filter
+        training_sessions = await TrainingSession.find(TrainingSession.user_id == user_id).to_list()
+        training_events = await TrainingEvent.find(TrainingEvent.user_id == user_id).to_list()
+        training_features = await TrainingFeature.find(TrainingFeature.user_id == user_id).to_list()
+        auth_sessions = await Session.find(Session.user_id == user_id).to_list()
+        behavioral_events = await BehavioralEvent.find(BehavioralEvent.user_id == user_id).to_list()
+        behavior_windows = await BehaviorWindow.find(BehaviorWindow.user_id == user_id).to_list()
+        device_profiles = await DeviceProfile.find(DeviceProfile.user_id == user_id).to_list()
+    else:
+        # Export all users' data
+        users = await User.find_all().to_list()
+        training_sessions = await TrainingSession.find_all().to_list()
+        training_events = await TrainingEvent.find_all().to_list()
+        training_features = await TrainingFeature.find_all().to_list()
+        auth_sessions = await Session.find_all().to_list()
+        behavioral_events = await BehavioralEvent.find_all().to_list()
+        behavior_windows = await BehaviorWindow.find_all().to_list()
+        device_profiles = await DeviceProfile.find_all().to_list()
+
+    # Group by user_id (only needed for multi-user export)
+    user_training_sessions: dict[uuid.UUID, list[TrainingSession]] = {}
+    user_training_events: dict[uuid.UUID, list[TrainingEvent]] = {}
+    user_training_features: dict[uuid.UUID, list[TrainingFeature]] = {}
+    user_auth_sessions: dict[uuid.UUID, list[Session]] = {}
+    user_behavioral_events: dict[uuid.UUID, list[BehavioralEvent]] = {}
+    user_behavior_windows: dict[uuid.UUID, list[BehaviorWindow]] = {}
+    user_device_profiles: dict[uuid.UUID, list[DeviceProfile]] = {}
+
+    for s in training_sessions:
+        user_training_sessions.setdefault(s.user_id, []).append(s)
+    for e in training_events:
+        user_training_events.setdefault(e.user_id, []).append(e)
+    for f in training_features:
+        user_training_features.setdefault(f.user_id, []).append(f)
+    for s in auth_sessions:
+        user_auth_sessions.setdefault(s.user_id, []).append(s)
+    for e in behavioral_events:
+        user_behavioral_events.setdefault(e.user_id, []).append(e)
+    for w in behavior_windows:
+        user_behavior_windows.setdefault(w.user_id, []).append(w)
+    for p in device_profiles:
+        user_device_profiles.setdefault(p.user_id, []).append(p)
+
+    zip_data, zip_name = build_user_export_zip(
+        users,
+        user_training_sessions,
+        user_training_events,
+        user_training_features,
+        user_auth_sessions,
+        user_behavioral_events,
+        user_behavior_windows,
+        user_device_profiles,
+        single_user=(user_id is not None),
+    )
+    return Response(
+        content=zip_data,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{zip_name}"',
+        },
+    )
+
+async def export_session_behavioral(session_id: uuid.UUID) -> Response:
+    """Export ONLY the behavioral biometric data recorded within one login session.
+
+    Yields a ZIP with two CSVs scoped to that session (the time between login and
+    logout): behavioral_events.csv (with the aggregated feature_vector + device_info)
+    and behavior_windows.csv (with the aggregated features).
+    """
+    from app.domain.auth.models import Session
+
+    session = await Session.find_one(Session.id == session_id)
+    if not session:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    events = await BehavioralEvent.find(BehavioralEvent.session_id == session_id).to_list()
+    windows = await BehaviorWindow.find(BehaviorWindow.session_id == session_id).to_list()
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        _write_behavioral_events(zf, "", events)
+        _write_behavior_windows(zf, "", windows)
+    zip_buffer.seek(0)
+
+    return Response(
+        content=zip_buffer.getvalue(),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="session_{session_id}_behavioral.zip"',
+        },
+    )

@@ -1,7 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Filter } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { AccountCard } from "@/components/banking/account-card";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { fmt } from "@/lib/format";
 import type { AccountType } from "@/services/banking/banking.contract";
@@ -12,32 +11,23 @@ export const Route = createFileRoute("/app/accounts")({
 });
 
 const GROUPS: { type: AccountType; label: string }[] = [
-  { type: "primary", label: "Current" },
+  { type: "primary", label: "Salary" },
   { type: "savings", label: "Savings" },
   { type: "investment", label: "Investment" },
-  { type: "business", label: "Business" },
-  { type: "credit", label: "Credit" },
+  { type: "business", label: "Current" },
+  { type: "credit", label: "Credit Card" },
   { type: "fixed", label: "Fixed Deposits" },
 ];
 
 function AccountsPage() {
   const { data: accounts, isLoading, error } = useAccounts();
+
   return (
     <div>
       <PageHeader
-        eyebrow="Money"
-        title="Accounts"
-        subtitle="Every pot of money, side by side."
-        actions={
-          <>
-            <button className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-[12px] text-muted-foreground transition-colors hover:text-foreground">
-              <Filter className="h-3.5 w-3.5" /> Filter
-            </button>
-            <button className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-3 text-[12px] font-medium text-accent transition-colors hover:from-accent/35 hover:to-purple/30">
-              <Plus className="h-3.5 w-3.5" /> Open account
-            </button>
-          </>
-        }
+        eyebrow="Accounts"
+        title="My Accounts"
+        subtitle="All your accounts in one place."
       />
 
       <AsyncBoundary
@@ -46,7 +36,7 @@ function AccountsPage() {
         isEmpty={!accounts || accounts.length === 0}
         emptyLabel="No accounts to display."
       >
-        <div className="space-y-10">
+        <div className="space-y-8">
           {GROUPS.map((g) => {
             const items = (accounts ?? []).filter((a) => a.type === g.type);
             if (items.length === 0) return null;
@@ -59,14 +49,29 @@ function AccountsPage() {
                   </h2>
                   <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted-foreground">
                     {items.length} ·{" "}
-                    <span className="font-numeric text-foreground">{fmt(total)}</span>
+                    <span className="font-numeric text-foreground">{fmt(total, "₹", 0)}</span>
                   </span>
                 </header>
-                <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="grid gap-3">
                   {items.map((a) => (
-                    <div key={a.id} className="snap-start">
-                      <AccountCard account={a} />
-                    </div>
+                    <Link
+                      key={a.id}
+                      to="/app/transactions"
+                      className="group flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-colors hover:border-accent/30 hover:bg-accent/[0.03]"
+                    >
+                      <div>
+                        <div className="text-[14px] font-medium">{a.name}</div>
+                        <div className="mt-0.5 text-[10px] text-muted-foreground">
+                          {a.currency} · {a.iban}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-numeric text-[16px] font-semibold">
+                          {fmt(a.balance, "₹", 0)}
+                        </span>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
               </section>

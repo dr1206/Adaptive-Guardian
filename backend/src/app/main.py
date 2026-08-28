@@ -26,8 +26,12 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up — initializing MongoDB...")
-    await init_db()
-    logger.info("MongoDB initialized")
+    try:
+        await init_db()
+        logger.info("MongoDB initialized")
+    except Exception as exc:
+        logger.warning("MongoDB unavailable during startup: %s", exc)
+        logger.warning("Continuing without database connectivity")
 
     # Seed default admin user if none exists
     try:
@@ -97,8 +101,8 @@ def create_app() -> FastAPI:
             await client.admin.command("ping")
             client.close()
             checks["mongodb"] = "connected"
-        except Exception:
-            checks["mongodb"] = "unreachable"
+        except Exception as exc:
+            checks["mongodb"] = f"unreachable: {exc}"
             healthy = False
 
         # Redis

@@ -10,6 +10,7 @@ from app.domain.banking.router import router as banking_router
 from app.domain.dashboard.router import router as dashboard_router
 from app.domain.notifications.router import router as notifications_router
 from app.domain.security.router import router as security_router
+from app.domain.training.router import router as training_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -21,3 +22,4 @@ api_router.include_router(dashboard_router)
 api_router.include_router(security_router)
 api_router.include_router(notifications_router)
 api_router.include_router(audit_router)
+api_router.include_router(training_router)

@@ -5,6 +5,7 @@ import { HeatGrid } from "@/components/admin/heat-grid";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { RiverChart } from "@/components/admin/river-chart";
 import { seedSeries, seedHeat } from "@/lib/admin-signal";
+import { services } from "@/services/registry";
 
 export const Route = createFileRoute("/admin/behavior")({
   component: BehaviorPage,
@@ -12,6 +13,25 @@ export const Route = createFileRoute("/admin/behavior")({
 
 function BehaviorPage() {
   const [tab, setTab] = useState<"typing" | "mouse" | "drift" | "cohorts">("typing");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportByUsers = async () => {
+    setExporting(true);
+    try {
+      await services.admin.exportTrainingDataByUsers();
+    } catch (err) {
+      console.error(err);
+      const message = err instanceof Error ? err.message : "Export failed";
+      if (message.includes("Missing authorization header")) {
+        alert("You are not logged in or your session expired. Please log in again.");
+      } else {
+        alert(message);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -22,6 +42,15 @@ function BehaviorPage() {
         <p className="text-sm text-muted-foreground mt-1">
           Population-level signal across typing, mouse, drift and cohort overlays
         </p>
+        <div className="mt-3">
+          <button
+            onClick={handleExportByUsers}
+            disabled={exporting}
+            className="px-3 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] text-xs disabled:opacity-60"
+          >
+            {exporting ? "Exporting..." : "Export Training Data by User (ZIP)"}
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-4 gap-3">

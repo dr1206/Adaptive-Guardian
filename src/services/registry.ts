@@ -22,6 +22,7 @@ import type { DashboardService } from "./dashboard/dashboard.contract";
 import type { SecurityService } from "./security/security.contract";
 import type { NotificationsService } from "./notifications/notifications.contract";
 import type { AuditService } from "./audit/audit.contract";
+import type { TrainingService } from "./training/training.contract";
 
 import { mockAuthService } from "./auth/auth.mock";
 import { mockBankingService } from "./banking/banking.mock";
@@ -36,6 +37,8 @@ import { httpDashboardService } from "./dashboard/dashboard.http";
 import { httpSecurityService } from "./security/security.http";
 import { httpNotificationsService } from "./notifications/notifications.http";
 import { httpAuditService } from "./audit/audit.http";
+import { httpTrainingService } from "./training/training.http";
+import { mockTrainingService } from "./training/training.mock";
 
 const log = createLogger({ service: "services" });
 
@@ -50,6 +53,7 @@ export interface Services {
   security: SecurityService;
   notifications: NotificationsService;
   audit: AuditService;
+  training: TrainingService;
 }
 
 function resolveMode(): ServiceMode {
@@ -157,6 +161,7 @@ export const services: Services =
         security: httpSecurityService,
         notifications: httpNotificationsService,
         audit: httpAuditService,
+        training: httpTrainingService,
       }
     : {
         auth: mockAuthService,
@@ -167,6 +172,7 @@ export const services: Services =
         security: mockSecurityService,
         notifications: mockNotificationsService,
         audit: mockAuditService,
+        training: mockTrainingService,
       };
 
 export function getServiceMode(): ServiceMode {

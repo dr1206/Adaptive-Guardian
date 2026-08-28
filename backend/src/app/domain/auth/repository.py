@@ -106,6 +106,7 @@ async def get_session_by_id(session_id: uuid.UUID) -> Session | None:
 
 async def revoke_session(session: Session) -> None:
     session.revoked = True
+    session.logged_out_at = datetime.now(UTC)
     await session.save()
 
 

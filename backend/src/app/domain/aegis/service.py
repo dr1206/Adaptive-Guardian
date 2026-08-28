@@ -29,7 +29,7 @@ async def get_snapshot(user_id: uuid.UUID) -> AegisSnapshot:
     try:
         recent = (
             await BehaviorWindow.find(
-                BehaviorWindow.session_id == user_id
+                BehaviorWindow.user_id == user_id
             )
             .sort("-created_at")
             .limit(60)
@@ -61,11 +61,20 @@ async def store_behavioral_batch(
     body: BatchEventsRequest,
 ) -> BatchEventsResponse:
     now = datetime.now(timezone.utc)
+    device_id = uuid.UUID(body.device_id) if body.device_id else None
     docs: list[BehavioralEvent | BehaviorWindow] = []
-
     for w in body.windows:
         window_start = datetime.fromtimestamp(w.windowStart / 1000, tz=timezone.utc)
         window_end = datetime.fromtimestamp(w.windowEnd / 1000, tz=timezone.utc)
+
+        # Validate temporal consistency
+        if window_start >= window_end:
+            continue  # Skip invalid window
+
+        window_duration_ms = (window_end - window_start).total_seconds() * 1000
+        # Validate reasonable duration bounds (100ms to 5 minutes)
+        if window_duration_ms < 100 or window_duration_ms > 300000:
+            continue  # Skip window with unreasonable duration
 
         feature_vector = {
             "dwellMeanMs": w.dwellMeanMs,
@@ -84,31 +93,60 @@ async def store_behavioral_batch(
             "mouseTravelPx": w.mouseTravelPx,
         }
 
-        # Store as BehaviorWindow for ML training
-        docs.append(
-            BehaviorWindow(
-                session_id=user_id,
-                window_start=window_start,
-                window_end=window_end,
-                features=feature_vector,
-                created_at=now,
+        # Validate feature values for NaN, infinity, and basic sanity
+        import math
+        for name, value in feature_vector.items():
+            if isinstance(value, (int, float)):
+                if math.isnan(value) or math.isinf(value):
+                    # Skip window if any feature is NaN or infinity
+                    break
+                # Validate non-negative values where applicable
+                if name in ["dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs",
+                          "keysPerSec", "velocityMean", "velocityStd",
+                          "accelerationStd", "clickCount"]:
+                    if value < 0:
+                        # Skip window if any non-negative feature is negative
+                        break
+                # Special validations based on collector limits
+                if name == "flightMeanMs" and value > 2000:
+                    # Collector uses Math.min(2000, ...) for flight times
+                    break
+                if name == "accelerationStd" and value < 0:
+                    # Standard deviation cannot be negative
+                    break
+                if name == "curvatureStd" and value < 0:
+                    # Standard deviation cannot be negative
+                    break
+        else:
+            # Only add the window if all validations passed (no break occurred)
+            # Store as BehaviorWindow for ML training
+            docs.append(
+                BehaviorWindow(
+                    user_id=user_id,
+                    session_id=body.session_id,
+                    device_id=device_id,
+                    window_start=window_start,
+                    window_end=window_end,
+                    features=feature_vector,
+                    created_at=now,
+                )
             )
-        )
 
-        # Store as BehavioralEvent for raw event tracking
-        docs.append(
-            BehavioralEvent(
-                user_id=user_id,
-                session_id=user_id,
-                event_type="window_aggregate",
-                timestamp=now,
-                window_start=window_start,
-                window_end=window_end,
-                feature_vector=feature_vector,
-                device_info=w.deviceInfo.model_dump() if w.deviceInfo else None,
-                created_at=now,
+            # Store as BehavioralEvent for raw event tracking
+            docs.append(
+                BehavioralEvent(
+                    user_id=user_id,
+                    session_id=body.session_id,
+                    device_id=device_id,
+                    event_type="window_aggregate",
+                    timestamp=now,
+                    window_start=window_start,
+                    window_end=window_end,
+                    feature_vector=feature_vector,
+                    device_info=w.deviceInfo.model_dump() if w.deviceInfo else None,
+                    created_at=now,
+                )
             )
-        )
 
     if docs:
         await BehaviorWindow.insert_many(

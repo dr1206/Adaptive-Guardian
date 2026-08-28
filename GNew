@@ -1,0 +1,6 @@
+
+## Login CORS Failure Diagnosis
+
+**Exact Cause:** The backend's CORS middleware is configured with a hardcoded list of allowed origins in  that does not include  (the frontend's port). The backend ignores the  setting in  because the  field in  class is not configured to read from the environment.
+
+**Exact File Needing Change:**  folderadaptive-guardian/context.md

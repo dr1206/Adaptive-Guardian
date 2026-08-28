@@ -12,7 +12,7 @@ import type {
   Session,
   VerifyOtpInput,
 } from "./auth.contract";
-import { httpRequest, setAccessToken, removeAccessToken, hasToken } from "../_transport/http";
+import { httpRequest, setAccessToken, removeAccessToken, hasToken, setCurrentSessionId } from "../_transport/http";
 
 // ---------------------------------------------------------------------------
 // Response shapes (backend wire format via serialization_alias → camelCase)
@@ -29,6 +29,7 @@ interface BackendUser {
 interface BackendAuthSession {
   accessToken: string;
   expiresIn: number;
+  sessionId: string;
   user: BackendUser;
 }
 
@@ -115,6 +116,7 @@ export const httpAuthService: AuthService = {
       signal,
     });
     setAccessToken(result.accessToken);
+    setCurrentSessionId(result.sessionId);
     return userToSession(result.user);
   },
 
@@ -125,6 +127,7 @@ export const httpAuthService: AuthService = {
       signal,
     });
     setAccessToken(result.accessToken);
+    setCurrentSessionId(result.sessionId);
     return userToSession(result.user);
   },
 

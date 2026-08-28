@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Download, ChevronDown } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { fmt } from "@/lib/format";
@@ -12,21 +12,35 @@ export const Route = createFileRoute("/app/transactions")({
   component: TransactionsPage,
 });
 
+type SortKey = "date" | "amount" | "category";
+
 function TransactionsPage() {
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>("date");
+  const [sortAsc, setSortAsc] = useState(false);
   const { data: transactions, isLoading, error } = useTransactions({});
 
-  const filtered = useMemo(
-    () =>
-      (transactions ?? []).filter(
-        (t) =>
-          q === "" ||
-          t.merchant.toLowerCase().includes(q.toLowerCase()) ||
-          t.category.toLowerCase().includes(q.toLowerCase()),
-      ),
-    [transactions, q],
-  );
+  const filtered = useMemo(() => {
+    let list = (transactions ?? []).filter(
+      (t) =>
+        q === "" ||
+        t.merchant.toLowerCase().includes(q.toLowerCase()) ||
+        t.category.toLowerCase().includes(q.toLowerCase()),
+    );
+
+    list = [...list].sort((a, b) => {
+      if (sortKey === "amount") return sortAsc ? a.amount - b.amount : b.amount - a.amount;
+      if (sortKey === "category") {
+        const cmp = a.category.localeCompare(b.category);
+        return sortAsc ? cmp : -cmp;
+      }
+      // date
+      const cmp = a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
+      return sortAsc ? cmp : -cmp;
+    });
+    return list;
+  }, [transactions, q, sortKey, sortAsc]);
 
   const groups = useMemo(() => {
     const map = new Map<string, Transaction[]>();
@@ -38,9 +52,18 @@ function TransactionsPage() {
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [filtered]);
 
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortAsc((v) => !v);
+    } else {
+      setSortKey(key);
+      setSortAsc(false);
+    }
+  };
+
   return (
     <div>
-      <PageHeader eyebrow="Money" title="Transactions" subtitle="Every move, fully searchable." />
+      <PageHeader eyebrow="Transactions" title="Transactions" subtitle="Every move, fully searchable." />
 
       <div className="sticky top-16 z-10 -mx-8 px-8 py-3 backdrop-blur-xl">
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.6)] p-2">
@@ -49,21 +72,30 @@ function TransactionsPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search merchants, categories, amounts…"
+              placeholder="Search merchants, categories…"
               className="h-9 w-full rounded-xl border border-transparent bg-white/[0.03] pl-9 pr-3 text-[13px] placeholder:text-muted-foreground/70 focus:border-accent/30 focus:outline-none"
             />
           </div>
-          {["Date", "Category", "Account", "Amount", "Status"].map((f) => (
+          {(
+            [
+              { key: "date", label: "Date" },
+              { key: "category", label: "Category" },
+              { key: "amount", label: "Amount" },
+            ] as { key: SortKey; label: string }[]
+          ).map((f) => (
             <button
-              key={f}
-              className="inline-flex h-9 items-center gap-1 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 text-[12px] text-muted-foreground transition-colors hover:text-foreground"
+              key={f.key}
+              onClick={() => toggleSort(f.key)}
+              className={cn(
+                "inline-flex h-9 items-center gap-1 rounded-xl border px-3 text-[12px] transition-colors",
+                sortKey === f.key
+                  ? "border-accent/40 bg-accent/10 text-accent"
+                  : "border-white/[0.05] bg-white/[0.02] text-muted-foreground hover:text-foreground",
+              )}
             >
-              {f} <ChevronDown className="h-3 w-3" />
+              {f.label} <ChevronDown className={cn("h-3 w-3", sortKey === f.key && sortAsc && "rotate-180")} />
             </button>
           ))}
-          <button className="ml-auto inline-flex h-9 items-center gap-1.5 rounded-xl bg-white/[0.04] px-3 text-[12px] text-muted-foreground hover:text-foreground">
-            <Download className="h-3.5 w-3.5" /> Export
-          </button>
         </div>
       </div>
 
@@ -127,35 +159,21 @@ function TransactionsPage() {
 function Expanded({ tx }: { tx: Transaction }) {
   return (
     <div className="grid gap-3 border-t border-white/[0.04] bg-white/[0.02] p-4 md:grid-cols-3">
-      <Field k="Method" v={tx.method} />
+      <Field k="Method" v={tx.method || "—"} />
       <Field k="Reference" v={tx.ref} />
       <Field k="Location" v={tx.location ?? "—"} />
       <Field k="Status" v={tx.status} />
-      <Field k="Aegis check" v={`✓ ${tx.confidence}% confidence`} tone="accent" />
-      <Field k="Risk" v="0.02" />
-      <div className="md:col-span-3 mt-2 flex gap-2">
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
-          Export PDF
-        </button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
-          Split
-        </button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
-          Dispute
-        </button>
-        <button className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-[11px] hover:bg-white/[0.08]">
-          Attach receipt
-        </button>
-      </div>
+      <Field k="Account" v={tx.account || "—"} />
+      <Field k="Amount" v={fmt(tx.amount)} />
     </div>
   );
 }
 
-function Field({ k, v, tone }: { k: string; v: string; tone?: "accent" }) {
+function Field({ k, v }: { k: string; v: string }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{k}</div>
-      <div className={cn("mt-0.5 text-[12px]", tone === "accent" && "text-accent")}>{v}</div>
+      <div className="mt-0.5 text-[12px]">{v}</div>
     </div>
   );
 }

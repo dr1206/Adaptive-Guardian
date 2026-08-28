@@ -87,4 +87,26 @@ export const mockAdminService: AdminService = {
     mockResolve(notifGroups as ReadonlyArray<NotificationGroup>, { signal }),
   listGeoDots: ({ signal } = {}) => mockResolve(geoDots as ReadonlyArray<GeoDot>, { signal }),
   getInfraSnapshot: ({ signal } = {}) => mockResolve(infra as InfraSnapshot, { signal }),
+  getUserDetails: ({ signal, user_id: _userId }: { user_id?: string; signal?: AbortSignal } = {}) =>
+    mockResolve(
+      {
+        user: null,
+        auth_sessions: [],
+        training_sessions: [],
+        training_events: [],
+        training_features: [],
+        behavioral_events: [],
+        behavior_windows: [],
+        device_profiles: [],
+      },
+      { signal },
+    ),
+  getUserSessions: ({ signal, user_id: _userId }: { user_id?: string; signal?: AbortSignal } = {}) =>
+    mockResolve({ user: null, auth_sessions: [] }, { signal }),
+  exportTrainingData: ({ signal } = {}) =>
+    mockResolve(void 0 as unknown as void, { signal }),
+  exportTrainingDataByUsers: ({ signal } = {}) =>
+    mockResolve(void 0 as unknown as void, { signal }),
+  exportSessionBehavioral: ({ signal, session_id: _sessionId }: { session_id?: string; signal?: AbortSignal } = {}) =>
+    mockResolve(void 0 as unknown as void, { signal }),
 };

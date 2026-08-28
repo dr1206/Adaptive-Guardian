@@ -190,11 +190,11 @@ export const httpAegisService: AegisService = {
     }));
   },
 
-  async submitBatch(windows) {
-    if (!windows || windows.length === 0) return;
+    async submitBatch(windows, sessionId?: string, deviceId?: string) {
+    if (!windows || windows.length === 0 || !sessionId) return;
     await httpRequest("/events/batch", {
       method: "POST",
-      body: { windows },
+      body: { windows, sessionId, deviceId },
     });
   },
 };

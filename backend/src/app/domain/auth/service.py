@@ -420,18 +420,8 @@ async def _issue_tokens(
     session_id: uuid.UUID | None = None,
 ) -> tuple[AuthSession, str]:
     """Returns (AuthSession, raw_refresh_token). Caller sets the refresh cookie."""
-    access_token = create_access_token(
-        subject=str(user.id),
-        extra_claims={
-            "email": user.email,
-            "display_name": user.full_name,
-            "roles": user.roles,
-            "sid": str(session_id) if session_id else None,
-        },
-    )
-
     raw_refresh, refresh_hash = create_refresh_token()
-    await repo.create_session(
+    created = await repo.create_session(
         user.id,
         refresh_hash,
         device_id=device_fingerprint,
@@ -441,9 +431,20 @@ async def _issue_tokens(
 
     await repo.record_user_login(user.id)
 
+    access_token = create_access_token(
+        subject=str(user.id),
+        extra_claims={
+            "email": user.email,
+            "display_name": user.full_name,
+            "roles": user.roles,
+            "sid": str(created.id),
+        },
+    )
+
     return AuthSession(
         access_token=access_token,
         expires_in=settings.access_token_ttl_minutes * 60,
+        session_id=created.id,
         user=Me(
             id=user.id,
             email=user.email,

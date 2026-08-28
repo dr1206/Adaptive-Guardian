@@ -35,6 +35,7 @@ class Session(Document):
     user_agent: str | None = None
     expires_at: datetime
     revoked: bool = False
+    logged_out_at: datetime | None = None
     last_active_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 

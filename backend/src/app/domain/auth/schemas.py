@@ -43,6 +43,7 @@ class Me(BaseModel):
 class AuthSession(BaseModel):
     access_token: str = Field(serialization_alias="accessToken")
     expires_in: int = Field(serialization_alias="expiresIn")  # seconds
+    session_id: UUID = Field(serialization_alias="sessionId")
     user: Me
 
 

@@ -20,8 +20,10 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 import { Route as AppTransferRouteImport } from './routes/app.transfer'
 import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
+import { Route as AppTrainingRouteImport } from './routes/app.training'
 import { Route as AppStatementsRouteImport } from './routes/app.statements'
 import { Route as AppSavingsRouteImport } from './routes/app.savings'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppPaymentsRouteImport } from './routes/app.payments'
 import { Route as AppLoansRouteImport } from './routes/app.loans'
 import { Route as AppInvestmentsRouteImport } from './routes/app.investments'
@@ -39,6 +41,7 @@ import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminRiskRouteImport } from './routes/admin.risk'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminInfraRouteImport } from './routes/admin.infra'
 import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
@@ -126,6 +129,11 @@ const AppTransactionsRoute = AppTransactionsRouteImport.update({
   path: '/transactions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppTrainingRoute = AppTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppStatementsRoute = AppStatementsRouteImport.update({
   id: '/statements',
   path: '/statements',
@@ -134,6 +142,11 @@ const AppStatementsRoute = AppStatementsRouteImport.update({
 const AppSavingsRoute = AppSavingsRouteImport.update({
   id: '/savings',
   path: '/savings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPaymentsRoute = AppPaymentsRouteImport.update({
@@ -219,6 +232,11 @@ const AdminRiskRoute = AdminRiskRouteImport.update({
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
@@ -393,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/infra': typeof AdminInfraRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/risk': typeof AdminRiskRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -410,8 +429,10 @@ export interface FileRoutesByFullPath {
   '/app/investments': typeof AppInvestmentsRoute
   '/app/loans': typeof AppLoansRoute
   '/app/payments': typeof AppPaymentsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/savings': typeof AppSavingsRoute
   '/app/statements': typeof AppStatementsRoute
+  '/app/training': typeof AppTrainingRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -453,6 +474,7 @@ export interface FileRoutesByTo {
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/infra': typeof AdminInfraRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/risk': typeof AdminRiskRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -469,8 +491,10 @@ export interface FileRoutesByTo {
   '/app/investments': typeof AppInvestmentsRoute
   '/app/loans': typeof AppLoansRoute
   '/app/payments': typeof AppPaymentsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/savings': typeof AppSavingsRoute
   '/app/statements': typeof AppStatementsRoute
+  '/app/training': typeof AppTrainingRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -516,6 +540,7 @@ export interface FileRoutesById {
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/infra': typeof AdminInfraRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/risk': typeof AdminRiskRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -533,8 +558,10 @@ export interface FileRoutesById {
   '/app/investments': typeof AppInvestmentsRoute
   '/app/loans': typeof AppLoansRoute
   '/app/payments': typeof AppPaymentsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/savings': typeof AppSavingsRoute
   '/app/statements': typeof AppStatementsRoute
+  '/app/training': typeof AppTrainingRoute
   '/app/transactions': typeof AppTransactionsRoute
   '/app/transfer': typeof AppTransferRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -581,6 +608,7 @@ export interface FileRouteTypes {
     | '/admin/compliance'
     | '/admin/infra'
     | '/admin/notifications'
+    | '/admin/profile'
     | '/admin/reports'
     | '/admin/risk'
     | '/admin/roles'
@@ -598,8 +626,10 @@ export interface FileRouteTypes {
     | '/app/investments'
     | '/app/loans'
     | '/app/payments'
+    | '/app/profile'
     | '/app/savings'
     | '/app/statements'
+    | '/app/training'
     | '/app/transactions'
     | '/app/transfer'
     | '/auth/verify'
@@ -641,6 +671,7 @@ export interface FileRouteTypes {
     | '/admin/compliance'
     | '/admin/infra'
     | '/admin/notifications'
+    | '/admin/profile'
     | '/admin/reports'
     | '/admin/risk'
     | '/admin/roles'
@@ -657,8 +688,10 @@ export interface FileRouteTypes {
     | '/app/investments'
     | '/app/loans'
     | '/app/payments'
+    | '/app/profile'
     | '/app/savings'
     | '/app/statements'
+    | '/app/training'
     | '/app/transactions'
     | '/app/transfer'
     | '/auth/verify'
@@ -703,6 +736,7 @@ export interface FileRouteTypes {
     | '/admin/compliance'
     | '/admin/infra'
     | '/admin/notifications'
+    | '/admin/profile'
     | '/admin/reports'
     | '/admin/risk'
     | '/admin/roles'
@@ -720,8 +754,10 @@ export interface FileRouteTypes {
     | '/app/investments'
     | '/app/loans'
     | '/app/payments'
+    | '/app/profile'
     | '/app/savings'
     | '/app/statements'
+    | '/app/training'
     | '/app/transactions'
     | '/app/transfer'
     | '/auth/verify'
@@ -839,6 +875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransactionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/training': {
+      id: '/app/training'
+      path: '/training'
+      fullPath: '/app/training'
+      preLoaderRoute: typeof AppTrainingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/statements': {
       id: '/app/statements'
       path: '/statements'
@@ -851,6 +894,13 @@ declare module '@tanstack/react-router' {
       path: '/savings'
       fullPath: '/app/savings'
       preLoaderRoute: typeof AppSavingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/payments': {
@@ -970,6 +1020,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/admin/reports'
       preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/notifications': {
@@ -1220,6 +1277,7 @@ interface AdminRouteChildren {
   AdminComplianceRoute: typeof AdminComplianceRoute
   AdminInfraRoute: typeof AdminInfraRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminRiskRoute: typeof AdminRiskRoute
   AdminRolesRoute: typeof AdminRolesRoute
@@ -1240,6 +1298,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminComplianceRoute: AdminComplianceRoute,
   AdminInfraRoute: AdminInfraRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminRiskRoute: AdminRiskRoute,
   AdminRolesRoute: AdminRolesRoute,
@@ -1317,8 +1376,10 @@ interface AppRouteChildren {
   AppInvestmentsRoute: typeof AppInvestmentsRoute
   AppLoansRoute: typeof AppLoansRoute
   AppPaymentsRoute: typeof AppPaymentsRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppSavingsRoute: typeof AppSavingsRoute
   AppStatementsRoute: typeof AppStatementsRoute
+  AppTrainingRoute: typeof AppTrainingRoute
   AppTransactionsRoute: typeof AppTransactionsRoute
   AppTransferRoute: typeof AppTransferRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -1336,8 +1397,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvestmentsRoute: AppInvestmentsRoute,
   AppLoansRoute: AppLoansRoute,
   AppPaymentsRoute: AppPaymentsRoute,
+  AppProfileRoute: AppProfileRoute,
   AppSavingsRoute: AppSavingsRoute,
   AppStatementsRoute: AppStatementsRoute,
+  AppTrainingRoute: AppTrainingRoute,
   AppTransactionsRoute: AppTransactionsRoute,
   AppTransferRoute: AppTransferRoute,
   AppIndexRoute: AppIndexRoute,

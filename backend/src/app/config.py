@@ -1,15 +1,24 @@
 from __future__ import annotations
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", protected_namespaces=("settings_",))
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        protected_namespaces=("settings_",),
+        extra="ignore",
+    )
 
     # App
     app_name: str = "AdaptiveGuard"
     debug: bool = False
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:8081", "http://127.0.0.1:8080"]
+    cors_origins: list[str] = Field(
+        default=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:8081", "http://127.0.0.1:8080", "http://127.0.0.1:5173"],
+        alias="CORS_ORIGINS",
+    )
 
     # MongoDB Atlas
     mongodb_uri: str = "mongodb+srv://cluster0.example.mongodb.net"
@@ -49,6 +58,10 @@ class Settings(BaseSettings):
     model_bucket: str = "guardian-models"
     threshold_allow: float = 0.85
     threshold_warn: float = 0.60
+
+    # Frontend/Vite feature flags (optional, ignored by backend if absent)
+    vite_use_real_api: bool = False
+    vite_behavioral_export: bool = False
 
     # Default admin (seeded on first startup if no admin exists)
     default_admin_email: str = "admin@adaptiveguard.ai"

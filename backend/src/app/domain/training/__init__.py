@@ -1,0 +1,1 @@
+"""Behavioral training domain — controlled typing, repeated typing, paragraph typing, and mouse tracking tasks."""

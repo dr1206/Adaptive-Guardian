@@ -38,8 +38,8 @@ function TransferPage() {
   const [step, setStep] = useState<Step>(presetTo ? 2 : 0);
   const [sourceId, setSourceId] = useState<string>(presetFrom ?? "primary");
   const [recipientId, setRecipientId] = useState<string | null>(presetTo ?? null);
-  const [amount, setAmount] = useState<string>("1250.00");
-  const [currency, setCurrency] = useState("EUR");
+  const [amount, setAmount] = useState<string>("5000.00");
+  const [currency, setCurrency] = useState("INR");
   const [purpose, setPurpose] = useState("Rent");
   const [note, setNote] = useState("June");
   const [done, setDone] = useState(false);
@@ -168,7 +168,7 @@ function TransferPage() {
               to={recipient.name}
               toBank={recipient.bank}
               toLast4={recipient.last4}
-              amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
               purpose={purpose}
               note={note}
               onEdit={back}
@@ -191,7 +191,7 @@ function TransferPage() {
 
           {step === 4 && recipient && (
             <SuccessStage
-              amount={`${currency === "EUR" ? "€" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
               to={recipient.name}
               onAnother={() => {
                 setStep(0);
@@ -281,7 +281,7 @@ function Recipients({
                 </div>
                 {b.lastSent && (
                   <span className="font-numeric text-[11px] text-muted-foreground">
-                    {fmt(b.lastSent.amount, "€", 0)}
+                    {fmt(b.lastSent.amount, "₹", 0)}
                   </span>
                 )}
               </button>
@@ -366,7 +366,7 @@ function AmountStage({
   const usdC = currencies.find((x) => x.code === "USD") ?? c;
   const value = Number(amount || 0);
   const rate = c ? usdC.rate / c.rate : 1;
-  const usd = (value * rate).toLocaleString("en-US", {
+  const usd = (value * rate).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -389,7 +389,7 @@ function AmountStage({
         </div>
         <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[72px] font-semibold tracking-tight">
           <span className="text-muted-foreground">
-            {currency === "EUR" ? "€" : currency === "USD" ? "$" : ""}
+            {currency === "INR" ? "₹" : currency === "USD" ? "$" : ""}
           </span>
           <input
             type="text"
@@ -405,7 +405,7 @@ function AmountStage({
           <span className="text-foreground">Today · 14:32</span>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          {["500.00", "1250.00", "2000.00"].map((v) => (
+          {["1000.00", "5000.00", "10000.00"].map((v) => (
             <button
               key={v}
               onClick={() => setAmount(v)}

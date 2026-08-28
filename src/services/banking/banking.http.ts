@@ -448,7 +448,7 @@ export const httpBankingService: BankingService = {
     const debits = txns.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
     const net = credits - debits;
     const fmt = (n: number) =>
-      new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+      new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(n);
     return {
       year: sample.year,
       month: sample.month,

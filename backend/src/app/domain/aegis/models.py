@@ -9,7 +9,9 @@ from pymongo import IndexModel
 
 
 class BehaviorWindow(Document):
+    user_id: uuid.UUID
     session_id: uuid.UUID
+    device_id: uuid.UUID | None = None
     window_start: datetime
     window_end: datetime
     features: dict[str, float]
@@ -17,12 +19,19 @@ class BehaviorWindow(Document):
 
     class Settings:
         name = "behavior_windows"
+        indexes = [
+            "user_id",
+            "session_id",
+            "device_id",
+            IndexModel([("user_id", 1), ("session_id", 1), ("device_id", 1)]),
+        ]
 
 
 class BehavioralEvent(Document):
     """Raw behavioral data event — keystroke, mouse, or aggregate window."""
     user_id: uuid.UUID
     session_id: uuid.UUID
+    device_id: uuid.UUID | None = None
     event_type: str  # keystroke, mouse_move, mouse_click, mouse_scroll, window_aggregate
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     # Keystroke fields
@@ -47,8 +56,10 @@ class BehavioralEvent(Document):
         indexes = [
             "user_id",
             "session_id",
+            "device_id",
             "event_type",
             IndexModel([("user_id", 1), ("session_id", 1)]),
+            IndexModel([("user_id", 1), ("device_id", 1), ("session_id", 1)]),
             IndexModel([("created_at", 1)], expireAfterSeconds=86400 * 90),  # 90-day TTL
         ]
 

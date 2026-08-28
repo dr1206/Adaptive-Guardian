@@ -36,11 +36,10 @@ const API_BASE = import.meta.env?.["VITE_API_BASE"] ?? "http://localhost:8000/ap
 let accessToken: string | null = null;
 
 function loadToken(): string | null {
-  if (accessToken) return accessToken;
   try {
-    accessToken = localStorage.getItem("ag_access_token");
+    return localStorage.getItem("ag_access_token");
   } catch { /* localStorage blocked */ }
-  return accessToken;
+  return null;
 }
 
 function saveToken(token: string): void {
@@ -54,7 +53,22 @@ function clearToken(): void {
   accessToken = null;
   try {
     localStorage.removeItem("ag_access_token");
+    localStorage.removeItem("ag_session_id");
   } catch { /* noop */ }
+}
+
+function saveSessionId(id: string): void {
+  try {
+    localStorage.setItem("ag_session_id", id);
+  } catch { /* noop */ }
+}
+
+function getStoredSessionId(): string | null {
+  try {
+    return localStorage.getItem("ag_session_id");
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -110,10 +124,11 @@ async function refreshAccessToken(): Promise<string | null> {
         clearToken();
         return null;
       }
-      const body = await resp.json() as { accessToken?: string };
+      const body = await resp.json() as { accessToken?: string; sessionId?: string };
       const token = body.accessToken;
       if (token) {
         saveToken(token);
+        if (body.sessionId) saveSessionId(body.sessionId);
         return token;
       }
       return null;
@@ -195,6 +210,16 @@ export async function httpRequest<T = unknown>(path: string, req: HttpRequest = 
 /** Exposed for auth service init — called after login / verify-otp to persist the token. */
 export function setAccessToken(token: string): void {
   saveToken(token);
+}
+
+/** Persist the authenticated login session id (backed by the auth Session record). */
+export function setCurrentSessionId(sessionId: string): void {
+  saveSessionId(sessionId);
+}
+
+/** Read the currently authenticated login session id (or null when logged out). */
+export function getCurrentSessionId(): string | null {
+  return getStoredSessionId();
 }
 
 /** Exposed for logout — clears the stored token. */

@@ -47,6 +47,7 @@ async def init_db(clean: bool = False) -> None:
         TransferRecord,
     )
     from app.domain.notifications.models import Notification, NotificationPreference
+    from app.domain.training.models import TrainingEvent, TrainingFeature, TrainingSession
 
     await init_beanie(
         database=_db,
@@ -77,6 +78,9 @@ async def init_db(clean: bool = False) -> None:
             Notification,
             NotificationPreference,
             AuditRecord,
+            TrainingSession,
+            TrainingEvent,
+            TrainingFeature,
         ],
     )
 

@@ -234,4 +234,9 @@ export interface AdminService {
   }): Promise<ReadonlyArray<NotificationGroup>>;
   listGeoDots(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<GeoDot>>;
   getInfraSnapshot(opts?: { signal?: AbortSignal }): Promise<InfraSnapshot>;
+  getUserDetails(opts: { user_id: string; signal?: AbortSignal }): Promise<any>;
+  getUserSessions(opts: { user_id: string; signal?: AbortSignal }): Promise<any>;
+  exportTrainingData(opts?: { signal?: AbortSignal }): Promise<void>;
+  exportTrainingDataByUsers(opts?: { signal?: AbortSignal; user_id?: string }): Promise<void>;
+  exportSessionBehavioral(opts: { session_id: string; signal?: AbortSignal }): Promise<void>;
 }

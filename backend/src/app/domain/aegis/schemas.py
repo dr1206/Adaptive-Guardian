@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -39,6 +41,9 @@ class BehavioralWindow(BaseModel):
 
 
 class BatchEventsRequest(BaseModel):
+    model_config = {"populate_by_name": True}
+    session_id: UUID = Field(validation_alias="sessionId")
+    device_id: UUID | None = Field(None, validation_alias="deviceId")
     windows: list[BehavioralWindow]
 
 

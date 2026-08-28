@@ -39,6 +39,7 @@ const groups: Group[] = [
     title: "People",
     items: [
       { to: "/admin/users", label: "Users", icon: Users },
+      { to: "/admin/profile", label: "User history", icon: History },
       { to: "/admin/accounts", label: "Accounts", icon: Wallet },
       { to: "/admin/roles", label: "Roles & permissions", icon: UserCog },
     ],

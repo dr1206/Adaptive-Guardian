@@ -415,6 +415,7 @@ export const httpAdminService: AdminService = {
       email: u.email,
       status: (u.isActive ? "active" : "locked") as AdminUser["status"],
       tier: (u.roles.includes("admin") ? "Enterprise" : "Personal") as AdminUser["tier"],
+      roles: u.roles ?? [],
       devices: 1,
       trust: u.isVerified ? 85 : 30,
       risk: u.riskLevel === "critical" ? 90 : u.riskLevel === "high" ? 65 : u.riskLevel === "medium" ? 35 : 10,
@@ -542,5 +543,264 @@ export const httpAdminService: AdminService = {
       ...s,
       severity: toSignal(s.severity),
     }));
+  },
+
+  async getUserDetails({ user_id, signal }: { user_id: string; signal?: AbortSignal }) {
+    return httpRequest<any>(`/admin/users/${user_id}/details`, { signal });
+  },
+
+  async getUserSessions({ user_id, signal }: { user_id: string; signal?: AbortSignal }) {
+    return httpRequest<any>(`/admin/users/${user_id}/sessions`, { signal });
+  },
+
+  async exportTrainingData({ signal } = {}) {
+    const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8000/api/v1";
+
+    async function downloadExport(path: string, fallbackFilename: string) {
+      const token = (() => {
+        try {
+          return localStorage.getItem("ag_access_token");
+        } catch {
+          return null;
+        }
+      })();
+
+      if (!token) {
+        throw new Error("Missing authorization header");
+      }
+
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      let resp = await fetch(`${API_BASE}${path}`, {
+        headers,
+        signal,
+        credentials: "include",
+      });
+
+      if (resp.status === 401) {
+        try {
+          const refreshResp = await fetch(`${API_BASE}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+          if (refreshResp.ok) {
+            const body = (await refreshResp.json()) as { accessToken?: string };
+            const newToken = body.accessToken;
+            if (newToken) {
+              localStorage.setItem("ag_access_token", newToken);
+              headers.Authorization = `Bearer ${newToken}`;
+              resp = await fetch(`${API_BASE}${path}`, {
+                headers,
+                signal,
+                credentials: "include",
+              });
+            }
+          }
+        } catch {
+          // refresh failed, fall through to error handling below
+        }
+      }
+
+      if (!resp.ok) {
+        let body: { message?: string } = {};
+        try {
+          body = await resp.json();
+        } catch {
+          // ignore non-JSON body
+        }
+        throw new Error(body.message ?? `Export failed (${resp.status})`);
+      }
+
+      // Extract filename from Content-Disposition header (server-side generated)
+      const contentDisposition = resp.headers.get("Content-Disposition");
+      let filename = fallbackFilename;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="([^"]+)"/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    await downloadExport("/admin/training/export", "training_data.csv");
+  },
+
+  async exportTrainingDataByUsers({ signal, user_id } = {}) {
+    const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8000/api/v1";
+
+    async function downloadExport(path: string, fallbackFilename: string) {
+      const token = (() => {
+        try {
+          return localStorage.getItem("ag_access_token");
+        } catch {
+          return null;
+        }
+      })();
+
+      if (!token) {
+        throw new Error("Missing authorization header");
+      }
+
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      let resp = await fetch(`${API_BASE}${path}`, {
+        headers,
+        signal,
+        credentials: "include",
+      });
+
+      if (resp.status === 401) {
+        try {
+          const refreshResp = await fetch(`${API_BASE}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+          if (refreshResp.ok) {
+            const body = (await refreshResp.json()) as { accessToken?: string };
+            const newToken = body.accessToken;
+            if (newToken) {
+              localStorage.setItem("ag_access_token", newToken);
+              headers.Authorization = `Bearer ${newToken}`;
+              resp = await fetch(`${API_BASE}${path}`, {
+                headers,
+                signal,
+                credentials: "include",
+              });
+            }
+          }
+        } catch {
+          // refresh failed, fall through to error handling below
+        }
+      }
+
+      if (!resp.ok) {
+        let body: { message?: string } = {};
+        try {
+          body = await resp.json();
+        } catch {
+          // ignore non-JSON body
+        }
+        throw new Error(body.message ?? `Export failed (${resp.status})`);
+      }
+
+      // Extract filename from Content-Disposition header (server-side generated)
+      const contentDisposition = resp.headers.get("Content-Disposition");
+      let filename = fallbackFilename;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="([^"]+)"/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Scope the export to the selected user when one is provided; otherwise it
+    // exports all users (existing behavior for the Behavior Analytics page).
+    const query = user_id ? `?user_id=${encodeURIComponent(user_id)}` : "";
+    const fallbackFilename = user_id ? `user_${user_id}_export.zip` : "training_data_by_users.zip";
+    await downloadExport(`/admin/training/export/users${query}`, fallbackFilename);
+  },
+
+  async exportSessionBehavioral({ session_id, signal }: { session_id: string; signal?: AbortSignal }) {
+    const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8000/api/v1";
+
+    const token = (() => {
+      try {
+        return localStorage.getItem("ag_access_token");
+      } catch {
+        return null;
+      }
+    })();
+    if (!token) throw new Error("Missing authorization header");
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    let resp = await fetch(`${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`, {
+      headers,
+      signal,
+      credentials: "include",
+    });
+
+    if (resp.status === 401) {
+      try {
+        const refreshResp = await fetch(`${API_BASE}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (refreshResp.ok) {
+          const body = (await refreshResp.json()) as { accessToken?: string };
+          if (body.accessToken) {
+            localStorage.setItem("ag_access_token", body.accessToken);
+            headers.Authorization = `Bearer ${body.accessToken}`;
+            resp = await fetch(`${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`, {
+              headers,
+              signal,
+              credentials: "include",
+            });
+          }
+        }
+      } catch {
+        // refresh failed, fall through to error handling below
+      }
+    }
+
+    if (!resp.ok) {
+      let body: { message?: string } = {};
+      try {
+        body = await resp.json();
+      } catch {
+        // ignore non-JSON body
+      }
+      throw new Error(body.message ?? `Export failed (${resp.status})`);
+    }
+
+    // Extract filename from Content-Disposition header (server-side generated)
+    const contentDisposition = resp.headers.get("Content-Disposition");
+    let filename = `session_${session_id}_behavioral.zip`;
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="([^"]+)"/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   },
 };

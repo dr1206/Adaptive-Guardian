@@ -247,3 +247,105 @@ async def list_admin_accounts(
 @router.get("/anomaly-signatures", response_model=AnomalySignatureList)
 async def list_anomaly_signatures():
     return await service.list_anomaly_signatures()
+# ── User Details / Session-linking debug (profile & training tabs) ────────
+
+
+@router.get("/users/{user_id}/details")
+async def get_user_details(user_id: str):
+    from uuid import UUID
+    from fastapi import HTTPException
+
+    try:
+        uid = UUID(user_id)
+        details = await service.get_user_details(uid)
+        if not details:
+            raise HTTPException(status_code=404, detail="User not found")
+        return details
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+
+@router.get("/users/{user_id}/sessions")
+async def get_user_sessions(user_id: str):
+    """Get auth sessions for a user with behavioral data grouped by session."""
+    from uuid import UUID
+    from fastapi import HTTPException
+
+    try:
+        uid = UUID(user_id)
+        details = await service.get_user_details(uid, group_by_session=True)
+        if not details:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {
+            "user": details["user"],
+            "auth_sessions": details["auth_sessions"]
+        }
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+
+@router.get("/sessions/{session_id}/export")
+async def export_session_data(session_id: str):
+    """Export data for a specific session as CSV/ZIP."""
+    from uuid import UUID
+    from fastapi import HTTPException
+
+    try:
+        sid = UUID(session_id)
+        from app.domain.auth.models import Session
+        session = await Session.find_one(Session.id == sid)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        user_id = session.user_id
+        return await service.export_training_data_by_users(user_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid session ID format")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sessions/{session_id}/behavioral")
+async def export_session_behavioral(session_id: str):
+    """Export ONLY the behavioral biometric data for one login session (login -> logout)."""
+    from uuid import UUID
+    from fastapi import HTTPException
+
+    try:
+        sid = UUID(session_id)
+        return await service.export_session_behavioral(sid)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid session ID format")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/training/export/users")
+async def export_training_data_by_users_endpoint(user_id: str = Query(None)):
+    """Export training data for users. If user_id provided, export only that user's data."""
+    from uuid import UUID
+    from fastapi import HTTPException
+    import logging
+
+    logger = logging.getLogger("admin")
+    logger.info(f"export_training_data_by_users_endpoint called with user_id={repr(user_id)}")
+
+    # Handle empty string (when ?user_id= is passed)
+    if user_id == "":
+        user_id = None
+
+    try:
+        if user_id is not None:
+            logger.info(f"Attempting to parse UUID: {repr(user_id)}")
+            uid = UUID(user_id)
+            logger.info(f"Successfully parsed UUID: {uid}")
+            return await service.export_training_data_by_users(uid)
+        else:
+            logger.info("No user_id provided, exporting all users")
+            return await service.export_training_data_by_users()
+    except ValueError as e:
+        logger.error(f"ValueError parsing UUID: {e}, user_id={repr(user_id)}")
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+    except Exception as e:
+        logger.exception(f"Exception in export endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

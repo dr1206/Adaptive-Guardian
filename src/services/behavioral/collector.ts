@@ -1,3 +1,5 @@
+import { getCurrentSessionId } from "../_transport/http";
+
 /**
  * BehavioralCollector — Silent keystroke + mouse dynamics engine.
  *
@@ -155,7 +157,10 @@ export class BehavioralCollector {
     document.addEventListener("wheel", this.onWheel, { passive: true });
     window.addEventListener("beforeunload", this.onBeforeUnload);
 
-    this.flushTimer = setInterval(() => this.rotateWindow(), FLUSH_INTERVAL_MS);
+    this.flushTimer = setInterval(() => {
+      this.rotateWindow();
+      this.flushWindows();
+    }, FLUSH_INTERVAL_MS);
 
     console.debug(
       "[BehavioralCollector] Started — capturing keystroke dynamics & mouse dynamics",
@@ -309,11 +314,12 @@ export class BehavioralCollector {
   private handleBeforeUnload(): void {
     // Finalize current partial window before flushing
     this.rotateWindow();
-    if (this.bufferedWindows.length > 0 && this.onFlush) {
+    const sessionId = getCurrentSessionId();
+    if (this.bufferedWindows.length > 0 && this.onFlush && sessionId) {
       const windows = [...this.bufferedWindows];
       this.bufferedWindows = [];
       // Use sendBeacon for reliable unload delivery
-      const payload = JSON.stringify({ windows });
+      const payload = JSON.stringify({ windows, sessionId });
       navigator.sendBeacon(
         `${import.meta.env?.VITE_API_BASE ?? "http://localhost:8000/api/v1"}/events/beacon`,
         new Blob([payload], { type: "application/json" }),

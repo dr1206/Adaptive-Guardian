@@ -92,6 +92,13 @@ import type {
   NotificationPreferences,
   PreferenceUpdateRequest,
 } from "./notifications/notifications.contract";
+import type {
+  TrainingBatchRequest,
+  TrainingFeatureBatchRequest,
+  TrainingProgress,
+  TrainingSessionComplete,
+  TrainingSessionStart,
+} from "./training/training.contract";
 
 export const queryKeys = {
   session: ["auth", "session"] as const,
@@ -682,3 +689,59 @@ export function useUpdateNotificationPreferences() {
 // ----------------------------------------------------------------------------
 
 export { useBehavioralStatus } from "./behavioral/BehavioralCollectorProvider";
+
+// ----------------------------------------------------------------------------
+// Training
+// ----------------------------------------------------------------------------
+
+export function useTrainingProgress() {
+  return useQuery<TrainingProgress>({
+    queryKey: ["training", "progress"],
+    queryFn: ({ signal }) => services.training.getProgress(),
+    staleTime: 15_000,
+  });
+}
+
+export function useStartTrainingSession(
+  opts?: UseMutationOptions<{ sessionId: string; status: string }, Error, TrainingSessionStart>,
+) {
+  return useMutation({
+    mutationFn: (input) => services.training.startSession(input),
+    ...opts,
+  });
+}
+
+export function useCompleteTrainingSession(
+  opts?: UseMutationOptions<{ sessionId: string; status: string; sampleCount: number }, Error, TrainingSessionComplete>,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input) => services.training.completeSession(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["training", "progress"] });
+    },
+    ...opts,
+  });
+}
+
+export function useSubmitTrainingBatch(
+  opts?: UseMutationOptions<{ accepted: number; status: string }, Error, TrainingBatchRequest>,
+) {
+  return useMutation({
+    mutationFn: (input) => services.training.submitBatch(input),
+    ...opts,
+  });
+}
+
+export function useSubmitTrainingFeatures(
+  opts?: UseMutationOptions<{ accepted: number; status: string }, Error, TrainingFeatureBatchRequest>,
+) {
+  return useMutation({
+    mutationFn: (input) => services.training.submitFeatures(input),
+    onSuccess: () => {
+      const qc = useQueryClient();
+      qc.invalidateQueries({ queryKey: ["training", "progress"] });
+    },
+    ...opts,
+  });
+}

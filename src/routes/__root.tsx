@@ -11,7 +11,6 @@ import { useEffect, type ReactNode } from "react";
 
 import type { Session } from "@/services/auth/auth.contract";
 import { BehavioralCollectorProvider } from "@/services/behavioral/BehavioralCollectorProvider";
-import { BehavioralExportPanel } from "@/services/behavioral/BehavioralExportPanel";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -140,7 +139,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <BehavioralCollectorProvider>
         <Outlet />
-        <BehavioralExportPanel />
       </BehavioralCollectorProvider>
     </QueryClientProvider>
   );
