@@ -37,13 +37,20 @@ export function SecurityOverview() {
     );
   }
 
-  const cards = [
+  const cards: Array<{
+    icon: typeof ShieldCheck;
+    title: string;
+    metric: string;
+    note: string;
+    status: "pass" | "warn";
+    action: string;
+  }> = [
     {
       icon: ShieldCheck,
       title: "Auth confidence",
       metric: confidence,
       note: "Current session",
-      status: "pass" as const,
+      status: "pass",
       action: "View",
     },
     {
@@ -51,7 +58,7 @@ export function SecurityOverview() {
       title: "Trusted device",
       metric: deviceLabel,
       note: trustedDevice ? `Trust: ${trustedDevice.trust}` : "No device",
-      status: "pass" as const,
+      status: "pass",
       action: "Manage",
     },
     {
@@ -59,7 +66,7 @@ export function SecurityOverview() {
       title: "Active sessions",
       metric: String(activeSessions),
       note: "Recognized sessions",
-      status: "pass" as const,
+      status: "pass",
       action: "View",
     },
     {
@@ -67,7 +74,7 @@ export function SecurityOverview() {
       title: "Flagged events",
       metric: String(flagged24h),
       note: "Last 24 hours",
-      status: (flagged24h === 0 ? "pass" : "warn") as const,
+      status: flagged24h === 0 ? "pass" : "warn",
       action: "View",
     },
     {
@@ -75,7 +82,7 @@ export function SecurityOverview() {
       title: "Session integrity",
       metric: "A+",
       note: "End-to-end protected",
-      status: "pass" as const,
+      status: "pass",
       action: "Re-verify",
     },
     {
@@ -83,7 +90,7 @@ export function SecurityOverview() {
       title: "AI monitoring",
       metric: "Active",
       note: "LightGBM · OC-SVM",
-      status: "pass" as const,
+      status: "pass",
       action: "View",
     },
     {
@@ -91,7 +98,7 @@ export function SecurityOverview() {
       title: "Risk assessment",
       metric: risk,
       note: flagged24h === 0 ? "Low · normal range" : "Review recommended",
-      status: (flagged24h === 0 ? "pass" : "warn") as const,
+      status: flagged24h === 0 ? "pass" : "warn",
       action: "View",
     },
   ];

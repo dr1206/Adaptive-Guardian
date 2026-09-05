@@ -177,7 +177,7 @@ function SpendDonut({ className }: { className?: string }) {
   return (
     <WidgetShell
       title="Spending · This month"
-      hint={`${analytics?.currency ?? "€"}${total.toLocaleString()} across ${cats.length} categories`}
+      hint={`${total.toLocaleString()} across ${cats.length} categories`}
       className={className}
     >
       <div className="flex items-center gap-5">

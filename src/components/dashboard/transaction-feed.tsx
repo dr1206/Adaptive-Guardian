@@ -54,11 +54,11 @@ function toTx(t: import("@/services/banking/banking.contract").Transaction): Tx 
   const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
   return {
     id: t.id,
-    merchant: t.description,
+    merchant: t.merchant,
     category: t.category ?? "Other",
     time,
-    amount: t.amount,
-    direction: t.type === "credit" ? "in" : "out",
+    amount: Math.abs(t.amount),
+    direction: t.amount >= 0 ? "in" : "out",
     glyph: GLYPH_MAP[t.category ?? ""] ?? "shop",
   };
 }
