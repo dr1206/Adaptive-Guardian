@@ -121,7 +121,10 @@ async function refreshAccessToken(): Promise<string | null> {
         headers: { "Content-Type": "application/json" },
       });
       if (!resp.ok) {
-        clearToken();
+        // Refresh rejected (expired/invalid refresh cookie). Do NOT wipe the
+        // access token here: only the auth service may invalidate the
+        // session, otherwise a single 401 on ANY page (e.g. Security Center
+        // firing 6+ queries at once) would log the user out spuriously.
         return null;
       }
       const body = await resp.json() as { accessToken?: string; sessionId?: string };
@@ -133,7 +136,8 @@ async function refreshAccessToken(): Promise<string | null> {
       }
       return null;
     } catch {
-      clearToken();
+      // Network-level failure (backend restarting, offline). The access token
+      // may still be valid — never delete it on a transport error.
       return null;
     } finally {
       refreshPromise = null;
@@ -171,35 +175,59 @@ export async function httpRequest<T = unknown>(path: string, req: HttpRequest = 
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  let resp = await fetch(url, {
-    method,
-    headers,
-    body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
-    signal: req.signal,
-    credentials: "include",
-  });
+  let resp: Response;
+  try {
+    resp = await fetch(url, {
+      method,
+      headers,
+      body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
+      signal: req.signal,
+      credentials: "include",
+    });
+  } catch (err) {
+    // Transport-level failure (DNS, connection refused, aborted navigation).
+    // Rethrow untouched: AbortError must propagate as abort, everything else
+    // as a retryable IntegrationError — and crucially the stored token must
+    // NOT be cleared by anyone on this path.
+    if (err instanceof Error && err.name === "AbortError") throw err;
+    throw new IntegrationError("transport.unreachable", "Backend unreachable. Check that it is running.");
+  }
 
   // Attempt silent refresh on 401 (only once per request)
   if (resp.status === 401 && token) {
     const newToken = await refreshAccessToken();
     if (newToken) {
       headers["Authorization"] = `Bearer ${newToken}`;
-      resp = await fetch(url, {
-        method,
-        headers,
-        body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
-        signal: req.signal,
-        credentials: "include",
-      });
+      try {
+        resp = await fetch(url, {
+          method,
+          headers,
+          body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
+          signal: req.signal,
+          credentials: "include",
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") throw err;
+        throw new IntegrationError("transport.unreachable", "Backend unreachable. Check that it is running.");
+      }
     }
   }
 
   if (!resp.ok) {
     if (resp.status === 204) return undefined as unknown as T;
+    const status = resp.status;
     let body: { code?: string; message?: string; details?: Record<string, unknown> } = {};
     try {
       body = await resp.json() as Record<string, unknown>;
     } catch { /* non-JSON body */ }
+    // No JSON body (proxy/HTML error page, empty 401): still surface the
+    // correct typed error so getSession() can tell "logged out" apart from
+    // "transient failure". A bare 401/403 must NEVER become a generic 500.
+    if (Object.keys(body).length === 0) {
+      if (status === 401) throw new AuthenticationError("common.unauthenticated", "Authentication required.");
+      if (status === 403) throw new AuthorizationError("common.forbidden", "You do not have access to this resource.");
+      if (status === 404) throw new NotFoundError("common.not_found", "Resource not found.");
+    }
     throw mapBackendError(body);
   }
 

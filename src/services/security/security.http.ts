@@ -21,14 +21,44 @@ import type {
 } from "./security.contract";
 
 // ---------------------------------------------------------------------------
-// Backend wire shapes (camelCase after serialization_alias)
+// Behavioral authentication
+// ---------------------------------------------------------------------------
+
+export interface BehavioralAuthenticationInput {
+  dwellMeanMs: number;
+  dwellStdMs: number;
+  flightMeanMs: number;
+  flightStdMs: number;
+  velocityMean: number;
+  accelerationMean: number;
+  accelerationStd: number;
+  curvatureMean: number;
+  curvatureStd: number;
+  clickCount: number;
+  scrollAmount: number;
+  mouseTravelPx: number;
+}
+
+export interface BehavioralAuthenticationResult {
+  lightgbmScore: number;
+  ocsvmAnomalyScore: number;
+  fusedScore: number;
+  decision: "ALLOW" | "WARN" | "CHALLENGE" | string;
+}
+
+// ---------------------------------------------------------------------------
+// Backend wire shapes
 // ---------------------------------------------------------------------------
 
 interface BackendSecurityOverview {
   activeSessions: number;
   trustedDevices: number;
   flaggedEvents24h: number;
-  riskTrend: string; // improving, stable, degrading
+  // The backend has returned this as a comma-separated string
+  // ("0.10,0.08,..."), a JSON array string, and a plain number[] at
+  // different times — accept all three so a mapper crash can never break
+  // the Security Center render.
+  riskTrend: string | number[] | number | null | undefined;
   lastAssessmentAt: string;
 }
 
@@ -123,20 +153,59 @@ interface BackendDeviceHealthResponse {
   flagged: number;
 }
 
+interface BackendBehavioralAuthenticationResponse {
+  lightgbmScore?: number;
+  ocsvmAnomalyScore?: number;
+  fusedScore?: number;
+  decision?: string;
+  // Accept snake_case too — a wire-format change must never silently
+  // blank out the Security Center with undefined scores.
+  lightgbm_score?: number;
+  ocsvm_anomaly_score?: number;
+  fused_score?: number;
+}
+
 // ---------------------------------------------------------------------------
 // Mappers
 // ---------------------------------------------------------------------------
 
-function riskTrendToArray(trend: string): number[] {
-  switch (trend) {
-    case "improving": return [30, 35, 40, 50, 55, 62, 70];
-    case "stable": return [60, 62, 58, 63, 60, 65, 63];
-    case "degrading": return [70, 68, 62, 55, 48, 40, 35];
-    default: return [50, 50, 50, 50, 50, 50, 50];
+function riskTrendToArray(trend: string | number[] | number | null | undefined): number[] {
+  // Keyword form used by some backends.
+  if (trend === "improving") return [30, 35, 40, 50, 55, 62, 70];
+  if (trend === "stable") return [60, 62, 58, 63, 60, 65, 63];
+  if (trend === "degrading") return [70, 68, 62, 55, 48, 40, 35];
+  // Native array form.
+  if (Array.isArray(trend)) {
+    const nums = trend.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+    return nums.length > 0 ? nums : [50, 50, 50, 50, 50, 50, 50];
   }
+  if (typeof trend === "number" && Number.isFinite(trend)) return [trend];
+  if (typeof trend !== "string" || trend.trim() === "") {
+    return [50, 50, 50, 50, 50, 50, 50];
+  }
+  const s = trend.trim();
+  // JSON array string, e.g. "[0.10,0.08,...]" — never crash on it.
+  try {
+    const parsed: unknown = JSON.parse(s);
+    if (Array.isArray(parsed)) {
+      const nums = parsed.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+      if (nums.length > 0) return nums;
+    } else if (typeof parsed === "number" && Number.isFinite(parsed)) {
+      return [parsed];
+    }
+  } catch {
+    /* not JSON — try comma-separated */
+  }
+  const nums = s
+    .split(",")
+    .map((part) => Number(part.trim()))
+    .filter((v) => Number.isFinite(v));
+  return nums.length > 0 ? nums : [50, 50, 50, 50, 50, 50, 50];
 }
 
-function mapSessionTimelineEvent(e: BackendSessionTimelineEvent): SessionTimelineEvent {
+function mapSessionTimelineEvent(
+  e: BackendSessionTimelineEvent,
+): SessionTimelineEvent {
   return {
     sessionId: e.sessionId,
     event: e.event,
@@ -149,7 +218,9 @@ function mapSessionTimelineEvent(e: BackendSessionTimelineEvent): SessionTimelin
   };
 }
 
-function mapReportSummary(s: BackendReportSummary): ReportSummary {
+function mapReportSummary(
+  s: BackendReportSummary,
+): ReportSummary {
   return {
     logins: s.totalLogins,
     challenges: s.challengesIssued,
@@ -157,7 +228,9 @@ function mapReportSummary(s: BackendReportSummary): ReportSummary {
   };
 }
 
-function mapReportDevice(d: BackendReportDevice): ReportDevice {
+function mapReportDevice(
+  d: BackendReportDevice,
+): ReportDevice {
   return {
     deviceId: d.deviceId,
     label: d.label,
@@ -166,7 +239,9 @@ function mapReportDevice(d: BackendReportDevice): ReportDevice {
   };
 }
 
-function mapRiskEventItem(e: BackendRiskEventItem): RiskEventItem {
+function mapRiskEventItem(
+  e: BackendRiskEventItem,
+): RiskEventItem {
   return {
     id: e.id,
     occurredAt: e.occurredAt,
@@ -177,8 +252,11 @@ function mapRiskEventItem(e: BackendRiskEventItem): RiskEventItem {
   };
 }
 
-function mapLocationBucket(l: BackendLocationBucket): LocationBucket {
+function mapLocationBucket(
+  l: BackendLocationBucket,
+): LocationBucket {
   const parts = l.location.split(/,\s*/);
+
   return {
     city: parts[0] ?? l.location,
     country: parts[1] ?? "",
@@ -186,18 +264,30 @@ function mapLocationBucket(l: BackendLocationBucket): LocationBucket {
   };
 }
 
-function mapHourlyBucket(h: BackendHourlyBucket): HourlyBucket {
-  return { hour: h.hour, count: h.count };
+function mapHourlyBucket(
+  h: BackendHourlyBucket,
+): HourlyBucket {
+  return {
+    hour: h.hour,
+    count: h.count,
+  };
 }
 
-function mapDeviceHealthItem(d: BackendDeviceHealthItem): DeviceHealthItem {
+function mapDeviceHealthItem(
+  d: BackendDeviceHealthItem,
+): DeviceHealthItem {
   return {
     deviceId: d.deviceId,
     label: d.label,
     trustScore: d.trustScore,
     sessions: d.sessionCount,
     lastSeen: d.lastActive,
-    anomalies: d.recommendation === "revoke" ? 3 : d.recommendation === "review" ? 1 : 0,
+    anomalies:
+      d.recommendation === "revoke"
+        ? 3
+        : d.recommendation === "review"
+          ? 1
+          : 0,
   };
 }
 
@@ -205,9 +295,23 @@ function mapDeviceHealthItem(d: BackendDeviceHealthItem): DeviceHealthItem {
 // Implementation
 // ---------------------------------------------------------------------------
 
-export const httpSecurityService: SecurityService = {
+export const httpSecurityService: SecurityService & {
+  behavioralAuthenticate(
+    input: BehavioralAuthenticationInput,
+    options?: { signal?: AbortSignal },
+  ): Promise<BehavioralAuthenticationResult>;
+} = {
+  // -------------------------------------------------------------------------
+  // Security overview
+  // -------------------------------------------------------------------------
+
   async getOverview({ signal } = {}) {
-    const resp = await httpRequest<BackendSecurityOverview>("/security/overview", { signal });
+    const resp =
+      await httpRequest<BackendSecurityOverview>(
+        "/security/overview",
+        { signal },
+      );
+
     return {
       activeSessions: resp.activeSessions,
       trustedDevices: resp.trustedDevices,
@@ -217,36 +321,88 @@ export const httpSecurityService: SecurityService = {
     };
   },
 
-  async getSessionTimeline({ limit, offset, signal } = {}) {
-    const resp = await httpRequest<BackendSessionTimelineResponse>("/security/session-timeline", {
-      params: { limit, offset },
-      signal,
-    });
+  // -------------------------------------------------------------------------
+  // Session timeline
+  // -------------------------------------------------------------------------
+
+  async getSessionTimeline({
+    limit,
+    offset,
+    signal,
+  } = {}) {
+    const resp =
+      await httpRequest<BackendSessionTimelineResponse>(
+        "/security/session-timeline",
+        {
+          params: {
+            limit,
+            offset,
+          },
+          signal,
+        },
+      );
+
     return {
       events: resp.events.map(mapSessionTimelineEvent),
       total: resp.total,
     };
   },
 
-  async getDailyReport(date, { signal } = {}) {
-    const resp = await httpRequest<BackendDailySecurityReport>("/security/reports/daily", {
-      params: date ? { date } : undefined,
-      signal,
-    });
+  // -------------------------------------------------------------------------
+  // Daily report
+  // -------------------------------------------------------------------------
+
+  async getDailyReport(
+    date,
+    { signal } = {},
+  ) {
+    const resp =
+      await httpRequest<BackendDailySecurityReport>(
+        "/security/reports/daily",
+        {
+          params: date
+            ? {
+                date,
+              }
+            : undefined,
+          signal,
+        },
+      );
+
     return {
       date: resp.date,
       summary: mapReportSummary(resp.summary),
-      activeDevices: resp.activeDevices.map(mapReportDevice),
+      activeDevices: resp.activeDevices.map(
+        mapReportDevice,
+      ),
       riskVerdict: resp.riskVerdict,
       generatedAt: resp.generatedAt,
     };
   },
 
-  async getRiskEvents({ severity, limit, offset, signal } = {}) {
-    const resp = await httpRequest<BackendRiskEventFeed>("/security/risk-events", {
-      params: { severity, limit, offset },
-      signal,
-    });
+  // -------------------------------------------------------------------------
+  // Risk events
+  // -------------------------------------------------------------------------
+
+  async getRiskEvents({
+    severity,
+    limit,
+    offset,
+    signal,
+  } = {}) {
+    const resp =
+      await httpRequest<BackendRiskEventFeed>(
+        "/security/risk-events",
+        {
+          params: {
+            severity,
+            limit,
+            offset,
+          },
+          signal,
+        },
+      );
+
     return {
       events: resp.events.map(mapRiskEventItem),
       total: resp.total,
@@ -254,26 +410,104 @@ export const httpSecurityService: SecurityService = {
     };
   },
 
-  async getLoginAnalytics(periodDays = 30, { signal } = {}) {
-    const resp = await httpRequest<BackendLoginAnalytics>("/security/login-analytics", {
-      params: { periodDays },
-      signal,
-    });
+  // -------------------------------------------------------------------------
+  // Login analytics
+  // -------------------------------------------------------------------------
+
+  async getLoginAnalytics(
+    periodDays = 30,
+    { signal } = {},
+  ) {
+    const resp =
+      await httpRequest<BackendLoginAnalytics>(
+        "/security/login-analytics",
+        {
+          params: {
+            periodDays,
+          },
+          signal,
+        },
+      );
+
     return {
       totalLogins: resp.totalLogins,
       uniqueDevices: resp.uniqueDevices,
       uniqueLocations: resp.uniqueLocations,
-      hourlyDistribution: resp.hourlyDistribution.map(mapHourlyBucket),
-      byLocation: resp.byLocation.map(mapLocationBucket),
+      hourlyDistribution:
+        resp.hourlyDistribution.map(
+          mapHourlyBucket,
+        ),
+      byLocation:
+        resp.byLocation.map(mapLocationBucket),
       periodDays: resp.periodDays,
     };
   },
 
+  // -------------------------------------------------------------------------
+  // Device health
+  // -------------------------------------------------------------------------
+
   async getDeviceHealth({ signal } = {}) {
-    const resp = await httpRequest<BackendDeviceHealthResponse>("/security/device-health", { signal });
+    const resp =
+      await httpRequest<BackendDeviceHealthResponse>(
+        "/security/device-health",
+        {
+          signal,
+        },
+      );
+
     return {
-      devices: resp.devices.map(mapDeviceHealthItem),
+      devices: resp.devices.map(
+        mapDeviceHealthItem,
+      ),
       flagged: resp.flagged,
     };
   },
+
+  // -------------------------------------------------------------------------
+// Behavioral authentication
+// -------------------------------------------------------------------------
+
+async behavioralAuthenticate(
+  input,
+  { signal } = {},
+) {
+  const resp =
+    await httpRequest<BackendBehavioralAuthenticationResponse>(
+      "/security/behavioral-authenticate",
+      {
+        method: "POST",
+        body: {
+          dwell_mean_ms: input.dwellMeanMs,
+          dwell_std_ms: input.dwellStdMs,
+          flight_mean_ms: input.flightMeanMs,
+          flight_std_ms: input.flightStdMs,
+          velocity_mean: input.velocityMean,
+          acceleration_mean: input.accelerationMean,
+          acceleration_std: input.accelerationStd,
+          curvature_mean: input.curvatureMean,
+          curvature_std: input.curvatureStd,
+          click_count: input.clickCount,
+          scroll_amount: input.scrollAmount,
+          mouse_travel_px: input.mouseTravelPx,
+        },
+        signal,
+      },
+    );
+
+  // The backend serializes with camelCase aliases; accept snake_case too so
+  // a wire-format change can never silently blank the Security Center.
+  const lightgbmScore =
+    resp.lightgbmScore ?? resp.lightgbm_score ?? 0;
+  const ocsvmAnomalyScore =
+    resp.ocsvmAnomalyScore ?? resp.ocsvm_anomaly_score ?? 0;
+  const fusedScore = resp.fusedScore ?? resp.fused_score ?? 0;
+
+  return {
+    lightgbmScore,
+    ocsvmAnomalyScore,
+    fusedScore,
+    decision: resp.decision ?? "WAITING",
+  };
+},
 };

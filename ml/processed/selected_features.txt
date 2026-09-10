@@ -1,0 +1,8 @@
+velocityMean
+accelerationStd
+clickCount
+flightMeanMs
+dwellStdMs
+curvatureMean
+flightStdMs
+curvatureStd

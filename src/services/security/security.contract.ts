@@ -96,20 +96,81 @@ export interface DeviceHealthResponse {
   flagged: number;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Behavioral Authentication                                                   */
+/* -------------------------------------------------------------------------- */
+
+export interface BehavioralAuthenticationInput {
+  dwellMeanMs: number;
+  dwellStdMs: number;
+  flightMeanMs: number;
+  flightStdMs: number;
+  velocityMean: number;
+  accelerationMean: number;
+  accelerationStd: number;
+  curvatureMean: number;
+  curvatureStd: number;
+  clickCount: number;
+  scrollAmount: number;
+  mouseTravelPx: number;
+}
+
+export interface BehavioralAuthenticationResult {
+  lightgbmScore: number;
+  ocsvmAnomalyScore: number;
+  fusedScore: number;
+  decision: "ALLOW" | "WARN" | "CHALLENGE" | string;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Security service                                                            */
+/* -------------------------------------------------------------------------- */
+
 export interface SecurityService {
-  getOverview(opts?: { signal?: AbortSignal }): Promise<SecurityOverview>;
-  getSessionTimeline(opts?: {
-    limit?: number;
-    offset?: number;
-    signal?: AbortSignal;
-  }): Promise<SessionTimelineResponse>;
-  getDailyReport(date?: string, opts?: { signal?: AbortSignal }): Promise<DailySecurityReport>;
-  getRiskEvents(opts?: {
-    severity?: string;
-    limit?: number;
-    offset?: number;
-    signal?: AbortSignal;
-  }): Promise<RiskEventFeed>;
-  getLoginAnalytics(periodDays?: number, opts?: { signal?: AbortSignal }): Promise<LoginAnalytics>;
-  getDeviceHealth(opts?: { signal?: AbortSignal }): Promise<DeviceHealthResponse>;
+  getOverview(
+    opts?: { signal?: AbortSignal },
+  ): Promise<SecurityOverview>;
+
+  getSessionTimeline(
+    opts?: {
+      limit?: number;
+      offset?: number;
+      signal?: AbortSignal;
+    },
+  ): Promise<SessionTimelineResponse>;
+
+  getDailyReport(
+    date?: string,
+    opts?: { signal?: AbortSignal },
+  ): Promise<DailySecurityReport>;
+
+  getRiskEvents(
+    opts?: {
+      severity?: string;
+      limit?: number;
+      offset?: number;
+      signal?: AbortSignal;
+    },
+  ): Promise<RiskEventFeed>;
+
+  getLoginAnalytics(
+    periodDays?: number,
+    opts?: { signal?: AbortSignal },
+  ): Promise<LoginAnalytics>;
+
+  getDeviceHealth(
+    opts?: { signal?: AbortSignal },
+  ): Promise<DeviceHealthResponse>;
+
+  /**
+   * Authenticate the currently logged-in user using
+   * behavioral biometric features.
+   *
+   * Backend:
+   * POST /api/v1/security/behavioral-authenticate
+   */
+  behavioralAuthenticate(
+    input: BehavioralAuthenticationInput,
+    opts?: { signal?: AbortSignal },
+  ): Promise<BehavioralAuthenticationResult>;
 }

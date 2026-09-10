@@ -1,0 +1,39 @@
+MODEL EVALUATION REPORT
+======================================================================
+
+Test rows: 114
+Genuine: 109
+Impostor: 5
+
+LIGHTGBM
+----------------------------------------------------------------------
+Accuracy : 0.9737
+Precision: 0.7500
+Recall   : 0.6000
+F1-score : 0.6667
+ROC-AUC  : 0.9927
+Confusion Matrix:
+[[108   1]
+ [  2   3]]
+
+FUSED MODEL
+----------------------------------------------------------------------
+Accuracy : 0.9912
+Precision: 1.0000
+Recall   : 0.8000
+F1-score : 0.8889
+ROC-AUC  : 0.9982
+Confusion Matrix:
+[[109   0]
+ [  1   4]]
+
+FEATURES
+----------------------------------------------------------------------
+velocityMean
+accelerationStd
+clickCount
+flightMeanMs
+dwellStdMs
+curvatureMean
+flightStdMs
+curvatureStd

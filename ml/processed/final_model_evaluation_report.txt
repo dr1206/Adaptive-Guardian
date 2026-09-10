@@ -1,0 +1,25 @@
+FINAL CALIBRATED MODEL EVALUATION REPORT
+======================================================================
+
+Test rows: 114
+Genuine: 109
+Impostor: 5
+
+Fusion formula:
+0.6 × LightGBM + 0.4 × OC-SVM anomaly score
+
+Metrics:
+Accuracy : 0.9825
+Precision: 0.8000
+Recall   : 0.8000
+F1-score : 0.8000
+ROC-AUC  : 0.9945
+
+Confusion Matrix:
+[[108   1]
+ [  1   4]]
+
+Security Decision Distribution:
+ALLOW: 109
+WARN: 2
+CHALLENGE: 3

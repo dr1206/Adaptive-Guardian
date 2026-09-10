@@ -7,13 +7,35 @@ import { CommandBar } from "@/components/dashboard/command-bar";
 import { SecurityStrip } from "@/components/banking/security-strip";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Shield } from "@/components/brand/shield";
+import { BehavioralSecuritySentinel } from "@/components/guard/behavioral-security-sentinel";
 import { services } from "@/services/registry";
 
 export const Route = createFileRoute("/app")({
+  // Authenticate on the server AND the client. During SSR (Vite dev
+  // pre-render / Start server) there is no localStorage, so
+  // services.auth.getSession() throws a ReferenceError — which must NOT be
+  // treated as "logged out". Only an explicit `null` session redirects.
   beforeLoad: async ({ location }) => {
-    const session = await services.auth.getSession();
+    let session = null;
+    try {
+      session = await services.auth.getSession();
+    } catch (err) {
+      // Rethrown AbortError = navigation was superseded (user clicked
+      // through quickly). Let the router cancel instead of redirecting.
+      if (err instanceof Error && err.name === "AbortError") throw err;
+      // SSR / prerender has no localStorage: keep rendering the layout shell
+      // and let the client re-run beforeLoad with the real token.
+      if (typeof window === "undefined") return {};
+      // Transient client failure (backend warming up, network blip): also
+      // render and let React Query retry instead of bouncing to /auth.
+      return {};
+    }
     if (!session) {
-      throw redirect({ to: "/auth", search: { redirect: location.href } });
+      // Client-side with no session at all → genuine logged-out state.
+      if (typeof window !== "undefined") {
+        throw redirect({ to: "/auth", search: { redirect: location.href } });
+      }
+      return {};
     }
     return { session };
   },
@@ -60,6 +82,9 @@ function AppLayout() {
       </header>
 
       <main id="main" className="lg:ml-[300px] px-4 sm:px-6 lg:pr-8 lg:pl-0 pb-20 lg:pb-24">
+        {/* Global behavioral ML sentinel: WARN banner + CHALLENGE modal on
+            every /app page. Same live state as /app/guard — ALLOW is silent. */}
+        <BehavioralSecuritySentinel />
         <CommandBar />
         <Outlet />
       </main>

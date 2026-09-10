@@ -2,19 +2,27 @@
 
 from __future__ import annotations
 
+from typing import Any
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
+
 # ── Overview ───────────────────────────────────────────────────
+
 
 class SecurityOverview(BaseModel):
     active_sessions: int = Field(serialization_alias="activeSessions")
     trusted_devices: int = Field(serialization_alias="trustedDevices")
     flagged_events_24h: int = Field(serialization_alias="flaggedEvents24h")
-    risk_trend: str = Field(serialization_alias="riskTrend")  # improving, stable, degrading
+    risk_trend: str = Field(
+        serialization_alias="riskTrend"
+    )  # improving, stable, degrading
     last_assessment_at: str = Field(serialization_alias="lastAssessmentAt")
 
 
 # ── Session Timeline ──────────────────────────────────────────
+
 
 class SessionTimelineEvent(BaseModel):
     session_id: str = Field(serialization_alias="sessionId")
@@ -34,6 +42,7 @@ class SessionTimelineResponse(BaseModel):
 
 # ── Daily Security Report ──────────────────────────────────────
 
+
 class ReportSummary(BaseModel):
     total_logins: int = Field(serialization_alias="totalLogins")
     failed_logins: int = Field(serialization_alias="failedLogins")
@@ -52,12 +61,15 @@ class ReportDevice(BaseModel):
 class DailySecurityReport(BaseModel):
     date: str
     summary: ReportSummary
-    active_devices: list[ReportDevice] = Field(serialization_alias="activeDevices")
+    active_devices: list[ReportDevice] = Field(
+        serialization_alias="activeDevices"
+    )
     risk_verdict: str = Field(serialization_alias="riskVerdict")
     generated_at: str = Field(serialization_alias="generatedAt")
 
 
 # ── Risk Events (paginated) ────────────────────────────────────
+
 
 class RiskEventItem(BaseModel):
     id: str
@@ -79,6 +91,7 @@ class RiskEventFeed(BaseModel):
 
 # ── Login Analytics ────────────────────────────────────────────
 
+
 class HourlyBucket(BaseModel):
     hour: int  # 0-23
     count: int
@@ -94,12 +107,15 @@ class LoginAnalytics(BaseModel):
     total_logins: int = Field(serialization_alias="totalLogins")
     unique_devices: int = Field(serialization_alias="uniqueDevices")
     unique_locations: int = Field(serialization_alias="uniqueLocations")
-    hourly_distribution: list[HourlyBucket] = Field(serialization_alias="hourlyDistribution")
+    hourly_distribution: list[HourlyBucket] = Field(
+        serialization_alias="hourlyDistribution"
+    )
     by_location: list[LocationBucket] = Field(serialization_alias="byLocation")
     period_days: int = Field(serialization_alias="periodDays")
 
 
 # ── Device Health ──────────────────────────────────────────────
+
 
 class DeviceHealthItem(BaseModel):
     device_id: str = Field(serialization_alias="deviceId")
@@ -113,3 +129,28 @@ class DeviceHealthItem(BaseModel):
 class DeviceHealthResponse(BaseModel):
     devices: list[DeviceHealthItem]
     flagged: int
+
+
+# ── Behavioral ML Authentication ──────────────────────────────
+
+
+class BehavioralAuthenticationRequest(BaseModel):
+    dwell_mean_ms: float = Field(serialization_alias="dwellMeanMs")
+    dwell_std_ms: float = Field(serialization_alias="dwellStdMs")
+    flight_mean_ms: float = Field(serialization_alias="flightMeanMs")
+    flight_std_ms: float = Field(serialization_alias="flightStdMs")
+    velocity_mean: float = Field(serialization_alias="velocityMean")
+    acceleration_mean: float = Field(serialization_alias="accelerationMean")
+    acceleration_std: float = Field(serialization_alias="accelerationStd")
+    curvature_mean: float = Field(serialization_alias="curvatureMean")
+    curvature_std: float = Field(serialization_alias="curvatureStd")
+    click_count: float = Field(serialization_alias="clickCount")
+    scroll_amount: float = Field(serialization_alias="scrollAmount")
+    mouse_travel_px: float = Field(serialization_alias="mouseTravelPx")
+
+
+class BehavioralAuthenticationResponse(BaseModel):
+    lightgbm_score: float = Field(serialization_alias="lightgbmScore")
+    ocsvm_anomaly_score: float = Field(serialization_alias="ocsvmAnomalyScore")
+    fused_score: float = Field(serialization_alias="fusedScore")
+    decision: str

@@ -13,6 +13,7 @@ import type {
   VerifyOtpInput,
 } from "./auth.contract";
 import { httpRequest, setAccessToken, removeAccessToken, hasToken, setCurrentSessionId } from "../_transport/http";
+import { AuthenticationError } from "../../lib/platform/errors";
 
 // ---------------------------------------------------------------------------
 // Response shapes (backend wire format via serialization_alias → camelCase)
@@ -86,9 +87,20 @@ export const httpAuthService: AuthService = {
     try {
       const user = await httpRequest<BackendMe>("/auth/me", { signal });
       return userToSession(user);
-    } catch {
-      // Token expired or invalid — not authenticated
-      removeAccessToken();
+    } catch (err) {
+      // A cancelled load (user navigated away mid-request, query
+      // superseded) must never destroy the stored session — rethrow so the
+      // router treats it as cancelled instead of "logged out".
+      if (err instanceof Error && err.name === "AbortError") throw err;
+      // Only a definitive 401 means "not authenticated": clear the token so
+      // the /app beforeLoad guard redirects to login exactly once.
+      if (err instanceof AuthenticationError) {
+        removeAccessToken();
+        return null;
+      }
+      // Transient failure (backend restarting, network blip, 5xx): fail
+      // closed for this load but PRESERVE the token so the next attempt can
+      // still use the silent-refresh flow instead of forcing a re-login.
       return null;
     }
   },

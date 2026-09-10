@@ -60,15 +60,29 @@ const TASKS: { id: TaskId; label: string; icon: typeof Type; description: string
 function getDeviceId(): string {
   try {
     let id = localStorage.getItem("ag_device_id");
-    if (!id) {
-      id = `dev_${crypto.randomUUID?.() ?? Date.now().toString(36)}`;
+
+    // Convert old device IDs such as:
+    // dev_19f7f156-0dd8-4fee-...
+    // into valid UUIDs:
+    // 19f7f156-0dd8-4fee-...
+    if (id?.startsWith("dev_")) {
+      id = id.slice(4);
       localStorage.setItem("ag_device_id", id);
     }
+
+    // Create a new valid UUID if no device ID exists.
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("ag_device_id", id);
+    }
+
     return id;
   } catch {
-    return `dev_${Date.now().toString(36)}`;
+    // Last-resort fallback: still return a valid UUID.
+    return crypto.randomUUID();
   }
 }
+
 
 function getPage(): string {
   return window.location.pathname;

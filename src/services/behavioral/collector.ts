@@ -197,6 +197,17 @@ export class BehavioralCollector {
     return final;
   }
 
+  /**
+   * Immediately finalize the current partial window and flush it to the
+   * backend instead of waiting for the next 30s boundary.
+   * Collection keeps running — continuous monitoring is unaffected.
+   */
+  flushNow(): void {
+    if (this.state !== "collecting") return;
+    this.rotateWindow();
+    this.flushWindows();
+  }
+
   getStatus(): CollectorStatus {
     return {
       state: this.state,

@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     )
 
     # MongoDB Atlas
-    mongodb_uri: str = "mongodb+srv://cluster0.example.mongodb.net"
+    mongodb_uri: str = "mongodb+srv://cluster0.wlkiqaf.mongodb.net/?appName=Cluster0"
     mongodb_db_name: str = "adaptive_guardian"
 
     # Redis

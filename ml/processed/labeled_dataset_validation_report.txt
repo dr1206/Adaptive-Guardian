@@ -1,0 +1,144 @@
+======================================================================
+LABELED DATASET VALIDATION
+======================================================================
+
+Input file: D:\Users\Dristi\Downloads\adaptive-guardian\adaptive-guardian\ml\processed\behavioral_windows_labeled.csv
+Rows: 793
+Columns: 19
+
+REQUIRED COLUMNS
+----------------------------------------------------------------------
+OK: All required columns are present.
+
+LABEL COUNTS
+----------------------------------------------------------------------
+genuine: 385
+impostor: 408
+
+USERS: 4
+----------------------------------------------------------------------
+Amal: genuine=171, impostor=176
+Dristi: genuine=85, impostor=103
+Manasa: genuine=69, impostor=69
+Vyas: genuine=60, impostor=60
+
+MISSING VALUES
+----------------------------------------------------------------------
+dwellMeanMs: 0
+dwellStdMs: 0
+flightMeanMs: 0
+flightStdMs: 0
+velocityMean: 0
+accelerationMean: 0
+accelerationStd: 0
+curvatureMean: 0
+curvatureStd: 0
+clickCount: 0
+scrollAmount: 0
+mouseTravelPx: 0
+
+INVALID NUMERIC VALUES
+----------------------------------------------------------------------
+OK: No invalid numeric values.
+
+NEGATIVE VALUES
+----------------------------------------------------------------------
+OK: No negative feature values.
+
+EXACT DUPLICATE ROWS
+----------------------------------------------------------------------
+Duplicate rows: 0
+OK: No exact duplicate rows.
+
+DUPLICATE FEATURE VECTORS
+----------------------------------------------------------------------
+Unique feature vectors: 295
+Rows belonging to repeated feature vectors: 770
+
+GENUINE vs IMPOSTOR FEATURE OVERLAP
+----------------------------------------------------------------------
+Unique genuine feature vectors: 272
+Unique impostor feature vectors: 295
+Identical vectors appearing in BOTH labels: 272
+WARNING: Some identical feature vectors appear as both genuine and impostor.
+
+SESSION OVERLAP
+----------------------------------------------------------------------
+Amal: genuine_sessions=15, impostor_sessions=16, overlap=15
+  WARNING overlapping session: 024a219c-b4f9-4b79-9849-65b13577f642
+  WARNING overlapping session: 39bd6af0-9893-459b-b1d7-4d8a06a62405
+  WARNING overlapping session: 43c7c9d4-9f4b-4823-bc49-2bdd58b9a92d
+  WARNING overlapping session: 683fb37f-6a47-4d27-b196-f268e545c7fc
+  WARNING overlapping session: 69d68992-ff33-49ca-bb69-3b9d7ac5f694
+  WARNING overlapping session: 7ce5291a-f895-4163-b747-7b6fd263d381
+  WARNING overlapping session: 9c0d9803-ed7b-44ca-a30f-1c3ff96c03b1
+  WARNING overlapping session: a36c8d90-c089-40c7-921e-909160986f4f
+  WARNING overlapping session: a90f9b8d-c3f1-4748-99d5-cc782623de81
+  WARNING overlapping session: ab25bfe3-fb2a-4125-9fc1-f942cf986fdf
+  WARNING overlapping session: dbcafd98-6f46-4010-b5d0-13b23c34f677
+  WARNING overlapping session: e4d349cb-5353-4fcf-a3bd-bd5cd405127b
+  WARNING overlapping session: e9fb2cdf-79e4-478e-b6ac-0a722e9e07c6
+  WARNING overlapping session: eaa77718-5754-4734-b3cf-a779b607ee8f
+  WARNING overlapping session: ee98be6a-039b-4299-8c10-326d03c2af79
+Dristi: genuine_sessions=10, impostor_sessions=12, overlap=10
+  WARNING overlapping session: 05bc7ce0-dbdf-4bb8-babe-c66084786cd0
+  WARNING overlapping session: 15fa92b6-bb21-469b-8ebe-486f21886538
+  WARNING overlapping session: 27cc7537-a40e-47c3-a98f-89dbe78e8cb9
+  WARNING overlapping session: 8ba454a9-5ea9-4382-b9d1-d3842fef3cab
+  WARNING overlapping session: 8dec00b7-651f-4f45-8159-64f6f5015822
+  WARNING overlapping session: 9bff92a1-dd3a-448a-8302-4bf76d6ddc6b
+  WARNING overlapping session: d840a02c-5fc4-4737-90f0-cd5b47cac023
+  WARNING overlapping session: db6f35ed-6b4e-48c7-b48b-16ee244855bf
+  WARNING overlapping session: e361373e-1e90-4e5b-8754-8723673796d6
+  WARNING overlapping session: f3535aac-a602-48a9-8b38-38b3526dfb00
+Manasa: genuine_sessions=11, impostor_sessions=11, overlap=11
+  WARNING overlapping session: 1b8db34d-f938-4d87-b78e-315476e05b56
+  WARNING overlapping session: 4328e952-1400-491c-b111-e77ab6ac9320
+  WARNING overlapping session: 6ae6b1ad-3ebd-4091-9109-dc16551befc8
+  WARNING overlapping session: 892182e1-215c-4a77-bb62-02b4c7028887
+  WARNING overlapping session: 942fb1bf-f729-4da0-8e08-d14095bcdfcf
+  WARNING overlapping session: a245bcdd-43a0-45f4-9fb9-96b30280020e
+  WARNING overlapping session: bed84938-5c26-4776-a5c1-dfafb616181c
+  WARNING overlapping session: c565b9ef-2cbb-424c-970f-c61fd2e45677
+  WARNING overlapping session: e3b1241c-dc36-4812-ba05-47cbf46120c8
+  WARNING overlapping session: e68dfd83-bb44-4626-993b-3362cea449d9
+  WARNING overlapping session: f434e8b4-c562-4c95-8413-8ee6bed06cb2
+Vyas: genuine_sessions=6, impostor_sessions=6, overlap=6
+  WARNING overlapping session: 3049d141-ca28-439a-869d-c8f2d5b5b882
+  WARNING overlapping session: ab8aa270-082d-4529-9b11-ad17b456a161
+  WARNING overlapping session: b18da398-8da7-48c4-a227-ad674d8de565
+  WARNING overlapping session: dd8db810-64d3-4a3e-b264-bbb8473ae07b
+  WARNING overlapping session: e21d6bcf-d489-452a-8434-9fdeb4a8a4ff
+  WARNING overlapping session: fabcc866-0af6-4c58-b795-fdb8040fd04f
+
+DEVICE INFORMATION
+----------------------------------------------------------------------
+Amal: genuine_devices=0, impostor_devices=0
+Dristi: genuine_devices=0, impostor_devices=0
+Manasa: genuine_devices=0, impostor_devices=0
+Vyas: genuine_devices=0, impostor_devices=0
+
+FEATURE RANGES
+----------------------------------------------------------------------
+dwellMeanMs: min=0.0000, max=995.1000
+dwellStdMs: min=0.0000, max=2000.0000
+flightMeanMs: min=0.0000, max=758.7200
+flightStdMs: min=0.0000, max=5.9860
+velocityMean: min=0.0000, max=496.7616
+accelerationMean: min=0.0000, max=0.9984
+accelerationStd: min=0.0000, max=16.0000
+curvatureMean: min=0.0000, max=1.1504
+curvatureStd: min=0.0000, max=1004.9000
+clickCount: min=0.0000, max=0.9671
+scrollAmount: min=0.0000, max=1487.9537
+mouseTravelPx: min=0.0000, max=4889.0000
+
+======================================================================
+FINAL VALIDATION
+======================================================================
+WARNING: Dataset needs investigation.
+  - cross-label feature overlap
+  - genuine/impostor session overlap
+
+ML TRAINING HAS NOT BEEN PERFORMED.
+This script only validates the labeled dataset.

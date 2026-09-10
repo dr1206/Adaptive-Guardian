@@ -61,7 +61,7 @@ async def store_behavioral_batch(
     body: BatchEventsRequest,
 ) -> BatchEventsResponse:
     now = datetime.now(timezone.utc)
-    device_id = uuid.UUID(body.device_id) if body.device_id else None
+    device_id = body.device_id
     docs: list[BehavioralEvent | BehaviorWindow] = []
     for w in body.windows:
         window_start = datetime.fromtimestamp(w.windowStart / 1000, tz=timezone.utc)

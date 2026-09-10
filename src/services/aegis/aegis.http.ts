@@ -112,11 +112,11 @@ export const httpAegisService: AegisService = {
   async getSnapshot({ signal } = {}) {
     const snap = await httpRequest<BackendSnapshot>("/aegis/snapshot", { signal });
     return {
-      confidence: snap.confidence,
-      risk: snap.risk,
-      whisper: snap.whisper,
-      observedAt: snap.observedAt,
-      trend: snap.trend,
+      confidence: typeof snap.confidence === "number" ? snap.confidence : 0,
+      risk: typeof snap.risk === "number" ? snap.risk : 1 - (typeof snap.confidence === "number" ? snap.confidence : 0),
+      whisper: typeof snap.whisper === "string" ? snap.whisper : "",
+      observedAt: typeof snap.observedAt === "string" ? snap.observedAt : new Date().toISOString(),
+      trend: Array.isArray(snap.trend) ? snap.trend.filter((v): v is number => typeof v === "number" && Number.isFinite(v)) : [],
     };
   },
 
