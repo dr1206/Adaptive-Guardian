@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, type ErrorComponentProps } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { ConfidenceRing } from "@/components/guard/confidence-ring";
@@ -31,12 +31,13 @@ export const Route = createFileRoute("/app/guard/")({
   component: SecurityCenter,
 });
 
-function GuardErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
+function GuardErrorFallback({ error, reset }: ErrorComponentProps) {
+  const errorMessage = error instanceof Error ? error.message : String(error ?? "An error occurred");
   return (
     <div role="alert" className="rounded-2xl border border-warning/30 bg-warning/[0.06] p-6">
       <div className="text-[14px] font-semibold">Security Center had trouble loading.</div>
       <p className="mt-1 text-[12.5px] text-muted-foreground">
-        {error.message} — your session is still active; nothing logged you out.
+        {errorMessage} — your session is still active; nothing logged you out.
       </p>
       <div className="mt-3 flex gap-2">
         <button
