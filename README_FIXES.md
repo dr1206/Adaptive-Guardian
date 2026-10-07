@@ -9,6 +9,7 @@
 ## What Was NOT Fixed (By Design)
 
 Per user constraints:
+
 - ❌ No changes to database or existing data
 - ❌ No modification of data collection pipeline
 - ❌ No attempt to "fix" the current behavioral_biometrics.csv file (it contains test/synthetic data)
@@ -17,6 +18,7 @@ Per user constraints:
 ## Current Status
 
 The export pipeline in `backend/src/app/domain/admin/export_builder.py` has been fixed and is ready to correctly export genuine behavioral window data when:
+
 1. The data collection system is running and collecting real user interactions
 2. BehaviorWindow objects have properly set window_start and window_end timestamps
 3. The features dictionary contains realistic, human-plausible values
@@ -30,6 +32,7 @@ The export pipeline in `backend/src/app/domain/admin/export_builder.py` has been
 ## Next Steps (Per User Direction)
 
 To obtain a usable dataset for ML training, you would need to:
+
 1. Run the system to collect genuine behavioral data through normal user interaction
 2. Export the data using the fixed export pipeline
 3. The resulting export will contain properly formatted behavioral window data with:

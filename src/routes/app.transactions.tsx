@@ -63,7 +63,11 @@ function TransactionsPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Transactions" title="Transactions" subtitle="Every move, fully searchable." />
+      <PageHeader
+        eyebrow="Transactions"
+        title="Transactions"
+        subtitle="Every move, fully searchable."
+      />
 
       <div className="sticky top-16 z-10 -mx-8 px-8 py-3 bg-background/90 backdrop-blur-md">
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-xs">
@@ -93,7 +97,10 @@ function TransactionsPage() {
                   : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              {f.label} <ChevronDown className={cn("h-3 w-3", sortKey === f.key && sortAsc && "rotate-180")} />
+              {f.label}{" "}
+              <ChevronDown
+                className={cn("h-3 w-3", sortKey === f.key && sortAsc && "rotate-180")}
+              />
             </button>
           ))}
         </div>
@@ -123,7 +130,9 @@ function TransactionsPage() {
                           {t.merchant.slice(0, 2).toUpperCase()}
                         </span>
                         <div>
-                          <div className="text-[13.5px] font-semibold text-foreground">{t.merchant}</div>
+                          <div className="text-[13.5px] font-semibold text-foreground">
+                            {t.merchant}
+                          </div>
                           <div className="text-[11.5px] text-muted-foreground">
                             {t.category} · {t.time}
                           </div>
@@ -166,7 +175,9 @@ function Expanded({ tx }: { tx: Transaction }) {
 function Field({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <div className="text-[10px] uppercase font-bold tracking-[0.14em] text-muted-foreground">{k}</div>
+      <div className="text-[10px] uppercase font-bold tracking-[0.14em] text-muted-foreground">
+        {k}
+      </div>
       <div className="mt-0.5 text-[12.5px] font-medium text-foreground">{v}</div>
     </div>
   );

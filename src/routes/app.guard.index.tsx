@@ -46,7 +46,10 @@ function GuardErrorFallback({ error, reset }: { error: Error; reset: () => void 
         >
           Retry
         </button>
-        <Link to="/app/training" className="rounded-full border border-white/[0.12] px-3 py-1.5 text-[12px] hover:bg-white/[0.06]">
+        <Link
+          to="/app/training"
+          className="rounded-full border border-white/[0.12] px-3 py-1.5 text-[12px] hover:bg-white/[0.06]"
+        >
           Go to Security Setup
         </Link>
       </div>
@@ -62,9 +65,7 @@ function SecurityCenter() {
   const { data: devices } = useDevices();
 
   const confidencePct =
-    snapshot?.confidence != null
-      ? Math.round(snapshot.confidence * 1000) / 10
-      : 98.4;
+    snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 98.4;
 
   const riskScore = snapshot?.risk != null ? snapshot.risk : 0.04;
 
@@ -75,11 +76,7 @@ function SecurityCenter() {
   const primaryDevice = devices?.[0];
 
   const deviceScore =
-    primaryDevice?.trust === "trusted"
-      ? 99
-      : primaryDevice?.trust === "recognized"
-        ? 90
-        : 75;
+    primaryDevice?.trust === "trusted" ? 99 : primaryDevice?.trust === "recognized" ? 90 : 75;
 
   const topDeviceHealth = deviceHealth?.devices[0];
   const deviceHealthScore = topDeviceHealth?.trustScore ?? 95;
@@ -98,9 +95,7 @@ function SecurityCenter() {
     {
       label: "Device",
       value: deviceScore,
-      note: primaryDevice
-        ? `${primaryDevice.label} · ${primaryDevice.trust}`
-        : "Trusted device",
+      note: primaryDevice ? `${primaryDevice.label} · ${primaryDevice.trust}` : "Trusted device",
     },
     {
       label: "Location",
@@ -110,9 +105,7 @@ function SecurityCenter() {
     {
       label: "Session",
       value: sessionsActive > 0 ? 97 : 90,
-      note: `${sessionsActive} active session${
-        sessionsActive !== 1 ? "s" : ""
-      }`,
+      note: `${sessionsActive} active session${sessionsActive !== 1 ? "s" : ""}`,
     },
     {
       label: "Network",
@@ -161,10 +154,7 @@ function SecurityCenter() {
   const WHISPERS =
     riskEvents.length > 0
       ? riskEvents.slice(0, 5).map((e) => ({
-          icon:
-            e.severity === "critical"
-              ? ("alert" as const)
-              : ("shield" as const),
+          icon: e.severity === "critical" ? ("alert" as const) : ("shield" as const),
           text: e.summary,
           time: formatTimeAgo(e.occurredAt),
         }))
@@ -188,9 +178,7 @@ function SecurityCenter() {
 
   // Overall trust from device health average
   const trustScore = deviceHealth?.devices.length
-    ? deviceHealth.devices.reduce((s, d) => s + d.trustScore, 0) /
-      deviceHealth.devices.length /
-      10
+    ? deviceHealth.devices.reduce((s, d) => s + d.trustScore, 0) / deviceHealth.devices.length / 10
     : 9.4;
 
   return (
@@ -234,28 +222,15 @@ function SecurityCenter() {
         </div>
 
         <div className="lg:col-span-4">
-          <SigilCard
-            eyebrow="Identity stack"
-            title="What proves it's you"
-            className="h-full"
-          >
+          <SigilCard eyebrow="Identity stack" title="What proves it's you" className="h-full">
             <ul className="space-y-3">
               {IDENTITY.map((row) => (
-                <li
-                  key={row.label}
-                  className="flex items-center gap-3"
-                >
-                  <ConfidenceRing
-                    value={row.value}
-                    size="sm"
-                    showShield={false}
-                  />
+                <li key={row.label} className="flex items-center gap-3">
+                  <ConfidenceRing value={row.value} size="sm" showShield={false} />
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[12.5px] font-medium">
-                        {row.label}
-                      </span>
+                      <span className="text-[12.5px] font-medium">{row.label}</span>
 
                       <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">
                         {row.value}%
@@ -273,12 +248,7 @@ function SecurityCenter() {
         </div>
 
         <div className="lg:col-span-3">
-          <SigilCard
-            eyebrow="Live signal"
-            title="Aegis pulse"
-            live
-            className="h-full"
-          >
+          <SigilCard eyebrow="Live signal" title="Aegis pulse" live className="h-full">
             <div className="flex h-full flex-col">
               <AuroraStrip />
 
@@ -286,14 +256,10 @@ function SecurityCenter() {
                 <Shield size={36} live />
 
                 <div>
-                  <div className="text-[12px] text-muted-foreground">
-                    Session
-                  </div>
+                  <div className="text-[12px] text-muted-foreground">Session</div>
 
                   <div className="font-numeric text-[20px] tabular-nums">
-                    {sessionsActive > 0
-                      ? `0${sessionsActive}`
-                      : "01"}
+                    {sessionsActive > 0 ? `0${sessionsActive}` : "01"}
                     :00
                   </div>
                 </div>
@@ -301,8 +267,7 @@ function SecurityCenter() {
 
               <p className="mt-auto pt-5 text-[12.5px] leading-relaxed text-muted-foreground">
                 <span className="text-accent">Aegis · </span>
-                {snapshot?.whisper ??
-                  "You're typing the way you always do."}
+                {snapshot?.whisper ?? "You're typing the way you always do."}
               </p>
             </div>
           </SigilCard>
@@ -311,71 +276,31 @@ function SecurityCenter() {
 
       {/* Band 2 — Session Timeline */}
       <section className="mt-6">
-        <SigilCard
-          eyebrow="Today"
-          title="Session timeline"
-          to="/app/guard/auth-timeline"
-        >
+        <SigilCard eyebrow="Today" title="Session timeline" to="/app/guard/auth-timeline">
           <SessionRiver />
         </SigilCard>
       </section>
 
       {/* Band 3 — Live Behavior Mosaic */}
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
-        <SigilCard
-          eyebrow="Behavior"
-          title="Typing rhythm"
-          to="/app/guard/typing"
-          live
-        >
+        <SigilCard eyebrow="Behavior" title="Typing rhythm" to="/app/guard/typing" live>
           <WaveformTrace seed={7} height={92} />
-          <Footnote
-            tone="success"
-            left="Steady"
-            right="Consistency 96%"
-          />
+          <Footnote tone="success" left="Steady" right="Consistency 96%" />
         </SigilCard>
 
-        <SigilCard
-          eyebrow="Behavior"
-          title="Mouse flow"
-          to="/app/guard/mouse"
-          live
-        >
+        <SigilCard eyebrow="Behavior" title="Mouse flow" to="/app/guard/mouse" live>
           <MouseFlowMini />
-          <Footnote
-            tone="success"
-            left="Familiar"
-            right="Precision 94%"
-          />
+          <Footnote tone="success" left="Familiar" right="Precision 94%" />
         </SigilCard>
 
-        <SigilCard
-          eyebrow="Behavior"
-          title="Interaction pattern"
-          to="/app/guard/session"
-          live
-        >
+        <SigilCard eyebrow="Behavior" title="Interaction pattern" to="/app/guard/session" live>
           <InteractionBars />
-          <Footnote
-            tone="success"
-            left="In range"
-            right="Cadence stable"
-          />
+          <Footnote tone="success" left="In range" right="Cadence stable" />
         </SigilCard>
 
-        <SigilCard
-          eyebrow="Behavior"
-          title="Behavior drift"
-          to="/app/guard/learning"
-          live
-        >
+        <SigilCard eyebrow="Behavior" title="Behavior drift" to="/app/guard/learning" live>
           <DualLine />
-          <Footnote
-            tone="accent"
-            left="Δ 1.4%"
-            right="Within expected range"
-          />
+          <Footnote tone="accent" left="Δ 1.4%" right="Within expected range" />
         </SigilCard>
       </section>
 
@@ -387,9 +312,7 @@ function SecurityCenter() {
               <div>
                 <div className="font-numeric text-[64px] font-semibold leading-none tracking-tight">
                   {trustScore.toFixed(1)}
-                  <span className="ml-1 text-[20px] text-muted-foreground">
-                    /10
-                  </span>
+                  <span className="ml-1 text-[20px] text-muted-foreground">/10</span>
                 </div>
 
                 <div className="mt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -405,9 +328,7 @@ function SecurityCenter() {
                   >
                     <div className="flex-1">
                       <div className="flex items-baseline justify-between">
-                        <span className="text-[12px]">
-                          {t.label}
-                        </span>
+                        <span className="text-[12px]">{t.label}</span>
 
                         <span className="font-numeric text-[11px] tabular-nums text-muted-foreground">
                           {t.value}
@@ -426,11 +347,7 @@ function SecurityCenter() {
                       </div>
                     </div>
 
-                    <Sparkline
-                      points={t.spark}
-                      width={60}
-                      height={22}
-                    />
+                    <Sparkline points={t.spark} width={60} height={22} />
                   </li>
                 ))}
               </ul>
@@ -439,25 +356,17 @@ function SecurityCenter() {
         </div>
 
         <div className="lg:col-span-5">
-          <SigilCard
-            eyebrow="Aegis notifications"
-            title="Everything looks normal"
-          >
+          <SigilCard eyebrow="Aegis notifications" title="Everything looks normal">
             <ul className="space-y-2.5">
               {WHISPERS.map((w, i) => (
                 <li
                   key={i}
                   className="flex items-start gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2.5"
                 >
-                  <Shield
-                    size={18}
-                    className="mt-0.5 shrink-0 opacity-70"
-                  />
+                  <Shield size={18} className="mt-0.5 shrink-0 opacity-70" />
 
                   <div className="min-w-0 flex-1">
-                    <div className="text-[12.5px]">
-                      {w.text}
-                    </div>
+                    <div className="text-[12.5px]">{w.text}</div>
                   </div>
 
                   <span className="font-numeric text-[10px] tabular-nums text-muted-foreground/70">
@@ -493,13 +402,7 @@ function formatTimeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-function Pill({
-  children,
-  tone,
-}: {
-  children: React.ReactNode;
-  tone?: "success" | "accent";
-}) {
+function Pill({ children, tone }: { children: React.ReactNode; tone?: "success" | "accent" }) {
   const cls =
     tone === "success"
       ? "bg-success/12 text-success"
@@ -526,15 +429,38 @@ function BehavioralChallengeBanner() {
   if (!behavioralAuth) return null;
   if (behavioralAuth.decision !== "CHALLENGE") return null;
   return (
-    <div role="alert" className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/40 bg-destructive/[0.08] px-4 py-3">
+    <div
+      role="alert"
+      className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/40 bg-destructive/[0.08] px-4 py-3"
+    >
       <ShieldAlert className="h-4 w-4 text-destructive" />
       <p className="min-w-0 flex-1 text-[12.5px]">
         <span className="font-semibold text-destructive">Step-up verification needed</span>
-        <span className="text-muted-foreground"> — risk {(behavioralAuth.fusedScore * 100).toFixed(1)}%. Your session is preserved; no logout occurred.</span>
+        <span className="text-muted-foreground">
+          {" "}
+          — risk {(behavioralAuth.fusedScore * 100).toFixed(1)}%. Your session is preserved; no
+          logout occurred.
+        </span>
       </p>
-      <Link to="/app/guard/challenges" className="rounded-full bg-destructive px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90">Review challenge</Link>
-      <button type="button" onClick={authenticateNow} disabled={isAuthenticating} className="rounded-full border border-white/[0.12] px-3 py-1.5 text-[12px] text-foreground hover:bg-white/[0.06] disabled:opacity-50">Re-check behavior</button>
-      {lastError ? <span className="w-full text-[11px] text-muted-foreground">Last check failed: {lastError}</span> : null}
+      <Link
+        to="/app/guard/challenges"
+        className="rounded-full bg-destructive px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90"
+      >
+        Review challenge
+      </Link>
+      <button
+        type="button"
+        onClick={authenticateNow}
+        disabled={isAuthenticating}
+        className="rounded-full border border-white/[0.12] px-3 py-1.5 text-[12px] text-foreground hover:bg-white/[0.06] disabled:opacity-50"
+      >
+        Re-check behavior
+      </button>
+      {lastError ? (
+        <span className="w-full text-[11px] text-muted-foreground">
+          Last check failed: {lastError}
+        </span>
+      ) : null}
       <span className="sr-only">collector {collectorStatus.state}</span>
     </div>
   );
@@ -549,69 +475,38 @@ function Footnote({
   right: string;
   tone: "success" | "accent";
 }) {
-  const tcls =
-    tone === "success" ? "text-success" : "text-accent";
+  const tcls = tone === "success" ? "text-success" : "text-accent";
 
   return (
     <div className="mt-3 flex items-center justify-between text-[11.5px]">
-      <span
-        className={`inline-flex items-center gap-1.5 ${tcls}`}
-      >
+      <span className={`inline-flex items-center gap-1.5 ${tcls}`}>
         <span className="h-1.5 w-1.5 rounded-full bg-current" />
         {left}
       </span>
 
-      <span className="font-numeric tabular-nums text-muted-foreground">
-        {right}
-      </span>
+      <span className="font-numeric tabular-nums text-muted-foreground">{right}</span>
     </div>
   );
 }
 
 function MouseFlowMini() {
-  const path =
-    "M10 70 C 60 30, 120 100, 180 50 S 320 20, 400 70 S 540 110, 590 60";
+  const path = "M10 70 C 60 30, 120 100, 180 50 S 320 20, 400 70 S 540 110, 590 60";
 
   return (
     <svg viewBox="0 0 600 100" className="block w-full">
       <defs>
         <linearGradient id="mfm" x1="0" x2="1">
-          <stop
-            offset="0%"
-            stopColor="oklch(0.715 0.135 215)"
-            stopOpacity="0"
-          />
-          <stop
-            offset="50%"
-            stopColor="oklch(0.715 0.135 215)"
-            stopOpacity="0.9"
-          />
-          <stop
-            offset="100%"
-            stopColor="oklch(0.635 0.215 295)"
-            stopOpacity="0"
-          />
+          <stop offset="0%" stopColor="oklch(0.715 0.135 215)" stopOpacity="0" />
+          <stop offset="50%" stopColor="oklch(0.715 0.135 215)" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="oklch(0.635 0.215 295)" stopOpacity="0" />
         </linearGradient>
 
-        <pattern
-          id="mfm-grid"
-          width="20"
-          height="20"
-          patternUnits="userSpaceOnUse"
-        >
-          <path
-            d="M20 0H0V20"
-            fill="none"
-            stroke="oklch(1 0 0 / 0.04)"
-          />
+        <pattern id="mfm-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M20 0H0V20" fill="none" stroke="oklch(1 0 0 / 0.04)" />
         </pattern>
       </defs>
 
-      <rect
-        width="600"
-        height="100"
-        fill="url(#mfm-grid)"
-      />
+      <rect width="600" height="100" fill="url(#mfm-grid)" />
 
       <path
         d={path}
@@ -620,26 +515,17 @@ function MouseFlowMini() {
         strokeWidth="2"
         strokeLinecap="round"
         style={{
-          filter:
-            "drop-shadow(0 0 6px oklch(0.715 0.135 215))",
+          filter: "drop-shadow(0 0 6px oklch(0.715 0.135 215))",
         }}
       />
 
-      <circle
-        cx="590"
-        cy="60"
-        r="3.5"
-        fill="oklch(0.715 0.135 215)"
-      />
+      <circle cx="590" cy="60" r="3.5" fill="oklch(0.715 0.135 215)" />
     </svg>
   );
 }
 
 function InteractionBars() {
-  const bars = [
-    3, 5, 4, 7, 6, 8, 5, 9, 7, 6, 8, 7,
-    5, 9, 6, 7, 8, 6, 9, 7, 6, 5, 7, 8,
-  ];
+  const bars = [3, 5, 4, 7, 6, 8, 5, 9, 7, 6, 8, 7, 5, 9, 6, 7, 8, 6, 9, 7, 6, 5, 7, 8];
 
   return (
     <div className="flex h-[92px] items-end gap-[3px]">

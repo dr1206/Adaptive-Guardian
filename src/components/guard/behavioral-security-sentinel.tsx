@@ -35,19 +35,13 @@ export function BehavioralSecuritySentinel() {
   const [challengeOpen, setChallengeOpen] = useState(false);
 
   const decision = auth?.decision ?? null;
-  const activeWarn =
-    decision === "WARN" &&
-    auth != null &&
-    dismissedWarnScore !== auth.fusedScore;
+  const activeWarn = decision === "WARN" && auth != null && dismissedWarnScore !== auth.fusedScore;
   // CHALLENGE stays active until a real re-verification succeeds AND the
   // clearance timestamp is newer than the latest CHALLENGE result. A NEWER
   // uncleared challenge re-opens the modal.
   const challengeCleared =
-    auth != null &&
-    decision === "CHALLENGE" &&
-    isNewer(challengeClearedAt, auth.authenticatedAt);
-  const activeChallenge =
-    decision === "CHALLENGE" && auth != null && !challengeCleared;
+    auth != null && decision === "CHALLENGE" && isNewer(challengeClearedAt, auth.authenticatedAt);
+  const activeChallenge = decision === "CHALLENGE" && auth != null && !challengeCleared;
 
   // Open the modal exactly once per CHALLENGE episode (no stacked modals).
   // When the user closes it, the persistent pill below keeps the alert
@@ -71,12 +65,11 @@ export function BehavioralSecuritySentinel() {
           <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />
           <div className="min-w-0 flex-1">
             <div className="text-[12.5px] font-semibold tracking-wide text-warning">
-              BEHAVIORAL VERIFICATION WARNING · Risk score:{" "}
-              {formatPct01(auth.fusedScore)}
+              BEHAVIORAL VERIFICATION WARNING · Risk score: {formatPct01(auth.fusedScore)}
             </div>
             <p className="mt-0.5 text-[12px] text-muted-foreground">
-              Your current interaction pattern differs from your normal
-              profile. We&apos;ll continue monitoring your session.
+              Your current interaction pattern differs from your normal profile. We&apos;ll continue
+              monitoring your session.
             </p>
           </div>
           <button
@@ -122,4 +115,3 @@ export function BehavioralSecuritySentinel() {
     </>
   );
 }
-

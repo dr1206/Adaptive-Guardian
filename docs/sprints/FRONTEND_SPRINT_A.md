@@ -9,18 +9,18 @@ ready to be wired to a real backend without UI changes.**
 
 ## What was already in place from Phases 1–4
 
-| Pillar | Source | Status |
-|---|---|---|
-| Application shell | `src/routes/__root.tsx`, `app.tsx`, `auth.tsx`, `admin.tsx` | Shipped |
-| Design tokens | `src/styles.css` (OKLCH semantic tokens, glass, gradients, motion) | Shipped |
-| Theme system | Dark-only Vault atmosphere + Cockpit Ops palette | Shipped |
-| Layout system | VaultRail, OpsRail, GuardSubRail, AppShell layouts | Shipped |
-| Navigation | TanStack Router type-safe file routes (60+ surfaces) | Shipped |
-| Component library | `src/components/ui/` (shadcn) + `src/components/{banking,dashboard,guard,admin,brand,landing,auth}/` | Shipped |
-| Route structure | Landing, /auth/*, /app/*, /admin/* | Shipped |
-| Responsive framework | Tailwind v4 + custom utilities, grid+min-w-0 patterns | Shipped |
-| Animation framework | CSS keyframes (pulse-live, float-soft, skeleton-shimmer); per-component motion primitives | Shipped |
-| Engineering foundation | `src/lib/platform/` (env, logger, errors, flags, observability, auth-middleware) | Shipped Sprint 1A |
+| Pillar                 | Source                                                                                               | Status            |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- | ----------------- |
+| Application shell      | `src/routes/__root.tsx`, `app.tsx`, `auth.tsx`, `admin.tsx`                                          | Shipped           |
+| Design tokens          | `src/styles.css` (OKLCH semantic tokens, glass, gradients, motion)                                   | Shipped           |
+| Theme system           | Dark-only Vault atmosphere + Cockpit Ops palette                                                     | Shipped           |
+| Layout system          | VaultRail, OpsRail, GuardSubRail, AppShell layouts                                                   | Shipped           |
+| Navigation             | TanStack Router type-safe file routes (60+ surfaces)                                                 | Shipped           |
+| Component library      | `src/components/ui/` (shadcn) + `src/components/{banking,dashboard,guard,admin,brand,landing,auth}/` | Shipped           |
+| Route structure        | Landing, /auth/_, /app/_, /admin/*                                                                   | Shipped           |
+| Responsive framework   | Tailwind v4 + custom utilities, grid+min-w-0 patterns                                                | Shipped           |
+| Animation framework    | CSS keyframes (pulse-live, float-soft, skeleton-shimmer); per-component motion primitives            | Shipped           |
+| Engineering foundation | `src/lib/platform/` (env, logger, errors, flags, observability, auth-middleware)                     | Shipped Sprint 1A |
 
 ## What Sprint A added (the actual gap)
 
@@ -80,18 +80,33 @@ contract and wire them in `registry.ts`. Zero component changes required.
 
 ```ts
 // Auth
-useSession(); useLogin(); useRegister(); useVerifyOtp(); useLogout();
+useSession();
+useLogin();
+useRegister();
+useVerifyOtp();
+useLogout();
 useSubmitEnrollment();
 
 // Banking
-useAccounts(); useAccount(id); useTransactions({ accountId, limit });
-useBeneficiaries(); useCards(); useInitiateTransfer();
+useAccounts();
+useAccount(id);
+useTransactions({ accountId, limit });
+useBeneficiaries();
+useCards();
+useInitiateTransfer();
 
 // Aegis (continuous behavioral signals)
-useAegisSnapshot(); useAegisLive(); useDecisions(); useDevices(); useRiskEvents();
+useAegisSnapshot();
+useAegisLive();
+useDecisions();
+useDevices();
+useRiskEvents();
 
 // Admin cockpit reads
-useAdminUsers(); useAdminSessions(); useAdminModels(); useAdminAudit();
+useAdminUsers();
+useAdminSessions();
+useAdminModels();
+useAdminAudit();
 ```
 
 ## Sprint B–F migration plan
@@ -132,6 +147,7 @@ synchronously. Each subsequent sprint migrates its surfaces to the hooks above:
 ## Sign-off gate
 
 Sprint A is closed when:
+
 1. `src/services/` compiles, exports the contract types, and the registry
    resolves to mocks. ✅
 2. Sprint B kickoff has no service-layer blockers. Ready when you are.

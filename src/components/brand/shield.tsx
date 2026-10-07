@@ -36,13 +36,7 @@ export function Shield({
   );
 }
 
-export function ApertureSpinner({
-  size = 20,
-  className,
-}: {
-  size?: number;
-  className?: string;
-}) {
+export function ApertureSpinner({ size = 20, className }: { size?: number; className?: string }) {
   return (
     <span
       className={cn("inline-block animate-spin text-[#0B3A82]", className)}

@@ -115,9 +115,7 @@ function Heatmap() {
           className="aspect-square rounded-[3px]"
           style={{
             background:
-              v < 0.02
-                ? "rgba(11, 58, 130, 0.04)"
-                : `rgba(11, 58, 130, ${0.15 + v * 0.75})`,
+              v < 0.02 ? "rgba(11, 58, 130, 0.04)" : `rgba(11, 58, 130, ${0.15 + v * 0.75})`,
           }}
         />
       ))}

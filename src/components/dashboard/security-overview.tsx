@@ -46,9 +46,7 @@ export function SecurityOverview() {
   const collectorStatus = useBehavioralStatus();
 
   const confidence =
-    snapshot?.confidence != null
-      ? `${(snapshot.confidence * 100).toFixed(1)}%`
-      : "—";
+    snapshot?.confidence != null ? `${(snapshot.confidence * 100).toFixed(1)}%` : "—";
 
   const risk =
     overview?.riskTrend != null && overview.riskTrend.length > 0
@@ -57,9 +55,7 @@ export function SecurityOverview() {
 
   const trustedDevice = devices?.[0];
 
-  const deviceLabel = trustedDevice
-    ? `${trustedDevice.label} · ${trustedDevice.city}`
-    : "—";
+  const deviceLabel = trustedDevice ? `${trustedDevice.label} · ${trustedDevice.city}` : "—";
 
   const activeSessions = overview?.activeSessions ?? 0;
   const flagged24h = overview?.flaggedEvents24h ?? 0;
@@ -137,11 +133,7 @@ export function SecurityOverview() {
         : flagged24h === 0
           ? "Low · normal range"
           : "Review recommended",
-      status: behavioralAuth
-        ? behavioralStatus
-        : flagged24h === 0
-          ? "pass"
-          : "warn",
+      status: behavioralAuth ? behavioralStatus : flagged24h === 0 ? "pass" : "warn",
       action: "View",
     },
   ];
@@ -159,10 +151,7 @@ export function SecurityOverview() {
           </p>
         </div>
 
-        <Link
-          to="/app/guard"
-          className="text-[12px] font-medium text-primary hover:underline"
-        >
+        <Link to="/app/guard" className="text-[12px] font-medium text-primary hover:underline">
           Security Details →
         </Link>
       </header>
@@ -183,9 +172,7 @@ export function SecurityOverview() {
           const Icon = c.icon;
 
           const iconBg =
-            c.status === "pass"
-              ? "bg-success/10 text-success"
-              : "bg-warning/10 text-warning";
+            c.status === "pass" ? "bg-success/10 text-success" : "bg-warning/10 text-warning";
 
           return (
             <div
@@ -193,18 +180,12 @@ export function SecurityOverview() {
               className="group rounded-lg border border-border bg-muted/20 p-3.5 transition-all hover:border-primary/40 hover:bg-muted/30"
             >
               <div className="flex items-center justify-between">
-                <span
-                  className={`grid h-8 w-8 place-items-center rounded-lg ${iconBg}`}
-                >
+                <span className={`grid h-8 w-8 place-items-center rounded-lg ${iconBg}`}>
                   <Icon className="h-4 w-4" />
                 </span>
 
                 <CheckCircle2
-                  className={`h-4 w-4 ${
-                    c.status === "pass"
-                      ? "text-success"
-                      : "text-warning"
-                  }`}
+                  className={`h-4 w-4 ${c.status === "pass" ? "text-success" : "text-warning"}`}
                 />
               </div>
 
@@ -216,9 +197,7 @@ export function SecurityOverview() {
                 {c.metric}
               </div>
 
-              <div className="mt-0.5 text-[11.5px] text-muted-foreground">
-                {c.note}
-              </div>
+              <div className="mt-0.5 text-[11.5px] text-muted-foreground">{c.note}</div>
             </div>
           );
         })}

@@ -38,18 +38,18 @@ src/
 
 ## 2. Naming Conventions
 
-| Thing | Convention | Example |
-| --- | --- | --- |
+| Thing                | Convention                              | Example                            |
+| -------------------- | --------------------------------------- | ---------------------------------- |
 | React component file | `kebab-case.tsx` exporting `PascalCase` | `balance-hero.tsx` → `BalanceHero` |
-| Hook | `use-kebab.ts` exporting `useCamel` | `use-mobile.ts` → `useMobile` |
-| Route file | TanStack flat dot convention | `app.guard.devices.tsx` |
-| Server fn | `*.functions.ts` | `accounts.functions.ts` |
-| Server-only helper | `*.server.ts` | `kms.server.ts` |
-| Type | `PascalCase`, no `I` prefix | `Account`, not `IAccount` |
-| Constant | `SCREAMING_SNAKE_CASE` | `MAX_OTP_ATTEMPTS` |
-| Env var | `UPPER_SNAKE_CASE`; public = `VITE_*` | `VITE_API_BASE_URL` |
-| DB table | `snake_case`, plural | `user_roles` |
-| Kafka topic | `domain.entity.event` | `behavior.features.window` |
+| Hook                 | `use-kebab.ts` exporting `useCamel`     | `use-mobile.ts` → `useMobile`      |
+| Route file           | TanStack flat dot convention            | `app.guard.devices.tsx`            |
+| Server fn            | `*.functions.ts`                        | `accounts.functions.ts`            |
+| Server-only helper   | `*.server.ts`                           | `kms.server.ts`                    |
+| Type                 | `PascalCase`, no `I` prefix             | `Account`, not `IAccount`          |
+| Constant             | `SCREAMING_SNAKE_CASE`                  | `MAX_OTP_ATTEMPTS`                 |
+| Env var              | `UPPER_SNAKE_CASE`; public = `VITE_*`   | `VITE_API_BASE_URL`                |
+| DB table             | `snake_case`, plural                    | `user_roles`                       |
+| Kafka topic          | `domain.entity.event`                   | `behavior.features.window`         |
 
 ## 3. Error Handling
 
@@ -68,16 +68,16 @@ src/
 
 ## 5. Testing Strategy
 
-| Layer | Tool | When required |
-| --- | --- | --- |
-| Unit (FE) | Vitest + Testing Library | Every util + pure component |
-| Unit (BE) | pytest | Every service module |
-| Contract | Schemathesis (OpenAPI) | Every service endpoint |
-| Integration | Vitest + msw / pytest-asyncio | Every loader + every service handler |
-| E2E | Playwright | Critical paths: register → enroll → dashboard, transfer, login |
-| Visual | Chromatic on Storybook | All component stories |
-| Load | k6 | Before any GA-bound service |
-| Security | semgrep + gitleaks in CI | Every PR |
+| Layer       | Tool                          | When required                                                  |
+| ----------- | ----------------------------- | -------------------------------------------------------------- |
+| Unit (FE)   | Vitest + Testing Library      | Every util + pure component                                    |
+| Unit (BE)   | pytest                        | Every service module                                           |
+| Contract    | Schemathesis (OpenAPI)        | Every service endpoint                                         |
+| Integration | Vitest + msw / pytest-asyncio | Every loader + every service handler                           |
+| E2E         | Playwright                    | Critical paths: register → enroll → dashboard, transfer, login |
+| Visual      | Chromatic on Storybook        | All component stories                                          |
+| Load        | k6                            | Before any GA-bound service                                    |
+| Security    | semgrep + gitleaks in CI      | Every PR                                                       |
 
 **Coverage floor:** 80% lines, 75% branches per service; reviewer discretion below.
 

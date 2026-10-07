@@ -113,10 +113,15 @@ export const httpAegisService: AegisService = {
     const snap = await httpRequest<BackendSnapshot>("/aegis/snapshot", { signal });
     return {
       confidence: typeof snap.confidence === "number" ? snap.confidence : 0,
-      risk: typeof snap.risk === "number" ? snap.risk : 1 - (typeof snap.confidence === "number" ? snap.confidence : 0),
+      risk:
+        typeof snap.risk === "number"
+          ? snap.risk
+          : 1 - (typeof snap.confidence === "number" ? snap.confidence : 0),
       whisper: typeof snap.whisper === "string" ? snap.whisper : "",
       observedAt: typeof snap.observedAt === "string" ? snap.observedAt : new Date().toISOString(),
-      trend: Array.isArray(snap.trend) ? snap.trend.filter((v): v is number => typeof v === "number" && Number.isFinite(v)) : [],
+      trend: Array.isArray(snap.trend)
+        ? snap.trend.filter((v): v is number => typeof v === "number" && Number.isFinite(v))
+        : [],
     };
   },
 
@@ -163,7 +168,9 @@ export const httpAegisService: AegisService = {
   },
 
   async listDeviceProfiles({ signal } = {}) {
-    const profiles = await httpRequest<BackendDeviceProfile[]>("/aegis/device-profiles", { signal });
+    const profiles = await httpRequest<BackendDeviceProfile[]>("/aegis/device-profiles", {
+      signal,
+    });
     return profiles.map((p) => ({
       id: p.id,
       name: p.name,
@@ -179,7 +186,9 @@ export const httpAegisService: AegisService = {
   },
 
   async listDecisionReplays({ signal } = {}) {
-    const replays = await httpRequest<BackendDecisionReplay[]>("/aegis/decisions/replays", { signal });
+    const replays = await httpRequest<BackendDecisionReplay[]>("/aegis/decisions/replays", {
+      signal,
+    });
     return replays.map((r) => ({
       id: r.id,
       time: r.time,
@@ -190,7 +199,7 @@ export const httpAegisService: AegisService = {
     }));
   },
 
-    async submitBatch(windows, sessionId?: string, deviceId?: string) {
+  async submitBatch(windows, sessionId?: string, deviceId?: string) {
     if (!windows || windows.length === 0 || !sessionId) return;
     await httpRequest("/events/batch", {
       method: "POST",

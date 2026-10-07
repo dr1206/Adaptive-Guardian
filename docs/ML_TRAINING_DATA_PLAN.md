@@ -13,13 +13,13 @@ This document specifies the exact actions, intervals, and repetition counts need
 
 ## Target Data Volume
 
-| Metric | Target |
-|--------|--------|
-| Windows per user (genuine) | 800-1200 |
-| Windows per user (impostor) | 200-400 |
-| Total windows across 4 users | 4000-6000 |
-| Windows per session | ~40-80 (3-7 min of active use) |
-| Sessions per user | 12-15 sessions |
+| Metric                       | Target                         |
+| ---------------------------- | ------------------------------ |
+| Windows per user (genuine)   | 800-1200                       |
+| Windows per user (impostor)  | 200-400                        |
+| Total windows across 4 users | 4000-6000                      |
+| Windows per session          | ~40-80 (3-7 min of active use) |
+| Sessions per user            | 12-15 sessions                 |
 
 ## Phase 1: Genuine User Profile (Days 1-7)
 
@@ -28,8 +28,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 ### Session Types & Schedule
 
 #### Session A: Login & Dashboard Browsing (~5 min, ~50 windows)
+
 **Frequency**: 2x per day (morning + evening), every day
 **Steps**:
+
 1. Navigate to login page, type email (natural pace)
 2. Type password, click login
 3. Wait for dashboard to load, scroll through all widgets
@@ -40,8 +42,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Keystroke dynamics (email + password typing), mouse velocity/curvature during navigation, scroll patterns, click patterns
 
 #### Session B: Transaction Feed & Account Exploration (~7 min, ~70 windows)
+
 **Frequency**: 1x per day
 **Steps**:
+
 1. Login (natural typing)
 2. Navigate to Accounts page — click each account card
 3. View transaction history — scroll through 20-30 transactions
@@ -53,8 +57,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Keystroke for search queries, mouse movement for navigation, click cadence, scroll velocity
 
 #### Session C: Transfer Flow (~5 min, ~50 windows)
+
 **Frequency**: 2x per day
 **Steps**:
+
 1. Login
 2. Navigate to Transfer page
 3. Type an amount in the transfer field (vary amounts: $25, $100, $250, $500, $1000)
@@ -66,8 +72,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Keystroke for amount/reference typing, mouse for dropdown selection, press-and-hold button pressure timing
 
 #### Session D: Beneficiary & Card Management (~4 min, ~40 windows)
+
 **Frequency**: 1x per day
 **Steps**:
+
 1. Login
 2. Navigate to Beneficiaries page — scroll through list
 3. Add a new beneficiary: type name (3 variations per user), IBAN (fictional but realistic), select bank
@@ -78,8 +86,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Form-filling keystroke patterns, mouse precision during small-target clicks, scroll behavior
 
 #### Session E: Budgets & Savings (~5 min, ~50 windows)
+
 **Frequency**: 1x per day
 **Steps**:
+
 1. Login
 2. Navigate to Budgets page — scroll through all categories
 3. Click each budget category to view breakdown
@@ -91,8 +101,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Keystroke for budget amounts/goal updates, mouse movement patterns, scroll depth
 
 #### Session F: Statement & History Review (~6 min, ~60 windows)
+
 **Frequency**: 1x every other day
 **Steps**:
+
 1. Login
 2. Navigate to Statements page
 3. Select different months from the dropdown
@@ -105,8 +117,10 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 **Behavioral data captured**: Menu navigation mouse patterns, scroll behavior on long lists, click targeting precision
 
 #### Session G: Rapid Navigation (~3 min, ~30 windows)
+
 **Frequency**: 1x per day
 **Steps**:
+
 1. Login
 2. Rapidly switch between all main pages (Dashboard → Accounts → Transfers → Cards → Budgets → Savings → Activity → Statements)
 3. Click through each page but don't interact deeply
@@ -117,14 +131,14 @@ Each user collects their OWN behavioral data. These sessions are labeled `genuin
 ### Weekly Schedule Per User
 
 | Day | Morning (9-10am) | Midday (12-1pm) | Evening (6-7pm) | Night (10-11pm) |
-|-----|------------------|-----------------|-----------------|-----------------|
-| Mon | Session A + B | Session C | Session D + A | Session G |
-| Tue | Session A + C | Session E | Session B + A | Session F |
-| Wed | Session A + D | Session C | Session E + A | Session G |
-| Thu | Session A + B | Session C | Session F + A | — |
-| Fri | Session A + E | Session C | Session B + D | Session G |
-| Sat | Session A + G | Session C + D | Session E + B | — |
-| Sun | Session A + G | Session C | Session F | Session G |
+| --- | ---------------- | --------------- | --------------- | --------------- |
+| Mon | Session A + B    | Session C       | Session D + A   | Session G       |
+| Tue | Session A + C    | Session E       | Session B + A   | Session F       |
+| Wed | Session A + D    | Session C       | Session E + A   | Session G       |
+| Thu | Session A + B    | Session C       | Session F + A   | —               |
+| Fri | Session A + E    | Session C       | Session B + D   | Session G       |
+| Sat | Session A + G    | Session C + D   | Session E + B   | —               |
+| Sun | Session A + G    | Session C       | Session F       | Session G       |
 
 **Per-day windows**: ~220-300 windows  
 **Per-week windows**: ~1200-1500 windows
@@ -137,16 +151,16 @@ Each user acts as an "impostor" on another user's account to generate negative t
 
 ### Impostor Rotation
 
-| Impostor | Target Account | Sessions |
-|----------|---------------|----------|
-| Amal → | Manasa's account | 3 sessions |
+| Impostor | Target Account   | Sessions   |
+| -------- | ---------------- | ---------- |
+| Amal →   | Manasa's account | 3 sessions |
 | Manasa → | Dristi's account | 3 sessions |
-| Dristi → | Vyas's account | 3 sessions |
-| Vyas → | Amal's account | 3 sessions |
-| Amal → | Dristi's account | 2 sessions |
-| Manasa → | Vyas's account | 2 sessions |
-| Dristi → | Amal's account | 2 sessions |
-| Vyas → | Manasa's account | 2 sessions |
+| Dristi → | Vyas's account   | 3 sessions |
+| Vyas →   | Amal's account   | 3 sessions |
+| Amal →   | Dristi's account | 2 sessions |
+| Manasa → | Vyas's account   | 2 sessions |
+| Dristi → | Amal's account   | 2 sessions |
+| Vyas →   | Manasa's account | 2 sessions |
 
 ### Impostor Session Protocol (~5 min each, ~50 windows)
 
@@ -167,30 +181,33 @@ Each user acts as an "impostor" on another user's account to generate negative t
 
 Vary conditions to make the model robust:
 
-| Variation | Sessions per user |
-|-----------|-------------------|
-| Different browser (Chrome vs Firefox vs Edge) | 2 sessions each |
-| Different time of day (early morning 6am, late night 1am) | 2 sessions each |
-| Different typing speed (deliberately slow, then fast) | 2 sessions each |
-| Mouse vs Trackpad (if available) | 2 sessions each |
-| Window resized (smaller viewport vs fullscreen) | 2 sessions each |
+| Variation                                                 | Sessions per user |
+| --------------------------------------------------------- | ----------------- |
+| Different browser (Chrome vs Firefox vs Edge)             | 2 sessions each   |
+| Different time of day (early morning 6am, late night 1am) | 2 sessions each   |
+| Different typing speed (deliberately slow, then fast)     | 2 sessions each   |
+| Mouse vs Trackpad (if available)                          | 2 sessions each   |
+| Window resized (smaller viewport vs fullscreen)           | 2 sessions each   |
 
 ---
 
 ## Phase 4: Export & Labeling Protocol
 
 ### At the end of each session:
+
 1. Open browser DevTools → Application → Local Storage
 2. Find key `ag_behavioral_dataset`
 3. Copy the JSON data to a file named: `{username}_{session_type}_{date}_{label}.json`
 
 OR use the `BehavioralExportPanel` component:
+
 1. Navigate to `/export` or use the Export button
 2. Select session(s) to export
 3. Set label to `genuine` or `impostor`
 4. Download as JSON
 
 ### File naming convention:
+
 ```
 amal_genuine_session-a_2026-07-14_1.json
 manasa_impostor_amal-target_2026-07-20_1.json
@@ -198,7 +215,9 @@ dristi_genuine_session-c_2026-07-15_2.json
 ```
 
 ### Dataset Manifest:
+
 Create a CSV index file:
+
 ```csv
 filename,user,label,session_type,date,windows_count,duration_sec,device,browser
 amal_genuine_session-a_2026-07-14_1.json,amal,genuine,login_dashboard,2026-07-14,52,310,desktop,chrome
@@ -207,6 +226,7 @@ amal_genuine_session-a_2026-07-14_1.json,amal,genuine,login_dashboard,2026-07-14
 ## Training Data Format
 
 Each exported JSON file should have this structure:
+
 ```json
 {
   "exportedAt": "2026-07-14T10:30:00Z",
@@ -255,13 +275,13 @@ Each exported JSON file should have this structure:
 
 ## Timeline Summary
 
-| Phase | Days | Activity | Windows per user |
-|-------|------|----------|------------------|
-| Phase 1: Genuine | 1-7 | 7 session types, daily rotation | 1200-1500 |
-| Phase 2: Impostor | 8-10 | Cross-user sessions | 200-300 |
-| Phase 3: Variation | 11-12 | Device/environment variation | 200-300 |
-| Phase 4: Export | 13 | Label, organize, validate | — |
-| **Total** | **13 days** | — | **1600-2100 per user** |
+| Phase              | Days        | Activity                        | Windows per user       |
+| ------------------ | ----------- | ------------------------------- | ---------------------- |
+| Phase 1: Genuine   | 1-7         | 7 session types, daily rotation | 1200-1500              |
+| Phase 2: Impostor  | 8-10        | Cross-user sessions             | 200-300                |
+| Phase 3: Variation | 11-12       | Device/environment variation    | 200-300                |
+| Phase 4: Export    | 13          | Label, organize, validate       | —                      |
+| **Total**          | **13 days** | —                               | **1600-2100 per user** |
 
 ## Prerequisites
 
@@ -274,13 +294,13 @@ Each exported JSON file should have this structure:
 
 ## User Credentials
 
-| User | Email | Password |
-|------|-------|----------|
-| Amal Varghese | amal@adaptiveguardian.dev | Demo@1234567890 |
-| Manasa | manasa@adaptiveguardian.dev | Demo@1234567890 |
-| Dristi | dristi@adaptiveguardian.dev | Demo@1234567890 |
-| Vyas | vyas@adaptiveguardian.dev | Demo@1234567890 |
+| User          | Email                       | Password        |
+| ------------- | --------------------------- | --------------- |
+| Amal Varghese | amal@adaptiveguardian.dev   | Demo@1234567890 |
+| Manasa        | manasa@adaptiveguardian.dev | Demo@1234567890 |
+| Dristi        | dristi@adaptiveguardian.dev | Demo@1234567890 |
+| Vyas          | vyas@adaptiveguardian.dev   | Demo@1234567890 |
 
 ---
 
-*Generated 2026-07-14 for AdaptiveGuardian ML Training Data Collection*
+_Generated 2026-07-14 for AdaptiveGuardian ML Training Data Collection_

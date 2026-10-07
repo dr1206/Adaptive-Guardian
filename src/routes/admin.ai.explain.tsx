@@ -20,7 +20,11 @@ const DEFAULT_FEATURES = [
     plain: "Average key press dwell time matches baseline",
   },
   { name: "curvature_mean", contrib: +0.08, plain: "Trajectory curvature deviates slightly" },
-  { name: "flight_mean_ms", contrib: -0.11, plain: "Flight time between consecutive keys matches profile" },
+  {
+    name: "flight_mean_ms",
+    contrib: -0.11,
+    plain: "Flight time between consecutive keys matches profile",
+  },
   {
     name: "acceleration_std",
     contrib: +0.05,
@@ -36,21 +40,26 @@ function ExplainPage() {
   const latestDecision = decisions[0];
 
   // Derive feature contributions from real backend topFeatures (TreeSHAP) if available
-  const features = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
-    ? latestDecision.topFeatures.map((f) => {
-        const isRisk = f.contribution > 0;
-        return {
-          name: f.name,
-          contrib: f.contribution,
-          plain: isRisk
-            ? `${f.name.replace(/_/g, " ")} drifted from historical biometric baseline (+risk)`
-            : `${f.name.replace(/_/g, " ")} closely matches verified biometric baseline (-risk)`,
-        };
-      })
-    : DEFAULT_FEATURES;
+  const features =
+    latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+      ? latestDecision.topFeatures.map((f) => {
+          const isRisk = f.contribution > 0;
+          return {
+            name: f.name,
+            contrib: f.contribution,
+            plain: isRisk
+              ? `${f.name.replace(/_/g, " ")} drifted from historical biometric baseline (+risk)`
+              : `${f.name.replace(/_/g, " ")} closely matches verified biometric baseline (-risk)`,
+          };
+        })
+      : DEFAULT_FEATURES;
 
   const confidenceScore = latestDecision
-    ? (latestDecision.action === "allow" ? 0.94 : latestDecision.action === "challenge" ? 0.42 : 0.15)
+    ? latestDecision.action === "allow"
+      ? 0.94
+      : latestDecision.action === "challenge"
+        ? 0.42
+        : 0.15
     : 0.92;
   return (
     <div className="space-y-6">
@@ -87,7 +96,10 @@ function ExplainPage() {
           }
         >
           <div className="text-center py-6">
-            <div data-numeric className={`text-5xl font-semibold ${confidenceScore >= 0.7 ? "text-emerald-300" : confidenceScore >= 0.4 ? "text-amber-300" : "text-rose-400"}`}>
+            <div
+              data-numeric
+              className={`text-5xl font-semibold ${confidenceScore >= 0.7 ? "text-emerald-300" : confidenceScore >= 0.4 ? "text-amber-300" : "text-rose-400"}`}
+            >
               {confidenceScore.toFixed(2)}
             </div>
             <div className="text-xs text-muted-foreground mt-2 font-mono">

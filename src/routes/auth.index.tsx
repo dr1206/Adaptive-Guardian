@@ -66,9 +66,7 @@ function IdentityScreen() {
             <div className="inline-flex p-3 bg-[#EEF2F6] rounded-full text-[#0B3A82] mb-3">
               <Lock className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-bold text-[#082A5C]">
-              Internet Banking Sign In
-            </h1>
+            <h1 className="text-xl font-bold text-[#082A5C]">Internet Banking Sign In</h1>
             <p className="text-xs text-[#667085] mt-1">
               Protected by Continuous Behavioral Biometrics
             </p>
@@ -78,7 +76,8 @@ function IdentityScreen() {
             <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2.5 text-xs text-[#C53030]">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <div>
-                <strong>Authentication failed:</strong> {error.message || "Invalid credentials provided."}
+                <strong>Authentication failed:</strong>{" "}
+                {error.message || "Invalid credentials provided."}
               </div>
             </div>
           )}
@@ -173,7 +172,10 @@ function IdentityScreen() {
 
       {/* Trust Footer */}
       <footer className="border-t border-[#D9E1EA] bg-white py-4 px-6 text-center text-xs text-[#667085]">
-        <span>© 2026 Adaptive Guardian Bank · RBI Cyber Security Framework Compliant · 256-Bit SSL Encryption</span>
+        <span>
+          © 2026 Adaptive Guardian Bank · RBI Cyber Security Framework Compliant · 256-Bit SSL
+          Encryption
+        </span>
       </footer>
     </div>
   );

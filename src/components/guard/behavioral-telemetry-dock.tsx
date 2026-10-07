@@ -185,8 +185,7 @@ export function BehavioralTelemetryDock() {
       aria-label="Live Behavioral Biometrics Telemetry"
       className="fixed right-4 top-20 bottom-16 z-50 flex w-[330px] flex-col overflow-hidden rounded-2xl border border-[#D9E1EA] bg-white shadow-2xl transition-all duration-200"
       style={{
-        boxShadow:
-          "0 20px 40px -15px rgba(8, 42, 92, 0.25), 0 0 0 1px rgba(11, 58, 130, 0.08)",
+        boxShadow: "0 20px 40px -15px rgba(8, 42, 92, 0.25), 0 0 0 1px rgba(11, 58, 130, 0.08)",
       }}
     >
       {/* Top Header */}
@@ -314,15 +313,21 @@ export function BehavioralTelemetryDock() {
               <div className="mt-1.5 grid grid-cols-3 gap-1 text-center font-mono text-[10px]">
                 <div className="rounded bg-white p-1 border border-blue-100">
                   <div className="text-[9px] text-[#667085]">Keys</div>
-                  <div className="font-semibold text-[#0B3A82]">{status.verification.keystrokes}</div>
+                  <div className="font-semibold text-[#0B3A82]">
+                    {status.verification.keystrokes}
+                  </div>
                 </div>
                 <div className="rounded bg-white p-1 border border-blue-100">
                   <div className="text-[9px] text-[#667085]">Mouse</div>
-                  <div className="font-semibold text-[#0B3A82]">{status.verification.mouseMoves}</div>
+                  <div className="font-semibold text-[#0B3A82]">
+                    {status.verification.mouseMoves}
+                  </div>
                 </div>
                 <div className="rounded bg-white p-1 border border-blue-100">
                   <div className="text-[9px] text-[#667085]">Travel</div>
-                  <div className="font-semibold text-[#0B3A82]">{status.verification.mouseTravelPx}px</div>
+                  <div className="font-semibold text-[#0B3A82]">
+                    {status.verification.mouseTravelPx}px
+                  </div>
                 </div>
               </div>
             </div>
@@ -344,9 +349,7 @@ export function BehavioralTelemetryDock() {
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 font-mono text-[11px] font-bold transition-all",
-                keyFlash
-                  ? "bg-[#0B3A82] text-white scale-105"
-                  : "bg-slate-100 text-[#0B3A82]",
+                keyFlash ? "bg-[#0B3A82] text-white scale-105" : "bg-slate-100 text-[#0B3A82]",
               )}
             >
               {status.keystrokesCaptured} keys
@@ -405,9 +408,7 @@ export function BehavioralTelemetryDock() {
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 font-mono text-[11px] font-bold transition-all",
-                mouseFlash
-                  ? "bg-[#0B3A82] text-white scale-105"
-                  : "bg-slate-100 text-[#0B3A82]",
+                mouseFlash ? "bg-[#0B3A82] text-white scale-105" : "bg-slate-100 text-[#0B3A82]",
               )}
             >
               {status.mouseEventsCaptured} events
@@ -418,7 +419,8 @@ export function BehavioralTelemetryDock() {
             <div className="rounded-lg border border-slate-100 bg-[#F8FAFC] p-2">
               <span className="text-[10px] text-[#667085]">Coordinates</span>
               <div className="mt-0.5 text-[12px] font-bold text-[#172033]">
-                X: {status.mouseX ?? 0} <span className="text-slate-400">|</span> Y: {status.mouseY ?? 0}
+                X: {status.mouseX ?? 0} <span className="text-slate-400">|</span> Y:{" "}
+                {status.mouseY ?? 0}
               </div>
               <div className="text-[9px] text-[#667085]">screen pos</div>
             </div>
@@ -454,9 +456,7 @@ export function BehavioralTelemetryDock() {
               <Download className="h-3.5 w-3.5 text-[#0B3A82]" />
               ML Dataset Export
             </span>
-            <span className="font-mono text-[10px] text-[#667085]">
-              {status.windowsSent} sent
-            </span>
+            <span className="font-mono text-[10px] text-[#667085]">{status.windowsSent} sent</span>
           </div>
 
           <div className="mt-2">
@@ -509,10 +509,7 @@ export function BehavioralTelemetryDock() {
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           <span>Sampling @ 250ms</span>
         </div>
-        <button
-          onClick={toggleExpanded}
-          className="font-medium text-[#0B3A82] hover:underline"
-        >
+        <button onClick={toggleExpanded} className="font-medium text-[#0B3A82] hover:underline">
           Collapse
         </button>
       </div>

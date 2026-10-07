@@ -100,10 +100,22 @@ function AuthCenter() {
       </section>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-7" eyebrow="Real-Time Window" title="Current authentication metrics">
+        <SigilCard
+          className="lg:col-span-7"
+          eyebrow="Real-Time Window"
+          title="Current authentication metrics"
+        >
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Mini label="Confidence" value={`${confidenceScore}%`} spark={[88, 92, 94, 96, 97, 98, Number(confidenceScore)]} />
-            <Mini label="Risk Score" value={riskScore} spark={[0.1, 0.08, 0.05, 0.04, 0.03, 0.03, Number(riskScore)]} />
+            <Mini
+              label="Confidence"
+              value={`${confidenceScore}%`}
+              spark={[88, 92, 94, 96, 97, 98, Number(confidenceScore)]}
+            />
+            <Mini
+              label="Risk Score"
+              value={riskScore}
+              spark={[0.1, 0.08, 0.05, 0.04, 0.03, 0.03, Number(riskScore)]}
+            />
             <Mini label="Behavioral Match" value="96%" spark={[85, 88, 90, 92, 94, 95, 96]} />
             <Mini label="Device Trust" value="99%" spark={[95, 96, 97, 98, 98, 99, 99]} />
           </div>
@@ -124,7 +136,9 @@ function AuthCenter() {
                   {r.t}
                 </span>
                 <span className="flex-1 text-[12.5px] font-medium">{r.w}</span>
-                <span className="font-numeric text-[12px] font-semibold tabular-nums text-success">{r.c}%</span>
+                <span className="font-numeric text-[12px] font-semibold tabular-nums text-success">
+                  {r.c}%
+                </span>
               </li>
             ))}
           </ul>
@@ -137,8 +151,12 @@ function AuthCenter() {
 function Mini({ label, value, spark }: { label: string; value: string; spark: number[] }) {
   return (
     <div className="rounded-lg border border-border bg-muted/20 p-3">
-      <div className="text-[10px] uppercase font-semibold tracking-[0.15em] text-muted-foreground">{label}</div>
-      <div className="mt-1 font-numeric text-[22px] font-bold tabular-nums text-foreground">{value}</div>
+      <div className="text-[10px] uppercase font-semibold tracking-[0.15em] text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-1 font-numeric text-[22px] font-bold tabular-nums text-foreground">
+        {value}
+      </div>
       <div className="mt-1">
         <Sparkline points={spark} width={120} height={22} />
       </div>

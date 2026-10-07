@@ -24,14 +24,7 @@ import {
 import type { AsyncState } from "@/lib/async-state";
 
 export type AsyncBoundaryVariant =
-  | "default"
-  | "list"
-  | "table"
-  | "cards"
-  | "dashboard"
-  | "chart"
-  | "timeline"
-  | "form";
+  "default" | "list" | "table" | "cards" | "dashboard" | "chart" | "timeline" | "form";
 
 interface AsyncBoundaryProps {
   /** Combined async state from `asyncStateFromQuery` / `combineAsyncStates`. */

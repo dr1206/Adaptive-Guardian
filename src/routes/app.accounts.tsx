@@ -49,7 +49,9 @@ function AccountsPage() {
                   </h2>
                   <span className="rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
                     {items.length} accounts ·{" "}
-                    <span className="font-numeric font-bold text-foreground">{fmt(total, "₹", 0)}</span>
+                    <span className="font-numeric font-bold text-foreground">
+                      {fmt(total, "₹", 0)}
+                    </span>
                   </span>
                 </header>
                 <div className="grid gap-3">

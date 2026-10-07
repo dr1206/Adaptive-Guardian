@@ -101,12 +101,17 @@ export const mockAdminService: AdminService = {
       },
       { signal },
     ),
-  getUserSessions: ({ signal, user_id: _userId }: { user_id?: string; signal?: AbortSignal } = {}) =>
+  getUserSessions: ({
+    signal,
+    user_id: _userId,
+  }: { user_id?: string; signal?: AbortSignal } = {}) =>
     mockResolve({ user: null, auth_sessions: [] }, { signal }),
-  exportTrainingData: ({ signal } = {}) =>
-    mockResolve(void 0 as unknown as void, { signal }),
+  exportTrainingData: ({ signal } = {}) => mockResolve(void 0 as unknown as void, { signal }),
   exportTrainingDataByUsers: ({ signal } = {}) =>
     mockResolve(void 0 as unknown as void, { signal }),
-  exportSessionBehavioral: ({ signal, session_id: _sessionId }: { session_id?: string; signal?: AbortSignal } = {}) =>
+  exportSessionBehavioral: ({
+    signal,
+    session_id: _sessionId,
+  }: { session_id?: string; signal?: AbortSignal } = {}) =>
     mockResolve(void 0 as unknown as void, { signal }),
 };

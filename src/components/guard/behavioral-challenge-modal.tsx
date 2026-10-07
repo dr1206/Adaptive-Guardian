@@ -50,18 +50,9 @@ interface Props {
  * 6. FAILED: Fused decision != ALLOW. Challenge remains strictly active. Allows retry.
  * 7. ERROR: Network or model error. Challenge remains active. Never stuck in "Verifying...".
  */
-export function BehavioralChallengeModal({
-  open,
-  auth,
-  onVerified,
-  onClose,
-}: Props) {
-  const {
-    verification,
-    startVerification,
-    cancelVerification,
-    submitVerification,
-  } = useVerification();
+export function BehavioralChallengeModal({ open, auth, onVerified, onClose }: Props) {
+  const { verification, startVerification, cancelVerification, submitVerification } =
+    useVerification();
 
   const [typingText, setTypingText] = useState("");
   const autoSubmittedRef = useRef(false);
@@ -90,8 +81,13 @@ export function BehavioralChallengeModal({
 
   // Auto-submit when both modalities have been smoothly collected
   useEffect(() => {
-    const isSufficientlySampled = (keyReady && (mouseMoves >= 10 || travelPx >= 20)) || (keyCount >= 8 && mouseMoves >= 5);
-    if ((verification.state === "READY_FOR_VERIFICATION" || isSufficientlySampled) && !autoSubmittedRef.current && (verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION")) {
+    const isSufficientlySampled =
+      (keyReady && (mouseMoves >= 10 || travelPx >= 20)) || (keyCount >= 8 && mouseMoves >= 5);
+    if (
+      (verification.state === "READY_FOR_VERIFICATION" || isSufficientlySampled) &&
+      !autoSubmittedRef.current &&
+      (verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION")
+    ) {
       const timer = setTimeout(() => {
         if (!autoSubmittedRef.current) {
           autoSubmittedRef.current = true;
@@ -109,7 +105,15 @@ export function BehavioralChallengeModal({
     if (verification.state !== "READY_FOR_VERIFICATION" && verification.state !== "VERIFYING") {
       autoSubmittedRef.current = false;
     }
-  }, [verification.state, keyReady, keyCount, mouseMoves, travelPx, submitVerification, onVerified]);
+  }, [
+    verification.state,
+    keyReady,
+    keyCount,
+    mouseMoves,
+    travelPx,
+    submitVerification,
+    onVerified,
+  ]);
 
   const handleStartVerify = () => {
     autoSubmittedRef.current = false;
@@ -159,14 +163,15 @@ export function BehavioralChallengeModal({
                 {verification.state === "SUCCESS"
                   ? "Identity Verified Successfully"
                   : verification.state === "FAILED"
-                  ? "Verification Unsuccessful"
-                  : verification.state === "ERROR"
-                  ? "Verification Service Error"
-                  : verification.state === "VERIFYING"
-                  ? "Analyzing Behavioral Pattern"
-                  : verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION"
-                  ? "Collecting Behavioral Verification Window"
-                  : "Additional Verification Required"}
+                    ? "Verification Unsuccessful"
+                    : verification.state === "ERROR"
+                      ? "Verification Service Error"
+                      : verification.state === "VERIFYING"
+                        ? "Analyzing Behavioral Pattern"
+                        : verification.state === "COLLECTING" ||
+                            verification.state === "READY_FOR_VERIFICATION"
+                          ? "Collecting Behavioral Verification Window"
+                          : "Additional Verification Required"}
               </DialogTitle>
               <DialogDescription className="text-xs text-[#667085]">
                 Adaptive Guardian Enterprise Behavioral Security
@@ -179,8 +184,9 @@ export function BehavioralChallengeModal({
         {verification.state === "IDLE" && (
           <div className="space-y-4 my-2">
             <p className="text-xs text-[#475467] leading-relaxed">
-              We could not confirm that your recent interaction pattern matches your authorized baseline.
-              Your banking session remains secure, but confirmation is required before this security alert clears.
+              We could not confirm that your recent interaction pattern matches your authorized
+              baseline. Your banking session remains secure, but confirmation is required before
+              this security alert clears.
             </p>
 
             {/* Suspicious Window Risk Telemetry */}
@@ -212,14 +218,16 @@ export function BehavioralChallengeModal({
             </div>
 
             <div className="rounded-lg bg-blue-50/70 border border-blue-200/80 p-3 text-[11.5px] text-[#0B3A82] leading-snug">
-              <strong>How it works:</strong> Clicking <strong>Verify Identity</strong> will start a brand-new,
-              fresh behavioral sample. Simply interact naturally (type or move your mouse) to verify your genuine profile.
+              <strong>How it works:</strong> Clicking <strong>Verify Identity</strong> will start a
+              brand-new, fresh behavioral sample. Simply interact naturally (type or move your
+              mouse) to verify your genuine profile.
             </div>
           </div>
         )}
 
         {/* State 2 & 3: COLLECTING / READY_FOR_VERIFICATION */}
-        {(verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION") && (
+        {(verification.state === "COLLECTING" ||
+          verification.state === "READY_FOR_VERIFICATION") && (
           <div className="space-y-4 my-2">
             <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3">
               <div className="flex items-center justify-between text-xs font-semibold text-[#0B3A82]">
@@ -232,7 +240,8 @@ export function BehavioralChallengeModal({
                 </span>
               </div>
               <p className="mt-1 text-[11.5px] text-[#475467]">
-                Please type or move your mouse naturally. We are capturing a fresh behavioral window to verify your identity.
+                Please type or move your mouse naturally. We are capturing a fresh behavioral window
+                to verify your identity.
               </p>
             </div>
 
@@ -262,9 +271,14 @@ export function BehavioralChallengeModal({
               />
               <p className="text-[11px] text-[#667085]">
                 {keyReady ? (
-                  <span className="font-medium text-emerald-700">✓ Keystroke rhythm captured! Move your mouse or click Submit below.</span>
+                  <span className="font-medium text-emerald-700">
+                    ✓ Keystroke rhythm captured! Move your mouse or click Submit below.
+                  </span>
                 ) : (
-                  <span>Type a few characters above so the behavioral model can verify your flight & dwell rhythm.</span>
+                  <span>
+                    Type a few characters above so the behavioral model can verify your flight &
+                    dwell rhythm.
+                  </span>
                 )}
               </p>
             </div>
@@ -333,7 +347,8 @@ export function BehavioralChallengeModal({
                 Evaluating Fresh Behavioral Window
               </h4>
               <p className="mt-1 text-xs text-[#667085]">
-                Running LightGBM classifier, One-Class SVM anomaly model, and calibrated risk fusion...
+                Running LightGBM classifier, One-Class SVM anomaly model, and calibrated risk
+                fusion...
               </p>
             </div>
             <div className="mx-auto max-w-xs rounded-lg border border-slate-200 bg-slate-50 p-2 font-mono text-[11px] text-[#475467]">
@@ -349,11 +364,10 @@ export function BehavioralChallengeModal({
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-emerald-900">
-                Identity Confirmed Genuine
-              </h4>
+              <h4 className="text-sm font-bold text-emerald-900">Identity Confirmed Genuine</h4>
               <p className="mt-1 text-xs text-[#475467]">
-                Your fresh interaction pattern matches your established behavioral biometric profile.
+                Your fresh interaction pattern matches your established behavioral biometric
+                profile.
               </p>
             </div>
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-xs font-mono text-emerald-800">
@@ -366,11 +380,13 @@ export function BehavioralChallengeModal({
         {verification.state === "FAILED" && (
           <div className="space-y-3 my-2">
             <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-3 text-xs text-rose-900">
-              <strong>Verification Not Conclusive:</strong> Your fresh interaction sample did not match
-              your genuine profile closely enough (Decision: {verification.lastDecision}, Risk: {pct(verification.lastFusedScore)}).
+              <strong>Verification Not Conclusive:</strong> Your fresh interaction sample did not
+              match your genuine profile closely enough (Decision: {verification.lastDecision},
+              Risk: {pct(verification.lastFusedScore)}).
             </div>
             <p className="text-xs text-[#475467] leading-relaxed">
-              Your challenge alert remains active. Please interact naturally and initiate a fresh verification attempt.
+              Your challenge alert remains active. Please interact naturally and initiate a fresh
+              verification attempt.
             </p>
           </div>
         )}
@@ -382,7 +398,8 @@ export function BehavioralChallengeModal({
               <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
               <div>
                 <strong className="block font-semibold">Service Notice</strong>
-                {verification.error || "The behavioral authentication service encountered a temporary error."}
+                {verification.error ||
+                  "The behavioral authentication service encountered a temporary error."}
               </div>
             </div>
             <p className="text-xs text-[#475467]">
@@ -413,7 +430,8 @@ export function BehavioralChallengeModal({
             </>
           )}
 
-          {(verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION") && (
+          {(verification.state === "COLLECTING" ||
+            verification.state === "READY_FOR_VERIFICATION") && (
             <>
               <button
                 type="button"

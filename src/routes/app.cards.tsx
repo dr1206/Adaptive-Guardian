@@ -141,9 +141,21 @@ function CardsPage() {
                 <h3 className="mb-4 text-[11px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
                   Authorized Spending Limits
                 </h3>
-                <Limit label="Daily POS & E-Commerce" used={card.limits.usedDaily} total={card.limits.daily} />
-                <Limit label="Monthly Aggregate Limit" used={card.limits.usedMonthly} total={card.limits.monthly} />
-                <Limit label="Daily ATM Cash Withdrawal" used={card.limits.usedAtm} total={card.limits.atm} />
+                <Limit
+                  label="Daily POS & E-Commerce"
+                  used={card.limits.usedDaily}
+                  total={card.limits.daily}
+                />
+                <Limit
+                  label="Monthly Aggregate Limit"
+                  used={card.limits.usedMonthly}
+                  total={card.limits.monthly}
+                />
+                <Limit
+                  label="Daily ATM Cash Withdrawal"
+                  used={card.limits.usedAtm}
+                  total={card.limits.atm}
+                />
               </div>
             </section>
           </>
@@ -164,10 +176,7 @@ function Limit({ label, used, total }: { label: string; used: number; total: num
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-primary"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

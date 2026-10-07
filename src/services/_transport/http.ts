@@ -38,7 +38,9 @@ let accessToken: string | null = null;
 function loadToken(): string | null {
   try {
     return localStorage.getItem("ag_access_token");
-  } catch { /* localStorage blocked */ }
+  } catch {
+    /* localStorage blocked */
+  }
   return null;
 }
 
@@ -46,7 +48,9 @@ function saveToken(token: string): void {
   accessToken = token;
   try {
     localStorage.setItem("ag_access_token", token);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
 function clearToken(): void {
@@ -54,13 +58,17 @@ function clearToken(): void {
   try {
     localStorage.removeItem("ag_access_token");
     localStorage.removeItem("ag_session_id");
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
 function saveSessionId(id: string): void {
   try {
     localStorage.setItem("ag_session_id", id);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
 function getStoredSessionId(): string | null {
@@ -82,7 +90,10 @@ function uuid4(): string {
   });
 }
 
-function buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
+function buildUrl(
+  path: string,
+  params?: Record<string, string | number | boolean | undefined>,
+): string {
   const url = new URL(`${API_BASE}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -92,7 +103,11 @@ function buildUrl(path: string, params?: Record<string, string | number | boolea
   return url.toString();
 }
 
-function mapBackendError(body: { code?: string; message?: string; details?: Record<string, unknown> }): AppError {
+function mapBackendError(body: {
+  code?: string;
+  message?: string;
+  details?: Record<string, unknown>;
+}): AppError {
   const code = body.code ?? "INTERNAL_ERROR";
   const message = body.message ?? "An unexpected error occurred";
 
@@ -127,7 +142,7 @@ async function refreshAccessToken(): Promise<string | null> {
         // firing 6+ queries at once) would log the user out spuriously.
         return null;
       }
-      const body = await resp.json() as { accessToken?: string; sessionId?: string };
+      const body = (await resp.json()) as { accessToken?: string; sessionId?: string };
       const token = body.accessToken;
       if (token) {
         saveToken(token);
@@ -190,7 +205,10 @@ export async function httpRequest<T = unknown>(path: string, req: HttpRequest = 
     // as a retryable IntegrationError — and crucially the stored token must
     // NOT be cleared by anyone on this path.
     if (err instanceof Error && err.name === "AbortError") throw err;
-    throw new IntegrationError("transport.unreachable", "Backend unreachable. Check that it is running.");
+    throw new IntegrationError(
+      "transport.unreachable",
+      "Backend unreachable. Check that it is running.",
+    );
   }
 
   // Attempt silent refresh on 401 (only once per request)
@@ -208,7 +226,10 @@ export async function httpRequest<T = unknown>(path: string, req: HttpRequest = 
         });
       } catch (err) {
         if (err instanceof Error && err.name === "AbortError") throw err;
-        throw new IntegrationError("transport.unreachable", "Backend unreachable. Check that it is running.");
+        throw new IntegrationError(
+          "transport.unreachable",
+          "Backend unreachable. Check that it is running.",
+        );
       }
     }
   }
@@ -218,14 +239,21 @@ export async function httpRequest<T = unknown>(path: string, req: HttpRequest = 
     const status = resp.status;
     let body: { code?: string; message?: string; details?: Record<string, unknown> } = {};
     try {
-      body = await resp.json() as Record<string, unknown>;
-    } catch { /* non-JSON body */ }
+      body = (await resp.json()) as Record<string, unknown>;
+    } catch {
+      /* non-JSON body */
+    }
     // No JSON body (proxy/HTML error page, empty 401): still surface the
     // correct typed error so getSession() can tell "logged out" apart from
     // "transient failure". A bare 401/403 must NEVER become a generic 500.
     if (Object.keys(body).length === 0) {
-      if (status === 401) throw new AuthenticationError("common.unauthenticated", "Authentication required.");
-      if (status === 403) throw new AuthorizationError("common.forbidden", "You do not have access to this resource.");
+      if (status === 401)
+        throw new AuthenticationError("common.unauthenticated", "Authentication required.");
+      if (status === 403)
+        throw new AuthorizationError(
+          "common.forbidden",
+          "You do not have access to this resource.",
+        );
       if (status === 404) throw new NotFoundError("common.not_found", "Resource not found.");
     }
     throw mapBackendError(body);

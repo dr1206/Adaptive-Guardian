@@ -5,9 +5,11 @@
 **Status:** Accepted · **Date:** 2026-06-29 · **Deciders:** DevOps Lead, Staff Architect
 
 ## Context
+
 Multi-service backend, regulated industry, need for reproducible environments and clear audit of every change to production.
 
 ## Decision
+
 - **Compute:** AWS EKS (managed K8s), one cluster per environment (dev, staging, prod).
 - **GitOps:** ArgoCD reconciles `infra/` manifests; production deploys are PR-merge → Argo sync. No `kubectl apply` from laptops.
 - **IaC:** Terraform for AWS primitives; Helm + Kustomize for K8s manifests.
@@ -16,9 +18,11 @@ Multi-service backend, regulated industry, need for reproducible environments an
 - **Observability:** OpenTelemetry → Datadog; Sentry for FE/BE error tracking.
 
 ## Consequences
+
 - **(+)** Auditable, reproducible, rollback by `git revert`.
 - **(–)** EKS learning curve; mitigated by Helm charts authored in Sprint 0.
 
 ## Alternatives
+
 - **ECS Fargate** — simpler, less powerful; rejected for ML serving needs.
 - **Self-managed K8s** — too much ops cost for current headcount.

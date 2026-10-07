@@ -4,11 +4,7 @@
 
 import type { BehavioralService, FeatureWindow } from "./behavioral.contract";
 
-import {
-  httpRequest,
-  hasToken,
-  getCurrentSessionId,
-} from "../_transport/http";
+import { httpRequest, hasToken, getCurrentSessionId } from "../_transport/http";
 
 export const httpBehavioralService: BehavioralService = {
   async submitBatch(windows: FeatureWindow[]): Promise<void> {
@@ -17,9 +13,7 @@ export const httpBehavioralService: BehavioralService = {
     const sessionId = getCurrentSessionId();
 
     if (!sessionId) {
-      console.warn(
-        "[BehavioralHTTP] Cannot submit behavioral windows: no session ID",
-      );
+      console.warn("[BehavioralHTTP] Cannot submit behavioral windows: no session ID");
       return;
     }
 

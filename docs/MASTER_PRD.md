@@ -1,4 +1,5 @@
 # AdaptiveGuard AI — Master PRD
+
 **Version:** 1.0 · **Status:** Source of Truth · **Owner:** Architecture Council
 
 This document is the **single source of truth** for AdaptiveGuard AI. Every sprint, ADR, contract, and implementation PR must trace back to a section here. When a downstream document disagrees with the Master PRD, the Master PRD wins until it is explicitly amended.
@@ -7,22 +8,22 @@ This document is the **single source of truth** for AdaptiveGuard AI. Every spri
 
 ## 0. Quick Map
 
-| Domain | Canonical Document | Owner |
-| --- | --- | --- |
-| Product Vision | [§1](#1-product-vision) · Phase 1 transcript | Product |
-| Design System | `src/styles.css` · [§2](#2-design-system) | Design |
-| UI Specifications | Phase 4A–4E plans · [§3](#3-ui-specifications) | Design + FE |
-| Technical Architecture | Phase 5A · [§4](#4-technical-architecture) | Staff Architect |
-| Sprint 0 — Foundations | Phase 5C · [§5](#5-sprint-0--foundations) | DevOps + Tech Lead |
-| Sprint 1 Blueprint | Phase 5D · [§6](#6-sprint-1--identity--behavioral-auth) | All |
-| API Contracts | `docs/api/` · [§7](#7-api-contracts) | Principal BE |
-| Database Design | `docs/db/ERD.md` · [§8](#8-database-design) | DB Architect |
-| ML Pipeline | [§9](#9-ml-pipeline) | ML Architect |
-| Security Model | [§10](#10-security-model) | Security Architect |
-| ADRs | `docs/adr/` | Architecture Council |
-| Engineering Standards | `docs/standards/ENGINEERING.md` | Tech Lead |
-| Component Inventory | `docs/components/INVENTORY.md` | Principal FE |
-| Definition of Ready | `docs/standards/DEFINITION_OF_READY.md` | Tech Lead |
+| Domain                 | Canonical Document                                      | Owner                |
+| ---------------------- | ------------------------------------------------------- | -------------------- |
+| Product Vision         | [§1](#1-product-vision) · Phase 1 transcript            | Product              |
+| Design System          | `src/styles.css` · [§2](#2-design-system)               | Design               |
+| UI Specifications      | Phase 4A–4E plans · [§3](#3-ui-specifications)          | Design + FE          |
+| Technical Architecture | Phase 5A · [§4](#4-technical-architecture)              | Staff Architect      |
+| Sprint 0 — Foundations | Phase 5C · [§5](#5-sprint-0--foundations)               | DevOps + Tech Lead   |
+| Sprint 1 Blueprint     | Phase 5D · [§6](#6-sprint-1--identity--behavioral-auth) | All                  |
+| API Contracts          | `docs/api/` · [§7](#7-api-contracts)                    | Principal BE         |
+| Database Design        | `docs/db/ERD.md` · [§8](#8-database-design)             | DB Architect         |
+| ML Pipeline            | [§9](#9-ml-pipeline)                                    | ML Architect         |
+| Security Model         | [§10](#10-security-model)                               | Security Architect   |
+| ADRs                   | `docs/adr/`                                             | Architecture Council |
+| Engineering Standards  | `docs/standards/ENGINEERING.md`                         | Tech Lead            |
+| Component Inventory    | `docs/components/INVENTORY.md`                          | Principal FE         |
+| Definition of Ready    | `docs/standards/DEFINITION_OF_READY.md`                 | Tech Lead            |
 
 ---
 
@@ -43,17 +44,18 @@ Defined in `src/styles.css`. Canonical tokens: dark navy `#0F172A` background; p
 
 ## 3. UI Specifications
 
-| Phase | Surface | Status |
-| --- | --- | --- |
-| 4A | Banking Dashboard (`/app`) | Implemented |
-| 4B | Banking Module (15 routes under `/app/*`) | Implemented |
-| 4C | AI Security Center (16 routes under `/app/guard/*`) | Implemented |
-| 4D | Enterprise AI-SOC Cockpit (22 routes under `/admin/*`) | Implemented |
-| 4E | Global Design QA + Polish Pass | Director-approved; P0 token unification scheduled before GA |
+| Phase | Surface                                                | Status                                                      |
+| ----- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| 4A    | Banking Dashboard (`/app`)                             | Implemented                                                 |
+| 4B    | Banking Module (15 routes under `/app/*`)              | Implemented                                                 |
+| 4C    | AI Security Center (16 routes under `/app/guard/*`)    | Implemented                                                 |
+| 4D    | Enterprise AI-SOC Cockpit (22 routes under `/admin/*`) | Implemented                                                 |
+| 4E    | Global Design QA + Polish Pass                         | Director-approved; P0 token unification scheduled before GA |
 
 ## 4. Technical Architecture
 
 Per **Phase 5A**:
+
 - **Frontend:** TanStack Start (React 19, Vite 7, Tailwind v4).
 - **Backend:** Python (FastAPI) service mesh — Identity, Banking, Behavior, Decision, Notification, Audit.
 - **Data:** PostgreSQL (OLTP), Redis (sessions/cache), Kafka (events), ClickHouse (telemetry analytics), S3 (cold).

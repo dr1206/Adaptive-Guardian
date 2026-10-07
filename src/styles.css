@@ -19,12 +19,12 @@
 
 @theme inline {
   /* Restrained enterprise radii */
-  --radius: 0.5rem;                        /* 8px base (inputs, buttons) */
-  --radius-sm: 0.375rem;                   /* 6px */
-  --radius-md: 0.5rem;                     /* 8px */
-  --radius-lg: 0.625rem;                   /* 10px — cards */
-  --radius-xl: 0.75rem;                    /* 12px — modals */
-  --radius-2xl: 0.875rem;                  /* 14px */
+  --radius: 0.5rem; /* 8px base (inputs, buttons) */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.625rem; /* 10px — cards */
+  --radius-xl: 0.75rem; /* 12px — modals */
+  --radius-2xl: 0.875rem; /* 14px */
 
   /* Standard professional typography */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -70,11 +70,11 @@
   --color-ring-offset-background: var(--background);
 
   /* Clean charts */
-  --color-chart-1: #0B3A82;
-  --color-chart-2: #2563A6;
-  --color-chart-3: #16845B;
-  --color-chart-4: #B7791F;
-  --color-chart-5: #C53030;
+  --color-chart-1: #0b3a82;
+  --color-chart-2: #2563a6;
+  --color-chart-3: #16845b;
+  --color-chart-4: #b7791f;
+  --color-chart-5: #c53030;
 
   /* Sidebar */
   --color-sidebar: var(--sidebar);
@@ -93,69 +93,69 @@
  */
 :root {
   /* Surfaces */
-  --background: #F5F7FA;
+  --background: #f5f7fa;
   --foreground: #172033;
-  --surface: #FFFFFF;
+  --surface: #ffffff;
   --surface-foreground: #172033;
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #172033;
-  --card-elevated: #FFFFFF;
-  --popover: #FFFFFF;
+  --card-elevated: #ffffff;
+  --popover: #ffffff;
   --popover-foreground: #172033;
 
   /* Brand Primary Blue */
-  --primary: #0B3A82;
-  --primary-foreground: #FFFFFF;
-  --primary-glow: #2563A6;
+  --primary: #0b3a82;
+  --primary-foreground: #ffffff;
+  --primary-glow: #2563a6;
 
-  --secondary: #F0F4F8;
-  --secondary-foreground: #082A5C;
+  --secondary: #f0f4f8;
+  --secondary-foreground: #082a5c;
 
   /* Accent Blue */
-  --accent: #2563A6;
-  --accent-foreground: #FFFFFF;
-  --gold: #0B3A82;
-  --gold-foreground: #FFFFFF;
+  --accent: #2563a6;
+  --accent-foreground: #ffffff;
+  --gold: #0b3a82;
+  --gold-foreground: #ffffff;
 
   /* Muted Text and Backgrounds */
-  --muted: #EEF2F6;
+  --muted: #eef2f6;
   --muted-foreground: #667085;
 
   /* Status Colors */
-  --success: #16845B;
-  --success-foreground: #FFFFFF;
-  --warning: #B7791F;
-  --warning-foreground: #FFFFFF;
-  --danger: #C53030;
-  --danger-foreground: #FFFFFF;
+  --success: #16845b;
+  --success-foreground: #ffffff;
+  --warning: #b7791f;
+  --warning-foreground: #ffffff;
+  --danger: #c53030;
+  --danger-foreground: #ffffff;
 
-  --purple: #0B3A82;
-  --purple-foreground: #FFFFFF;
+  --purple: #0b3a82;
+  --purple-foreground: #ffffff;
 
   /* Borders & Inputs */
-  --border: #D9E1EA;
-  --border-hover: #0B3A82;
-  --input: #D9E1EA;
-  --ring: #0B3A82;
+  --border: #d9e1ea;
+  --border-hover: #0b3a82;
+  --input: #d9e1ea;
+  --ring: #0b3a82;
 
   --text-secondary: #667085;
 
   /* Sidebar */
-  --sidebar: #082A5C;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #082A5C;
-  --sidebar-accent: #0E3670;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #133D7C;
-  --sidebar-ring: #2563A6;
+  --sidebar: #082a5c;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #082a5c;
+  --sidebar-accent: #0e3670;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #133d7c;
+  --sidebar-ring: #2563a6;
 
   /* Gradients replaced with clean solid/subtle variations */
-  --gradient-primary: linear-gradient(180deg, #0B3A82 0%, #082A5C 100%);
-  --gradient-cyber: linear-gradient(180deg, #0B3A82 0%, #082A5C 100%);
-  --gradient-hero: linear-gradient(180deg, #0B3A82 0%, #082A5C 100%);
-  --gradient-gold: linear-gradient(180deg, #0B3A82 0%, #082A5C 100%);
-  --gradient-surface: #FFFFFF;
+  --gradient-primary: linear-gradient(180deg, #0b3a82 0%, #082a5c 100%);
+  --gradient-cyber: linear-gradient(180deg, #0b3a82 0%, #082a5c 100%);
+  --gradient-hero: linear-gradient(180deg, #0b3a82 0%, #082a5c 100%);
+  --gradient-gold: linear-gradient(180deg, #0b3a82 0%, #082a5c 100%);
+  --gradient-surface: #ffffff;
   --gradient-glow: none;
 
   /* Subtle enterprise shadows */
@@ -195,15 +195,32 @@ html {
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     color: #172033;
     font-weight: 600;
   }
 
-  h1 { font-size: 1.75rem; font-weight: 700; line-height: 2.25rem; }
-  h2 { font-size: 1.35rem; font-weight: 600; line-height: 1.75rem; }
-  h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.5rem; }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 2.25rem;
+  }
+  h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+  }
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
 
   .font-numeric,
   [data-numeric] {
@@ -211,8 +228,8 @@ html {
   }
 
   ::selection {
-    background-color: #2563A6;
-    color: #FFFFFF;
+    background-color: #2563a6;
+    color: #ffffff;
   }
 }
 
@@ -221,51 +238,51 @@ html {
  * ============================================================ */
 
 @utility glass-panel {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
 @utility glass-card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
 @utility surface-card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
 @utility card-premium {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
 @utility gradient-primary {
-  background-color: #0B3A82;
+  background-color: #0b3a82;
 }
 
 @utility gradient-hero {
-  background-color: #082A5C;
+  background-color: #082a5c;
 }
 
 @utility gradient-gold {
-  background-color: #0B3A82;
+  background-color: #0b3a82;
 }
 
 @utility gradient-cyber {
-  background-color: #0B3A82;
+  background-color: #0b3a82;
 }
 
 @utility text-gradient {
-  color: #0B3A82;
+  color: #0b3a82;
 }
 
 @utility text-gradient-gold {
-  color: #0B3A82;
+  color: #0b3a82;
 }
 
 @utility shadow-elevated {
@@ -285,7 +302,9 @@ html {
 }
 
 @utility hover-lift {
-  transition: transform var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  transition:
+    transform var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
   &:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
@@ -295,7 +314,9 @@ html {
 @utility ring-focus {
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #0B3A82;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px #0b3a82;
   }
 }
 

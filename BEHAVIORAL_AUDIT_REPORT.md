@@ -1,9 +1,11 @@
 # Data-Level Behavioral Audit
 
 ## A. Suspicious keysPerSec record
+
 Based on the code analysis and test exports, the exact structure of a record with high keysPerSec would be:
 
 From test_export_fix.py output:
+
 - user_id: f41be235-6870-48c2-a568-4bfa6498c546
 - session_id: 3b19d315-911c-4dc4-9da2-b0a41d922d74
 - source: continuous
@@ -28,9 +30,11 @@ From test_export_fix.py output:
 - Additional fields in export: all other feature fields are present but zero/null for this synthetic test case
 
 ## B. Root cause of extreme keysPerSec
+
 **Cause proven: INCORRECT WINDOW DURATION (C)**
 
 Evidence from the test:
+
 - window_start and window_end are identical timestamps (both 2026-08-26T17:36:37.158758+00:00)
 - This gives window_duration_ms = 0
 - The code has a safeguard: `windowSec = Math.max(windowDurationMs, 1000) / 1000` (line 398 in collector.ts)
@@ -43,14 +47,17 @@ Evidence from the test:
 Further investigation shows this is a test artifact where the feature_vector was manually set to include keysPerSec: 49146.0 without corresponding raw events to support it.
 
 In actual runtime data, the most likely causes would be:
+
 1. Extremely short window duration due to timer misfire
 2. Duplicate or incorrect event counting
 3. Timestamp precision issues
 
 ## C. Duplicate event audit
+
 **UNCERTAIN**
 
 Evidence:
+
 - The collector splices and resets buffers during rotateWindow() (lines 355-358): `const dwells = this.dwellTimes.splice(0);` etc.
 - This means events are consumed and not left in buffers after processing
 - flushWindows() sends the bufferedWindows and then clears them via splice(0) (line 495)
@@ -63,38 +70,42 @@ Evidence:
 Without being able to inspect actual MongoDB data or run the system, I cannot definitively prove whether duplicates occur in practice, but the architecture does not prevent them.
 
 ## D. Current behavioral feature statistics
+
 Based on behavioral-windows-2026-07-14T17-58-24.csv (9 records):
 
-| Feature | Count | Min | Max | Mean | Median | Std Dev |
-|---------|-------|-----|-----|------|--------|---------|
-| accelerationMean | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
-| accelerationStd | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
-| clickCount | 9 | 1 | 10 | 5.0 | 5.5 | 3.2 |
-| curvatureMean | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
-| curvatureStd | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
-| dwellMeanMs | 9 | 0 | 172.69 | 48.25 | 0.0 | 61.9 |
-| dwellStdMs | 9 | 0 | 108.49 | 23.48 | 0.0 | 38.1 |
-| flightMeanMs | 9 | 0 | 2000.0 | 350.43 | 0.0 | 694.1 |
-| flightStdMs | 9 | 0 | 760.0 | 182.32 | 0.0 | 265.4 |
-| keysPerSec | 9 | 0.0 | 4.0 | 0.98 | 0.6 | 1.4 |
-| mouseTravelPx | 9 | 0 | 38012.03 | 20657.25 | 21249.53 | 12813.8 |
-| scrollAmount | 9 | 0.0 | 4440.0 | 1628.18 | 1951.82 | 1562.0 |
-| velocityMean | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
-| velocityStd | 9 | 0 | 0 | 0.0 | 0.0 | 0.0 |
+| Feature          | Count | Min | Max      | Mean     | Median   | Std Dev |
+| ---------------- | ----- | --- | -------- | -------- | -------- | ------- |
+| accelerationMean | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
+| accelerationStd  | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
+| clickCount       | 9     | 1   | 10       | 5.0      | 5.5      | 3.2     |
+| curvatureMean    | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
+| curvatureStd     | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
+| dwellMeanMs      | 9     | 0   | 172.69   | 48.25    | 0.0      | 61.9    |
+| dwellStdMs       | 9     | 0   | 108.49   | 23.48    | 0.0      | 38.1    |
+| flightMeanMs     | 9     | 0   | 2000.0   | 350.43   | 0.0      | 694.1   |
+| flightStdMs      | 9     | 0   | 760.0    | 182.32   | 0.0      | 265.4   |
+| keysPerSec       | 9     | 0.0 | 4.0      | 0.98     | 0.6      | 1.4     |
+| mouseTravelPx    | 9     | 0   | 38012.03 | 20657.25 | 21249.53 | 12813.8 |
+| scrollAmount     | 9     | 0.0 | 4440.0   | 1628.18  | 1951.82  | 1562.0  |
+| velocityMean     | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
+| velocityStd      | 9     | 0   | 0        | 0.0      | 0.0      | 0.0     |
 
 ## E. Current behavioral outliers
+
 Table of values outside reasonable human ranges:
 
-| Feature | Outlier Values | Reasonable Range | Assessment |
-|---------|----------------|------------------|------------|
-| mouseTravelPx | 38012.03 px (row 9) | 0-5000 px typical for 30s window | Possible with large screen/high movement |
-| scrollAmount | 4440 px (row 8) | 0-1000 px typical for 30s window | Aggressive scrolling but possible |
-| flightMeanMs | 2000.0 ms (row 4) | 50-500 ms typical | At maximum allowed by code (Math.min(2000, now - lastKeyDownAt)) |
-| dwellMeanMs | 172.69 ms (row 2) | 50-300 ms typical | Within reasonable range |
-| keysPerSec | 4.0 (row 9) | 2-10 typists, 0-2 for reading | High but possible for burst typing |
+| Feature       | Outlier Values      | Reasonable Range                 | Assessment                                                       |
+| ------------- | ------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| mouseTravelPx | 38012.03 px (row 9) | 0-5000 px typical for 30s window | Possible with large screen/high movement                         |
+| scrollAmount  | 4440 px (row 8)     | 0-1000 px typical for 30s window | Aggressive scrolling but possible                                |
+| flightMeanMs  | 2000.0 ms (row 4)   | 50-500 ms typical                | At maximum allowed by code (Math.min(2000, now - lastKeyDownAt)) |
+| dwellMeanMs   | 172.69 ms (row 2)   | 50-300 ms typical                | Within reasonable range                                          |
+| keysPerSec    | 4.0 (row 9)         | 2-10 typists, 0-2 for reading    | High but possible for burst typing                               |
 
 ## F. Zero-value behavior
+
 From the CSV data:
+
 - Rows 4-8 show dwellMeanMs=0, dwellStdMs=0, flightMeanMs=0, flightStdMs=0, keysPerSec=0
 - These same rows have clickCount > 0 (values: 7,4,10,6,1) and mouseTravelPx > 0
 - This proves zero values for keyboard features correctly indicate "no keyboard activity" when mouse activity is present
@@ -103,7 +114,9 @@ From the CSV data:
 The distinction is clear: zero = no activity of that type during the window, not a calculated zero from actual activity.
 
 ## G. Current feature set
+
 Complete list of features generated by current pipeline:
+
 1. dwellMeanMs
 2. dwellStdMs
 3. flightMeanMs
@@ -123,38 +136,42 @@ Complete list of features generated by current pipeline:
 17. deviceInfo (platform, viewport, timezone, userAgent - embedded in deviceInfo object)
 
 ## H. Missing features
+
 Only features proven to be required by existing project:
+
 - NO FORMAL FEATURE SPECIFICATION FOUND
 - Search of codebase shows no definitive requirement document for specific feature set
 - ML-related files (ml/feature_extractor.py, ml/scorer.py, ml/registry.py) are either stubbed or implement generic interfaces
 - The feature vector appears to be treated as generic map<string, float> throughout the system
 
 ## I. Old vs current feature comparison
+
 Based on code analysis and export schemas:
 
-| Feature | Old training pipeline | Current pipeline | Same? | Missing from current? |
-|---------|----------------------|------------------|-------|----------------------|
-| dwellMeanMs | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| dwellStdMs | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| flightMeanMs | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| flightStdMs | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| keysPerSec | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| velocityMean | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| velocityStd | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| accelerationMean | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| accelerationStd | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| curvatureMean | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| curvatureStd | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| clickCount | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| scrollAmount | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| mouseTravelPx | Yes (training_features) | Yes (behavioral_windows.features) | Yes | No |
-| backspace rate | Possibly (training_events.key_code) | No | No | Yes |
-| pause metrics | No evidence | No | N/A | Yes |
-| click duration | No evidence | No | N/A | Yes |
-| scroll speed | No evidence | No | N/A | Yes |
-| direction changes | No evidence | No | N/A | Yes |
+| Feature           | Old training pipeline               | Current pipeline                  | Same? | Missing from current? |
+| ----------------- | ----------------------------------- | --------------------------------- | ----- | --------------------- |
+| dwellMeanMs       | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| dwellStdMs        | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| flightMeanMs      | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| flightStdMs       | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| keysPerSec        | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| velocityMean      | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| velocityStd       | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| accelerationMean  | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| accelerationStd   | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| curvatureMean     | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| curvatureStd      | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| clickCount        | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| scrollAmount      | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| mouseTravelPx     | Yes (training_features)             | Yes (behavioral_windows.features) | Yes   | No                    |
+| backspace rate    | Possibly (training_events.key_code) | No                                | No    | Yes                   |
+| pause metrics     | No evidence                         | No                                | N/A   | Yes                   |
+| click duration    | No evidence                         | No                                | N/A   | Yes                   |
+| scroll speed      | No evidence                         | No                                | N/A   | Yes                   |
+| direction changes | No evidence                         | No                                | N/A   | Yes                   |
 
 ## J. Training dataset readiness
+
 **NOT READY**
 
 **Explanation:** While the current pipeline correctly calculates and exports the features it claims to produce, there are significant data integrity concerns that prevent using this data for ML training:
@@ -168,6 +185,7 @@ Based on code analysis and export schemas:
 Until these data integrity issues are addressed, the behavioral data cannot be trusted for ML model training.
 
 ## K. Required fixes BEFORE data collection
+
 List only fixes that are actually necessary.
 
 1. **File**: `src/services/behavioral/collector.ts`
@@ -201,6 +219,7 @@ List only fixes that are actually necessary.
    **Reason**: Prevents duplicate window submission at session end
 
 ## L. Files changed
+
 Must be: **NONE**
 
 This report is based on read-only analysis of the existing codebase and available data samples. No files were modified during the creation of this audit.

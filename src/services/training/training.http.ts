@@ -56,8 +56,11 @@ export const httpTrainingService: TrainingService = {
   },
 
   async enrollProfile(): Promise<{ status: string; message: string; samples_used?: number }> {
-    return httpRequest<{ status: string; message: string; samples_used?: number }>("/training/profile/enroll", {
-      method: "POST",
-    });
+    return httpRequest<{ status: string; message: string; samples_used?: number }>(
+      "/training/profile/enroll",
+      {
+        method: "POST",
+      },
+    );
   },
 };

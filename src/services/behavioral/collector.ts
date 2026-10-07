@@ -219,10 +219,9 @@ export class BehavioralCollector {
       this.flushWindows();
     }, FLUSH_INTERVAL_MS);
 
-    console.debug(
-      "[BehavioralCollector] Started — capturing keystroke dynamics & mouse dynamics",
-      { deviceInfo: this.getDeviceInfo() },
-    );
+    console.debug("[BehavioralCollector] Started — capturing keystroke dynamics & mouse dynamics", {
+      deviceInfo: this.getDeviceInfo(),
+    });
   }
 
   stop(): FeatureWindow[] {
@@ -267,7 +266,9 @@ export class BehavioralCollector {
 
   getStatus(): CollectorStatus {
     const nowWall = Date.now();
-    const elapsedMs = this.currentWindowStartWall ? Math.max(0, nowWall - this.currentWindowStartWall) : 0;
+    const elapsedMs = this.currentWindowStartWall
+      ? Math.max(0, nowWall - this.currentWindowStartWall)
+      : 0;
     const elapsedSec = Math.floor(elapsedMs / 1000);
     const durationSec = BEHAVIOR_WINDOW_SECONDS;
     const remainingSec = Math.max(0, durationSec - (elapsedSec % durationSec));
@@ -338,7 +339,9 @@ export class BehavioralCollector {
     this.verificationScrolls = [];
     this.verificationMouseTravelPx = 0;
 
-    console.debug(`[BehavioralCollector] Started new verification window ${windowId} (attempt: ${attemptId})`);
+    console.debug(
+      `[BehavioralCollector] Started new verification window ${windowId} (attempt: ${attemptId})`,
+    );
     return windowId;
   }
 
@@ -364,16 +367,7 @@ export class BehavioralCollector {
   /**
    * Get telemetry progress for active verification window.
    */
-  getVerificationProgress(): {
-    attemptId: string;
-    windowId: string;
-    keystrokes: number;
-    mouseMoves: number;
-    clicks: number;
-    mouseTravelPx: number;
-    durationSec: number;
-    isReady: boolean;
-  } | null {
+  getVerificationProgress(): VerificationProgress | null {
     if (!this.verificationAttemptId) return null;
     const nowWall = Date.now();
     return {
@@ -386,7 +380,7 @@ export class BehavioralCollector {
       mouseTravelPx: Math.round(this.verificationMouseTravelPx),
       durationSec: Math.max(0, Math.floor((nowWall - this.verificationStartedAt) / 1000)),
       isReady: this.isVerificationReady(),
-    } as any;
+    };
   }
 
   /**
@@ -408,7 +402,8 @@ export class BehavioralCollector {
     const scrolls = [...this.verificationScrolls];
     const mouseSnapshot = [...this.verificationMouseSamples];
     const mouseTravelPx = this.verificationMouseTravelPx;
-    const windowId = this.verificationWindowId || `verif-${this.verificationAttemptId}-${windowStart}`;
+    const windowId =
+      this.verificationWindowId || `verif-${this.verificationAttemptId}-${windowStart}`;
 
     const features = this.computeFeatures(
       dwells,
@@ -516,7 +511,9 @@ export class BehavioralCollector {
 
   private handleKeyUp(e: KeyboardEvent): void {
     const downAt = this.keyDownTimes.get(e.keyCode);
-    const vDownAt = this.verificationAttemptId ? this.verificationKeyDownTimes.get(e.keyCode) : null;
+    const vDownAt = this.verificationAttemptId
+      ? this.verificationKeyDownTimes.get(e.keyCode)
+      : null;
 
     const now = performance.now();
     if (downAt != null) {
@@ -650,7 +647,7 @@ export class BehavioralCollector {
 
   private rotateWindow(): void {
     const nowWall = Date.now();
-    const windowStart = this.currentWindowStartWall || (nowWall - FLUSH_INTERVAL_MS);
+    const windowStart = this.currentWindowStartWall || nowWall - FLUSH_INTERVAL_MS;
     const windowEnd = Math.max(nowWall, windowStart + 100);
     const windowDurationMs = windowEnd - windowStart;
 
@@ -712,7 +709,7 @@ export class BehavioralCollector {
     mouseSamples: MouseMoveSample[],
     windowDurationMs: number,
     mouseTravelPx: number,
-  ): Omit<FeatureWindow, "windowStart" | "windowEnd" | "deviceInfo"> {
+  ): Omit<FeatureWindow, "windowId" | "windowStart" | "windowEnd" | "deviceInfo"> {
     const dwellMean = dwells.length ? mean(dwells) : 0;
     const dwellStd = dwells.length > 1 ? std(dwells, dwellMean) : 0;
     const flightMean = flights.length ? mean(flights) : 0;
@@ -855,7 +852,7 @@ function mean(values: number[]): number {
 }
 
 function std(values: number[], avg: number): number {
-  const variance = values.reduce((s, v) => (s + (v - avg) ** 2), 0) / values.length;
+  const variance = values.reduce((s, v) => s + (v - avg) ** 2, 0) / values.length;
   return Math.sqrt(variance);
 }
 

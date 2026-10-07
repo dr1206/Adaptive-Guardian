@@ -16,17 +16,18 @@ function ProfilePage() {
 
   return (
     <div>
-      <PageHeader
-        eyebrow="Account"
-        title="Profile"
-        subtitle="Your participant information."
-      />
+      <PageHeader eyebrow="Account" title="Profile" subtitle="Your participant information." />
 
       <div className="mx-auto mt-8 max-w-lg">
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-6">
           <div className="flex items-center gap-4">
             <span className="grid h-16 w-16 place-items-center rounded-full bg-accent/20 text-[22px] font-semibold text-accent">
-              {displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+              {displayName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
             </span>
             <div>
               <h2 className="font-display text-[20px] font-semibold">{displayName}</h2>
@@ -46,9 +47,9 @@ function ProfilePage() {
             <div className="flex items-start gap-3">
               <Shield size={20} live />
               <div className="text-[12px] leading-relaxed text-muted-foreground">
-                <span className="text-foreground">Privacy note:</span> This profile stores
-                only research-participant metadata. No Aadhaar, PAN, or sensitive financial
-                information is collected or stored.
+                <span className="text-foreground">Privacy note:</span> This profile stores only
+                research-participant metadata. No Aadhaar, PAN, or sensitive financial information
+                is collected or stored.
               </div>
             </div>
           </div>

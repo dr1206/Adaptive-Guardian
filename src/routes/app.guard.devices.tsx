@@ -35,7 +35,9 @@ function Devices() {
           <button className="grid min-h-[240px] place-items-center rounded-xl border border-dashed border-border bg-muted/20 text-muted-foreground transition-all hover:border-primary/40 hover:bg-muted/30 hover:text-foreground">
             <div className="text-center">
               <Plus className="mx-auto h-6 w-6 text-primary" />
-              <div className="mt-2 text-[13px] font-semibold text-foreground">Register a new device</div>
+              <div className="mt-2 text-[13px] font-semibold text-foreground">
+                Register a new device
+              </div>
               <div className="mt-1 text-[11.5px] text-muted-foreground">
                 Biometric profile will learn your rhythm seamlessly.
               </div>

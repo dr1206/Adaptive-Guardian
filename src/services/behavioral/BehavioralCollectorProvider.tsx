@@ -40,13 +40,7 @@ function getDeviceId(): string | undefined {
 }
 
 export type VerificationState =
-  | "IDLE"
-  | "COLLECTING"
-  | "READY_FOR_VERIFICATION"
-  | "VERIFYING"
-  | "SUCCESS"
-  | "FAILED"
-  | "ERROR";
+  "IDLE" | "COLLECTING" | "READY_FOR_VERIFICATION" | "VERIFYING" | "SUCCESS" | "FAILED" | "ERROR";
 
 export interface VerificationSessionStatus {
   state: VerificationState;
@@ -249,16 +243,10 @@ function isExportMode(): boolean {
     return true;
   }
 
-  return new URLSearchParams(window.location.search).has(
-    "export-behavioral",
-  );
+  return new URLSearchParams(window.location.search).has("export-behavioral");
 }
 
-export function BehavioralCollectorProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function BehavioralCollectorProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<CollectorStatus>(initialCollectorStatus);
 
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -277,16 +265,15 @@ export function BehavioralCollectorProvider({
   // Mutable snapshot of the latest authentication so dismissWarning() can
   // capture the current fused score without stale-closure bugs.
   const authenticationRef = useRef<BehavioralAuthenticationState | null>(null);
-  const [authentication, setAuthenticationState] =
-    useState<BehavioralAuthenticationState | null>(null);
+  const [authentication, setAuthenticationState] = useState<BehavioralAuthenticationState | null>(
+    null,
+  );
   const setAuthentication = useCallback(
     (
       value:
         | BehavioralAuthenticationState
         | null
-        | ((
-            prev: BehavioralAuthenticationState | null,
-          ) => BehavioralAuthenticationState | null),
+        | ((prev: BehavioralAuthenticationState | null) => BehavioralAuthenticationState | null),
     ) => {
       setAuthenticationState((prev) => {
         const next =
@@ -346,25 +333,16 @@ export function BehavioralCollectorProvider({
       if (result.decision !== "WARN") {
         setDismissedWarnScore(null);
       } else {
-        setDismissedWarnScore((prev) =>
-          prev === result.fusedScore ? prev : null,
-        );
+        setDismissedWarnScore((prev) => (prev === result.fusedScore ? prev : null));
       }
       // Any NEW backend result re-arms a previously cleared CHALLENGE: the
       // modal only stays closed while clearance is newer than the latest
       // result (compared by timestamp in the sentinel component).
-      console.debug(
-        "[BehavioralML] Authentication result:",
-        result,
-      );
+      console.debug("[BehavioralML] Authentication result:", result);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Authentication failed";
+      const message = error instanceof Error ? error.message : "Authentication failed";
       setLastError(message);
-      console.warn(
-        "[BehavioralML] Authentication request failed:",
-        error,
-      );
+      console.warn("[BehavioralML] Authentication request failed:", error);
     } finally {
       inFlightRef.current = Math.max(0, inFlightRef.current - 1);
       if (inFlightRef.current === 0) setIsAuthenticating(false);
@@ -383,14 +361,9 @@ export function BehavioralCollectorProvider({
       const deviceId = getDeviceId();
 
       // Preserve the existing behavioral data collection pipeline.
-      await services.aegis
-        .submitBatch?.(windows, sessionId, deviceId)
-        ?.catch((error) => {
-          console.warn(
-            "[BehavioralCollector] Backend batch submission failed:",
-            error,
-          );
-        });
+      await services.aegis.submitBatch?.(windows, sessionId, deviceId)?.catch((error) => {
+        console.warn("[BehavioralCollector] Backend batch submission failed:", error);
+      });
 
       // Run behavioral ML authentication for each feature window.
       //
@@ -477,7 +450,8 @@ export function BehavioralCollectorProvider({
     if (current) setDismissedWarnScore(current.fusedScore);
   }, []);
 
-  const [verification, setVerification] = useState<VerificationSessionStatus>(initialVerificationStatus);
+  const [verification, setVerification] =
+    useState<VerificationSessionStatus>(initialVerificationStatus);
   const verificationInProgressRef = useRef(false);
 
   /**
@@ -502,7 +476,9 @@ export function BehavioralCollectorProvider({
       lastFusedScore: null,
     });
 
-    console.debug(`[BehavioralVerification] Started attempt ${attemptId} on fresh window ${windowId}`);
+    console.debug(
+      `[BehavioralVerification] Started attempt ${attemptId} on fresh window ${windowId}`,
+    );
     return attemptId;
   }, []);
 
@@ -534,7 +510,8 @@ export function BehavioralCollectorProvider({
       setVerification((prev) => ({
         ...prev,
         state: "COLLECTING",
-        error: "Keep interacting naturally. We need a little more behavioral data to complete verification.",
+        error:
+          "Keep interacting naturally. We need a little more behavioral data to complete verification.",
       }));
       return false;
     }
@@ -557,10 +534,13 @@ export function BehavioralCollectorProvider({
     }));
 
     try {
-      console.debug(`[BehavioralVerification] Submitting fresh window ${featureWindow.windowId} to ML models...`, {
-        keys: featureWindow.dwellMeanMs,
-        travel: featureWindow.mouseTravelPx,
-      });
+      console.debug(
+        `[BehavioralVerification] Submitting fresh window ${featureWindow.windowId} to ML models...`,
+        {
+          keys: featureWindow.dwellMeanMs,
+          travel: featureWindow.mouseTravelPx,
+        },
+      );
 
       const result = await services.security.behavioralAuthenticate({
         dwellMeanMs: featureWindow.dwellMeanMs,
@@ -612,7 +592,8 @@ export function BehavioralCollectorProvider({
         return false;
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Verification service could not process request.";
+      const msg =
+        err instanceof Error ? err.message : "Verification service could not process request.";
       console.error("[BehavioralVerification] Verification API error:", err);
       setVerification((prev) => ({
         ...prev,

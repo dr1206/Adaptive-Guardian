@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, MousePointer2, RefreshCw, RotateCcw, ShieldCheck, Sparkles, Type } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  MousePointer2,
+  RefreshCw,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Type,
+} from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { cn } from "@/lib/utils";
 import {
@@ -49,10 +58,30 @@ const MOUSE_TARGETS = [
 type TaskId = "controlled" | "repeated" | "paragraph" | "mouse";
 
 const TASKS: { id: TaskId; label: string; icon: typeof Type; description: string }[] = [
-  { id: "controlled", label: "Typing Practice", icon: Type, description: "Type a few short sentences." },
-  { id: "repeated", label: "Consistency Check", icon: Type, description: "Type the same phrase a few times." },
-  { id: "paragraph", label: "Paragraph Typing", icon: Type, description: "Type a longer paragraph naturally." },
-  { id: "mouse", label: "Mouse Exercise", icon: MousePointer2, description: "Move and click through targets." },
+  {
+    id: "controlled",
+    label: "Typing Practice",
+    icon: Type,
+    description: "Type a few short sentences.",
+  },
+  {
+    id: "repeated",
+    label: "Consistency Check",
+    icon: Type,
+    description: "Type the same phrase a few times.",
+  },
+  {
+    id: "paragraph",
+    label: "Paragraph Typing",
+    icon: Type,
+    description: "Type a longer paragraph naturally.",
+  },
+  {
+    id: "mouse",
+    label: "Mouse Exercise",
+    icon: MousePointer2,
+    description: "Move and click through targets.",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -85,14 +114,13 @@ function getDeviceId(): string {
   }
 }
 
-
 function getPage(): string {
   return window.location.pathname;
 }
 
 function isSafeChar(key: string): boolean {
   // Only store letters, digits, space, punctuation — never passwords/PINs
-  return /^[a-zA-Z0-9 .,!?;:'"()\-]$/.test(key);
+  return /^[a-zA-Z0-9 .,!?;:'"()-]$/.test(key);
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +150,10 @@ function round(v: number, decimals = 2): number {
 function TrainingPage() {
   const [activeTask, setActiveTask] = useState<TaskId | null>(null);
   const [completedTasks, setCompletedTasks] = useState<Set<TaskId>>(new Set());
-  const [bannerMessage, setBannerMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
+  const [bannerMessage, setBannerMessage] = useState<{
+    type: "success" | "error" | "info";
+    text: string;
+  } | null>(null);
   const { data: progress } = useTrainingProgress();
   const resetMutation = useResetTrainingProfile();
   const enrollMutation = useEnrollTrainingProfile();
@@ -137,24 +168,40 @@ function TrainingPage() {
   }, []);
 
   const handleReset = async () => {
-    if (!window.confirm("Are you sure you want to reset your baseline profile? This will wipe previous behavioral records and let you collect fresh authentic biometrics.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to reset your baseline profile? This will wipe previous behavioral records and let you collect fresh authentic biometrics.",
+      )
+    ) {
       return;
     }
     try {
       const res = await resetMutation.mutateAsync();
       setCompletedTasks(new Set());
-      setBannerMessage({ type: "info", text: res.message || "Baseline profile reset. You can now start fresh data collection." });
-    } catch (err: any) {
-      setBannerMessage({ type: "error", text: err.message || "Failed to reset profile." });
+      setBannerMessage({
+        type: "info",
+        text: res.message || "Baseline profile reset. You can now start fresh data collection.",
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to reset profile.";
+      setBannerMessage({ type: "error", text: msg });
     }
   };
 
   const handleEnroll = async () => {
     try {
       const res = await enrollMutation.mutateAsync();
-      setBannerMessage({ type: "success", text: res.message || "Your authentic baseline profile is now locked in and active!" });
-    } catch (err: any) {
-      setBannerMessage({ type: "error", text: err.message || "Enrollment failed. Please collect more samples." });
+      setBannerMessage({
+        type: "success",
+        text: res.message || "Your authentic baseline profile is now locked in and active!",
+      });
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Enrollment failed. Please collect more samples.";
+      setBannerMessage({
+        type: "error",
+        text: msg,
+      });
     }
   };
 
@@ -196,7 +243,8 @@ function TrainingPage() {
         <div
           className={cn(
             "mb-4 flex items-center justify-between rounded-xl border p-3.5 text-xs transition-all",
-            bannerMessage.type === "success" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+            bannerMessage.type === "success" &&
+              "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
             bannerMessage.type === "error" && "border-red-500/30 bg-red-500/10 text-red-300",
             bannerMessage.type === "info" && "border-blue-500/30 bg-blue-500/10 text-blue-300",
           )}
@@ -215,10 +263,12 @@ function TrainingPage() {
       <div className="mb-8 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 flex-1">
-            <span className={cn(
-              "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
-              isEnrolled ? "bg-emerald-500/20 text-emerald-400" : "bg-blue-500/20 text-blue-400"
-            )}>
+            <span
+              className={cn(
+                "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+                isEnrolled ? "bg-emerald-500/20 text-emerald-400" : "bg-blue-500/20 text-blue-400",
+              )}
+            >
               <ShieldCheck className="h-5 w-5" />
             </span>
             <div className="flex-1">
@@ -232,15 +282,21 @@ function TrainingPage() {
                         ? "Collecting fresh behavioral data..."
                         : "Fresh Data Collection Mode — Complete exercises below."}
                 </span>
-                <span className={cn(
-                  "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-                  isEnrolled ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                )}>
+                <span
+                  className={cn(
+                    "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                    isEnrolled
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      : "bg-amber-500/20 text-amber-300 border border-amber-500/30",
+                  )}
+                >
                   {isEnrolled ? "Enrolled" : "Collecting"}
                 </span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground flex items-center gap-3">
-                <span>{completedTasks.size} of {TASKS.length} training exercises completed</span>
+                <span>
+                  {completedTasks.size} of {TASKS.length} training exercises completed
+                </span>
                 <span>•</span>
                 <span>{samplesCount} fresh samples recorded</span>
               </div>
@@ -889,7 +945,9 @@ function MouseTrackingTask({ onComplete }: TypingTaskProps) {
     };
   }, []);
 
-  const [targetPositions, setTargetPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [targetPositions, setTargetPositions] = useState<Record<string, { x: number; y: number }>>(
+    {},
+  );
   const areaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1238,7 +1296,11 @@ function MouseTrackingTask({ onComplete }: TypingTaskProps) {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-[18px] font-semibold">Mouse Exercise</h2>
         <span className="text-[11px] text-muted-foreground">
-          {finished ? "Completed" : started ? `Target ${currentTarget + 1} of ${MOUSE_TARGETS.length}` : "Ready"}
+          {finished
+            ? "Completed"
+            : started
+              ? `Target ${currentTarget + 1} of ${MOUSE_TARGETS.length}`
+              : "Ready"}
         </span>
       </div>
 
@@ -1325,7 +1387,9 @@ function MouseTrackingTask({ onComplete }: TypingTaskProps) {
                       : "bg-amber-500/15 text-amber-300",
                   )}
                 >
-                  {feedback.kind === "hit" ? "✓ Target hit!" : "Missed — click the highlighted target"}
+                  {feedback.kind === "hit"
+                    ? "✓ Target hit!"
+                    : "Missed — click the highlighted target"}
                 </span>
               </div>
             )}

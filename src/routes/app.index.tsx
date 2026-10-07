@@ -28,7 +28,12 @@ const QUICK_ACTIONS = [
   { label: "Transfer Funds", desc: "IMPS / NEFT / RTGS", icon: Send, to: "/app/transfer" },
   { label: "Manage Accounts", desc: "Savings & Checking", icon: Wallet, to: "/app/accounts" },
   { label: "Cards Management", desc: "Debit & Credit Cards", icon: CreditCard, to: "/app/cards" },
-  { label: "Account Statement", desc: "Detailed records", icon: ListOrdered, to: "/app/transactions" },
+  {
+    label: "Account Statement",
+    desc: "Detailed records",
+    icon: ListOrdered,
+    to: "/app/transactions",
+  },
 ];
 
 function DashboardPage() {
@@ -54,11 +59,10 @@ function DashboardPage() {
           <span className="text-xs font-semibold text-[#2563A6] uppercase tracking-wider">
             Internet Banking Portal
           </span>
-          <h1 className="text-2xl font-bold text-[#082A5C] mt-1">
-            Welcome back, {displayName}
-          </h1>
+          <h1 className="text-2xl font-bold text-[#082A5C] mt-1">Welcome back, {displayName}</h1>
           <p className="text-sm text-[#667085] mt-1">
-            Your account is actively protected by Adaptive Guardian continuous behavioral authentication.
+            Your account is actively protected by Adaptive Guardian continuous behavioral
+            authentication.
           </p>
         </div>
 
@@ -77,9 +81,7 @@ function DashboardPage() {
             <div className="text-sm font-semibold text-[#172033] mt-0.5">
               Behavioral Match: {confPercent}%
             </div>
-            <div className="text-xs text-[#667085]">
-              Continuous keystroke & mouse dynamics
-            </div>
+            <div className="text-xs text-[#667085]">Continuous keystroke & mouse dynamics</div>
           </div>
           <Link
             to="/app/guard"
@@ -164,9 +166,7 @@ function DashboardPage() {
 
       {/* Quick Banking Actions */}
       <div>
-        <h2 className="text-base font-bold text-[#082A5C] mb-4">
-          Quick Banking Services
-        </h2>
+        <h2 className="text-base font-bold text-[#082A5C] mb-4">Quick Banking Services</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
@@ -183,9 +183,7 @@ function DashboardPage() {
                   <div className="text-sm font-semibold text-[#172033] group-hover:text-[#0B3A82]">
                     {action.label}
                   </div>
-                  <div className="text-xs text-[#667085] mt-0.5">
-                    {action.desc}
-                  </div>
+                  <div className="text-xs text-[#667085] mt-0.5">{action.desc}</div>
                 </div>
               </Link>
             );
@@ -197,9 +195,7 @@ function DashboardPage() {
       <div className="bg-white rounded-lg border border-[#D9E1EA] shadow-xs overflow-hidden">
         <div className="p-5 border-b border-[#D9E1EA] flex justify-between items-center">
           <div>
-            <h2 className="text-base font-bold text-[#082A5C]">
-              Recent Account Activity
-            </h2>
+            <h2 className="text-base font-bold text-[#082A5C]">Recent Account Activity</h2>
             <p className="text-xs text-[#667085] mt-0.5">
               Live ledger entries verified under continuous session protection
             </p>
@@ -229,12 +225,8 @@ function DashboardPage() {
                   <td className="py-3.5 px-5 text-xs text-[#667085] whitespace-nowrap">
                     {tx.time}
                   </td>
-                  <td className="py-3.5 px-5 font-medium text-[#172033]">
-                    {tx.merchant}
-                  </td>
-                  <td className="py-3.5 px-5 text-xs text-[#667085]">
-                    {tx.category}
-                  </td>
+                  <td className="py-3.5 px-5 font-medium text-[#172033]">{tx.merchant}</td>
+                  <td className="py-3.5 px-5 text-xs text-[#667085]">{tx.category}</td>
                   <td className="py-3.5 px-5 text-xs">
                     <span
                       className={cn(

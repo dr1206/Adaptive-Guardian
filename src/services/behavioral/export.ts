@@ -26,7 +26,9 @@ function loadDataset(): StoredDataset {
       const parsed = JSON.parse(raw) as StoredDataset;
       if (Array.isArray(parsed.sessions)) return parsed;
     }
-  } catch { /* corrupted */ }
+  } catch {
+    /* corrupted */
+  }
   return { exportedAt: new Date().toISOString(), sessions: [] };
 }
 
@@ -36,7 +38,9 @@ function saveDataset(ds: StoredDataset): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ds));
   } catch (e) {
     if (e instanceof DOMException && e.name === "QuotaExceededError") {
-      console.warn("[BehavioralExport] localStorage full — export and clear before collecting more");
+      console.warn(
+        "[BehavioralExport] localStorage full — export and clear before collecting more",
+      );
     }
   }
 }
@@ -60,7 +64,9 @@ export function getStoredDataset(): StoredDataset {
 export function clearStoredDataset(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
 /** Number of sessions and total windows currently stored. */
@@ -95,10 +101,7 @@ function downloadBlob(content: string, filename: string, mime: string): void {
  * Downloads feature windows as a JSON file — ready for ML training.
  * Each window is one training sample with all extracted features.
  */
-export function downloadAsJson(
-  windows: FeatureWindow[],
-  label?: string,
-): void {
+export function downloadAsJson(windows: FeatureWindow[], label?: string): void {
   const records = windows.map((w) => ({
     dwellMeanMs: w.dwellMeanMs,
     dwellStdMs: w.dwellStdMs,
@@ -121,31 +124,57 @@ export function downloadAsJson(
   }));
 
   const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  downloadBlob(JSON.stringify(records, null, 2), `behavioral-windows-${ts}.json`, "application/json");
+  downloadBlob(
+    JSON.stringify(records, null, 2),
+    `behavioral-windows-${ts}.json`,
+    "application/json",
+  );
 }
 
 /**
  * Downloads feature windows as CSV — one row per window.
  * Compatible with pandas, scikit-learn, etc.
  */
-export function downloadAsCsv(
-  windows: FeatureWindow[],
-  label?: string,
-): void {
+export function downloadAsCsv(windows: FeatureWindow[], label?: string): void {
   const header = [
-    "dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs",
-    "keysPerSec", "velocityMean", "velocityStd", "accelerationMean",
-    "accelerationStd", "curvatureMean", "curvatureStd", "clickCount",
-    "scrollAmount", "mouseTravelPx", "windowDurationMs", "platform",
-    "viewport", "userLabel",
+    "dwellMeanMs",
+    "dwellStdMs",
+    "flightMeanMs",
+    "flightStdMs",
+    "keysPerSec",
+    "velocityMean",
+    "velocityStd",
+    "accelerationMean",
+    "accelerationStd",
+    "curvatureMean",
+    "curvatureStd",
+    "clickCount",
+    "scrollAmount",
+    "mouseTravelPx",
+    "windowDurationMs",
+    "platform",
+    "viewport",
+    "userLabel",
   ];
 
   const rows = windows.map((w) => [
-    w.dwellMeanMs, w.dwellStdMs, w.flightMeanMs, w.flightStdMs,
-    w.keysPerSec, w.velocityMean, w.velocityStd, w.accelerationMean,
-    w.accelerationStd, w.curvatureMean, w.curvatureStd, w.clickCount,
-    w.scrollAmount, w.mouseTravelPx, w.windowEnd - w.windowStart,
-    `"${w.deviceInfo.platform}"`, `"${w.deviceInfo.viewport}"`,
+    w.dwellMeanMs,
+    w.dwellStdMs,
+    w.flightMeanMs,
+    w.flightStdMs,
+    w.keysPerSec,
+    w.velocityMean,
+    w.velocityStd,
+    w.accelerationMean,
+    w.accelerationStd,
+    w.curvatureMean,
+    w.curvatureStd,
+    w.clickCount,
+    w.scrollAmount,
+    w.mouseTravelPx,
+    w.windowEnd - w.windowStart,
+    `"${w.deviceInfo.platform}"`,
+    `"${w.deviceInfo.viewport}"`,
     label ?? "",
   ]);
 
@@ -190,7 +219,11 @@ export function downloadFullDataset(): void {
 
   const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   downloadBlob(
-    JSON.stringify({ exportedAt: new Date().toISOString(), sessions: ds.sessions.length, windows: flat }, null, 2),
+    JSON.stringify(
+      { exportedAt: new Date().toISOString(), sessions: ds.sessions.length, windows: flat },
+      null,
+      2,
+    ),
     `behavioral-dataset-${ts}.json`,
     "application/json",
   );

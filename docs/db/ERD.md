@@ -119,22 +119,22 @@ All collections live in the `adaptive_guardian` database. MongoDB Atlas handles 
 
 ## Indexes
 
-| Collection | Index | Reason |
-|---|---|---|
-| `users` | `{ email: 1 }` unique | Lookup, uniqueness |
-| `users` | `{ roles: 1 }` | Admin user queries |
-| `sessions` | `{ refresh_token_hash: 1 }` | Refresh rotation |
-| `sessions` | `{ user_id: 1, revoked: 1 }` | Active sessions |
-| `sessions` | `{ expires_at: 1 }` TTL | Auto-expire sessions |
-| `otp_challenges` | `{ user_id: 1, purpose: 1 }` | Latest unconsumed lookup |
-| `otp_challenges` | `{ expires_at: 1 }` TTL | Auto-purge |
-| `behavior_baselines` | `{ user_id: 1 }` unique | One baseline per user |
-| `behavior_windows` | `{ session_id: 1, window_start: -1 }` | Recent windows |
-| `behavior_windows` | `{ created_at: 1 }` TTL | Retention policy |
-| `decisions` | `{ session_id: 1, evaluated_at: -1 }` | Session timeline |
-| `device_profiles` | `{ user_id: 1, fingerprint: 1 }` unique | Dedup devices |
-| `audit_events` | `{ occurred_at: -1 }` | Audit scans |
-| `audit_events` | `{ actor_id: 1, occurred_at: -1 }` | Per-actor audit |
+| Collection           | Index                                   | Reason                   |
+| -------------------- | --------------------------------------- | ------------------------ |
+| `users`              | `{ email: 1 }` unique                   | Lookup, uniqueness       |
+| `users`              | `{ roles: 1 }`                          | Admin user queries       |
+| `sessions`           | `{ refresh_token_hash: 1 }`             | Refresh rotation         |
+| `sessions`           | `{ user_id: 1, revoked: 1 }`            | Active sessions          |
+| `sessions`           | `{ expires_at: 1 }` TTL                 | Auto-expire sessions     |
+| `otp_challenges`     | `{ user_id: 1, purpose: 1 }`            | Latest unconsumed lookup |
+| `otp_challenges`     | `{ expires_at: 1 }` TTL                 | Auto-purge               |
+| `behavior_baselines` | `{ user_id: 1 }` unique                 | One baseline per user    |
+| `behavior_windows`   | `{ session_id: 1, window_start: -1 }`   | Recent windows           |
+| `behavior_windows`   | `{ created_at: 1 }` TTL                 | Retention policy         |
+| `decisions`          | `{ session_id: 1, evaluated_at: -1 }`   | Session timeline         |
+| `device_profiles`    | `{ user_id: 1, fingerprint: 1 }` unique | Dedup devices            |
+| `audit_events`       | `{ occurred_at: -1 }`                   | Audit scans              |
+| `audit_events`       | `{ actor_id: 1, occurred_at: -1 }`      | Per-actor audit          |
 
 ## Constraints (Application Layer)
 
@@ -146,14 +146,14 @@ All collections live in the `adaptive_guardian` database. MongoDB Atlas handles 
 
 ## Retention
 
-| Data | MongoDB | Retention |
-|---|---|---|
-| OTP challenges | TTL index (24h) | Auto-deleted after 24h |
-| Sessions | TTL index (30d) | Auto-deleted after 30d |
-| Behavior windows | TTL index (7d) | Auto-deleted after 7d |
-| Behavior baselines | Indefinite (per user) | Until deletion request |
-| Decisions | TTL index (90d) | Auto-deleted after 90d |
-| Audit events | TTL index (90d) | Warm after 90d; cold export to MinIO |
+| Data               | MongoDB               | Retention                            |
+| ------------------ | --------------------- | ------------------------------------ |
+| OTP challenges     | TTL index (24h)       | Auto-deleted after 24h               |
+| Sessions           | TTL index (30d)       | Auto-deleted after 30d               |
+| Behavior windows   | TTL index (7d)        | Auto-deleted after 7d                |
+| Behavior baselines | Indefinite (per user) | Until deletion request               |
+| Decisions          | TTL index (90d)       | Auto-deleted after 90d               |
+| Audit events       | TTL index (90d)       | Warm after 90d; cold export to MinIO |
 
 User-initiated deletion (GDPR Art. 17): Delete user document + cascade-delete all associated collections. Audit retains anonymized hashes.
 

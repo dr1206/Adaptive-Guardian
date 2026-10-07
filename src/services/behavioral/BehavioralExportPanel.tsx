@@ -70,9 +70,18 @@ export function BehavioralExportPanel() {
         color: "#cbd5e1",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 10,
+        }}
+      >
         <strong style={{ color: "#d4af37", fontSize: 12 }}>Behavioral Export</strong>
-        <span style={{ color: "#22c55e", fontSize: 10 }}>● {status.windowsSent + status.windowsBuffered} windows</span>
+        <span style={{ color: "#22c55e", fontSize: 10 }}>
+          ● {status.windowsSent + status.windowsBuffered} windows
+        </span>
       </div>
 
       <div style={{ marginBottom: 8 }}>

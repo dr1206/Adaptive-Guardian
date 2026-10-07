@@ -159,8 +159,8 @@ function WelcomeStep({ onNext, email }: { onNext: () => void; email?: string }) 
         <span className="text-gradient">is ready.</span>
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-        Your identity has been verified via <span className="text-foreground/90">{masked}</span>.
-        In the next few steps, we'll help you set up your banking profile — it only takes a minute.
+        Your identity has been verified via <span className="text-foreground/90">{masked}</span>. In
+        the next few steps, we'll help you set up your banking profile — it only takes a minute.
       </p>
 
       <div className="mt-6 space-y-3">

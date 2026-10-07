@@ -70,11 +70,19 @@ function groupByDate(txs: Tx[]): { label: string; txs: Tx[] }[] {
     if (!groups[key]) groups[key] = [];
     groups[key].push(tx);
   }
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  const today = new Date().toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
   return [{ label: `Recent · ${today}`, txs: txs.slice(0, 8) }];
 }
 
-export function TransactionFeed({ transactions }: { transactions?: import("@/services/banking/banking.contract").Transaction[] }) {
+export function TransactionFeed({
+  transactions,
+}: {
+  transactions?: import("@/services/banking/banking.contract").Transaction[];
+}) {
   const txs = (transactions ?? []).slice(0, 8).map(toTx);
   const groups = groupByDate(txs);
   const total = txs.length;
@@ -84,9 +92,7 @@ export function TransactionFeed({ transactions }: { transactions?: import("@/ser
       <header className="flex items-center justify-between gap-3 border-b border-white/[0.05] p-5">
         <div>
           <h3 className="font-display text-[15px] font-semibold tracking-tight">Transactions</h3>
-          <p className="text-[11px] text-muted-foreground">
-            {total} this week · live
-          </p>
+          <p className="text-[11px] text-muted-foreground">{total} this week · live</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative hidden md:block">

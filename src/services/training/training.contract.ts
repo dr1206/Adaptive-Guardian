@@ -4,15 +4,13 @@
  */
 
 export type TaskType =
-  | "controlled_typing"
-  | "repeated_typing"
-  | "paragraph_typing"
-  | "mouse_tracking";
+  "controlled_typing" | "repeated_typing" | "paragraph_typing" | "mouse_tracking";
 
 export interface TrainingEvent {
   sessionId: string;
   taskType: TaskType;
-  eventType: "keydown" | "keyup" | "mouse_move" | "mouse_click" | "mouse_scroll" | "task_start" | "task_end";
+  eventType:
+    "keydown" | "keyup" | "mouse_move" | "mouse_click" | "mouse_scroll" | "task_start" | "task_end";
   timestamp: number; // epoch ms
   deviceId?: string;
   page?: string;

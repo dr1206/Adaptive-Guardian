@@ -32,14 +32,14 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/FeatureWindow' }
+            schema: { $ref: "#/components/schemas/FeatureWindow" }
       responses:
-        '200':
+        "200":
           description: Window scored
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ScoreResult' }
-        '422': { $ref: '#/components/responses/Validation' }
+              schema: { $ref: "#/components/schemas/ScoreResult" }
+        "422": { $ref: "#/components/responses/Validation" }
 
   # ---------------------------------------------------------------------------
   # Live Snapshot (polled by Aegis widget)
@@ -53,11 +53,11 @@ paths:
         The backend caches the latest snapshot in Redis; actual re-scoring
         happens on window boundaries (every 60s).
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AegisSnapshot' }
+              schema: { $ref: "#/components/schemas/AegisSnapshot" }
 
   # ---------------------------------------------------------------------------
   # Score History
@@ -76,13 +76,13 @@ paths:
           description: Cursor (ISO timestamp) for pagination
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ScoreResult' }
+                items: { $ref: "#/components/schemas/ScoreResult" }
 
   # ---------------------------------------------------------------------------
   # Current Score
@@ -92,11 +92,11 @@ paths:
       summary: Current authentication score with SHAP explanation
       description: Alias for /aegis/snapshot with richer detail.
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ScoreResult' }
+              schema: { $ref: "#/components/schemas/ScoreResult" }
 
   # ---------------------------------------------------------------------------
   # SHAP Explainability
@@ -110,12 +110,12 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ShapReport' }
-        '404': { $ref: '#/components/responses/NotFound' }
+              schema: { $ref: "#/components/schemas/ShapReport" }
+        "404": { $ref: "#/components/responses/NotFound" }
 
   # ---------------------------------------------------------------------------
   # Decisions
@@ -124,24 +124,24 @@ paths:
     get:
       summary: Decision history for the current session
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Decision' }
+                items: { $ref: "#/components/schemas/Decision" }
   /aegis/decision-replays:
     get:
       summary: Decision replays with human-language explanations and SHAP petals
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/DecisionReplay' }
+                items: { $ref: "#/components/schemas/DecisionReplay" }
 
   # ---------------------------------------------------------------------------
   # Devices
@@ -150,24 +150,24 @@ paths:
     get:
       summary: List trusted/recognized/new devices for the authenticated user
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Device' }
+                items: { $ref: "#/components/schemas/Device" }
   /aegis/device-profiles:
     get:
       summary: Rich device profiles with confidence and trust scores
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/DeviceProfile' }
+                items: { $ref: "#/components/schemas/DeviceProfile" }
 
   # ---------------------------------------------------------------------------
   # Risk Events
@@ -176,13 +176,13 @@ paths:
     get:
       summary: Recent risk events for the current user
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/RiskEvent' }
+                items: { $ref: "#/components/schemas/RiskEvent" }
 
 # =============================================================================
 # Components
@@ -198,17 +198,17 @@ components:
       description: Unauthorized
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     NotFound:
       description: Not found
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     Validation:
       description: Validation error
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
   schemas:
     # --- Envelope ---
     Error:
@@ -336,11 +336,11 @@ components:
         title: { type: string }
         outcome:
           type: string
-          enum: ['Allowed silently', 'Step-up OTP', 'Trusted']
+          enum: ["Allowed silently", "Step-up OTP", "Trusted"]
         confidence: { type: number }
         petals:
           type: array
-          items: { $ref: '#/components/schemas/DecisionPetal' }
+          items: { $ref: "#/components/schemas/DecisionPetal" }
     DecisionPetal:
       type: object
       required: [label, weight, sentence]

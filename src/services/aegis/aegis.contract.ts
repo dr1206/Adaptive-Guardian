@@ -110,6 +110,10 @@ export interface AegisService {
   listRiskEvents(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<RiskEvent>>;
   listDeviceProfiles(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DeviceProfile>>;
   listDecisionReplays(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<DecisionReplay>>;
-    /** Submit behavioral feature windows for continuous authentication. */
-  submitBatch?(windows: ReadonlyArray<FeatureWindow>, sessionId?: string, deviceId?: string): Promise<void>;
+  /** Submit behavioral feature windows for continuous authentication. */
+  submitBatch?(
+    windows: ReadonlyArray<FeatureWindow>,
+    sessionId?: string,
+    deviceId?: string,
+  ): Promise<void>;
 }

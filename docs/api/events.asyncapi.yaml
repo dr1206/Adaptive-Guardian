@@ -9,31 +9,31 @@ channels:
     address: identity.user.registered
     messages:
       UserRegistered:
-        $ref: '#/components/messages/UserRegistered'
+        $ref: "#/components/messages/UserRegistered"
   identity.session.opened:
     address: identity.session.opened
     messages:
       SessionOpened:
-        $ref: '#/components/messages/SessionOpened'
+        $ref: "#/components/messages/SessionOpened"
   behavior.features.window:
     address: behavior.features.window
     messages:
       FeatureWindow:
-        $ref: '#/components/messages/FeatureWindow'
+        $ref: "#/components/messages/FeatureWindow"
   decision.evaluated:
     address: decision.evaluated
     messages:
       DecisionEvaluated:
-        $ref: '#/components/messages/DecisionEvaluated'
+        $ref: "#/components/messages/DecisionEvaluated"
   audit.event:
     address: audit.event
     messages:
       AuditEvent:
-        $ref: '#/components/messages/AuditEvent'
+        $ref: "#/components/messages/AuditEvent"
 operations:
   publishAudit:
     action: send
-    channel: { $ref: '#/channels/audit.event' }
+    channel: { $ref: "#/channels/audit.event" }
 components:
   messages:
     UserRegistered:

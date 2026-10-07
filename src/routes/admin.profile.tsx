@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { services } from "@/services/registry";
@@ -156,7 +157,9 @@ function AdminProfilePage() {
         <div className="shrink-0">
           <button
             className={`px-3 py-2 rounded-lg transition-colors ${
-              selectedUserId ? "bg-white/[0.06] text-foreground" : "text-muted-foreground hover:text-foreground"
+              selectedUserId
+                ? "bg-white/[0.06] text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setSelectedUserId(null)}
           >
@@ -183,7 +186,9 @@ function AdminProfilePage() {
                 {user.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{user.full_name || user.name || "Unknown"}</div>
+                <div className="text-sm font-medium truncate">
+                  {user.full_name || user.name || "Unknown"}
+                </div>
                 <div className="text-[11px] text-muted-foreground font-mono truncate">
                   {user.email}
                 </div>
@@ -212,16 +217,18 @@ function AdminProfilePage() {
                 {userData.user
                   ? userData.user.full_name
                     ? userData.user.full_name
-                      .split(" ")
-                      .map((part: string) => part[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase()
+                        .split(" ")
+                        .map((part: string) => part[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase()
                     : "??"
                   : "??"}
               </div>
               <div>
-                <div className="text-base font-semibold">{userData.user?.full_name || userData.user?.email || "Unknown User"}</div>
+                <div className="text-base font-semibold">
+                  {userData.user?.full_name || userData.user?.email || "Unknown User"}
+                </div>
                 <div className="text-[11px] font-mono text-muted-foreground">
                   {userData.user?.email} · {userData.user?.id}
                 </div>
@@ -230,9 +237,7 @@ function AdminProfilePage() {
                     <span
                       key={role}
                       className={`px-2 py-0.5 rounded text-[9px] font-mono ${
-                        role === "admin"
-                          ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-white/[0.06]"
+                        role === "admin" ? "bg-emerald-500/20 text-emerald-300" : "bg-white/[0.06]"
                       }`}
                     >
                       {role}
@@ -361,8 +366,10 @@ function AdminProfilePage() {
                     event_type: e.event_type,
                     timestamp: e.timestamp,
                     key_code: e.key_code ? String.fromCharCode(e.key_code) : "—",
-                    dwell_time_ms: typeof e.dwell_time_ms === "number" ? e.dwell_time_ms.toFixed(1) : "—",
-                    flight_time_ms: typeof e.flight_time_ms === "number" ? e.flight_time_ms.toFixed(1) : "—",
+                    dwell_time_ms:
+                      typeof e.dwell_time_ms === "number" ? e.dwell_time_ms.toFixed(1) : "—",
+                    flight_time_ms:
+                      typeof e.flight_time_ms === "number" ? e.flight_time_ms.toFixed(1) : "—",
                     x: typeof e.x === "number" ? e.x.toFixed(1) : "—",
                     y: typeof e.y === "number" ? e.y.toFixed(1) : "—",
                   }))}
@@ -394,11 +401,16 @@ function AdminProfilePage() {
                     id: f.id?.slice(0, 12) + "...",
                     session_id: f.session_id?.slice(0, 12) + "...",
                     task_type: f.task_type,
-                    typing_speed: typeof f.typing_speed === "number" ? f.typing_speed.toFixed(2) : "—",
-                    mean_key_hold: typeof f.mean_key_hold === "number" ? f.mean_key_hold.toFixed(1) : "—",
-                    std_key_hold: typeof f.std_key_hold === "number" ? f.std_key_hold.toFixed(1) : "—",
-                    mean_flight_time: typeof f.mean_flight_time === "number" ? f.mean_flight_time.toFixed(1) : "—",
-                    std_flight_time: typeof f.std_flight_time === "number" ? f.std_flight_time.toFixed(1) : "—",
+                    typing_speed:
+                      typeof f.typing_speed === "number" ? f.typing_speed.toFixed(2) : "—",
+                    mean_key_hold:
+                      typeof f.mean_key_hold === "number" ? f.mean_key_hold.toFixed(1) : "—",
+                    std_key_hold:
+                      typeof f.std_key_hold === "number" ? f.std_key_hold.toFixed(1) : "—",
+                    mean_flight_time:
+                      typeof f.mean_flight_time === "number" ? f.mean_flight_time.toFixed(1) : "—",
+                    std_flight_time:
+                      typeof f.std_flight_time === "number" ? f.std_flight_time.toFixed(1) : "—",
                     created_at: f.created_at,
                   }))}
                 />
@@ -407,7 +419,9 @@ function AdminProfilePage() {
 
             {/* Behavioral Events */}
             {(userData.behavioral_events?.length ?? 0) > 0 && (
-              <AdminProfileSection title={`Behavioral Events (${userData.behavioral_events.length})`}>
+              <AdminProfileSection
+                title={`Behavioral Events (${userData.behavioral_events.length})`}
+              >
                 <AdminProfileTable
                   columns={[
                     { key: "id", label: "Event ID" },
@@ -427,8 +441,10 @@ function AdminProfilePage() {
                     event_type: e.event_type,
                     timestamp: e.timestamp,
                     key_code: e.key_code ? String.fromCharCode(e.key_code) : "—",
-                    dwell_time_ms: typeof e.dwell_time_ms === "number" ? e.dwell_time_ms.toFixed(1) : "—",
-                    flight_time_ms: typeof e.flight_time_ms === "number" ? e.flight_time_ms.toFixed(1) : "—",
+                    dwell_time_ms:
+                      typeof e.dwell_time_ms === "number" ? e.dwell_time_ms.toFixed(1) : "—",
+                    flight_time_ms:
+                      typeof e.flight_time_ms === "number" ? e.flight_time_ms.toFixed(1) : "—",
                     x: typeof e.x === "number" ? e.x.toFixed(1) : "—",
                     y: typeof e.y === "number" ? e.y.toFixed(1) : "—",
                     velocity: typeof e.velocity === "number" ? e.velocity.toFixed(1) : "—",
@@ -463,10 +479,14 @@ function AdminProfilePage() {
                     window_start: w.window_start,
                     window_end: w.window_end,
                     dwellMeanMs: w.features?.dwellMeanMs ? w.features.dwellMeanMs.toFixed(1) : "—",
-                    flightMeanMs: w.features?.flightMeanMs ? w.features.flightMeanMs.toFixed(1) : "—",
+                    flightMeanMs: w.features?.flightMeanMs
+                      ? w.features.flightMeanMs.toFixed(1)
+                      : "—",
                     keysPerSec: w.features?.keysPerSec ? w.features.keysPerSec.toFixed(2) : "—",
                     clickCount: w.features?.clickCount ?? "—",
-                    mouseTravelPx: w.features?.mouseTravelPx ? w.features.mouseTravelPx.toFixed(0) : "—",
+                    mouseTravelPx: w.features?.mouseTravelPx
+                      ? w.features.mouseTravelPx.toFixed(0)
+                      : "—",
                   }))}
                 />
                 {userData.behavior_windows.length > 50 && (
@@ -543,7 +563,8 @@ function AdminProfilePage() {
         <div className="text-center py-12 text-muted-foreground">
           <p>Select a user from the list above to view their complete historical data</p>
           <p className="mt-2 text-xs">
-            Data includes authentication sessions, training data, continuous behavioral monitoring, and device profiles
+            Data includes authentication sessions, training data, continuous behavioral monitoring,
+            and device profiles
           </p>
         </div>
       )}

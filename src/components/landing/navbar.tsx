@@ -36,7 +36,10 @@ export function Navbar() {
             <Shield className="h-4 w-4" strokeWidth={2.5} />
           </span>
           <span className="font-display text-[16px] font-bold tracking-tight text-foreground">
-            Adaptive Guardian <span className="text-primary font-normal text-xs uppercase tracking-widest pl-1">Bank</span>
+            Adaptive Guardian{" "}
+            <span className="text-primary font-normal text-xs uppercase tracking-widest pl-1">
+              Bank
+            </span>
           </span>
         </Link>
 

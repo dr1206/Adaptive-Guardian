@@ -4,17 +4,17 @@
 
 If any step takes longer than the budget below, stop and ping `#platform` — that's a foundation bug, not your fault.
 
-| Step | Budget | What |
-|----|----|----|
-| 1 | 1 min | `nvm use` + `corepack enable` |
-| 2 | 2 min | `pnpm install` |
-| 3 | 30 s | `cp .env.example .env.local` |
-| 4 | 2 min | `docker compose -f infra/docker/compose.dev.yml up -d` |
-| 5 | 30 s | `pnpm db:migrate` |
-| 6 | 30 s | `pnpm dev` |
-| 7 | 1 min | Open `http://localhost:8080` — landing page renders |
-| 8 | 1 min | Open `http://localhost:16686` — find the trace for your page load |
-| 9 | 30 s | `pnpm test` — green |
+| Step | Budget | What                                                              |
+| ---- | ------ | ----------------------------------------------------------------- |
+| 1    | 1 min  | `nvm use` + `corepack enable`                                     |
+| 2    | 2 min  | `pnpm install`                                                    |
+| 3    | 30 s   | `cp .env.example .env.local`                                      |
+| 4    | 2 min  | `docker compose -f infra/docker/compose.dev.yml up -d`            |
+| 5    | 30 s   | `pnpm db:migrate`                                                 |
+| 6    | 30 s   | `pnpm dev`                                                        |
+| 7    | 1 min  | Open `http://localhost:8080` — landing page renders               |
+| 8    | 1 min  | Open `http://localhost:16686` — find the trace for your page load |
+| 9    | 30 s   | `pnpm test` — green                                               |
 
 ## Day 1 reading (45 min)
 

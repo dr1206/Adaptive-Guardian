@@ -17,7 +17,11 @@ const DEFAULT_PLAIN: Petal[] = [
     weight: 42,
     sentence: "Your inter-key timing and dwell duration match your verified biometric signature.",
   },
-  { label: "Recognized pointer movement", weight: 28, sentence: "Mouse velocity dispersion and trajectory smoothness conform to baseline." },
+  {
+    label: "Recognized pointer movement",
+    weight: 28,
+    sentence: "Mouse velocity dispersion and trajectory smoothness conform to baseline.",
+  },
   {
     label: "Typing cadence consistency",
     weight: 18,
@@ -55,7 +59,10 @@ const DEFAULT_TECH: Petal[] = [
 
 const COUNTER = [
   { label: "Typing speed dropped 40%", note: "Would trigger an automated behavioral challenge." },
-  { label: "Robotic mouse trajectory (0 curvature)", note: "Would flag potential synthetic automation." },
+  {
+    label: "Robotic mouse trajectory (0 curvature)",
+    note: "Would flag potential synthetic automation.",
+  },
   { label: "Flight time drift > 3σ", note: "Would require biometric re-confirmation." },
 ];
 
@@ -65,26 +72,33 @@ function Explainability() {
   const decisions = decisionsQ.data ?? [];
   const latestDecision = decisions[0];
 
-  const plainPetals: Petal[] = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
-    ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
-        label: `${f.name.replace(/_/g, " ")} consistency`,
-        weight: Math.round(Math.abs(f.contribution) * 100),
-        sentence: f.contribution <= 0
-          ? `${f.name.replace(/_/g, " ")} conforms closely to your verified biometric baseline.`
-          : `${f.name.replace(/_/g, " ")} showed slight statistical deviation from your usual pattern.`,
-      }))
-    : DEFAULT_PLAIN;
+  const plainPetals: Petal[] =
+    latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+      ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
+          label: `${f.name.replace(/_/g, " ")} consistency`,
+          weight: Math.round(Math.abs(f.contribution) * 100),
+          sentence:
+            f.contribution <= 0
+              ? `${f.name.replace(/_/g, " ")} conforms closely to your verified biometric baseline.`
+              : `${f.name.replace(/_/g, " ")} showed slight statistical deviation from your usual pattern.`,
+        }))
+      : DEFAULT_PLAIN;
 
-  const techPetals: Petal[] = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
-    ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
-        label: `${f.name} (SHAP)`,
-        weight: Math.round(Math.abs(f.contribution) * 100),
-        sentence: `SHAP risk impact = ${f.contribution >= 0 ? "+" : ""}${f.contribution.toFixed(4)}.`,
-      }))
-    : DEFAULT_TECH;
+  const techPetals: Petal[] =
+    latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+      ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
+          label: `${f.name} (SHAP)`,
+          weight: Math.round(Math.abs(f.contribution) * 100),
+          sentence: `SHAP risk impact = ${f.contribution >= 0 ? "+" : ""}${f.contribution.toFixed(4)}.`,
+        }))
+      : DEFAULT_TECH;
 
   const confidenceValue = latestDecision
-    ? (latestDecision.action === "allow" ? 98.4 : latestDecision.action === "challenge" ? 42.1 : 12.0)
+    ? latestDecision.action === "allow"
+      ? 98.4
+      : latestDecision.action === "challenge"
+        ? 42.1
+        : 12.0
     : 98.4;
   return (
     <>
@@ -120,11 +134,12 @@ function Explainability() {
               {latestDecision?.action === "allow"
                 ? "Key biometric signals confirming your identity."
                 : latestDecision?.action === "challenge"
-                ? "Signals requiring biometric re-confirmation."
-                : "Continuous behavioral verification status."}
+                  ? "Signals requiring biometric re-confirmation."
+                  : "Continuous behavioral verification status."}
             </h2>
             <p className="mt-2 text-[13px] text-muted-foreground">
-              Adaptive Guardian continuously evaluates 14 behavioral signals (typing cadence, pointer velocity, jerk smoothness) with TreeSHAP mathematical risk explainability.
+              Adaptive Guardian continuously evaluates 14 behavioral signals (typing cadence,
+              pointer velocity, jerk smoothness) with TreeSHAP mathematical risk explainability.
             </p>
             <div className="mt-5">
               <DecisionWaterfall petals={tech ? techPetals : plainPetals} />

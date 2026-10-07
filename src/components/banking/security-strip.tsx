@@ -76,7 +76,8 @@ export function SecurityStrip() {
         </span>
         <Sep />
         <span className="inline-flex items-center gap-1.5 font-numeric">
-          <Clock className="h-3 w-3" /> Session {isCollecting ? `${Math.floor(colStatus.uptimeMs / 60000)}m` : "02:14"}
+          <Clock className="h-3 w-3" /> Session{" "}
+          {isCollecting ? `${Math.floor(colStatus.uptimeMs / 60000)}m` : "02:14"}
         </span>
         <Sep />
         <span className="inline-flex items-center gap-1.5">

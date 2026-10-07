@@ -5,7 +5,7 @@
 **B.Tech Computer Engineering — Major Project (Group 17)**
 **Pillai College of Engineering, University of Mumbai · 2025–2026**
 
----  
+---
 
 ## Table of Contents
 
@@ -20,16 +20,18 @@
 9. [Frontend Design](#9-frontend-design)
 10. [Phase 13: Behavioral Dataset Audit & Export Pipeline Fixes](#10-phase-13-behavioral-dataset-audit--export-pipeline-fixes)
 
----  
+---
 
 ## 10. Phase 13: Behavioral Dataset Audit & Export Pipeline Fixes
 
 ### Overview
+
 As part of ongoing data integrity verification for the Adaptive Guardian behavioral biometric system, Phase 13 focused on auditing the exported behavioral dataset and fixing issues in the export pipeline to ensure future data exports are suitable for ML training.
 
 ### Phase 13 Audit Findings
 
 #### Dataset Composition
+
 - Total rows in behavioral_biometrics.csv: 1,195
 - Record type breakdown:
   - training_event: 933 rows (78.1%)
@@ -55,16 +57,17 @@ As part of ongoing data integrity verification for the Adaptive Guardian behavio
      - Values in tens of thousands indicate test/synthetic data or incorrect data generation
 
 #### Conclusion on ML-Readiness
+
 **NO**, the dataset does **NOT** contain usable current behavioral-window feature data for ML training.
 
 ### Root Cause Analysis
 
 1. **Window Timing Problem**: The export function correctly attempts to retrieve `window_start` and `window_end` from BehaviorWindow objects, but these fields were None/not properly set in the database objects.
 
-2. **Feature Data Location Mismatch**: 
-   - BehaviorWindow.features dictionary contains raw FeatureWindow fields: 
-     - "dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs", "keysPerSec", 
-     - "velocityMean", "velocityStd", "accelerationMean", "accelerationStd", 
+2. **Feature Data Location Mismatch**:
+   - BehaviorWindow.features dictionary contains raw FeatureWindow fields:
+     - "dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs", "keysPerSec",
+     - "velocityMean", "velocityStd", "accelerationMean", "accelerationStd",
      - "curvatureMean", "curvatureStd", "clickCount", "scrollAmount", "mouseTravelPx"
    - Export function incorrectly attempted to access non-existent keys like "typing_speed", "mean_key_hold", etc.
 
@@ -73,15 +76,18 @@ As part of ongoing data integrity verification for the Adaptive Guardian behavio
 ### Fixes Applied
 
 #### 1. Fixed Syntax Errors in export_builder.py
+
 - Added missing commas after each `feature.get()` statement in the behavior_window export section (lines ~462-482)
 - Resolved Python syntax errors that prevented module import
 
-#### 2. Corrected Feature Mapping Approach  
+#### 2. Corrected Feature Mapping Approach
+
 - Modified behavior_window export to properly export actual available features from `window.features`
 - Maintained `window_f_*` feature vector export as complete backup
 - Mapped exported column names to match actual keys in features dictionary
 
 #### 3. Preserved Validation Logic
+
 - Verified Phase 11 validation logic in `backend/src/app/domain/aegis/service.py` remains intact:
   - Temporal consistency validation (window_start < window_end)
   - Reasonable duration bounds (100ms to 5 minutes)
@@ -93,8 +99,9 @@ As part of ongoing data integrity verification for the Adaptive Guardian behavio
 When processing **genuine** behavioral window data, the export produces:
 
 #### Populated Columns (When Data Is Present):
+
 - `record_type`: "behavior_window"
-- `source`: "continuous" 
+- `source`: "continuous"
 - `user_id`, `session_id`: Properly set from database
 - `window_start`, `window_end`: Timestamp values (if correctly set in database)
 - Individual feature columns matching FeatureWindow interface:
@@ -106,12 +113,14 @@ When processing **genuine** behavioral window data, the export produces:
 - Feature vector columns (`window_f_*`): Complete backup of all features
 
 #### Expected Empty Columns (By Design):
+
 - Training-specific fields (task_type, trial_index, etc.): Empty for continuous behavioral data
 - Derived features like typing_speed, mean_key_hold, etc.: Empty (require additional computation)
 
 ### Important Limitations & Next Steps
 
 #### What Was NOT Fixed (By User Constraints)
+
 - ❌ No changes to existing data or database
 - ❌ No modification of data collection pipeline
 - ❌ No attempt to "fix" the current behavioral_biometrics.csv file (contains test/synthetic data)
@@ -119,6 +128,7 @@ When processing **genuine** behavioral window data, the export produces:
 - ❌ No autonomous progression - awaiting explicit user direction
 
 ### To Obtain a Usable Dataset for ML Training
+
 **Only with explicit user approval**:
 
 1. **Collect genuine behavioral data** through normal user interaction
@@ -133,17 +143,20 @@ When processing **genuine** behavioral window data, the export produces:
    - Check keysPerSec values in plausible range (typically 0-10 for normal typing)
 
 ### Verification Status
+
 ✅ **export_builder.py** imports successfully without syntax errors  
 ✅ **Phase 11 validation logic** remains intact and functional  
-✅ **All user-prohibited actions avoided** during fix process  
+✅ **All user-prohibited actions avoided** during fix process
 
 ### Final Note
+
 The fixes make the export pipeline **ready** to correctly export genuine behavioral window data when collecting real user interactions. However, the pipeline cannot compensate for missing/incorrect source data - it only exports what is present in the database.
 
 A usable ML-ready dataset requires:
+
 1. Genuine user interaction data collection
 2. Properly populated window timing fields in stored BehaviorWindow objects
 3. Realistic, human-plausible feature values
-4. Explicit user approval to proceed  
+4. Explicit user approval to proceed
 
 **Do not proceed with ML training, synthetic data generation, or autonomous data collection without explicit user direction.**

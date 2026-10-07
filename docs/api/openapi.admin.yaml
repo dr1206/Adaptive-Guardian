@@ -21,24 +21,24 @@ paths:
     get:
       summary: Key performance indicators for the cockpit header
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Kpi' }
+                items: { $ref: "#/components/schemas/Kpi" }
   /admin/global-metrics:
     get:
       summary: Global system metrics (FAR, FRR, active users, etc.)
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/GlobalMetric' }
+                items: { $ref: "#/components/schemas/GlobalMetric" }
 
   # ---------------------------------------------------------------------------
   # Live Sessions
@@ -47,13 +47,13 @@ paths:
     get:
       summary: All active sessions across the platform
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/LiveSession' }
+                items: { $ref: "#/components/schemas/LiveSession" }
 
   # ---------------------------------------------------------------------------
   # Users
@@ -62,13 +62,13 @@ paths:
     get:
       summary: List all users with behavioral auth metrics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/AdminUser' }
+                items: { $ref: "#/components/schemas/AdminUser" }
 
   # ---------------------------------------------------------------------------
   # Incidents
@@ -77,13 +77,13 @@ paths:
     get:
       summary: Security incidents (suspicious sessions, anomalies)
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Incident' }
+                items: { $ref: "#/components/schemas/Incident" }
 
   # ---------------------------------------------------------------------------
   # ML Models
@@ -92,13 +92,13 @@ paths:
     get:
       summary: Registered model versions with metrics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ModelVersion' }
+                items: { $ref: "#/components/schemas/ModelVersion" }
 
   # ---------------------------------------------------------------------------
   # Datasets
@@ -107,13 +107,13 @@ paths:
     get:
       summary: Training datasets used for model development
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Dataset' }
+                items: { $ref: "#/components/schemas/Dataset" }
 
   # ---------------------------------------------------------------------------
   # API Services Health
@@ -122,13 +122,13 @@ paths:
     get:
       summary: Health and latency of internal API services
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ApiService' }
+                items: { $ref: "#/components/schemas/ApiService" }
 
   # ---------------------------------------------------------------------------
   # Compliance Controls
@@ -137,13 +137,13 @@ paths:
     get:
       summary: Compliance control coverage (SOC2, GDPR, etc.)
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ComplianceControl' }
+                items: { $ref: "#/components/schemas/ComplianceControl" }
 
   # ---------------------------------------------------------------------------
   # Report Templates
@@ -152,13 +152,13 @@ paths:
     get:
       summary: Scheduled report templates
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ReportTemplate' }
+                items: { $ref: "#/components/schemas/ReportTemplate" }
 
   # ---------------------------------------------------------------------------
   # Audit Log
@@ -177,13 +177,13 @@ paths:
           description: Cursor (ISO timestamp)
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/AuditEntry' }
+                items: { $ref: "#/components/schemas/AuditEntry" }
 
   # ---------------------------------------------------------------------------
   # Challenges
@@ -192,24 +192,24 @@ paths:
     get:
       summary: Aggregated challenge reasons (for pie/bar charts)
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ChallengeReason' }
+                items: { $ref: "#/components/schemas/ChallengeReason" }
   /admin/challenges:
     get:
       summary: Recent challenge records (OTP, step-up)
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ChallengeRecord' }
+                items: { $ref: "#/components/schemas/ChallengeRecord" }
 
   # ---------------------------------------------------------------------------
   # RBAC — Roles & Permissions
@@ -218,29 +218,29 @@ paths:
     get:
       summary: List roles with member counts
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Role' }
+                items: { $ref: "#/components/schemas/Role" }
   /admin/permissions:
     get:
       summary: List permission resources and their allowed actions
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Permission' }
+                items: { $ref: "#/components/schemas/Permission" }
   /admin/role-permissions:
     get:
       summary: Get the full role-to-permission mapping
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -257,13 +257,13 @@ paths:
     get:
       summary: Notification group subscriptions
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/NotificationGroup' }
+                items: { $ref: "#/components/schemas/NotificationGroup" }
 
   # ---------------------------------------------------------------------------
   # Geo Map
@@ -272,13 +272,13 @@ paths:
     get:
       summary: Geo-located session dots for the world map
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/GeoDot' }
+                items: { $ref: "#/components/schemas/GeoDot" }
 
   # ---------------------------------------------------------------------------
   # Infrastructure Snapshot
@@ -287,11 +287,11 @@ paths:
     get:
       summary: Real-time infrastructure health snapshot
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/InfraSnapshot' }
+              schema: { $ref: "#/components/schemas/InfraSnapshot" }
 
   # ---------------------------------------------------------------------------
   # Admin Accounts (banking admin view)
@@ -300,13 +300,13 @@ paths:
     get:
       summary: All bank accounts across the platform
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/AdminAccount' }
+                items: { $ref: "#/components/schemas/AdminAccount" }
 
   # ---------------------------------------------------------------------------
   # Anomaly Signatures
@@ -315,13 +315,13 @@ paths:
     get:
       summary: Detected behavioral anomaly signature types
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/AnomalySignature' }
+                items: { $ref: "#/components/schemas/AnomalySignature" }
 
 # =============================================================================
 # Components
@@ -337,12 +337,12 @@ components:
       description: Unauthorized
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     Forbidden:
       description: Admin role required
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
   schemas:
     # --- Envelope ---
     Error:
@@ -368,7 +368,7 @@ components:
         value: { type: number }
         suffix: { type: string }
         delta: { type: number }
-        signal: { $ref: '#/components/schemas/Signal' }
+        signal: { $ref: "#/components/schemas/Signal" }
         series:
           type: array
           items: { type: number }
@@ -382,7 +382,7 @@ components:
         label: { type: string }
         value: { type: string }
         delta: { type: string }
-        signal: { $ref: '#/components/schemas/Signal' }
+        signal: { $ref: "#/components/schemas/Signal" }
         series:
           type: array
           items: { type: number }
@@ -390,7 +390,21 @@ components:
     # --- LiveSession ---
     LiveSession:
       type: object
-      required: [id, user, initials, device, page, confidence, risk, behavior, duration, activity, lastEvent, signal]
+      required:
+        [
+          id,
+          user,
+          initials,
+          device,
+          page,
+          confidence,
+          risk,
+          behavior,
+          duration,
+          activity,
+          lastEvent,
+          signal,
+        ]
       properties:
         id: { type: string }
         user: { type: string }
@@ -403,12 +417,13 @@ components:
         duration: { type: string }
         activity: { type: string }
         lastEvent: { type: string }
-        signal: { $ref: '#/components/schemas/Signal' }
+        signal: { $ref: "#/components/schemas/Signal" }
 
     # --- AdminUser ---
     AdminUser:
       type: object
-      required: [id, name, initials, email, status, tier, devices, trust, risk, lastSeen, country, signal]
+      required:
+        [id, name, initials, email, status, tier, devices, trust, risk, lastSeen, country, signal]
       properties:
         id: { type: string }
         name: { type: string }
@@ -425,7 +440,7 @@ components:
         risk: { type: number }
         lastSeen: { type: string }
         country: { type: string }
-        signal: { $ref: '#/components/schemas/Signal' }
+        signal: { $ref: "#/components/schemas/Signal" }
 
     # --- Incident ---
     Incident:
@@ -434,7 +449,7 @@ components:
       properties:
         id: { type: string }
         title: { type: string }
-        severity: { $ref: '#/components/schemas/Signal' }
+        severity: { $ref: "#/components/schemas/Signal" }
         user: { type: string }
         source: { type: string }
         age: { type: string }
@@ -445,7 +460,8 @@ components:
     # --- ModelVersion ---
     ModelVersion:
       type: object
-      required: [version, status, trained, dataset, accuracy, precision, recall, f1, latencyMs, memoryMb]
+      required:
+        [version, status, trained, dataset, accuracy, precision, recall, f1, latencyMs, memoryMb]
       properties:
         version: { type: string }
         status:
@@ -463,7 +479,20 @@ components:
     # --- Dataset ---
     Dataset:
       type: object
-      required: [id, version, samples, users, sessions, features, quality, duplicates, coverage, created, status]
+      required:
+        [
+          id,
+          version,
+          samples,
+          users,
+          sessions,
+          features,
+          quality,
+          duplicates,
+          coverage,
+          created,
+          status,
+        ]
       properties:
         id: { type: string }
         version: { type: string }
@@ -485,7 +514,7 @@ components:
       required: [name, status, latency, errorRate, uptime, series]
       properties:
         name: { type: string }
-        status: { $ref: '#/components/schemas/Signal' }
+        status: { $ref: "#/components/schemas/Signal" }
         latency:
           type: object
           properties:
@@ -506,7 +535,7 @@ components:
         id: { type: string }
         framework: { type: string }
         coverage: { type: number }
-        status: { $ref: '#/components/schemas/Signal' }
+        status: { $ref: "#/components/schemas/Signal" }
         evidence: { type: integer }
         owner: { type: string }
         next: { type: string }
@@ -588,7 +617,7 @@ components:
         id: { type: string }
         label: { type: string }
         count: { type: integer }
-        signal: { $ref: '#/components/schemas/Signal' }
+        signal: { $ref: "#/components/schemas/Signal" }
 
     # --- GeoDot ---
     GeoDot:
@@ -623,18 +652,31 @@ components:
         name: { type: string }
         count: { type: integer }
         last: { type: string }
-        severity: { $ref: '#/components/schemas/Signal' }
+        severity: { $ref: "#/components/schemas/Signal" }
 
     # --- InfraSnapshot ---
     InfraSnapshot:
       type: object
-      required: [cpu, memory, disk, gpu, network, containers, workers, jobsRunning, jobsQueued, jobsFailed, inferenceQueue]
+      required:
+        [
+          cpu,
+          memory,
+          disk,
+          gpu,
+          network,
+          containers,
+          workers,
+          jobsRunning,
+          jobsQueued,
+          jobsFailed,
+          inferenceQueue,
+        ]
       properties:
-        cpu: { $ref: '#/components/schemas/ResourceMetric' }
-        memory: { $ref: '#/components/schemas/ResourceMetric' }
-        disk: { $ref: '#/components/schemas/ResourceMetric' }
-        gpu: { $ref: '#/components/schemas/ResourceMetric' }
-        network: { $ref: '#/components/schemas/ResourceMetric' }
+        cpu: { $ref: "#/components/schemas/ResourceMetric" }
+        memory: { $ref: "#/components/schemas/ResourceMetric" }
+        disk: { $ref: "#/components/schemas/ResourceMetric" }
+        gpu: { $ref: "#/components/schemas/ResourceMetric" }
+        network: { $ref: "#/components/schemas/ResourceMetric" }
         containers: { type: integer }
         workers: { type: integer }
         jobsRunning: { type: integer }

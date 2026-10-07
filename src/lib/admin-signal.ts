@@ -29,30 +29,35 @@ const rawSignalTone: Record<Signal, { fg: string; bg: string; ring: string; labe
   },
 };
 
-export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> = new Proxy(
-  rawSignalTone,
-  {
+export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> =
+  new Proxy(rawSignalTone, {
     get(target, prop: string | symbol) {
       if (typeof prop === "string") {
         const key = prop.toLowerCase().trim() as Signal;
         if (key in target) return target[key];
-        if (key === ("warn" as any) || key === ("warning" as any) || key === ("medium" as any)) return target.watch;
-        if (key === ("high" as any) || key === ("error" as any)) return target.alert;
-        if (key === ("danger" as any)) return target.critical;
+        const k = key as string;
+        if (k === "warn" || k === "warning" || k === "medium") return target.watch;
+        if (k === "high" || k === "error") return target.alert;
+        if (k === "danger") return target.critical;
         return target.ok;
       }
       return Reflect.get(target, prop);
     },
-  }
-);
+  });
 
-export function getSignalTone(sig?: string | null): { fg: string; bg: string; ring: string; label: string } {
+export function getSignalTone(sig?: string | null): {
+  fg: string;
+  bg: string;
+  ring: string;
+  label: string;
+} {
   if (!sig) return signalTone.ok;
   const s = sig.toLowerCase().trim() as Signal;
   if (s in signalTone) return signalTone[s];
-  if (s === ("warn" as any) || s === ("warning" as any) || s === ("medium" as any)) return signalTone.watch;
-  if (s === ("high" as any) || s === ("error" as any)) return signalTone.alert;
-  if (s === ("danger" as any)) return signalTone.critical;
+  const str = s as string;
+  if (str === "warn" || str === "warning" || str === "medium") return signalTone.watch;
+  if (str === "high" || str === "error") return signalTone.alert;
+  if (str === "danger") return signalTone.critical;
   return signalTone.ok;
 }
 

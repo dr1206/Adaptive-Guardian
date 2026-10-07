@@ -9,6 +9,7 @@ export type Account = {
   balance: number;
   pending?: number;
   iban: string;
+  accountNumber?: string;
   deltaPct: number;
   spark: number[];
   status: "active" | "frozen";
@@ -149,7 +150,14 @@ export const CARDS: BankCard[] = [
     exp: "03/28",
     frozen: false,
     finish: "graphite",
-    limits: { daily: 100000, monthly: 500000, atm: 50000, usedDaily: 0, usedMonthly: 12450, usedAtm: 0 },
+    limits: {
+      daily: 100000,
+      monthly: 500000,
+      atm: 50000,
+      usedDaily: 0,
+      usedMonthly: 12450,
+      usedAtm: 0,
+    },
     spentMonth: 12450,
   },
   {
@@ -955,8 +963,18 @@ export type StatementSample = {
 };
 
 const MONTH_LABELS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ] as const;
 
 function monthsFor(year: number): ReadonlyArray<StatementMonth> {

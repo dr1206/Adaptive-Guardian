@@ -42,14 +42,17 @@ function PulsePage() {
             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Enterprise Continuous Biometric Security
             </div>
-            <h1 className="text-2xl font-bold mt-1 tracking-tight text-foreground">Security Operations Center</h1>
+            <h1 className="text-2xl font-bold mt-1 tracking-tight text-foreground">
+              Security Operations Center
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Production behavioral telemetry · Real-time inference & threat mitigation platform
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground shadow-xs">
             <span className="size-2 rounded-full bg-success animate-pulse" />
-            <span className="font-semibold text-foreground">Aegis Core Online</span> · 1.24k predictions/s
+            <span className="font-semibold text-foreground">Aegis Core Online</span> · 1.24k
+            predictions/s
           </div>
         </div>
 
@@ -145,14 +148,7 @@ function PulsePage() {
             <div className="flex flex-col items-center text-center py-2">
               <div className="relative size-40 mb-3">
                 <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="#D9E1EA"
-                    strokeWidth="4"
-                  />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#D9E1EA" strokeWidth="4" />
                   <circle
                     cx="50"
                     cy="50"

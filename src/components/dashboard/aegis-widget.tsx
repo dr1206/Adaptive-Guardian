@@ -24,7 +24,8 @@ export function AegisWidget() {
   const isLoading = snapLoading && overviewLoading;
 
   // Real values from backend
-  const confidence = snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 99.2;
+  const confidence =
+    snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 99.2;
   const riskScore = snapshot?.risk != null ? snapshot.risk.toFixed(2) : "0.04";
   const backendWhisper = snapshot?.whisper;
   const activeSessions = overview?.activeSessions ?? 1;
@@ -52,7 +53,14 @@ export function AegisWidget() {
         ) : (
           <>
             <svg viewBox="0 0 160 160" className="absolute inset-0 h-full w-full -rotate-90">
-              <circle cx="80" cy="80" r={r} stroke="oklch(1 0 0 / 0.06)" strokeWidth="6" fill="none" />
+              <circle
+                cx="80"
+                cy="80"
+                r={r}
+                stroke="oklch(1 0 0 / 0.06)"
+                strokeWidth="6"
+                fill="none"
+              />
               <defs>
                 <linearGradient id="aegis-ring" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0%" stopColor="oklch(0.655 0.195 258)" />
@@ -95,7 +103,11 @@ export function AegisWidget() {
         <Row k="Trust" v={confidence >= 95 ? "High" : confidence >= 80 ? "Medium" : "Review"} />
         <Row k="Sessions" v={String(activeSessions)} mono />
         <Row k="Devices" v={`${trustedDevices} trusted`} />
-        <Row k="Behavior" v={confidence >= 98 ? "Stable" : confidence >= 90 ? "Normal" : "Drifting"} tone={confidence >= 90 ? "success" : undefined} />
+        <Row
+          k="Behavior"
+          v={confidence >= 98 ? "Stable" : confidence >= 90 ? "Normal" : "Drifting"}
+          tone={confidence >= 90 ? "success" : undefined}
+        />
         <Row k="Risk" v={riskScore} mono />
         <Row k="Response" v="12 ms" mono />
       </dl>

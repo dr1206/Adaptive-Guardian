@@ -55,7 +55,9 @@ function Behavior() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Biometric Stream</div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  Biometric Stream
+                </div>
                 <div className="mt-1 font-display text-[18px] font-semibold tracking-tight text-foreground">
                   {p.label}
                 </div>

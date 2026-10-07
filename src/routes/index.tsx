@@ -134,7 +134,8 @@ function Hero() {
 
           <p className="mt-6 max-w-xl text-balance text-base text-muted-foreground sm:text-lg">
             Traditional banks verify identity only once at sign-in. Adaptive Guardian continuously
-            verifies typing cadence and cursor dynamics throughout every session — protecting accounts against session takeover without interrupting legitimate customers.
+            verifies typing cadence and cursor dynamics throughout every session — protecting
+            accounts against session takeover without interrupting legitimate customers.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">

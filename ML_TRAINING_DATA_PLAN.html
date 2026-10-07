@@ -1,547 +1,828 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ML Training Data Collection Plan — AdaptiveGuardian</title>
-<style>
-  :root {
-    --bg: #0b0f19;
-    --surface: #131825;
-    --surface2: #1a1f30;
-    --border: #252a3a;
-    --text: #e2e4e9;
-    --text2: #9ca3af;
-    --accent: #6366f1;
-    --accent2: #818cf8;
-    --green: #10b981;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --cyan: #06b6d4;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.7;
-    padding: 2rem;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  h1 {
-    font-size: 2.4rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-    background: linear-gradient(135deg, var(--accent2), var(--cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin: 2.5rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border);
-    color: var(--accent2);
-  }
-  h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 1.8rem 0 0.7rem;
-  }
-  h4 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin: 1.4rem 0 0.5rem;
-    color: var(--text2);
-  }
-  p { margin-bottom: 0.8rem; }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
-  li { margin-bottom: 0.3rem; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ML Training Data Collection Plan — AdaptiveGuardian</title>
+    <style>
+      :root {
+        --bg: #0b0f19;
+        --surface: #131825;
+        --surface2: #1a1f30;
+        --border: #252a3a;
+        --text: #e2e4e9;
+        --text2: #9ca3af;
+        --accent: #6366f1;
+        --accent2: #818cf8;
+        --green: #10b981;
+        --amber: #f59e0b;
+        --red: #ef4444;
+        --cyan: #06b6d4;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        padding: 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        background: linear-gradient(135deg, var(--accent2), var(--cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border);
+        color: var(--accent2);
+      }
+      h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 1.8rem 0 0.7rem;
+      }
+      h4 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 1.4rem 0 0.5rem;
+        color: var(--text2);
+      }
+      p {
+        margin-bottom: 0.8rem;
+      }
+      ul,
+      ol {
+        margin: 0.5rem 0 1rem 1.5rem;
+      }
+      li {
+        margin-bottom: 0.3rem;
+      }
 
-  /* Status bar */
-  .status-bar {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin: 1.2rem 0 2rem;
-  }
-  .badge {
-    padding: 0.3rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  .badge-green { background: #064e3b; color: #6ee7b7; }
-  .badge-amber { background: #78350f; color: #fcd34d; }
-  .badge-blue  { background: #1e3a5f; color: #93c5fd; }
-  .badge-purple{ background: #3b1f5e; color: #c4b5fd; }
+      /* Status bar */
+      .status-bar {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.2rem 0 2rem;
+      }
+      .badge {
+        padding: 0.3rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .badge-green {
+        background: #064e3b;
+        color: #6ee7b7;
+      }
+      .badge-amber {
+        background: #78350f;
+        color: #fcd34d;
+      }
+      .badge-blue {
+        background: #1e3a5f;
+        color: #93c5fd;
+      }
+      .badge-purple {
+        background: #3b1f5e;
+        color: #c4b5fd;
+      }
 
-  /* Tables */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0 1.5rem;
-    font-size: 0.92rem;
-  }
-  th, td {
-    padding: 0.65rem 0.9rem;
-    text-align: left;
-    border: 1px solid var(--border);
-  }
-  th {
-    background: var(--surface2);
-    font-weight: 600;
-    color: var(--accent2);
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  td {
-    background: var(--surface);
-  }
-  tr:hover td { background: var(--surface2); }
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        padding: 0.65rem 0.9rem;
+        text-align: left;
+        border: 1px solid var(--border);
+      }
+      th {
+        background: var(--surface2);
+        font-weight: 600;
+        color: var(--accent2);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      td {
+        background: var(--surface);
+      }
+      tr:hover td {
+        background: var(--surface2);
+      }
 
-  /* Code */
-  code {
-    background: var(--surface2);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-    font-size: 0.88rem;
-  }
-  pre {
-    background: var(--surface2);
-    padding: 1.2rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin: 1rem 0 1.5rem;
-    border: 1px solid var(--border);
-    font-size: 0.85rem;
-  }
-  pre code {
-    background: none;
-    padding: 0;
-  }
+      /* Code */
+      code {
+        background: var(--surface2);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+        font-size: 0.88rem;
+      }
+      pre {
+        background: var(--surface2);
+        padding: 1.2rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1rem 0 1.5rem;
+        border: 1px solid var(--border);
+        font-size: 0.85rem;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
 
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.3rem;
-    margin: 1rem 0;
-  }
-  .card h4 { margin-top: 0; color: var(--accent2); }
+      /* Cards */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.3rem;
+        margin: 1rem 0;
+      }
+      .card h4 {
+        margin-top: 0;
+        color: var(--accent2);
+      }
 
-  /* Session type boxes */
-  .session-type {
-    background: var(--surface);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-    padding: 1rem 1.3rem;
-    margin: 1.2rem 0;
-  }
-  .session-type h4 { color: var(--text); margin-bottom: 0.3rem; }
-  .session-type .meta {
-    font-size: 0.85rem;
-    color: var(--text2);
-    margin-bottom: 0.6rem;
-  }
+      /* Session type boxes */
+      .session-type {
+        background: var(--surface);
+        border-left: 3px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        padding: 1rem 1.3rem;
+        margin: 1.2rem 0;
+      }
+      .session-type h4 {
+        color: var(--text);
+        margin-bottom: 0.3rem;
+      }
+      .session-type .meta {
+        font-size: 0.85rem;
+        color: var(--text2);
+        margin-bottom: 0.6rem;
+      }
 
-  /* Schedule grid */
-  .schedule-grid {
-    display: grid;
-    grid-template-columns: 100px repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    margin: 1rem 0 1.5rem;
-  }
-  .schedule-grid > div {
-    background: var(--surface);
-    padding: 0.55rem 0.7rem;
-    font-size: 0.85rem;
-  }
-  .schedule-grid .head {
-    background: var(--surface2);
-    font-weight: 600;
-    color: var(--accent2);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .schedule-grid .day {
-    font-weight: 600;
-    color: var(--cyan);
-  }
-  .schedule-grid .empty {
-    color: var(--text2);
-    font-style: italic;
-  }
+      /* Schedule grid */
+      .schedule-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(4, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 1rem 0 1.5rem;
+      }
+      .schedule-grid > div {
+        background: var(--surface);
+        padding: 0.55rem 0.7rem;
+        font-size: 0.85rem;
+      }
+      .schedule-grid .head {
+        background: var(--surface2);
+        font-weight: 600;
+        color: var(--accent2);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .schedule-grid .day {
+        font-weight: 600;
+        color: var(--cyan);
+      }
+      .schedule-grid .empty {
+        color: var(--text2);
+        font-style: italic;
+      }
 
-  /* Horizontal rule */
-  hr {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 2rem 0;
-  }
+      /* Horizontal rule */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2rem 0;
+      }
 
-  /* TOC */
-  .toc {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.3rem 1.5rem;
-    margin: 2rem 0;
-  }
-  .toc h3 { margin-top: 0; }
-  .toc ol { margin-bottom: 0; }
-  .toc a { color: var(--accent2); text-decoration: none; }
-  .toc a:hover { text-decoration: underline; }
+      /* TOC */
+      .toc {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.3rem 1.5rem;
+        margin: 2rem 0;
+      }
+      .toc h3 {
+        margin-top: 0;
+      }
+      .toc ol {
+        margin-bottom: 0;
+      }
+      .toc a {
+        color: var(--accent2);
+        text-decoration: none;
+      }
+      .toc a:hover {
+        text-decoration: underline;
+      }
 
-  /* Phase banner */
-  .phase-banner {
-    background: linear-gradient(135deg, var(--surface2), var(--surface));
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.2rem 1.5rem;
-    margin: 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .phase-banner .phase-num {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--accent2);
-    min-width: 60px;
-  }
-  .phase-banner .phase-info h4 { margin: 0 0 0.2rem; }
-  .phase-banner .phase-info p { margin: 0; font-size: 0.9rem; color: var(--text2); }
+      /* Phase banner */
+      .phase-banner {
+        background: linear-gradient(135deg, var(--surface2), var(--surface));
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.2rem 1.5rem;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .phase-banner .phase-num {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--accent2);
+        min-width: 60px;
+      }
+      .phase-banner .phase-info h4 {
+        margin: 0 0 0.2rem;
+      }
+      .phase-banner .phase-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text2);
+      }
 
-  /* Checkbox */
-  .checklist li { list-style: none; margin-left: 0; }
-  .checklist li::before { content: "☐ "; color: var(--text2); }
+      /* Checkbox */
+      .checklist li {
+        list-style: none;
+        margin-left: 0;
+      }
+      .checklist li::before {
+        content: "☐ ";
+        color: var(--text2);
+      }
 
-  footer {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    color: var(--text2);
-    font-size: 0.85rem;
-    text-align: center;
-  }
-</style>
-</head>
-<body>
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        color: var(--text2);
+        font-size: 0.85rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ML Training Data Collection Plan</h1>
 
-<h1>ML Training Data Collection Plan</h1>
+    <div class="status-bar">
+      <span class="badge badge-green">4 Users</span>
+      <span class="badge badge-blue">13 Days</span>
+      <span class="badge badge-purple">14 Features per Window</span>
+      <span class="badge badge-amber">1600–2100 Windows/User</span>
+    </div>
 
-<div class="status-bar">
-  <span class="badge badge-green">4 Users</span>
-  <span class="badge badge-blue">13 Days</span>
-  <span class="badge badge-purple">14 Features per Window</span>
-  <span class="badge badge-amber">1600–2100 Windows/User</span>
-</div>
+    <div class="toc">
+      <h3>Table of Contents</h3>
+      <ol>
+        <li><a href="#overview">Overview &amp; Data Collection Mechanism</a></li>
+        <li><a href="#targets">Target Data Volume</a></li>
+        <li><a href="#phase1">Phase 1: Genuine User Profile (Days 1–7)</a></li>
+        <li><a href="#phase2">Phase 2: Cross-User Impostor Sessions (Days 8–10)</a></li>
+        <li><a href="#phase3">Phase 3: Device &amp; Environment Variation (Days 11–12)</a></li>
+        <li><a href="#phase4">Phase 4: Export &amp; Labeling Protocol</a></li>
+        <li><a href="#format">Training Data Format</a></li>
+        <li><a href="#pipeline">ML Training Pipeline</a></li>
+        <li><a href="#timeline">Timeline Summary</a></li>
+        <li><a href="#prereqs">Prerequisites &amp; Credentials</a></li>
+      </ol>
+    </div>
 
-<div class="toc">
-  <h3>Table of Contents</h3>
-  <ol>
-    <li><a href="#overview">Overview &amp; Data Collection Mechanism</a></li>
-    <li><a href="#targets">Target Data Volume</a></li>
-    <li><a href="#phase1">Phase 1: Genuine User Profile (Days 1–7)</a></li>
-    <li><a href="#phase2">Phase 2: Cross-User Impostor Sessions (Days 8–10)</a></li>
-    <li><a href="#phase3">Phase 3: Device &amp; Environment Variation (Days 11–12)</a></li>
-    <li><a href="#phase4">Phase 4: Export &amp; Labeling Protocol</a></li>
-    <li><a href="#format">Training Data Format</a></li>
-    <li><a href="#pipeline">ML Training Pipeline</a></li>
-    <li><a href="#timeline">Timeline Summary</a></li>
-    <li><a href="#prereqs">Prerequisites &amp; Credentials</a></li>
-  </ol>
-</div>
+    <h2 id="overview">1. Overview</h2>
 
-<h2 id="overview">1. Overview</h2>
+    <p>
+      This document specifies the exact actions, intervals, and repetition counts needed for each of
+      the 4 users (<strong>Amal, Manasa, Dristi, Vyas</strong>) to generate sufficient behavioral
+      biometric data for training the LightGBM classifier and One-Class SVM anomaly detector.
+    </p>
 
-<p>This document specifies the exact actions, intervals, and repetition counts needed for each of the 4 users (<strong>Amal, Manasa, Dristi, Vyas</strong>) to generate sufficient behavioral biometric data for training the LightGBM classifier and One-Class SVM anomaly detector.</p>
+    <h3>Data Collection Mechanism</h3>
 
-<h3>Data Collection Mechanism</h3>
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>Detail</th>
+      </tr>
+      <tr>
+        <td>Collector</td>
+        <td>
+          <code>BehavioralCollector</code> — captures keystroke + mouse dynamics in 5-second windows
+        </td>
+      </tr>
+      <tr>
+        <td>Storage</td>
+        <td>
+          localStorage key <code>ag_behavioral_dataset</code> (when
+          <code>VITE_BEHAVIORAL_EXPORT=true</code>)
+        </td>
+      </tr>
+      <tr>
+        <td>Export</td>
+        <td>JSON download via <code>BehavioralExportPanel</code> component</td>
+      </tr>
+      <tr>
+        <td>Features</td>
+        <td>14 numerical features per 5-second window (see below)</td>
+      </tr>
+    </table>
 
-<table>
-  <tr><th>Component</th><th>Detail</th></tr>
-  <tr><td>Collector</td><td><code>BehavioralCollector</code> — captures keystroke + mouse dynamics in 5-second windows</td></tr>
-  <tr><td>Storage</td><td>localStorage key <code>ag_behavioral_dataset</code> (when <code>VITE_BEHAVIORAL_EXPORT=true</code>)</td></tr>
-  <tr><td>Export</td><td>JSON download via <code>BehavioralExportPanel</code> component</td></tr>
-  <tr><td>Features</td><td>14 numerical features per 5-second window (see below)</td></tr>
-</table>
-
-<h3>14 Features Per Window</h3>
-<pre><code>dwellMeanMs   dwellStdMs   flightMeanMs   flightStdMs   keysPerSec
+    <h3>14 Features Per Window</h3>
+    <pre><code>dwellMeanMs   dwellStdMs   flightMeanMs   flightStdMs   keysPerSec
 velocityMean  velocityStd  accelerationMean  accelerationStd
 curvatureMean curvatureStd  clickCount  scrollAmount  mouseTravelPx</code></pre>
 
-<div class="card" style="border-left: 3px solid var(--cyan); border-radius: 0 8px 8px 0;">
-  <h3 style="margin-top:0; color: var(--cyan);">What is a "Window"?</h3>
-  <p>A <strong>window</strong> is a <strong>5-second slice of your activity</strong>. Every 5 seconds, the <code>BehavioralCollector</code> running in the browser takes a snapshot of everything you did during that interval and computes 14 numerical values from it.</p>
+    <div class="card" style="border-left: 3px solid var(--cyan); border-radius: 0 8px 8px 0">
+      <h3 style="margin-top: 0; color: var(--cyan)">What is a "Window"?</h3>
+      <p>
+        A <strong>window</strong> is a <strong>5-second slice of your activity</strong>. Every 5
+        seconds, the <code>BehavioralCollector</code> running in the browser takes a snapshot of
+        everything you did during that interval and computes 14 numerical values from it.
+      </p>
 
-  <p>Think of it like a <strong>heart-rate monitor for your typing and mouse behavior</strong> — instead of beats per minute, it captures things like how long you held each key, how fast you moved the mouse, how many times you clicked, and how much you scrolled.</p>
+      <p>
+        Think of it like a <strong>heart-rate monitor for your typing and mouse behavior</strong> —
+        instead of beats per minute, it captures things like how long you held each key, how fast
+        you moved the mouse, how many times you clicked, and how much you scrolled.
+      </p>
 
-  <p><strong>Example:</strong> If you spend 5 minutes browsing the dashboard, that generates roughly <strong>60 windows</strong> (5 min × 60 sec ÷ 5 sec per window). Each window is one row in the training dataset — a single labeled data point the ML model learns from.</p>
+      <p>
+        <strong>Example:</strong> If you spend 5 minutes browsing the dashboard, that generates
+        roughly <strong>60 windows</strong> (5 min × 60 sec ÷ 5 sec per window). Each window is one
+        row in the training dataset — a single labeled data point the ML model learns from.
+      </p>
 
-  <h4 style="color: var(--cyan);">How the numbers translate to real activity:</h4>
-  <table>
-    <tr><th style="width:40%;">If you are...</th><th>The window will show...</th></tr>
-    <tr><td>Typing your email &amp; password</td><td>High <code>dwellMeanMs</code>, high <code>keysPerSec</code>, low mouse values</td></tr>
-    <tr><td>Moving the mouse across the dashboard</td><td>High <code>velocityMean</code>, high <code>mouseTravelPx</code>, no keystroke values</td></tr>
-    <tr><td>Scrolling through transactions</td><td>High <code>scrollAmount</code>, moderate mouse travel, no keystrokes</td></tr>
-    <tr><td>Idle (reading a page)</td><td>All values near zero — these get filtered out during training</td></tr>
-    <tr><td>Filling a transfer form</td><td>Mix of keystroke features (typing amount) + mouse features (selecting beneficiary)</td></tr>
-  </table>
+      <h4 style="color: var(--cyan)">How the numbers translate to real activity:</h4>
+      <table>
+        <tr>
+          <th style="width: 40%">If you are...</th>
+          <th>The window will show...</th>
+        </tr>
+        <tr>
+          <td>Typing your email &amp; password</td>
+          <td>High <code>dwellMeanMs</code>, high <code>keysPerSec</code>, low mouse values</td>
+        </tr>
+        <tr>
+          <td>Moving the mouse across the dashboard</td>
+          <td>
+            High <code>velocityMean</code>, high <code>mouseTravelPx</code>, no keystroke values
+          </td>
+        </tr>
+        <tr>
+          <td>Scrolling through transactions</td>
+          <td>High <code>scrollAmount</code>, moderate mouse travel, no keystrokes</td>
+        </tr>
+        <tr>
+          <td>Idle (reading a page)</td>
+          <td>All values near zero — these get filtered out during training</td>
+        </tr>
+        <tr>
+          <td>Filling a transfer form</td>
+          <td>
+            Mix of keystroke features (typing amount) + mouse features (selecting beneficiary)
+          </td>
+        </tr>
+      </table>
 
-  <h4 style="color: var(--cyan);">Why 800–1,200 windows per user?</h4>
-  <p>Machine learning models need enough examples to learn what makes <em>your</em> behavior unique. With 14 features per window:</p>
-  <ul>
-    <li><strong>OC-SVM</strong> (unsupervised) needs ~500+ windows of <em>only your genuine behavior</em> to build a reliable boundary of "normal"</li>
-    <li><strong>LightGBM</strong> (supervised) needs both genuine and impostor examples — at least 800 genuine + 200 impostor per user to achieve 85%+ accuracy</li>
-    <li>More windows = the model sees more variety (different times of day, different tasks, different moods) = more robust detection</li>
-  </ul>
-</div>
+      <h4 style="color: var(--cyan)">Why 800–1,200 windows per user?</h4>
+      <p>
+        Machine learning models need enough examples to learn what makes <em>your</em> behavior
+        unique. With 14 features per window:
+      </p>
+      <ul>
+        <li>
+          <strong>OC-SVM</strong> (unsupervised) needs ~500+ windows of
+          <em>only your genuine behavior</em> to build a reliable boundary of "normal"
+        </li>
+        <li>
+          <strong>LightGBM</strong> (supervised) needs both genuine and impostor examples — at least
+          800 genuine + 200 impostor per user to achieve 85%+ accuracy
+        </li>
+        <li>
+          More windows = the model sees more variety (different times of day, different tasks,
+          different moods) = more robust detection
+        </li>
+      </ul>
+    </div>
 
-<h2 id="targets">2. Target Data Volume</h2>
+    <h2 id="targets">2. Target Data Volume</h2>
 
-<table>
-  <tr><th>Metric</th><th>Target</th></tr>
-  <tr><td>Windows per user (genuine)</td><td>800 – 1,200</td></tr>
-  <tr><td>Windows per user (impostor)</td><td>200 – 400</td></tr>
-  <tr><td>Total windows across 4 users</td><td>4,000 – 6,000</td></tr>
-  <tr><td>Windows per session</td><td>~40–80 (3–7 min of active use)</td></tr>
-  <tr><td>Sessions per user</td><td>12–15 sessions</td></tr>
-</table>
+    <table>
+      <tr>
+        <th>Metric</th>
+        <th>Target</th>
+      </tr>
+      <tr>
+        <td>Windows per user (genuine)</td>
+        <td>800 – 1,200</td>
+      </tr>
+      <tr>
+        <td>Windows per user (impostor)</td>
+        <td>200 – 400</td>
+      </tr>
+      <tr>
+        <td>Total windows across 4 users</td>
+        <td>4,000 – 6,000</td>
+      </tr>
+      <tr>
+        <td>Windows per session</td>
+        <td>~40–80 (3–7 min of active use)</td>
+      </tr>
+      <tr>
+        <td>Sessions per user</td>
+        <td>12–15 sessions</td>
+      </tr>
+    </table>
 
-<h2 id="phase1">3. Phase 1: Genuine User Profile (Days 1–7)</h2>
+    <h2 id="phase1">3. Phase 1: Genuine User Profile (Days 1–7)</h2>
 
-<p>Each user collects their <strong>OWN</strong> behavioral data. These sessions are labeled <code>genuine</code>.</p>
+    <p>
+      Each user collects their <strong>OWN</strong> behavioral data. These sessions are labeled
+      <code>genuine</code>.
+    </p>
 
-<!-- Session A -->
-<div class="session-type">
-  <h4>Session A — Login &amp; Dashboard Browsing</h4>
-  <div class="meta">⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 2× per day (morning + evening)</div>
-  <ol>
-    <li>Navigate to login page, type email (natural pace)</li>
-    <li>Type password, click login</li>
-    <li>Wait for dashboard to load, scroll through all widgets</li>
-    <li>Move mouse across dashboard cards (balance hero, Aegis widget, security overview, transaction feed)</li>
-    <li>Hover over chart tooltips in trends/analytics</li>
-    <li>Click through each tab/section slowly</li>
-  </ol>
-  <p><strong>Captured:</strong> Keystroke dynamics (email + password typing), mouse velocity/curvature during navigation, scroll patterns, click patterns</p>
-</div>
+    <!-- Session A -->
+    <div class="session-type">
+      <h4>Session A — Login &amp; Dashboard Browsing</h4>
+      <div class="meta">
+        ⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 2× per day (morning + evening)
+      </div>
+      <ol>
+        <li>Navigate to login page, type email (natural pace)</li>
+        <li>Type password, click login</li>
+        <li>Wait for dashboard to load, scroll through all widgets</li>
+        <li>
+          Move mouse across dashboard cards (balance hero, Aegis widget, security overview,
+          transaction feed)
+        </li>
+        <li>Hover over chart tooltips in trends/analytics</li>
+        <li>Click through each tab/section slowly</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Keystroke dynamics (email + password typing), mouse
+        velocity/curvature during navigation, scroll patterns, click patterns
+      </p>
+    </div>
 
-<!-- Session B -->
-<div class="session-type">
-  <h4>Session B — Transaction Feed &amp; Account Exploration</h4>
-  <div class="meta">⏱ ~7 min &nbsp;|&nbsp; 📊 ~70 windows &nbsp;|&nbsp; 🔁 1× per day</div>
-  <ol>
-    <li>Login (natural typing)</li>
-    <li>Navigate to Accounts page — click each account card</li>
-    <li>View transaction history — scroll through 20–30 transactions</li>
-    <li>Click on 3–5 individual transactions to view details</li>
-    <li>Switch between account filters (All / Checking / Savings)</li>
-    <li>Type in transaction search bar (3–4 different queries: "Amazon", "Uber", "salary")</li>
-    <li>Sort transactions by date, amount — click sort toggles</li>
-  </ol>
-  <p><strong>Captured:</strong> Keystroke for search queries, mouse movement for navigation, click cadence, scroll velocity</p>
-</div>
+    <!-- Session B -->
+    <div class="session-type">
+      <h4>Session B — Transaction Feed &amp; Account Exploration</h4>
+      <div class="meta">⏱ ~7 min &nbsp;|&nbsp; 📊 ~70 windows &nbsp;|&nbsp; 🔁 1× per day</div>
+      <ol>
+        <li>Login (natural typing)</li>
+        <li>Navigate to Accounts page — click each account card</li>
+        <li>View transaction history — scroll through 20–30 transactions</li>
+        <li>Click on 3–5 individual transactions to view details</li>
+        <li>Switch between account filters (All / Checking / Savings)</li>
+        <li>Type in transaction search bar (3–4 different queries: "Amazon", "Uber", "salary")</li>
+        <li>Sort transactions by date, amount — click sort toggles</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Keystroke for search queries, mouse movement for navigation,
+        click cadence, scroll velocity
+      </p>
+    </div>
 
-<!-- Session C -->
-<div class="session-type">
-  <h4>Session C — Transfer Flow</h4>
-  <div class="meta">⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 2× per day</div>
-  <ol>
-    <li>Login</li>
-    <li>Navigate to Transfer page</li>
-    <li>Type an amount in the transfer field (vary amounts: $25, $100, $250, $500, $1000)</li>
-    <li>Select a beneficiary from dropdown — scroll through list</li>
-    <li>Type a reference note (vary: "rent payment", "dinner", "utilities", "gift")</li>
-    <li>Press-and-hold the transfer button (triggering the PressHoldButton component)</li>
-    <li>Wait for confirmation screen</li>
-  </ol>
-  <p><strong>Captured:</strong> Keystroke for amount/reference typing, mouse for dropdown selection, press-and-hold button pressure timing</p>
-</div>
+    <!-- Session C -->
+    <div class="session-type">
+      <h4>Session C — Transfer Flow</h4>
+      <div class="meta">⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 2× per day</div>
+      <ol>
+        <li>Login</li>
+        <li>Navigate to Transfer page</li>
+        <li>Type an amount in the transfer field (vary amounts: $25, $100, $250, $500, $1000)</li>
+        <li>Select a beneficiary from dropdown — scroll through list</li>
+        <li>Type a reference note (vary: "rent payment", "dinner", "utilities", "gift")</li>
+        <li>Press-and-hold the transfer button (triggering the PressHoldButton component)</li>
+        <li>Wait for confirmation screen</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Keystroke for amount/reference typing, mouse for dropdown
+        selection, press-and-hold button pressure timing
+      </p>
+    </div>
 
-<!-- Session D -->
-<div class="session-type">
-  <h4>Session D — Beneficiary &amp; Card Management</h4>
-  <div class="meta">⏱ ~4 min &nbsp;|&nbsp; 📊 ~40 windows &nbsp;|&nbsp; 🔁 1× per day</div>
-  <ol>
-    <li>Login</li>
-    <li>Navigate to Beneficiaries page — scroll through list</li>
-    <li>Add a new beneficiary: type name (3 variations per user), IBAN, select bank</li>
-    <li>Navigate to Cards page — view all cards</li>
-    <li>Freeze and unfreeze a card</li>
-    <li>View card limits and spending details</li>
-  </ol>
-  <p><strong>Captured:</strong> Form-filling keystroke patterns, mouse precision during small-target clicks, scroll behavior</p>
-</div>
+    <!-- Session D -->
+    <div class="session-type">
+      <h4>Session D — Beneficiary &amp; Card Management</h4>
+      <div class="meta">⏱ ~4 min &nbsp;|&nbsp; 📊 ~40 windows &nbsp;|&nbsp; 🔁 1× per day</div>
+      <ol>
+        <li>Login</li>
+        <li>Navigate to Beneficiaries page — scroll through list</li>
+        <li>Add a new beneficiary: type name (3 variations per user), IBAN, select bank</li>
+        <li>Navigate to Cards page — view all cards</li>
+        <li>Freeze and unfreeze a card</li>
+        <li>View card limits and spending details</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Form-filling keystroke patterns, mouse precision during
+        small-target clicks, scroll behavior
+      </p>
+    </div>
 
-<!-- Session E -->
-<div class="session-type">
-  <h4>Session E — Budgets &amp; Savings</h4>
-  <div class="meta">⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 1× per day</div>
-  <ol>
-    <li>Login</li>
-    <li>Navigate to Budgets page — scroll through all categories</li>
-    <li>Click each budget category to view breakdown</li>
-    <li>Create a new budget envelope (category + amount)</li>
-    <li>Navigate to Savings Goals page</li>
-    <li>Update savings goal progress (add $50–$200)</li>
-    <li>Scroll through goal details</li>
-  </ol>
-  <p><strong>Captured:</strong> Keystroke for budget amounts/goal updates, mouse movement patterns, scroll depth</p>
-</div>
+    <!-- Session E -->
+    <div class="session-type">
+      <h4>Session E — Budgets &amp; Savings</h4>
+      <div class="meta">⏱ ~5 min &nbsp;|&nbsp; 📊 ~50 windows &nbsp;|&nbsp; 🔁 1× per day</div>
+      <ol>
+        <li>Login</li>
+        <li>Navigate to Budgets page — scroll through all categories</li>
+        <li>Click each budget category to view breakdown</li>
+        <li>Create a new budget envelope (category + amount)</li>
+        <li>Navigate to Savings Goals page</li>
+        <li>Update savings goal progress (add $50–$200)</li>
+        <li>Scroll through goal details</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Keystroke for budget amounts/goal updates, mouse movement
+        patterns, scroll depth
+      </p>
+    </div>
 
-<!-- Session F -->
-<div class="session-type">
-  <h4>Session F — Statement &amp; History Review</h4>
-  <div class="meta">⏱ ~6 min &nbsp;|&nbsp; 📊 ~60 windows &nbsp;|&nbsp; 🔁 Every other day</div>
-  <ol>
-    <li>Login</li>
-    <li>Navigate to Statements page</li>
-    <li>Select different months from the dropdown</li>
-    <li>Scroll through monthly statements</li>
-    <li>Export/download a statement</li>
-    <li>Navigate to Activity page</li>
-    <li>Scroll through activity feed — click to expand details</li>
-    <li>Filter activity by type</li>
-  </ol>
-  <p><strong>Captured:</strong> Menu navigation mouse patterns, scroll behavior on long lists, click targeting precision</p>
-</div>
+    <!-- Session F -->
+    <div class="session-type">
+      <h4>Session F — Statement &amp; History Review</h4>
+      <div class="meta">⏱ ~6 min &nbsp;|&nbsp; 📊 ~60 windows &nbsp;|&nbsp; 🔁 Every other day</div>
+      <ol>
+        <li>Login</li>
+        <li>Navigate to Statements page</li>
+        <li>Select different months from the dropdown</li>
+        <li>Scroll through monthly statements</li>
+        <li>Export/download a statement</li>
+        <li>Navigate to Activity page</li>
+        <li>Scroll through activity feed — click to expand details</li>
+        <li>Filter activity by type</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Menu navigation mouse patterns, scroll behavior on long lists,
+        click targeting precision
+      </p>
+    </div>
 
-<!-- Session G -->
-<div class="session-type">
-  <h4>Session G — Rapid Navigation</h4>
-  <div class="meta">⏱ ~3 min &nbsp;|&nbsp; 📊 ~30 windows &nbsp;|&nbsp; 🔁 1× per day</div>
-  <ol>
-    <li>Login</li>
-    <li>Rapidly switch between all main pages (Dashboard → Accounts → Transfers → Cards → Budgets → Savings → Activity → Statements)</li>
-    <li>Click through each page but don't interact deeply</li>
-    <li>Logout</li>
-  </ol>
-  <p><strong>Captured:</strong> Fast mouse movement patterns, quick click cadence, minimal keystroke (just login)</p>
-</div>
+    <!-- Session G -->
+    <div class="session-type">
+      <h4>Session G — Rapid Navigation</h4>
+      <div class="meta">⏱ ~3 min &nbsp;|&nbsp; 📊 ~30 windows &nbsp;|&nbsp; 🔁 1× per day</div>
+      <ol>
+        <li>Login</li>
+        <li>
+          Rapidly switch between all main pages (Dashboard → Accounts → Transfers → Cards → Budgets
+          → Savings → Activity → Statements)
+        </li>
+        <li>Click through each page but don't interact deeply</li>
+        <li>Logout</li>
+      </ol>
+      <p>
+        <strong>Captured:</strong> Fast mouse movement patterns, quick click cadence, minimal
+        keystroke (just login)
+      </p>
+    </div>
 
-<h3>Weekly Schedule Per User</h3>
+    <h3>Weekly Schedule Per User</h3>
 
-<div class="schedule-grid">
-  <div class="head">Day</div><div class="head">Morning<br>9–10am</div><div class="head">Midday<br>12–1pm</div><div class="head">Evening<br>6–7pm</div><div class="head">Night<br>10–11pm</div>
+    <div class="schedule-grid">
+      <div class="head">Day</div>
+      <div class="head">Morning<br />9–10am</div>
+      <div class="head">Midday<br />12–1pm</div>
+      <div class="head">Evening<br />6–7pm</div>
+      <div class="head">Night<br />10–11pm</div>
 
-  <div class="day">Mon</div><div>A + B</div><div>C</div><div>D + A</div><div>G</div>
-  <div class="day">Tue</div><div>A + C</div><div>E</div><div>B + A</div><div>F</div>
-  <div class="day">Wed</div><div>A + D</div><div>C</div><div>E + A</div><div>G</div>
-  <div class="day">Thu</div><div>A + B</div><div>C</div><div>F + A</div><div class="empty">—</div>
-  <div class="day">Fri</div><div>A + E</div><div>C</div><div>B + D</div><div>G</div>
-  <div class="day">Sat</div><div>A + G</div><div>C + D</div><div>E + B</div><div class="empty">—</div>
-  <div class="day">Sun</div><div>A + G</div><div>C</div><div>F</div><div>G</div>
-</div>
+      <div class="day">Mon</div>
+      <div>A + B</div>
+      <div>C</div>
+      <div>D + A</div>
+      <div>G</div>
+      <div class="day">Tue</div>
+      <div>A + C</div>
+      <div>E</div>
+      <div>B + A</div>
+      <div>F</div>
+      <div class="day">Wed</div>
+      <div>A + D</div>
+      <div>C</div>
+      <div>E + A</div>
+      <div>G</div>
+      <div class="day">Thu</div>
+      <div>A + B</div>
+      <div>C</div>
+      <div>F + A</div>
+      <div class="empty">—</div>
+      <div class="day">Fri</div>
+      <div>A + E</div>
+      <div>C</div>
+      <div>B + D</div>
+      <div>G</div>
+      <div class="day">Sat</div>
+      <div>A + G</div>
+      <div>C + D</div>
+      <div>E + B</div>
+      <div class="empty">—</div>
+      <div class="day">Sun</div>
+      <div>A + G</div>
+      <div>C</div>
+      <div>F</div>
+      <div>G</div>
+    </div>
 
-<div class="card">
-  <strong>Per-day windows:</strong> ~220–300 &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Per-week windows:</strong> ~1,200–1,500
-</div>
+    <div class="card">
+      <strong>Per-day windows:</strong> ~220–300 &nbsp;&nbsp;|&nbsp;&nbsp;
+      <strong>Per-week windows:</strong> ~1,200–1,500
+    </div>
 
-<hr>
+    <hr />
 
-<h2 id="phase2">4. Phase 2: Cross-User Impostor Sessions (Days 8–10)</h2>
+    <h2 id="phase2">4. Phase 2: Cross-User Impostor Sessions (Days 8–10)</h2>
 
-<p>Each user acts as an <strong>"impostor"</strong> on another user's account to generate negative training samples.</p>
+    <p>
+      Each user acts as an <strong>"impostor"</strong> on another user's account to generate
+      negative training samples.
+    </p>
 
-<h3>Impostor Rotation</h3>
+    <h3>Impostor Rotation</h3>
 
-<table>
-  <tr><th>Impostor</th><th>Target Account</th><th>Sessions</th></tr>
-  <tr><td>Amal →</td><td>Manasa's account</td><td>3</td></tr>
-  <tr><td>Manasa →</td><td>Dristi's account</td><td>3</td></tr>
-  <tr><td>Dristi →</td><td>Vyas's account</td><td>3</td></tr>
-  <tr><td>Vyas →</td><td>Amal's account</td><td>3</td></tr>
-  <tr><td>Amal →</td><td>Dristi's account</td><td>2</td></tr>
-  <tr><td>Manasa →</td><td>Vyas's account</td><td>2</td></tr>
-  <tr><td>Dristi →</td><td>Amal's account</td><td>2</td></tr>
-  <tr><td>Vyas →</td><td>Manasa's account</td><td>2</td></tr>
-</table>
+    <table>
+      <tr>
+        <th>Impostor</th>
+        <th>Target Account</th>
+        <th>Sessions</th>
+      </tr>
+      <tr>
+        <td>Amal →</td>
+        <td>Manasa's account</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Manasa →</td>
+        <td>Dristi's account</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Dristi →</td>
+        <td>Vyas's account</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Vyas →</td>
+        <td>Amal's account</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Amal →</td>
+        <td>Dristi's account</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>Manasa →</td>
+        <td>Vyas's account</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>Dristi →</td>
+        <td>Amal's account</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>Vyas →</td>
+        <td>Manasa's account</td>
+        <td>2</td>
+      </tr>
+    </table>
 
-<h3>Impostor Session Protocol (~5 min each, ~50 windows)</h3>
-<ol>
-  <li><strong>Login</strong> using the target user's credentials (typing someone else's email/password)</li>
-  <li><strong>Navigate</strong> through the target's dashboard — their accounts, transactions, beneficiaries</li>
-  <li><strong>Attempt a transfer</strong> — type an amount, select a beneficiary (different motor patterns)</li>
-  <li><strong>Browse</strong> budget categories and savings goals</li>
-  <li><strong>Scroll</strong> through transaction history</li>
-  <li><strong>Export</strong> data with label <code>impostor</code></li>
-</ol>
+    <h3>Impostor Session Protocol (~5 min each, ~50 windows)</h3>
+    <ol>
+      <li>
+        <strong>Login</strong> using the target user's credentials (typing someone else's
+        email/password)
+      </li>
+      <li>
+        <strong>Navigate</strong> through the target's dashboard — their accounts, transactions,
+        beneficiaries
+      </li>
+      <li>
+        <strong>Attempt a transfer</strong> — type an amount, select a beneficiary (different motor
+        patterns)
+      </li>
+      <li><strong>Browse</strong> budget categories and savings goals</li>
+      <li><strong>Scroll</strong> through transaction history</li>
+      <li><strong>Export</strong> data with label <code>impostor</code></li>
+    </ol>
 
-<div class="card">
-  <strong>Important:</strong> The impostor MUST use the target's logged-in session so the behavioral windows are associated with the target user's account. The label (<code>genuine</code> vs <code>impostor</code>) is applied at export time.
-</div>
+    <div class="card">
+      <strong>Important:</strong> The impostor MUST use the target's logged-in session so the
+      behavioral windows are associated with the target user's account. The label (<code
+        >genuine</code
+      >
+      vs <code>impostor</code>) is applied at export time.
+    </div>
 
-<div class="card">
-  <strong>Per-user impostor windows target:</strong> 200–300
-</div>
+    <div class="card"><strong>Per-user impostor windows target:</strong> 200–300</div>
 
-<hr>
+    <hr />
 
-<h2 id="phase3">5. Phase 3: Device &amp; Environment Variation (Days 11–12)</h2>
+    <h2 id="phase3">5. Phase 3: Device &amp; Environment Variation (Days 11–12)</h2>
 
-<p>Vary conditions to make the model robust:</p>
+    <p>Vary conditions to make the model robust:</p>
 
-<table>
-  <tr><th>Variation</th><th>Sessions per User</th></tr>
-  <tr><td>Different browser (Chrome vs Firefox vs Edge)</td><td>2 sessions each</td></tr>
-  <tr><td>Different time of day (early morning 6am, late night 1am)</td><td>2 sessions each</td></tr>
-  <tr><td>Different typing speed (deliberately slow, then fast)</td><td>2 sessions each</td></tr>
-  <tr><td>Mouse vs Trackpad (if available)</td><td>2 sessions each</td></tr>
-  <tr><td>Window resized (smaller viewport vs fullscreen)</td><td>2 sessions each</td></tr>
-</table>
+    <table>
+      <tr>
+        <th>Variation</th>
+        <th>Sessions per User</th>
+      </tr>
+      <tr>
+        <td>Different browser (Chrome vs Firefox vs Edge)</td>
+        <td>2 sessions each</td>
+      </tr>
+      <tr>
+        <td>Different time of day (early morning 6am, late night 1am)</td>
+        <td>2 sessions each</td>
+      </tr>
+      <tr>
+        <td>Different typing speed (deliberately slow, then fast)</td>
+        <td>2 sessions each</td>
+      </tr>
+      <tr>
+        <td>Mouse vs Trackpad (if available)</td>
+        <td>2 sessions each</td>
+      </tr>
+      <tr>
+        <td>Window resized (smaller viewport vs fullscreen)</td>
+        <td>2 sessions each</td>
+      </tr>
+    </table>
 
-<hr>
+    <hr />
 
-<h2 id="phase4">6. Phase 4: Export &amp; Labeling Protocol</h2>
+    <h2 id="phase4">6. Phase 4: Export &amp; Labeling Protocol</h2>
 
-<h3>At the End of Each Session</h3>
+    <h3>At the End of Each Session</h3>
 
-<p><strong>Option A — Manual (DevTools):</strong></p>
-<ol>
-  <li>Open browser DevTools → Application → Local Storage</li>
-  <li>Find key <code>ag_behavioral_dataset</code></li>
-  <li>Copy the JSON data to a file named:<br><code>{username}_{session_type}_{date}_{label}.json</code></li>
-</ol>
+    <p><strong>Option A — Manual (DevTools):</strong></p>
+    <ol>
+      <li>Open browser DevTools → Application → Local Storage</li>
+      <li>Find key <code>ag_behavioral_dataset</code></li>
+      <li>
+        Copy the JSON data to a file named:<br /><code
+          >{username}_{session_type}_{date}_{label}.json</code
+        >
+      </li>
+    </ol>
 
-<p><strong>Option B — BehavioralExportPanel (Recommended):</strong></p>
-<ol>
-  <li>Navigate to the Export panel (always visible in app root)</li>
-  <li>Select session(s) to export</li>
-  <li>Set label to <code>genuine</code> or <code>impostor</code></li>
-  <li>Download as JSON</li>
-</ol>
+    <p><strong>Option B — BehavioralExportPanel (Recommended):</strong></p>
+    <ol>
+      <li>Navigate to the Export panel (always visible in app root)</li>
+      <li>Select session(s) to export</li>
+      <li>Set label to <code>genuine</code> or <code>impostor</code></li>
+      <li>Download as JSON</li>
+    </ol>
 
-<h3>File Naming Convention</h3>
-<pre><code>amal_genuine_session-a_2026-07-14_1.json
+    <h3>File Naming Convention</h3>
+    <pre><code>amal_genuine_session-a_2026-07-14_1.json
 manasa_impostor_amal-target_2026-07-20_1.json
 dristi_genuine_session-c_2026-07-15_2.json</code></pre>
 
-<h3>Dataset Manifest</h3>
-<p>Create a CSV index file:</p>
-<pre><code>filename,user,label,session_type,date,windows_count,duration_sec,device,browser
+    <h3>Dataset Manifest</h3>
+    <p>Create a CSV index file:</p>
+    <pre><code>filename,user,label,session_type,date,windows_count,duration_sec,device,browser
 amal_genuine_session-a_2026-07-14_1.json,amal,genuine,login_dashboard,2026-07-14,52,310,desktop,chrome</code></pre>
 
-<hr>
+    <hr />
 
-<h2 id="format">7. Training Data Format</h2>
+    <h2 id="format">7. Training Data Format</h2>
 
-<p>Each exported JSON file should have this structure:</p>
-<pre><code>{
+    <p>Each exported JSON file should have this structure:</p>
+    <pre><code>{
   "exportedAt": "2026-07-14T10:30:00Z",
   "label": "genuine",
   "user": "amal",
@@ -579,103 +860,173 @@ amal_genuine_session-a_2026-07-14_1.json,amal,genuine,login_dashboard,2026-07-14
   ]
 }</code></pre>
 
-<hr>
+    <hr />
 
-<h2 id="pipeline">8. ML Training Pipeline (After Collection)</h2>
+    <h2 id="pipeline">8. ML Training Pipeline (After Collection)</h2>
 
-<table>
-  <tr><th>Step</th><th>Action</th></tr>
-  <tr><td>1</td><td><strong>Load</strong> all JSON files into pandas DataFrame</td></tr>
-  <tr><td>2</td><td><strong>Filter</strong>: Remove windows with &lt;3 keystrokes AND &lt;50px mouse travel (idle windows)</td></tr>
-  <tr><td>3</td><td><strong>Normalize</strong>: Z-score normalize features per user</td></tr>
-  <tr><td>4</td><td><strong>Feature selection</strong>: Run mRMR to select top discriminative features</td></tr>
-  <tr><td>5</td><td><strong>Train OC-SVM</strong>: On genuine-only data, RBF kernel, nu=0.05</td></tr>
-  <tr><td>6</td><td><strong>Train LightGBM</strong>: Binary classifier on labeled genuine+impostor data</td></tr>
-  <tr><td>7</td><td><strong>Evaluate</strong>: AUC-ROC target &gt; 0.90, accuracy target &gt; 85%</td></tr>
-  <tr><td>8</td><td><strong>Export models</strong>: Save as <code>.joblib</code> files to MinIO/S3</td></tr>
-</table>
+    <table>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td><strong>Load</strong> all JSON files into pandas DataFrame</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>
+          <strong>Filter</strong>: Remove windows with &lt;3 keystrokes AND &lt;50px mouse travel
+          (idle windows)
+        </td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Normalize</strong>: Z-score normalize features per user</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Feature selection</strong>: Run mRMR to select top discriminative features</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Train OC-SVM</strong>: On genuine-only data, RBF kernel, nu=0.05</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>Train LightGBM</strong>: Binary classifier on labeled genuine+impostor data</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>Evaluate</strong>: AUC-ROC target &gt; 0.90, accuracy target &gt; 85%</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><strong>Export models</strong>: Save as <code>.joblib</code> files to MinIO/S3</td>
+      </tr>
+    </table>
 
-<h3>Model Architecture</h3>
+    <h3>Model Architecture</h3>
 
-<div class="card">
-  <h4>LightGBM Classifier ("The Discriminator")</h4>
-  <p>Supervised binary classifier: genuine vs impostor. Output: probability score <code>P(legitimate)</code> ∈ [0, 1]. Reference accuracy: ~94.68% (literature), project target: 85%+, AUC-ROC &gt; 0.90.</p>
-</div>
+    <div class="card">
+      <h4>LightGBM Classifier ("The Discriminator")</h4>
+      <p>
+        Supervised binary classifier: genuine vs impostor. Output: probability score
+        <code>P(legitimate)</code> ∈ [0, 1]. Reference accuracy: ~94.68% (literature), project
+        target: 85%+, AUC-ROC &gt; 0.90.
+      </p>
+    </div>
 
-<div class="card">
-  <h4>One-Class SVM ("The Gatekeeper")</h4>
-  <p>Unsupervised novelty detector trained ONLY on genuine user data. RBF kernel, <code>nu=0.05</code>. Trained per-user (each user has their own "normal" behavioral boundary).</p>
-</div>
+    <div class="card">
+      <h4>One-Class SVM ("The Gatekeeper")</h4>
+      <p>
+        Unsupervised novelty detector trained ONLY on genuine user data. RBF kernel,
+        <code>nu=0.05</code>. Trained per-user (each user has their own "normal" behavioral
+        boundary).
+      </p>
+    </div>
 
-<div class="card">
-  <h4>Score Fusion</h4>
-  <p><code>fused = 0.6 × LightGBM + 0.4 × (1 − OC-SVM_norm)</code></p>
-  <p>Decision thresholds: <strong>Allow</strong> ≥ 0.85 &nbsp;|&nbsp; <strong>Warn</strong> 0.60–0.85 &nbsp;|&nbsp; <strong>Challenge</strong> &lt; 0.60</p>
-</div>
+    <div class="card">
+      <h4>Score Fusion</h4>
+      <p><code>fused = 0.6 × LightGBM + 0.4 × (1 − OC-SVM_norm)</code></p>
+      <p>
+        Decision thresholds: <strong>Allow</strong> ≥ 0.85 &nbsp;|&nbsp;
+        <strong>Warn</strong> 0.60–0.85 &nbsp;|&nbsp; <strong>Challenge</strong> &lt; 0.60
+      </p>
+    </div>
 
-<hr>
+    <hr />
 
-<h2 id="timeline">9. Timeline Summary</h2>
+    <h2 id="timeline">9. Timeline Summary</h2>
 
-<table>
-  <tr><th>Phase</th><th>Days</th><th>Activity</th><th>Windows / User</th></tr>
-  <tr>
-    <td><span class="badge badge-green">Phase 1</span></td>
-    <td>1–7</td>
-    <td>7 session types, daily rotation schedule</td>
-    <td>1,200–1,500</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-amber">Phase 2</span></td>
-    <td>8–10</td>
-    <td>Cross-user impostor sessions</td>
-    <td>200–300</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-blue">Phase 3</span></td>
-    <td>11–12</td>
-    <td>Browser, device, time-of-day variation</td>
-    <td>200–300</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-purple">Phase 4</span></td>
-    <td>13</td>
-    <td>Label, organize, validate datasets</td>
-    <td>—</td>
-  </tr>
-  <tr style="font-weight:700;">
-    <td>Total</td><td>13 days</td><td>—</td><td>1,600–2,100</td>
-  </tr>
-</table>
+    <table>
+      <tr>
+        <th>Phase</th>
+        <th>Days</th>
+        <th>Activity</th>
+        <th>Windows / User</th>
+      </tr>
+      <tr>
+        <td><span class="badge badge-green">Phase 1</span></td>
+        <td>1–7</td>
+        <td>7 session types, daily rotation schedule</td>
+        <td>1,200–1,500</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-amber">Phase 2</span></td>
+        <td>8–10</td>
+        <td>Cross-user impostor sessions</td>
+        <td>200–300</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-blue">Phase 3</span></td>
+        <td>11–12</td>
+        <td>Browser, device, time-of-day variation</td>
+        <td>200–300</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-purple">Phase 4</span></td>
+        <td>13</td>
+        <td>Label, organize, validate datasets</td>
+        <td>—</td>
+      </tr>
+      <tr style="font-weight: 700">
+        <td>Total</td>
+        <td>13 days</td>
+        <td>—</td>
+        <td>1,600–2,100</td>
+      </tr>
+    </table>
 
-<hr>
+    <hr />
 
-<h2 id="prereqs">10. Prerequisites</h2>
+    <h2 id="prereqs">10. Prerequisites</h2>
 
-<ul class="checklist">
-  <li>Set <code>VITE_BEHAVIORAL_EXPORT=true</code> in <code>.env</code></li>
-  <li>Set <code>VITE_USE_REAL_API=true</code> in <code>.env</code></li>
-  <li>Backend running at <code>localhost:8000</code></li>
-  <li>Frontend running at <code>localhost:8080</code></li>
-  <li>Each user has their credentials (see below)</li>
-  <li>Each user clears localStorage between sessions (or use incognito mode for impostor sessions)</li>
-</ul>
+    <ul class="checklist">
+      <li>Set <code>VITE_BEHAVIORAL_EXPORT=true</code> in <code>.env</code></li>
+      <li>Set <code>VITE_USE_REAL_API=true</code> in <code>.env</code></li>
+      <li>Backend running at <code>localhost:8000</code></li>
+      <li>Frontend running at <code>localhost:8080</code></li>
+      <li>Each user has their credentials (see below)</li>
+      <li>
+        Each user clears localStorage between sessions (or use incognito mode for impostor sessions)
+      </li>
+    </ul>
 
-<h3>User Credentials</h3>
+    <h3>User Credentials</h3>
 
-<table>
-  <tr><th>User</th><th>Email</th><th>Password</th></tr>
-  <tr><td>Amal Varghese</td><td><code>amal@adaptiveguardian.dev</code></td><td rowspan="4" style="text-align:center;vertical-align:middle;"><code>Demo@1234567890</code></td></tr>
-  <tr><td>Manasa</td><td><code>manasa@adaptiveguardian.dev</code></td></tr>
-  <tr><td>Dristi</td><td><code>dristi@adaptiveguardian.dev</code></td></tr>
-  <tr><td>Vyas</td><td><code>vyas@adaptiveguardian.dev</code></td></tr>
-</table>
+    <table>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Password</th>
+      </tr>
+      <tr>
+        <td>Amal Varghese</td>
+        <td><code>amal@adaptiveguardian.dev</code></td>
+        <td rowspan="4" style="text-align: center; vertical-align: middle">
+          <code>Demo@1234567890</code>
+        </td>
+      </tr>
+      <tr>
+        <td>Manasa</td>
+        <td><code>manasa@adaptiveguardian.dev</code></td>
+      </tr>
+      <tr>
+        <td>Dristi</td>
+        <td><code>dristi@adaptiveguardian.dev</code></td>
+      </tr>
+      <tr>
+        <td>Vyas</td>
+        <td><code>vyas@adaptiveguardian.dev</code></td>
+      </tr>
+    </table>
 
-<hr>
+    <hr />
 
-<footer>
-  Generated 2026-07-14 &nbsp;|&nbsp; AdaptiveGuardian — B.Tech Major Project (Group 17) &nbsp;|&nbsp; ML Training Data Collection Plan
-</footer>
-
-</body>
+    <footer>
+      Generated 2026-07-14 &nbsp;|&nbsp; AdaptiveGuardian — B.Tech Major Project (Group 17)
+      &nbsp;|&nbsp; ML Training Data Collection Plan
+    </footer>
+  </body>
 </html>

@@ -3,6 +3,7 @@
 ## Changes Made
 
 ### 1. Frontend UI Simplification (`src/routes/admin.profile.tsx`)
+
 - **Removed all cluttered data tables** that were displayed when a user was selected:
   - Authentication Sessions (removed duplicate sections)
   - Session History
@@ -25,6 +26,7 @@
   - Export button functionality unchanged (uses existing service method)
 
 ### 2. Backend Export Filtering (`backend/src/app/domain/admin/export_builder.py`)
+
 - **Enplemented proper empty record filtering** in all export functions:
   - `_is_training_event_empty()` - identifies training events with no meaningful data
   - `_is_behavior_window_empty()` - identifies behavior windows with all zero/null/empty features
@@ -43,6 +45,7 @@
   - No changes to export endpoint or service method
 
 ### 3. Verification & Testing
+
 - Created and ran test suites to verify:
   - Empty record detection logic works correctly
   - Filtering removes meaningless records while preserving meaningful ones
@@ -50,6 +53,7 @@
   - Existing endpoint returns appropriate 401 when unauthenticated (expected behavior)
 
 ## Current Behavior
+
 1. **User Selection**: Clean, compact profile summary instead of overwhelming tables
 2. **Export Functionality**:
    - Button shows when user is selected
@@ -65,10 +69,12 @@
    - Export uses current data at request time (includes newly collected data)
 
 ## Files Modified
+
 1. `src/routes/admin.profile.tsx` - UI simplification
 2. `backend/src/app/domain/admin/export_builder.py` - Added empty record filtering
 
 ## Files Verified (No Changes Made)
+
 - `src/components/admin/profile.tsx` - Component definitions unchanged
 - `src/services/admin/admin.http.ts` - Service methods unchanged
 - `backend/src/app/domain/admin/router.py` - Routing unchanged
@@ -76,6 +82,7 @@
 - All model files unchanged
 
 The implementation satisfies all requirements:
+
 - ✅ UI is no longer cluttered with raw tables
 - ✅ Download button appears in selected user's summary
 - ✅ Export uses current MongoDB data

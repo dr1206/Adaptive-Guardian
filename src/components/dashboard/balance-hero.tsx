@@ -33,8 +33,10 @@ export function BalanceHero({ accounts }: { accounts?: AccountCard[] }) {
 
   if (!acc) {
     return (
-      <article className="relative flex items-center justify-center overflow-hidden rounded-[28px] border border-white/[0.06] p-12"
-        style={{ background: "linear-gradient(135deg,#1c2030 0%,#0f1320 60%,#262b3d 100%)" }}>
+      <article
+        className="relative flex items-center justify-center overflow-hidden rounded-[28px] border border-white/[0.06] p-12"
+        style={{ background: "linear-gradient(135deg,#1c2030 0%,#0f1320 60%,#262b3d 100%)" }}
+      >
         <p className="text-[14px] text-muted-foreground/60">No accounts available</p>
       </article>
     );
@@ -133,9 +135,7 @@ export function BalanceHero({ accounts }: { accounts?: AccountCard[] }) {
 
         {/* Balance */}
         <div className="mt-6 flex items-baseline gap-2 font-numeric text-white">
-          <span className="text-[18px] opacity-60">
-            {acc.currency === "EUR" ? "€" : "$"}
-          </span>
+          <span className="text-[18px] opacity-60">{acc.currency === "EUR" ? "€" : "$"}</span>
           {hide ? (
             <span className="text-[56px] font-semibold tracking-tight">••• ••• ,••</span>
           ) : (
@@ -147,11 +147,17 @@ export function BalanceHero({ accounts }: { accounts?: AccountCard[] }) {
             </>
           )}
           <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-medium text-success">
-            {acc.deltaPct != null ? `↑ ${acc.deltaPct > 0 ? "+" : ""}${acc.deltaPct.toFixed(1)}%` : "↑ +0.57%"}
+            {acc.deltaPct != null
+              ? `↑ ${acc.deltaPct > 0 ? "+" : ""}${acc.deltaPct.toFixed(1)}%`
+              : "↑ +0.57%"}
           </span>
         </div>
         <p className="mt-1 text-[12px] text-white/55">
-          Available{acc.pending != null ? ` · Pending ${acc.currency === "EUR" ? "€" : "$${acc.pending.toLocaleString()}"}` : ""}{acc.iban ? ` · IBAN ${acc.iban}` : ""}
+          Available
+          {acc.pending != null
+            ? ` · Pending ${acc.currency === "EUR" ? "€" : "$${acc.pending.toLocaleString()}"}`
+            : ""}
+          {acc.iban ? ` · IBAN ${acc.iban}` : ""}
         </p>
 
         {/* Area chart */}

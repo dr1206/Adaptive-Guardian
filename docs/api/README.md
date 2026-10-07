@@ -4,13 +4,13 @@
 
 ## Specs
 
-| File | Domain | Status |
-| --- | --- | --- |
-| `openapi.identity.yaml` | Register, OTP, login, refresh, logout, roles | Sprint 1 — frozen at D3 |
-| `openapi.banking.yaml` | Accounts, transactions, transfers, beneficiaries | Sprint 2 |
-| `openapi.behavior.yaml` | Behavioral feature ingestion + session telemetry | Sprint 1 (ingest only) |
-| `openapi.decision.yaml` | Risk evaluation, challenges, explainability | Sprint 3 |
-| `events.asyncapi.yaml` | Kafka event contracts (Avro schemas) | Sprint 1 — outbox + audit topic only |
+| File                    | Domain                                           | Status                               |
+| ----------------------- | ------------------------------------------------ | ------------------------------------ |
+| `openapi.identity.yaml` | Register, OTP, login, refresh, logout, roles     | Sprint 1 — frozen at D3              |
+| `openapi.banking.yaml`  | Accounts, transactions, transfers, beneficiaries | Sprint 2                             |
+| `openapi.behavior.yaml` | Behavioral feature ingestion + session telemetry | Sprint 1 (ingest only)               |
+| `openapi.decision.yaml` | Risk evaluation, challenges, explainability      | Sprint 3                             |
+| `events.asyncapi.yaml`  | Kafka event contracts (Avro schemas)             | Sprint 1 — outbox + audit topic only |
 
 ## Generation
 

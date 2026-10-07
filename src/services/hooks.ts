@@ -131,8 +131,7 @@ export const queryKeys = {
   session: ["auth", "session"] as const,
   accounts: ["banking", "accounts"] as const,
   account: (id: string) => ["banking", "accounts", id] as const,
-  transactions: (accountId?: string) =>
-    ["banking", "transactions", accountId ?? "all"] as const,
+  transactions: (accountId?: string) => ["banking", "transactions", accountId ?? "all"] as const,
   beneficiaries: ["banking", "beneficiaries"] as const,
   cards: ["banking", "cards"] as const,
   payments: ["banking", "payments"] as const,
@@ -142,8 +141,7 @@ export const queryKeys = {
   currencies: ["banking", "currencies"] as const,
   insights: ["banking", "insights"] as const,
   statementYears: ["banking", "statements", "years"] as const,
-  statement: (q: StatementQuery) =>
-    ["banking", "statements", q.year, q.month] as const,
+  statement: (q: StatementQuery) => ["banking", "statements", q.year, q.month] as const,
   activity: ["banking", "activity"] as const,
   budgets: ["banking", "budgets"] as const,
   aegisSnapshot: ["aegis", "snapshot"] as const,
@@ -177,8 +175,7 @@ export const queryKeys = {
 
   // Dashboard
   dashboardSummary: ["dashboard", "summary"] as const,
-  dashboardTrends: (period: string) =>
-    ["dashboard", "trends", period] as const,
+  dashboardTrends: (period: string) => ["dashboard", "trends", period] as const,
   dashboardAnalytics: ["dashboard", "analytics"] as const,
   dashboardNotifications: ["dashboard", "notifications"] as const,
 
@@ -189,8 +186,7 @@ export const queryKeys = {
   securityDeviceHealth: ["security", "device-health"] as const,
   securityLoginAnalytics: (periodDays?: number) =>
     ["security", "login-analytics", periodDays ?? 30] as const,
-  securityDailyReport: (date?: string) =>
-    ["security", "daily-report", date ?? "latest"] as const,
+  securityDailyReport: (date?: string) => ["security", "daily-report", date ?? "latest"] as const,
   securitySessionTimeline: ["security", "session-timeline"] as const,
 
   // Behavioral authentication
@@ -206,12 +202,7 @@ export const queryKeys = {
 /* Auth                                                                          */
 /* ---------------------------------------------------------------------------- */
 
-export function useSession(
-  opts?: Omit<
-    UseQueryOptions<Session | null>,
-    "queryKey" | "queryFn"
-  >,
-) {
+export function useSession(opts?: Omit<UseQueryOptions<Session | null>, "queryKey" | "queryFn">) {
   return useQuery<Session | null>({
     queryKey: queryKeys.session,
     queryFn: ({ signal }) => services.auth.getSession({ signal }),
@@ -222,43 +213,31 @@ export function useSession(
   });
 }
 
-export function useLogin(
-  opts?: UseMutationOptions<Session, Error, LoginInput>,
-) {
+export function useLogin(opts?: UseMutationOptions<Session, Error, LoginInput>) {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: (input: LoginInput) => services.auth.login(input),
-    onSuccess: (session) =>
-      qc.setQueryData(queryKeys.session, session),
+    onSuccess: (session) => qc.setQueryData(queryKeys.session, session),
     ...opts,
   });
 }
 
 export function useRegister(
-  opts?: UseMutationOptions<
-    { challengeId: string },
-    Error,
-    RegisterInput
-  >,
+  opts?: UseMutationOptions<{ challengeId: string }, Error, RegisterInput>,
 ) {
   return useMutation({
-    mutationFn: (input: RegisterInput) =>
-      services.auth.register(input),
+    mutationFn: (input: RegisterInput) => services.auth.register(input),
     ...opts,
   });
 }
 
-export function useVerifyOtp(
-  opts?: UseMutationOptions<Session, Error, VerifyOtpInput>,
-) {
+export function useVerifyOtp(opts?: UseMutationOptions<Session, Error, VerifyOtpInput>) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: VerifyOtpInput) =>
-      services.auth.verifyOtp(input),
-    onSuccess: (session) =>
-      qc.setQueryData(queryKeys.session, session),
+    mutationFn: (input: VerifyOtpInput) => services.auth.verifyOtp(input),
+    onSuccess: (session) => qc.setQueryData(queryKeys.session, session),
     ...opts,
   });
 }
@@ -276,15 +255,10 @@ export function useLogout() {
 }
 
 export function useSubmitEnrollment(
-  opts?: UseMutationOptions<
-    EnrollmentSummary,
-    Error,
-    ReadonlyArray<EnrollmentSample>
-  >,
+  opts?: UseMutationOptions<EnrollmentSummary, Error, ReadonlyArray<EnrollmentSample>>,
 ) {
   return useMutation({
-    mutationFn: (samples) =>
-      services.auth.submitEnrollment(samples),
+    mutationFn: (samples) => services.auth.submitEnrollment(samples),
     ...opts,
   });
 }
@@ -296,8 +270,7 @@ export function useSubmitEnrollment(
 export function useAccounts() {
   return useQuery<ReadonlyArray<Account>>({
     queryKey: queryKeys.accounts,
-    queryFn: ({ signal }) =>
-      services.banking.listAccounts({ signal }),
+    queryFn: ({ signal }) => services.banking.listAccounts({ signal }),
     enabled: hasToken(),
   });
 }
@@ -305,19 +278,15 @@ export function useAccounts() {
 export function useAccount(id: string) {
   return useQuery<Account>({
     queryKey: queryKeys.account(id),
-    queryFn: ({ signal }) =>
-      services.banking.getAccount(id, { signal }),
+    queryFn: ({ signal }) => services.banking.getAccount(id, { signal }),
     enabled: Boolean(id) && hasToken(),
   });
 }
 
-export function useTransactions(
-  query: { accountId?: string; limit?: number } = {},
-) {
+export function useTransactions(query: { accountId?: string; limit?: number } = {}) {
   return useQuery<ReadonlyArray<Transaction>>({
     queryKey: queryKeys.transactions(query.accountId),
-    queryFn: ({ signal }) =>
-      services.banking.listTransactions(query, { signal }),
+    queryFn: ({ signal }) => services.banking.listTransactions(query, { signal }),
     enabled: hasToken(),
   });
 }
@@ -325,56 +294,49 @@ export function useTransactions(
 export function useBeneficiaries() {
   return useQuery<ReadonlyArray<Beneficiary>>({
     queryKey: queryKeys.beneficiaries,
-    queryFn: ({ signal }) =>
-      services.banking.listBeneficiaries({ signal }),
+    queryFn: ({ signal }) => services.banking.listBeneficiaries({ signal }),
   });
 }
 
 export function useCards() {
   return useQuery<ReadonlyArray<BankCard>>({
     queryKey: queryKeys.cards,
-    queryFn: ({ signal }) =>
-      services.banking.listCards({ signal }),
+    queryFn: ({ signal }) => services.banking.listCards({ signal }),
   });
 }
 
 export function usePayments() {
   return useQuery<ReadonlyArray<Payment>>({
     queryKey: queryKeys.payments,
-    queryFn: ({ signal }) =>
-      services.banking.listPayments({ signal }),
+    queryFn: ({ signal }) => services.banking.listPayments({ signal }),
   });
 }
 
 export function useSavingsGoals() {
   return useQuery<ReadonlyArray<SavingsGoal>>({
     queryKey: queryKeys.savingsGoals,
-    queryFn: ({ signal }) =>
-      services.banking.listSavingsGoals({ signal }),
+    queryFn: ({ signal }) => services.banking.listSavingsGoals({ signal }),
   });
 }
 
 export function useHoldings() {
   return useQuery<ReadonlyArray<Holding>>({
     queryKey: queryKeys.holdings,
-    queryFn: ({ signal }) =>
-      services.banking.listHoldings({ signal }),
+    queryFn: ({ signal }) => services.banking.listHoldings({ signal }),
   });
 }
 
 export function useLoans() {
   return useQuery<ReadonlyArray<LoanRecord>>({
     queryKey: queryKeys.loans,
-    queryFn: ({ signal }) =>
-      services.banking.listLoans({ signal }),
+    queryFn: ({ signal }) => services.banking.listLoans({ signal }),
   });
 }
 
 export function useCurrencies() {
   return useQuery<ReadonlyArray<Currency>>({
     queryKey: queryKeys.currencies,
-    queryFn: ({ signal }) =>
-      services.banking.listCurrencies({ signal }),
+    queryFn: ({ signal }) => services.banking.listCurrencies({ signal }),
     staleTime: 60_000,
   });
 }
@@ -382,8 +344,7 @@ export function useCurrencies() {
 export function useStatementYears() {
   return useQuery<ReadonlyArray<StatementYearGroup>>({
     queryKey: queryKeys.statementYears,
-    queryFn: ({ signal }) =>
-      services.banking.listStatementYears({ signal }),
+    queryFn: ({ signal }) => services.banking.listStatementYears({ signal }),
     staleTime: 60_000,
   });
 }
@@ -391,47 +352,38 @@ export function useStatementYears() {
 export function useStatement(query: StatementQuery) {
   return useQuery<StatementSample>({
     queryKey: queryKeys.statement(query),
-    queryFn: ({ signal }) =>
-      services.banking.getStatement(query, { signal }),
+    queryFn: ({ signal }) => services.banking.getStatement(query, { signal }),
   });
 }
 
 export function useActivity() {
   return useQuery<ReadonlyArray<ActivityEvent>>({
     queryKey: queryKeys.activity,
-    queryFn: ({ signal }) =>
-      services.banking.listActivity({ signal }),
+    queryFn: ({ signal }) => services.banking.listActivity({ signal }),
   });
 }
 
 export function useBudgets() {
   return useQuery<ReadonlyArray<BudgetEnvelope>>({
     queryKey: queryKeys.budgets,
-    queryFn: ({ signal }) =>
-      services.banking.listBudgets({ signal }),
+    queryFn: ({ signal }) => services.banking.listBudgets({ signal }),
   });
 }
 
 export function useInsights() {
   return useQuery<ReadonlyArray<Insight>>({
     queryKey: queryKeys.insights,
-    queryFn: ({ signal }) =>
-      services.banking.listInsights({ signal }),
+    queryFn: ({ signal }) => services.banking.listInsights({ signal }),
   });
 }
 
 export function useInitiateTransfer(
-  opts?: UseMutationOptions<
-    TransferResult,
-    Error,
-    TransferInput
-  >,
+  opts?: UseMutationOptions<TransferResult, Error, TransferInput>,
 ) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: TransferInput) =>
-      services.banking.initiateTransfer(input),
+    mutationFn: (input: TransferInput) => services.banking.initiateTransfer(input),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: queryKeys.accounts,
@@ -451,8 +403,7 @@ export function useInitiateTransfer(
 export function useAegisSnapshot() {
   return useQuery<AegisSnapshot>({
     queryKey: queryKeys.aegisSnapshot,
-    queryFn: ({ signal }) =>
-      services.aegis.getSnapshot({ signal }),
+    queryFn: ({ signal }) => services.aegis.getSnapshot({ signal }),
     enabled: hasToken(),
     staleTime: 1500,
   });
@@ -460,16 +411,18 @@ export function useAegisSnapshot() {
 
 /** Live confidence stream — for the Security Strip and Aegis widget. */
 export function useAegisLive(): AegisSnapshot | null {
-  const [snap, setSnap] =
-    useState<AegisSnapshot | null>(null);
+  const [snap, setSnap] = useState<AegisSnapshot | null>(null);
 
   useEffect(() => {
     if (!hasToken()) return;
     let cancelled = false;
 
-    services.aegis.getSnapshot().then((s) => {
-      if (!cancelled) setSnap(s);
-    }).catch(() => {});
+    services.aegis
+      .getSnapshot()
+      .then((s) => {
+        if (!cancelled) setSnap(s);
+      })
+      .catch(() => {});
 
     const off = services.aegis.subscribeSnapshots((s) => {
       if (!cancelled) setSnap(s);
@@ -487,8 +440,7 @@ export function useAegisLive(): AegisSnapshot | null {
 export function useDecisions() {
   return useQuery<ReadonlyArray<Decision>>({
     queryKey: queryKeys.aegisDecisions,
-    queryFn: ({ signal }) =>
-      services.aegis.listDecisions({ signal }),
+    queryFn: ({ signal }) => services.aegis.listDecisions({ signal }),
     enabled: hasToken(),
   });
 }
@@ -496,8 +448,7 @@ export function useDecisions() {
 export function useDevices() {
   return useQuery<ReadonlyArray<Device>>({
     queryKey: queryKeys.aegisDevices,
-    queryFn: ({ signal }) =>
-      services.aegis.listDevices({ signal }),
+    queryFn: ({ signal }) => services.aegis.listDevices({ signal }),
     enabled: hasToken(),
   });
 }
@@ -505,8 +456,7 @@ export function useDevices() {
 export function useRiskEvents() {
   return useQuery<ReadonlyArray<RiskEvent>>({
     queryKey: queryKeys.aegisRisk,
-    queryFn: ({ signal }) =>
-      services.aegis.listRiskEvents({ signal }),
+    queryFn: ({ signal }) => services.aegis.listRiskEvents({ signal }),
     enabled: hasToken(),
   });
 }
@@ -518,186 +468,161 @@ export function useRiskEvents() {
 export function useDeviceProfiles() {
   return useQuery<ReadonlyArray<DeviceProfile>>({
     queryKey: queryKeys.aegisDeviceProfiles,
-    queryFn: ({ signal }) =>
-      services.aegis.listDeviceProfiles({ signal }),
+    queryFn: ({ signal }) => services.aegis.listDeviceProfiles({ signal }),
   });
 }
 
 export function useDecisionReplays() {
   return useQuery<ReadonlyArray<DecisionReplay>>({
     queryKey: queryKeys.aegisDecisionReplays,
-    queryFn: ({ signal }) =>
-      services.aegis.listDecisionReplays({ signal }),
+    queryFn: ({ signal }) => services.aegis.listDecisionReplays({ signal }),
   });
 }
 
 export function useAdminKpis() {
   return useQuery<ReadonlyArray<Kpi>>({
     queryKey: queryKeys.adminKpis,
-    queryFn: ({ signal }) =>
-      services.admin.listKpis({ signal }),
+    queryFn: ({ signal }) => services.admin.listKpis({ signal }),
   });
 }
 
 export function useAdminGlobalMetrics() {
   return useQuery<ReadonlyArray<GlobalMetric>>({
     queryKey: queryKeys.adminGlobalMetrics,
-    queryFn: ({ signal }) =>
-      services.admin.listGlobalMetrics({ signal }),
+    queryFn: ({ signal }) => services.admin.listGlobalMetrics({ signal }),
   });
 }
 
 export function useAdminLiveSessions() {
   return useQuery<ReadonlyArray<LiveSession>>({
     queryKey: queryKeys.adminLiveSessions,
-    queryFn: ({ signal }) =>
-      services.admin.listLiveSessions({ signal }),
+    queryFn: ({ signal }) => services.admin.listLiveSessions({ signal }),
   });
 }
 
 export function useAdminUsers() {
   return useQuery<ReadonlyArray<AdminUser>>({
     queryKey: queryKeys.adminUsers,
-    queryFn: ({ signal }) =>
-      services.admin.listUsers({ signal }),
+    queryFn: ({ signal }) => services.admin.listUsers({ signal }),
   });
 }
 
 export function useAdminIncidents() {
   return useQuery<ReadonlyArray<Incident>>({
     queryKey: queryKeys.adminIncidents,
-    queryFn: ({ signal }) =>
-      services.admin.listIncidents({ signal }),
+    queryFn: ({ signal }) => services.admin.listIncidents({ signal }),
   });
 }
 
 export function useAdminModels() {
   return useQuery<ReadonlyArray<ModelVersion>>({
     queryKey: queryKeys.adminModels,
-    queryFn: ({ signal }) =>
-      services.admin.listModels({ signal }),
+    queryFn: ({ signal }) => services.admin.listModels({ signal }),
   });
 }
 
 export function useAdminDatasets() {
   return useQuery<ReadonlyArray<Dataset>>({
     queryKey: queryKeys.adminDatasets,
-    queryFn: ({ signal }) =>
-      services.admin.listDatasets({ signal }),
+    queryFn: ({ signal }) => services.admin.listDatasets({ signal }),
   });
 }
 
 export function useAdminApiServices() {
   return useQuery<ReadonlyArray<ApiService>>({
     queryKey: queryKeys.adminApiServices,
-    queryFn: ({ signal }) =>
-      services.admin.listApiServices({ signal }),
+    queryFn: ({ signal }) => services.admin.listApiServices({ signal }),
   });
 }
 
 export function useAdminControls() {
   return useQuery<ReadonlyArray<ComplianceControl>>({
     queryKey: queryKeys.adminControls,
-    queryFn: ({ signal }) =>
-      services.admin.listControls({ signal }),
+    queryFn: ({ signal }) => services.admin.listControls({ signal }),
   });
 }
 
 export function useAdminReportTemplates() {
   return useQuery<ReadonlyArray<ReportTemplate>>({
     queryKey: queryKeys.adminReportTemplates,
-    queryFn: ({ signal }) =>
-      services.admin.listReportTemplates({ signal }),
+    queryFn: ({ signal }) => services.admin.listReportTemplates({ signal }),
   });
 }
 
 export function useAdminAudit() {
   return useQuery<ReadonlyArray<AuditEntry>>({
     queryKey: queryKeys.adminAudit,
-    queryFn: ({ signal }) =>
-      services.admin.listAudit({ signal }),
+    queryFn: ({ signal }) => services.admin.listAudit({ signal }),
   });
 }
 
 export function useAdminChallengeReasons() {
   return useQuery<ReadonlyArray<ChallengeReason>>({
     queryKey: queryKeys.adminChallengeReasons,
-    queryFn: ({ signal }) =>
-      services.admin.listChallengeReasons({ signal }),
+    queryFn: ({ signal }) => services.admin.listChallengeReasons({ signal }),
   });
 }
 
 export function useAdminChallenges() {
   return useQuery<ReadonlyArray<ChallengeRecord>>({
     queryKey: queryKeys.adminChallenges,
-    queryFn: ({ signal }) =>
-      services.admin.listChallenges({ signal }),
+    queryFn: ({ signal }) => services.admin.listChallenges({ signal }),
   });
 }
 
 export function useAdminRoles() {
   return useQuery<ReadonlyArray<Role>>({
     queryKey: queryKeys.adminRoles,
-    queryFn: ({ signal }) =>
-      services.admin.listRoles({ signal }),
+    queryFn: ({ signal }) => services.admin.listRoles({ signal }),
   });
 }
 
 export function useAdminPermissions() {
   return useQuery<ReadonlyArray<Permission>>({
     queryKey: queryKeys.adminPermissions,
-    queryFn: ({ signal }) =>
-      services.admin.listPermissions({ signal }),
+    queryFn: ({ signal }) => services.admin.listPermissions({ signal }),
   });
 }
 
 export function useAdminRolePermissions() {
-  return useQuery<
-    Readonly<Record<string, ReadonlyArray<string>>>
-  >({
+  return useQuery<Readonly<Record<string, ReadonlyArray<string>>>>({
     queryKey: queryKeys.adminRolePermissions,
-    queryFn: ({ signal }) =>
-      services.admin.getRolePermissions({ signal }),
+    queryFn: ({ signal }) => services.admin.getRolePermissions({ signal }),
   });
 }
 
 export function useAdminNotificationGroups() {
   return useQuery<ReadonlyArray<NotificationGroup>>({
     queryKey: queryKeys.adminNotificationGroups,
-    queryFn: ({ signal }) =>
-      services.admin.listNotificationGroups({ signal }),
+    queryFn: ({ signal }) => services.admin.listNotificationGroups({ signal }),
   });
 }
 
 export function useAdminGeoDots() {
   return useQuery<ReadonlyArray<GeoDot>>({
     queryKey: queryKeys.adminGeoDots,
-    queryFn: ({ signal }) =>
-      services.admin.listGeoDots({ signal }),
+    queryFn: ({ signal }) => services.admin.listGeoDots({ signal }),
   });
 }
 
 export function useAdminInfra() {
   return useQuery<InfraSnapshot>({
     queryKey: queryKeys.adminInfra,
-    queryFn: ({ signal }) =>
-      services.admin.getInfraSnapshot({ signal }),
+    queryFn: ({ signal }) => services.admin.getInfraSnapshot({ signal }),
   });
 }
 
 export function useAdminAccounts() {
   return useQuery<ReadonlyArray<AdminAccount>>({
     queryKey: queryKeys.adminAccounts,
-    queryFn: ({ signal }) =>
-      services.admin.listAdminAccounts({ signal }),
+    queryFn: ({ signal }) => services.admin.listAdminAccounts({ signal }),
   });
 }
 
 export function useAdminAnomalySignatures() {
   return useQuery<ReadonlyArray<AnomalySignature>>({
     queryKey: queryKeys.adminAnomalySignatures,
-    queryFn: ({ signal }) =>
-      services.admin.listAnomalySignatures({ signal }),
+    queryFn: ({ signal }) => services.admin.listAnomalySignatures({ signal }),
   });
 }
 
@@ -708,19 +633,15 @@ export function useAdminAnomalySignatures() {
 export function useDashboardSummary() {
   return useQuery<DashboardSummary>({
     queryKey: queryKeys.dashboardSummary,
-    queryFn: ({ signal }) =>
-      services.dashboard.getSummary({ signal }),
+    queryFn: ({ signal }) => services.dashboard.getSummary({ signal }),
     staleTime: 30_000,
   });
 }
 
-export function useDashboardTrends(
-  period: "7d" | "30d" | "90d" = "30d",
-) {
+export function useDashboardTrends(period: "7d" | "30d" | "90d" = "30d") {
   return useQuery<TrendResponse>({
     queryKey: queryKeys.dashboardTrends(period),
-    queryFn: ({ signal }) =>
-      services.dashboard.getTrends(period, { signal }),
+    queryFn: ({ signal }) => services.dashboard.getTrends(period, { signal }),
     staleTime: 30_000,
   });
 }
@@ -728,8 +649,7 @@ export function useDashboardTrends(
 export function useDashboardAnalytics() {
   return useQuery<AnalyticsResponse>({
     queryKey: queryKeys.dashboardAnalytics,
-    queryFn: ({ signal }) =>
-      services.dashboard.getAnalytics({ signal }),
+    queryFn: ({ signal }) => services.dashboard.getAnalytics({ signal }),
     staleTime: 30_000,
   });
 }
@@ -737,8 +657,7 @@ export function useDashboardAnalytics() {
 export function useDashboardNotifications() {
   return useQuery<NotificationFeed>({
     queryKey: queryKeys.dashboardNotifications,
-    queryFn: ({ signal }) =>
-      services.dashboard.getNotifications({ signal }),
+    queryFn: ({ signal }) => services.dashboard.getNotifications({ signal }),
     staleTime: 15_000,
   });
 }
@@ -750,8 +669,7 @@ export function useDashboardNotifications() {
 export function useSecurityOverview() {
   return useQuery<SecurityOverview>({
     queryKey: queryKeys.securityOverview,
-    queryFn: ({ signal }) =>
-      services.security.getOverview({ signal }),
+    queryFn: ({ signal }) => services.security.getOverview({ signal }),
     enabled: hasToken(),
     staleTime: 15_000,
   });
@@ -773,8 +691,7 @@ export function useSecurityRiskEvents(severity?: string) {
 export function useSecurityDeviceHealth() {
   return useQuery<DeviceHealthResponse>({
     queryKey: queryKeys.securityDeviceHealth,
-    queryFn: ({ signal }) =>
-      services.security.getDeviceHealth({ signal }),
+    queryFn: ({ signal }) => services.security.getDeviceHealth({ signal }),
     enabled: hasToken(),
     staleTime: 60_000,
   });
@@ -795,8 +712,7 @@ export function useSecurityLoginAnalytics(periodDays?: number) {
 export function useSecurityDailyReport(date?: string) {
   return useQuery({
     queryKey: queryKeys.securityDailyReport(date),
-    queryFn: ({ signal }) =>
-      services.security.getDailyReport(date, { signal }),
+    queryFn: ({ signal }) => services.security.getDailyReport(date, { signal }),
     enabled: hasToken(),
     staleTime: 300_000,
   });
@@ -805,8 +721,7 @@ export function useSecurityDailyReport(date?: string) {
 export function useSecuritySessionTimeline() {
   return useQuery<SessionTimelineResponse>({
     queryKey: queryKeys.securitySessionTimeline,
-    queryFn: ({ signal }) =>
-      services.security.getSessionTimeline({ signal }),
+    queryFn: ({ signal }) => services.security.getSessionTimeline({ signal }),
     enabled: hasToken(),
     staleTime: 15_000,
   });
@@ -826,15 +741,10 @@ export function useSecuritySessionTimeline() {
  * The actual HTTP implementation is provided by services.security.
  */
 export function useBehavioralAuthentication(
-  opts?: UseMutationOptions<
-    BehavioralAuthenticationResult,
-    Error,
-    BehavioralAuthenticationInput
-  >,
+  opts?: UseMutationOptions<BehavioralAuthenticationResult, Error, BehavioralAuthenticationInput>,
 ) {
   return useMutation({
-    mutationFn: (input) =>
-      services.security.behavioralAuthenticate(input),
+    mutationFn: (input) => services.security.behavioralAuthenticate(input),
     ...opts,
   });
 }
@@ -843,11 +753,7 @@ export function useBehavioralAuthentication(
 /* Notifications                                                                  */
 /* ---------------------------------------------------------------------------- */
 
-export function useNotifications(
-  unreadOnly?: boolean,
-  limit?: number,
-  offset?: number,
-) {
+export function useNotifications(unreadOnly?: boolean, limit?: number, offset?: number) {
   return useQuery<NotificationInbox>({
     queryKey: queryKeys.notificationsInbox(unreadOnly),
     queryFn: ({ signal }) =>
@@ -864,8 +770,7 @@ export function useNotifications(
 export function useNotificationPreferences() {
   return useQuery<NotificationPreferences>({
     queryKey: queryKeys.notificationsPreferences,
-    queryFn: ({ signal }) =>
-      services.notifications.getPreferences({ signal }),
+    queryFn: ({ signal }) => services.notifications.getPreferences({ signal }),
     staleTime: 300_000,
   });
 }
@@ -874,8 +779,7 @@ export function useMarkNotificationRead() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) =>
-      services.notifications.markRead(id),
+    mutationFn: (id: string) => services.notifications.markRead(id),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["notifications"],
@@ -891,8 +795,7 @@ export function useMarkAllNotificationsRead() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: () =>
-      services.notifications.markAllRead(),
+    mutationFn: () => services.notifications.markAllRead(),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["notifications"],
@@ -908,8 +811,7 @@ export function useUpdateNotificationPreferences() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PreferenceUpdateRequest) =>
-      services.notifications.updatePreferences(data),
+    mutationFn: (data: PreferenceUpdateRequest) => services.notifications.updatePreferences(data),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: queryKeys.notificationsPreferences,
@@ -941,22 +843,16 @@ export {
 export function useTrainingProgress() {
   return useQuery<TrainingProgress>({
     queryKey: ["training", "progress"],
-    queryFn: ({ signal }) =>
-      services.training.getProgress(),
+    queryFn: ({ signal }) => services.training.getProgress(),
     staleTime: 15_000,
   });
 }
 
 export function useStartTrainingSession(
-  opts?: UseMutationOptions<
-    { sessionId: string; status: string },
-    Error,
-    TrainingSessionStart
-  >,
+  opts?: UseMutationOptions<{ sessionId: string; status: string }, Error, TrainingSessionStart>,
 ) {
   return useMutation({
-    mutationFn: (input) =>
-      services.training.startSession(input),
+    mutationFn: (input) => services.training.startSession(input),
     ...opts,
   });
 }
@@ -975,8 +871,7 @@ export function useCompleteTrainingSession(
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (input) =>
-      services.training.completeSession(input),
+    mutationFn: (input) => services.training.completeSession(input),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["training", "progress"],
@@ -987,15 +882,10 @@ export function useCompleteTrainingSession(
 }
 
 export function useSubmitTrainingBatch(
-  opts?: UseMutationOptions<
-    { accepted: number; status: string },
-    Error,
-    TrainingBatchRequest
-  >,
+  opts?: UseMutationOptions<{ accepted: number; status: string }, Error, TrainingBatchRequest>,
 ) {
   return useMutation({
-    mutationFn: (input) =>
-      services.training.submitBatch(input),
+    mutationFn: (input) => services.training.submitBatch(input),
     ...opts,
   });
 }
@@ -1009,8 +899,7 @@ export function useSubmitTrainingFeatures(
 ) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input) =>
-      services.training.submitFeatures(input),
+    mutationFn: (input) => services.training.submitFeatures(input),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["training", "progress"],
@@ -1050,4 +939,4 @@ export function useEnrollTrainingProfile(
     },
     ...opts,
   });
-}
+}

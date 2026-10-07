@@ -309,7 +309,15 @@ function toSignal(value: number | string | undefined | null): Signal {
     if (s === "critical" || s === "danger" || s === "error") return "critical";
     if (s === "alert" || s === "high") return "alert";
     if (s === "watch" || s === "warn" || s === "warning" || s === "medium") return "watch";
-    if (s === "ok" || s === "info" || s === "low" || s === "healthy" || s === "success" || s === "pass") return "ok";
+    if (
+      s === "ok" ||
+      s === "info" ||
+      s === "low" ||
+      s === "healthy" ||
+      s === "success" ||
+      s === "pass"
+    )
+      return "ok";
     return "ok";
   }
   if (value >= 80) return "ok";
@@ -322,7 +330,12 @@ function toSignal(value: number | string | undefined | null): Signal {
 // Implementation
 // ---------------------------------------------------------------------------
 
-function parseKpiCard(card: BackendKpiCard): { value: number; delta: number; suffix: string; series: number[] } {
+function parseKpiCard(card: BackendKpiCard): {
+  value: number;
+  delta: number;
+  suffix: string;
+  series: number[];
+} {
   const value = parseInt(card.value.replace(/[,%]/g, ""), 10) || 0;
   const deltaStr = card.delta ?? "0";
   const delta = parseInt(deltaStr.replace(/[+,%]/g, ""), 10) || 0;
@@ -382,14 +395,31 @@ export const httpAdminService: AdminService = {
     const challenges = parseKpiCard(resp.mfaChallenges);
     return [
       { id: "totalUsers", label: "Total Users", ...totalUsers, signal: toSignal(totalUsers.delta) },
-      { id: "activeSessions", label: "Active Sessions", ...activeSessions, signal: toSignal(activeSessions.value) },
-      { id: "riskEvents", label: "Risk Events", ...riskEvents, signal: toSignal(riskEvents.delta > 0 ? 0 : 100) },
-      { id: "challenges", label: "Challenges", ...challenges, signal: toSignal(challenges.delta > 0 ? 0 : 100) },
+      {
+        id: "activeSessions",
+        label: "Active Sessions",
+        ...activeSessions,
+        signal: toSignal(activeSessions.value),
+      },
+      {
+        id: "riskEvents",
+        label: "Risk Events",
+        ...riskEvents,
+        signal: toSignal(riskEvents.delta > 0 ? 0 : 100),
+      },
+      {
+        id: "challenges",
+        label: "Challenges",
+        ...challenges,
+        signal: toSignal(challenges.delta > 0 ? 0 : 100),
+      },
     ];
   },
 
   async listGlobalMetrics({ signal } = {}) {
-    const resp = await httpRequest<BackendGlobalMetricsResponse>("/admin/global-metrics", { signal });
+    const resp = await httpRequest<BackendGlobalMetricsResponse>("/admin/global-metrics", {
+      signal,
+    });
     return resp.series.map((m) => ({
       ...m,
       signal: toSignal(m.signal),
@@ -426,7 +456,14 @@ export const httpAdminService: AdminService = {
       roles: u.roles ?? [],
       devices: 1,
       trust: u.isVerified ? 85 : 30,
-      risk: u.riskLevel === "critical" ? 90 : u.riskLevel === "high" ? 65 : u.riskLevel === "medium" ? 35 : 10,
+      risk:
+        u.riskLevel === "critical"
+          ? 90
+          : u.riskLevel === "high"
+            ? 65
+            : u.riskLevel === "medium"
+              ? 35
+              : 10,
       lastSeen: u.lastLogin ? parseAge(u.lastLogin) : "never",
       country: "Unknown",
       signal: toSignal(u.isVerified ? 90 : 30),
@@ -447,10 +484,12 @@ export const httpAdminService: AdminService = {
 
   async listModels({ signal } = {}) {
     const models = await httpRequest<BackendModelItem[]>("/admin/models", { signal });
-    return models.flatMap((m) => m.versions.map((v) => ({
-      ...v,
-      status: v.status as ModelVersion["status"],
-    })));
+    return models.flatMap((m) =>
+      m.versions.map((v) => ({
+        ...v,
+        status: v.status as ModelVersion["status"],
+      })),
+    );
   },
 
   async listDatasets({ signal } = {}) {
@@ -515,7 +554,9 @@ export const httpAdminService: AdminService = {
   },
 
   async getRolePermissions({ signal } = {}) {
-    const resp = await httpRequest<BackendRolePermissionsResponse>("/admin/role-permissions", { signal });
+    const resp = await httpRequest<BackendRolePermissionsResponse>("/admin/role-permissions", {
+      signal,
+    });
     const map: Record<string, ReadonlyArray<string>> = {};
     for (const m of resp.mappings) {
       map[m.role] = m.permissions;
@@ -524,7 +565,9 @@ export const httpAdminService: AdminService = {
   },
 
   async listNotificationGroups({ signal } = {}) {
-    const resp = await httpRequest<BackendNotificationGroupList>("/admin/notification-groups", { signal });
+    const resp = await httpRequest<BackendNotificationGroupList>("/admin/notification-groups", {
+      signal,
+    });
     return resp.groups.map((g) => ({ ...g, signal: toSignal(g.signal) }));
   },
 
@@ -546,7 +589,9 @@ export const httpAdminService: AdminService = {
   },
 
   async listAnomalySignatures({ signal } = {}) {
-    const resp = await httpRequest<BackendAnomalySignatureList>("/admin/anomaly-signatures", { signal });
+    const resp = await httpRequest<BackendAnomalySignatureList>("/admin/anomaly-signatures", {
+      signal,
+    });
     return resp.signatures.map((s) => ({
       ...s,
       severity: toSignal(s.severity),
@@ -554,11 +599,11 @@ export const httpAdminService: AdminService = {
   },
 
   async getUserDetails({ user_id, signal }: { user_id: string; signal?: AbortSignal }) {
-    return httpRequest<any>(`/admin/users/${user_id}/details`, { signal });
+    return httpRequest<Record<string, unknown>>(`/admin/users/${user_id}/details`, { signal });
   },
 
   async getUserSessions({ user_id, signal }: { user_id: string; signal?: AbortSignal }) {
-    return httpRequest<any>(`/admin/users/${user_id}/sessions`, { signal });
+    return httpRequest<Record<string, unknown>>(`/admin/users/${user_id}/sessions`, { signal });
   },
 
   async exportTrainingData({ signal } = {}) {
@@ -735,7 +780,13 @@ export const httpAdminService: AdminService = {
     await downloadExport(`/admin/training/export/users${query}`, fallbackFilename);
   },
 
-  async exportSessionBehavioral({ session_id, signal }: { session_id: string; signal?: AbortSignal }) {
+  async exportSessionBehavioral({
+    session_id,
+    signal,
+  }: {
+    session_id: string;
+    signal?: AbortSignal;
+  }) {
     const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8000/api/v1";
 
     const token = (() => {
@@ -751,11 +802,14 @@ export const httpAdminService: AdminService = {
       Authorization: `Bearer ${token}`,
     };
 
-    let resp = await fetch(`${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`, {
-      headers,
-      signal,
-      credentials: "include",
-    });
+    let resp = await fetch(
+      `${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`,
+      {
+        headers,
+        signal,
+        credentials: "include",
+      },
+    );
 
     if (resp.status === 401) {
       try {
@@ -769,11 +823,14 @@ export const httpAdminService: AdminService = {
           if (body.accessToken) {
             localStorage.setItem("ag_access_token", body.accessToken);
             headers.Authorization = `Bearer ${body.accessToken}`;
-            resp = await fetch(`${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`, {
-              headers,
-              signal,
-              credentials: "include",
-            });
+            resp = await fetch(
+              `${API_BASE}/admin/sessions/${encodeURIComponent(session_id)}/behavioral`,
+              {
+                headers,
+                signal,
+                credentials: "include",
+              },
+            );
           }
         }
       } catch {

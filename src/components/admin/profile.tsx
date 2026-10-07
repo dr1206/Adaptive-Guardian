@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface AdminUser {
   id: string;
   email: string;
@@ -32,9 +33,7 @@ export const AdminProfileHeader = ({ user }: { user: any }) => {
               <span
                 key={role}
                 className={`px-2 py-0.5 rounded text-[9px] font-mono ${
-                  role === "admin"
-                    ? "bg-emerald-500/20 text-emerald-300"
-                    : "bg-white/[0.06]"
+                  role === "admin" ? "bg-emerald-500/20 text-emerald-300" : "bg-white/[0.06]"
                 }`}
               >
                 {role}
@@ -64,15 +63,16 @@ export const AdminProfileSection = ({
   );
 };
 
-export const AdminProfileTable = ({ columns, rows }: {
+export const AdminProfileTable = ({
+  columns,
+  rows,
+}: {
   columns: Array<{ key: string; label: string }>;
   rows: Array<Record<string, any>>;
 }) => {
   if (rows.length === 0) {
     return (
-      <div className="px-4 py-4 text-xs text-muted-foreground text-center">
-        No records found
-      </div>
+      <div className="px-4 py-4 text-xs text-muted-foreground text-center">No records found</div>
     );
   }
 
@@ -95,9 +95,7 @@ export const AdminProfileTable = ({ columns, rows }: {
           >
             <div className="grid grid-cols-[repeat(var(--column-count, 10),minmax(0,1fr))] text-xs font-mono">
               {columns.map((col) => (
-                <div key={`${rowIndex}-${col.key}`}>
-                  {row[col.key]}
-                </div>
+                <div key={`${rowIndex}-${col.key}`}>{row[col.key]}</div>
               ))}
             </div>
           </div>

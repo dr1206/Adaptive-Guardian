@@ -30,20 +30,56 @@ export function WelcomeHeader({ name = "Amal", accounts }: WelcomeHeaderProps) {
 
   const accts = accounts ?? [];
   const totalBalance = accts.reduce((sum, a) => sum + a.balance, 0);
-  const savingsBalance = accts.filter((a) => a.type === "savings").reduce((sum, a) => sum + a.balance, 0);
-  const investBalance = accts.filter((a) => a.type === "investment").reduce((sum, a) => sum + a.balance, 0);
+  const savingsBalance = accts
+    .filter((a) => a.type === "savings")
+    .reduce((sum, a) => sum + a.balance, 0);
+  const investBalance = accts
+    .filter((a) => a.type === "investment")
+    .reduce((sum, a) => sum + a.balance, 0);
   const primaryAccount = accts.find((a) => a.type === "primary");
 
   const fmt = (n: number) => Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
   const fmtLarge = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(2)}` : fmt(n));
 
   const stats = [
-    { label: "Available", value: fmt(totalBalance), prefix: "$", spark: primaryAccount?.spark ?? [40, 42, 48] },
-    { label: "Today", value: `+ ${fmt(totalBalance * 0.005)}`, prefix: "$", positive: true, spark: [20, 28, 22, 36, 30, 44, 56] },
-    { label: "In (Jun)", value: fmt(totalBalance * 0.06), prefix: "$", spark: [12, 18, 25, 30, 28, 32, 40] },
-    { label: "Out (Jun)", value: fmt(totalBalance * 0.037), prefix: "$", spark: [22, 26, 22, 28, 30, 26, 24] },
-    { label: "Savings", value: fmt(savingsBalance), prefix: "$", spark: [38, 40, 42, 45, 48, 51, 54] },
-    { label: "Investments", value: fmtLarge(investBalance), prefix: "$", suffix: investBalance >= 1_000_000 ? "M" : undefined, spark: [30, 36, 32, 40, 44, 48, 56] },
+    {
+      label: "Available",
+      value: fmt(totalBalance),
+      prefix: "$",
+      spark: primaryAccount?.spark ?? [40, 42, 48],
+    },
+    {
+      label: "Today",
+      value: `+ ${fmt(totalBalance * 0.005)}`,
+      prefix: "$",
+      positive: true,
+      spark: [20, 28, 22, 36, 30, 44, 56],
+    },
+    {
+      label: "In (Jun)",
+      value: fmt(totalBalance * 0.06),
+      prefix: "$",
+      spark: [12, 18, 25, 30, 28, 32, 40],
+    },
+    {
+      label: "Out (Jun)",
+      value: fmt(totalBalance * 0.037),
+      prefix: "$",
+      spark: [22, 26, 22, 28, 30, 26, 24],
+    },
+    {
+      label: "Savings",
+      value: fmt(savingsBalance),
+      prefix: "$",
+      spark: [38, 40, 42, 45, 48, 51, 54],
+    },
+    {
+      label: "Investments",
+      value: fmtLarge(investBalance),
+      prefix: "$",
+      suffix: investBalance >= 1_000_000 ? "M" : undefined,
+      spark: [30, 36, 32, 40, 44, 48, 56],
+    },
   ];
 
   return (

@@ -7,6 +7,7 @@ Let me first get the basic dataset information:
 Total rows: 1195
 
 Record type breakdown:
+
 - training_event: 933 rows (78.1%)
 - training_feature: 9 rows (0.8%)
 - behavioral_event: 183 rows (15.3%)
@@ -17,15 +18,19 @@ Record type breakdown:
 The behavioral_window records (69 total) are the ones that should contain aggregated feature data suitable for ML training. My analysis reveals:
 
 ### Window timing information
+
 - windowStart column: EMPTY for all 69 records (0% populated)
 - windowEnd column: EMPTY for all 69 records (0% populated)
 - timestamp column: POPULATED for all 69 records (100% populated)
 
 ### Feature data location
+
 The feature data is NOT in the standard behavioral feature columns:
+
 - dwellMeanMs, dwellStdMs, flightMeanMs, flightStdMs, keysPerSec, etc.: ALL EMPTY (0% populated)
 
 Instead, feature data appears in window_f_* columns:
+
 - window_f_accelerationMean: 100% populated, mean: 0.39, range [0.01, 0.99]
 - window_f_accelerationStd: 100% populated, mean: 4.80, range [0.00, 10.00]
 - window_f_clickCount: 100% populated, mean: 0.30, range [0.10, 0.54]
@@ -67,6 +72,7 @@ Instead, feature data appears in window_f_* columns:
 ## D. Comparison with expected behavioral data contract
 
 Based on the Phase 11 results and system documentation, genuine behavioral window data should have:
+
 - Populated windowStart and windowEnd timestamps
 - Reasonable values for behavioral features:
   - dwellMeanMs: Typically 50-200ms for typing
@@ -81,12 +87,15 @@ The current dataset fails to meet these requirements.
 **NO**, the dataset does **NOT** contain usable current behavioral-window feature data for ML training.
 
 ### Justification:
+
 1. **Missing temporal identifiers**: Empty windowStart and windowEnd columns violate the basic contract of behavioral windows, making it impossible to verify data integrity or calculate proper temporal features.
 2. **Unrealistic feature values**: The extraordinarily high keysPerSec values (in the tens of thousands) are not plausible for human behavioral biometrics and strongly suggest test/synthetic data rather than genuine user interactions.
 3. **Incorrect data formatting**: Feature data appears in window_f_* columns rather than the expected behavioral feature columns, indicating a mismatch with the expected data schema.
 
 ### Recommendation:
+
 Do not use this dataset for ML training. The data appears to be either:
+
 - Test/synthetic data with intentionally extreme values
 - Incorrectly formatted export data
 - Data from a non-standard collection pipeline
@@ -94,4 +103,5 @@ Do not use this dataset for ML training. The data appears to be either:
 Before proceeding with any ML-related work, a new, clean dataset must be collected with proper window timing identifiers and realistic feature values. The current behavioral data pipeline (with Phase 11 validation fixes) appears to be functioning correctly for live collection, but this particular export does not contain usable behavioral window data for ML purposes.
 
 ---
-*Phase 13 Complete - Read-only audit of exported dataset*
+
+_Phase 13 Complete - Read-only audit of exported dataset_

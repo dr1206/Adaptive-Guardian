@@ -19,10 +19,7 @@ import type { BankingService } from "./banking/banking.contract";
 import type { AegisService } from "./aegis/aegis.contract";
 import type { AdminService } from "./admin/admin.contract";
 import type { DashboardService } from "./dashboard/dashboard.contract";
-import type {
-  BehavioralAuthenticationInput,
-  SecurityService,
-} from "./security/security.contract";
+import type { BehavioralAuthenticationInput, SecurityService } from "./security/security.contract";
 import type { NotificationsService } from "./notifications/notifications.contract";
 import type { AuditService } from "./audit/audit.contract";
 import type { TrainingService } from "./training/training.contract";
@@ -214,9 +211,7 @@ const mockSecurityService: SecurityService = {
   },
 
   // Mock implementation used only when VITE_USE_REAL_API=false.
-  async behavioralAuthenticate(
-    _input: BehavioralAuthenticationInput,
-  ) {
+  async behavioralAuthenticate(_input: BehavioralAuthenticationInput) {
     return {
       lightgbmScore: 0.05,
       ocsvmAnomalyScore: 0.05,

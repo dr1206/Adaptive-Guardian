@@ -3,7 +3,12 @@
  */
 
 import { httpRequest } from "../_transport/http";
-import type { NotificationsService, NotificationInbox, NotificationPreferences, PreferenceUpdateRequest } from "./notifications.contract";
+import type {
+  NotificationsService,
+  NotificationInbox,
+  NotificationPreferences,
+  PreferenceUpdateRequest,
+} from "./notifications.contract";
 
 export const httpNotificationsService: NotificationsService = {
   async getInbox({ unreadOnly, limit, offset, signal } = {}) {

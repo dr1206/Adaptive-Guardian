@@ -6,17 +6,17 @@
 
 ## Deliverables
 
-| # | Deliverable | Owner | Est. | Depends On |
-|---|---|---|---|---|
-| D0.1 | Docker Compose dev stack (Redis, MinIO) + MongoDB Atlas setup | Backend | 0.5d | — |
-| D0.2 | FastAPI project scaffold with domain-module boundaries + Beanie ODM | Backend | 1d | D0.1 |
-| D0.3 | Beanie Document models + indexes for all Sprint 0 collections | Backend | 0.5d | D0.2 |
-| D0.4 | Auth domain — register, login, refresh, logout, me | Backend | 2d | D0.3 |
-| D0.5 | Health + readiness endpoints, Prometheus metrics | Backend | 0.5d | D0.2 |
-| D0.6 | CI pipeline — lint, type-check, unit tests | Backend | 1d | D0.2 |
-| D0.7 | Behavioral event ingestion skeleton (POST /events/batch) | Backend | 1d | D0.4 |
-| D0.8 | Rust collector baseline — key/mouse capture from ADR-0005 | Frontend | 2d | — |
-| D0.9 | Frontend wire real API toggle — swap mocks for HTTP | Frontend | 1d | D0.4 |
+| #    | Deliverable                                                         | Owner    | Est. | Depends On |
+| ---- | ------------------------------------------------------------------- | -------- | ---- | ---------- |
+| D0.1 | Docker Compose dev stack (Redis, MinIO) + MongoDB Atlas setup       | Backend  | 0.5d | —          |
+| D0.2 | FastAPI project scaffold with domain-module boundaries + Beanie ODM | Backend  | 1d   | D0.1       |
+| D0.3 | Beanie Document models + indexes for all Sprint 0 collections       | Backend  | 0.5d | D0.2       |
+| D0.4 | Auth domain — register, login, refresh, logout, me                  | Backend  | 2d   | D0.3       |
+| D0.5 | Health + readiness endpoints, Prometheus metrics                    | Backend  | 0.5d | D0.2       |
+| D0.6 | CI pipeline — lint, type-check, unit tests                          | Backend  | 1d   | D0.2       |
+| D0.7 | Behavioral event ingestion skeleton (POST /events/batch)            | Backend  | 1d   | D0.4       |
+| D0.8 | Rust collector baseline — key/mouse capture from ADR-0005           | Frontend | 2d   | —          |
+| D0.9 | Frontend wire real API toggle — swap mocks for HTTP                 | Frontend | 1d   | D0.4       |
 
 ---
 
@@ -28,11 +28,11 @@
 
 ```yaml
 services:
-  redis:       # 7-alpine, port 6379
-  minio:       # latest, ports 9000+9001
-  backend:     # FastAPI, port 8000
-  frontend:    # Vite, port 5173
-  mailpit:     # optional — email OTP testing
+  redis: # 7-alpine, port 6379
+  minio: # latest, ports 9000+9001
+  backend: # FastAPI, port 8000
+  frontend: # Vite, port 5173
+  mailpit: # optional — email OTP testing
 ```
 
 **Acceptance:** `docker compose up -d` brings up all services. Backend connects to Atlas and responds to health checks.
@@ -114,11 +114,13 @@ backend/
 ```
 
 **Lint-enforced import rules** (per ADR-0015):
+
 - Domain modules MUST NOT import from sibling domains
 - Domain modules MAY import from `shared/` and `ml/`
 - `api/` MAY import from any domain
 
 **Acceptance:**
+
 - `uvicorn src.app.main:app --reload` starts without errors; connects to Atlas
 - `ruff check` passes (zero issues)
 - `mypy src/` passes (strict mode)
@@ -131,18 +133,19 @@ backend/
 
 **Collections (Sprint 0):**
 
-| Collection | Document Fields |
-|---|---|
-| `users` | email (unique), password_hash, full_name, is_active, roles, created_at |
-| `sessions` | user_id, refresh_token_hash (indexed), device_fingerprint, expires_at (TTL), revoked, created_at |
-| `otp_challenges` | user_id, code_hash, purpose, expires_at (TTL), attempts, verified |
-| `behavior_windows` | session_id, window_start, window_end, features (free-form dict), created_at |
-| `decisions` | session_id, outcome, score, top_contributors, evaluated_at |
-| `device_profiles` | user_id, fingerprint, label, kind, os, browser, trust, last_active |
+| Collection         | Document Fields                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
+| `users`            | email (unique), password_hash, full_name, is_active, roles, created_at                           |
+| `sessions`         | user_id, refresh_token_hash (indexed), device_fingerprint, expires_at (TTL), revoked, created_at |
+| `otp_challenges`   | user_id, code_hash, purpose, expires_at (TTL), attempts, verified                                |
+| `behavior_windows` | session_id, window_start, window_end, features (free-form dict), created_at                      |
+| `decisions`        | session_id, outcome, score, top_contributors, evaluated_at                                       |
+| `device_profiles`  | user_id, fingerprint, label, kind, os, browser, trust, last_active                               |
 
 **Indexes:** Declared via Beanie Document `Settings` class. TTL indexes on `sessions.expires_at` and `otp_challenges.expires_at` for auto-cleanup.
 
 **Acceptance:**
+
 - All collections created with correct indexes on first `init_db()` call
 - `users.email` unique constraint enforced
 - TTL indexes active (verify via `db.collection.getIndexes()`)
@@ -153,17 +156,18 @@ backend/
 
 **Endpoints** (matching `openapi.identity.yaml`):
 
-| Method | Path | Status | Notes |
-|---|---|---|---|
-| POST | /api/v1/auth/register | 201 | Creates user; returns session; sets refresh cookie |
-| POST | /api/v1/auth/verify-otp | 200 | For initial email verification; returns session |
-| POST | /api/v1/auth/login | 200 | Email+password → JWT + refresh cookie |
-| POST | /api/v1/auth/logout | 204 | Invalidates refresh token; clears cookie |
-| POST | /api/v1/auth/refresh | 200 | Refresh cookie → new JWT pair; rotation |
-| GET | /api/v1/auth/me | 200 | Current user info from JWT claims |
-| POST | /api/v1/auth/enrollment | 201 | Submit baseline behavioral samples (Sprint 2 — stub returns 501) |
+| Method | Path                    | Status | Notes                                                            |
+| ------ | ----------------------- | ------ | ---------------------------------------------------------------- |
+| POST   | /api/v1/auth/register   | 201    | Creates user; returns session; sets refresh cookie               |
+| POST   | /api/v1/auth/verify-otp | 200    | For initial email verification; returns session                  |
+| POST   | /api/v1/auth/login      | 200    | Email+password → JWT + refresh cookie                            |
+| POST   | /api/v1/auth/logout     | 204    | Invalidates refresh token; clears cookie                         |
+| POST   | /api/v1/auth/refresh    | 200    | Refresh cookie → new JWT pair; rotation                          |
+| GET    | /api/v1/auth/me         | 200    | Current user info from JWT claims                                |
+| POST   | /api/v1/auth/enrollment | 201    | Submit baseline behavioral samples (Sprint 2 — stub returns 501) |
 
 **JWT implementation:**
+
 - Short-lived access token: HS256, 15 min TTL (dev), RS256 pathway per ADR-0004
 - Refresh token: 32-byte random, bcrypt-hashed in `sessions` collection, HttpOnly Secure SameSite=Strict cookie
 - Refresh rotation on each use
@@ -171,6 +175,7 @@ backend/
 **Data flow:** Beanie Document → repository (async queries) → service (business logic) → router (HTTP layer). No SQLAlchemy sessions. Beanie handles persistence transparently.
 
 **Acceptance:**
+
 - Register → User document created in Atlas, JWT + refresh cookie returned
 - Login → JWT + refresh cookie
 - Me → User info from JWT claims
@@ -182,13 +187,14 @@ backend/
 
 ## D0.5 — Health + Observability
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET | /api/v1/health | Liveness — returns `{"status":"ok"}` |
-| GET | /api/v1/health/ready | Readiness — pings MongoDB Atlas + Redis |
-| GET | /metrics | Prometheus text format (prometheus-fastapi-instrumentator) |
+| Method | Path                 | Purpose                                                    |
+| ------ | -------------------- | ---------------------------------------------------------- |
+| GET    | /api/v1/health       | Liveness — returns `{"status":"ok"}`                       |
+| GET    | /api/v1/health/ready | Readiness — pings MongoDB Atlas + Redis                    |
+| GET    | /metrics             | Prometheus text format (prometheus-fastapi-instrumentator) |
 
 **Acceptance:**
+
 - Health returns 200 when process is alive
 - Ready returns 200 when MongoDB + Redis are reachable, 503 otherwise
 - Metrics endpoint exposes request count, latency histograms, error rates
@@ -202,9 +208,9 @@ backend/
 ```yaml
 on: [push, pull_request]
 jobs:
-  lint:       ruff check src/
-  typecheck:  mypy src/ --strict
-  test:       pytest -v --cov=src/app --cov-report=term-missing
+  lint: ruff check src/
+  typecheck: mypy src/ --strict
+  test: pytest -v --cov=src/app --cov-report=term-missing
 ```
 
 **Note:** CI tests use a separate MongoDB Atlas database (`adaptive_guardian_test`). No Alembic migration step — Beanie creates indexes on startup.

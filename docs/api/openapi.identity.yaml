@@ -21,15 +21,15 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
       responses:
-        '202':
+        "202":
           description: OTP dispatched
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/RegistrationPending' }
-        '409': { $ref: '#/components/responses/Conflict' }
-        '422': { $ref: '#/components/responses/Validation' }
+              schema: { $ref: "#/components/schemas/RegistrationPending" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Validation" }
   /auth/verify-otp:
     post:
       summary: Verify OTP, complete registration or login
@@ -38,9 +38,9 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/VerifyOtpRequest' }
+            schema: { $ref: "#/components/schemas/VerifyOtpRequest" }
       responses:
-        '200':
+        "200":
           description: Verified — issues access token + sets refresh cookie
           headers:
             Set-Cookie:
@@ -48,9 +48,9 @@ paths:
               schema: { type: string }
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AuthSession' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '429': { $ref: '#/components/responses/RateLimited' }
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
   /auth/login:
     post:
       summary: Password login (issues OTP step on unknown device)
@@ -59,44 +59,44 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/LoginRequest' }
+            schema: { $ref: "#/components/schemas/LoginRequest" }
       responses:
-        '200':
+        "200":
           description: Authenticated
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AuthSession' }
-        '202':
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "202":
           description: OTP challenge required
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/RegistrationPending' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+              schema: { $ref: "#/components/schemas/RegistrationPending" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
   /auth/refresh:
     post:
       summary: Rotate refresh cookie, issue new access token
       security: []
       responses:
-        '200':
+        "200":
           description: Rotated
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AuthSession' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
   /auth/logout:
     post:
       summary: Revoke refresh token + clear cookie
       responses:
-        '204': { description: Logged out }
+        "204": { description: Logged out }
   /auth/me:
     get:
       summary: Current user + roles
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Me' }
+              schema: { $ref: "#/components/schemas/Me" }
   /auth/enrollment:
     post:
       summary: Submit behavioral enrollment vector (keyboard + mouse calibration)
@@ -104,13 +104,13 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/EnrollmentVector' }
+            schema: { $ref: "#/components/schemas/EnrollmentVector" }
       responses:
-        '201':
+        "201":
           description: Baseline created
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/EnrollmentReceipt' }
+              schema: { $ref: "#/components/schemas/EnrollmentReceipt" }
 components:
   securitySchemes:
     bearerAuth:
@@ -120,16 +120,16 @@ components:
   responses:
     Unauthorized:
       description: Unauthorized
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Conflict:
       description: Conflict
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Validation:
       description: Validation error
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     RateLimited:
       description: Too many requests
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   schemas:
     RegisterRequest:
       type: object
@@ -149,7 +149,7 @@ components:
       required: [challengeId, code]
       properties:
         challengeId: { type: string, format: uuid }
-        code: { type: string, pattern: '^[0-9]{6}$' }
+        code: { type: string, pattern: "^[0-9]{6}$" }
     LoginRequest:
       type: object
       required: [email, password]
@@ -162,7 +162,7 @@ components:
       properties:
         accessToken: { type: string }
         expiresIn: { type: integer, description: Seconds }
-        user: { $ref: '#/components/schemas/Me' }
+        user: { $ref: "#/components/schemas/Me" }
     Me:
       type: object
       required: [id, email, roles, enrollmentStatus]

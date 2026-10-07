@@ -50,7 +50,11 @@ function Challenges() {
       />
 
       <section className="grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-8" eyebrow="Activity Filter" title="Authentication Challenges">
+        <SigilCard
+          className="lg:col-span-8"
+          eyebrow="Activity Filter"
+          title="Authentication Challenges"
+        >
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-foreground shadow-xs">
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -97,7 +101,9 @@ function Challenges() {
                 <div className="text-[12px] text-muted-foreground">
                   {r.device} · {r.loc}
                 </div>
-                <button className="text-[12px] font-medium text-primary hover:underline">Details →</button>
+                <button className="text-[12px] font-medium text-primary hover:underline">
+                  Details →
+                </button>
               </li>
             ))}
           </ul>

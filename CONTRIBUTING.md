@@ -71,11 +71,11 @@ Never read `process.env.X` directly. The lint rule blocks it.
 ```ts
 // packages/flags/registry.ts
 export const flags = {
-  'identity.new-otp-flow': {
+  "identity.new-otp-flow": {
     default: false,
-    owner: '@identity',
-    description: 'Rolls out the 8-digit OTP flow',
-    expires: '2026-09-01',
+    owner: "@identity",
+    description: "Rolls out the 8-digit OTP flow",
+    expires: "2026-09-01",
   },
 } as const;
 ```
@@ -85,10 +85,10 @@ Flags without an `expires` date fail CI. Flags past expiry fail CI.
 ## Adding a Log Statement
 
 ```ts
-import { createLogger } from '@adaptiveguard/logger';
-const log = createLogger({ service: 'identity' });
+import { createLogger } from "@adaptiveguard/logger";
+const log = createLogger({ service: "identity" });
 
-log.info({ event: 'auth.login.success', userId }, 'user logged in');
+log.info({ event: "auth.login.success", userId }, "user logged in");
 ```
 
 `console.log` is a lint error outside of `scripts/` and `*.test.ts`.

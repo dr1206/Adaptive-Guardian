@@ -62,7 +62,9 @@ function Typing() {
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {KPI.map((k) => (
           <SigilCard key={k.label} eyebrow={k.label}>
-            <div className="font-numeric text-[28px] font-bold tabular-nums text-foreground">{k.value}</div>
+            <div className="font-numeric text-[28px] font-bold tabular-nums text-foreground">
+              {k.value}
+            </div>
             <div className="mt-2">
               <Sparkline points={k.spark} width={200} height={28} />
             </div>
@@ -89,14 +91,23 @@ function Typing() {
       </section>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-5" eyebrow="Privacy-Preserving" title="Keyboard dwell time distribution">
+        <SigilCard
+          className="lg:col-span-5"
+          eyebrow="Privacy-Preserving"
+          title="Keyboard dwell time distribution"
+        >
           <KeyboardHeatmap />
           <p className="mt-3 text-[11.5px] text-muted-foreground">
-            Only timing intervals and flight times are processed. Actual keystrokes are never captured or recorded.
+            Only timing intervals and flight times are processed. Actual keystrokes are never
+            captured or recorded.
           </p>
         </SigilCard>
 
-        <SigilCard className="lg:col-span-7" eyebrow="7-Day Timeline" title="Rhythm cadence consistency">
+        <SigilCard
+          className="lg:col-span-7"
+          eyebrow="7-Day Timeline"
+          title="Rhythm cadence consistency"
+        >
           <div className="grid grid-cols-7 gap-3">
             {DAYS.map((d, i) => (
               <div key={d} className="rounded-lg border border-border bg-muted/20 p-2.5">

@@ -10,7 +10,8 @@ export function CommandBar({ glyphSeed = "guest" }: { glyphSeed?: string }) {
   const { data: snapshot } = useAegisSnapshot();
   const { data: notifFeed } = useDashboardNotifications();
 
-  const confidence = snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 99.2;
+  const confidence =
+    snapshot?.confidence != null ? Math.round(snapshot.confidence * 1000) / 10 : 99.2;
   const unreadCount = notifFeed?.unreadCount ?? 0;
 
   useEffect(() => {

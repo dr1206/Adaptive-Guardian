@@ -77,11 +77,7 @@ function TransferPage() {
               <span
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
-                  i < step
-                    ? "bg-primary"
-                    : i === step
-                      ? "bg-secondary"
-                      : "bg-muted",
+                  i < step ? "bg-primary" : i === step ? "bg-secondary" : "bg-muted",
                 )}
               />
               <span
@@ -295,7 +291,9 @@ function Recipients({
                     {b.initials}
                   </span>
                   <div>
-                    <div className="font-display text-[16px] font-bold text-foreground">{b.name}</div>
+                    <div className="font-display text-[16px] font-bold text-foreground">
+                      {b.name}
+                    </div>
                     <div className="text-[12px] text-muted-foreground">{b.bank}</div>
                   </div>
                 </div>
@@ -303,14 +301,20 @@ function Recipients({
                   <div className="text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
                     Account / IFSC
                   </div>
-                  <div className="mt-1 font-numeric text-[13px] font-semibold text-foreground">{b.iban}</div>
+                  <div className="mt-1 font-numeric text-[13px] font-semibold text-foreground">
+                    {b.iban}
+                  </div>
                 </div>
-                <div className="mt-4 text-[12px] font-medium text-muted-foreground">Recent Transactions</div>
+                <div className="mt-4 text-[12px] font-medium text-muted-foreground">
+                  Recent Transactions
+                </div>
                 <ul className="mt-2 space-y-1.5 text-[12.5px]">
                   {b.lastSent && (
                     <li className="flex justify-between border-b border-border/50 pb-1">
                       <span className="text-muted-foreground">{b.lastSent.date}</span>
-                      <span className="font-numeric font-semibold text-foreground">{fmt(b.lastSent.amount, "₹", 0)}</span>
+                      <span className="font-numeric font-semibold text-foreground">
+                        {fmt(b.lastSent.amount, "₹", 0)}
+                      </span>
                     </li>
                   )}
                 </ul>
@@ -411,7 +415,9 @@ function AmountStage({
             Indicative FX Conversion
           </h3>
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-muted-foreground">{currency} equivalent</span>
+            <span className="text-[13px] font-medium text-muted-foreground">
+              {currency} equivalent
+            </span>
             <span className="font-numeric text-[18px] font-bold text-foreground">${usd} USD</span>
           </div>
         </article>
@@ -423,7 +429,14 @@ function AmountStage({
               onChange={(e) => setPurpose(e.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
-              {["Rent", "Family Support", "Salary", "Vendor Payment", "Education Fee", "Investments"].map((p) => (
+              {[
+                "Rent",
+                "Family Support",
+                "Salary",
+                "Vendor Payment",
+                "Education Fee",
+                "Investments",
+              ].map((p) => (
                 <option key={p} className="bg-card text-foreground">
                   {p}
                 </option>
@@ -444,7 +457,8 @@ function AmountStage({
           onClick={onNext}
           className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-display text-[14px] font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
         >
-          Review Transfer <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          Review Transfer{" "}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </button>
       </aside>
     </div>
@@ -491,7 +505,9 @@ function ReviewStage({
     <div className="grid place-items-center">
       <article className="w-full max-w-[520px] rounded-xl border border-border bg-card p-8 shadow-sm">
         <header className="mb-6 flex items-center justify-between text-[11px]">
-          <span className="uppercase font-bold tracking-[0.2em] text-muted-foreground">Transfer Confirmation</span>
+          <span className="uppercase font-bold tracking-[0.2em] text-muted-foreground">
+            Transfer Confirmation
+          </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
             <Shield size={12} /> Behavioral Match Verified
           </span>
@@ -517,7 +533,9 @@ function ReviewStage({
         </div>
 
         <p className="mt-4 text-center text-[12px] text-muted-foreground">
-          {sent ? "Transfer authorized. Submitting to banking gateway…" : "Biometric session integrity will be verified upon authorization."}
+          {sent
+            ? "Transfer authorized. Submitting to banking gateway…"
+            : "Biometric session integrity will be verified upon authorization."}
         </p>
       </article>
     </div>
@@ -527,9 +545,16 @@ function ReviewStage({
 function Row({ k, v, big }: { k: string; v: string; big?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-border/60 pb-2.5 last:border-b-0">
-      <dt className="text-[11px] uppercase font-bold tracking-[0.14em] text-muted-foreground">{k}</dt>
+      <dt className="text-[11px] uppercase font-bold tracking-[0.14em] text-muted-foreground">
+        {k}
+      </dt>
       <dd
-        className={cn("font-numeric text-right", big ? "text-[28px] font-bold text-foreground" : "text-[13.5px] font-medium text-foreground")}
+        className={cn(
+          "font-numeric text-right",
+          big
+            ? "text-[28px] font-bold text-foreground"
+            : "text-[13.5px] font-medium text-foreground",
+        )}
       >
         {v}
       </dd>
@@ -555,9 +580,12 @@ function SuccessStage({
           <Check className="h-10 w-10" strokeWidth={2.5} />
         </span>
       </div>
-      <h2 className="mt-4 font-display text-[26px] font-bold tracking-tight text-foreground">Transfer Successful</h2>
+      <h2 className="mt-4 font-display text-[26px] font-bold tracking-tight text-foreground">
+        Transfer Successful
+      </h2>
       <p className="mt-1 text-[14px] text-muted-foreground">
-        Payment of <span className="font-numeric font-bold text-foreground">{amount}</span> to <span className="font-semibold text-foreground">{to}</span> has been processed.
+        Payment of <span className="font-numeric font-bold text-foreground">{amount}</span> to{" "}
+        <span className="font-semibold text-foreground">{to}</span> has been processed.
       </p>
       <div className="mt-8 flex items-center gap-3">
         <button

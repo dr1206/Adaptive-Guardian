@@ -1,11 +1,4 @@
-import {
-  ArrowUpRight,
-  Loader2,
-  MoreHorizontal,
-  Sparkles,
-  Target,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowUpRight, Loader2, MoreHorizontal, Sparkles, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useBeneficiaries,
@@ -161,14 +154,12 @@ function SpendDonut({ className }: { className?: string }) {
   }
 
   const total = budgets.reduce((s, b) => s + b.spent, 0);
-  const cats = budgets
-    .slice(0, 5)
-    .map((b) => ({
-      label: b.name,
-      pct: total > 0 ? Math.round((b.spent / total) * 100) : 0,
-      color: b.color,
-      amount: b.spent,
-    }));
+  const cats = budgets.slice(0, 5).map((b) => ({
+    label: b.name,
+    pct: total > 0 ? Math.round((b.spent / total) * 100) : 0,
+    color: b.color,
+    amount: b.spent,
+  }));
 
   const r = 38;
   const c = 2 * Math.PI * r;
@@ -228,7 +219,12 @@ function CashFlow({ className }: { className?: string }) {
 
   if (isLoading) {
     return (
-      <WidgetShell title="Cash flow · 30 days" hint="Loading…" icon={TrendingUp} className={className}>
+      <WidgetShell
+        title="Cash flow · 30 days"
+        hint="Loading…"
+        icon={TrendingUp}
+        className={className}
+      >
         <LoadingPulse />
       </WidgetShell>
     );
@@ -280,9 +276,22 @@ function CashFlow({ className }: { className?: string }) {
           </linearGradient>
         </defs>
         <path d={`${inLine} L ${w},${h} L 0,${h} Z`} fill="url(#cf-in)" />
-        <path d={inLine} stroke="oklch(0.71 0.155 165)" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path
+          d={inLine}
+          stroke="oklch(0.71 0.155 165)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
         <path d={`${outLine} L ${w},${h} L 0,${h} Z`} fill="url(#cf-out)" />
-        <path d={outLine} stroke="oklch(0.715 0.135 215)" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="3 3" />
+        <path
+          d={outLine}
+          stroke="oklch(0.715 0.135 215)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
       </svg>
       <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
@@ -391,7 +400,7 @@ function PortfolioCard({ className }: { className?: string }) {
   return (
     <WidgetShell
       title="Portfolio"
-      hint={`€${fmt(total)} · today ${dayDelta >= 0 ? "+" : ""}${(dayDelta / total * 100).toFixed(2)}%`}
+      hint={`€${fmt(total)} · today ${dayDelta >= 0 ? "+" : ""}${((dayDelta / total) * 100).toFixed(2)}%`}
       className={className}
     >
       <div className="font-numeric text-[24px] font-semibold tracking-tight">
@@ -406,7 +415,8 @@ function PortfolioCard({ className }: { className?: string }) {
           dayDelta >= 0 ? "bg-success/12 text-success" : "bg-warning/12 text-warning",
         )}
       >
-        {dayDelta >= 0 ? "+" : ""} €{fmt(Math.abs(Math.round(dayDelta)))} · {(dayDelta / total * 100).toFixed(2)}%
+        {dayDelta >= 0 ? "+" : ""} €{fmt(Math.abs(Math.round(dayDelta)))} ·{" "}
+        {((dayDelta / total) * 100).toFixed(2)}%
       </span>
       <div className="mt-4 flex h-2 overflow-hidden rounded-full">
         {slices.map((s) => (
@@ -466,7 +476,7 @@ function FxCard({ className }: { className?: string }) {
     <WidgetShell title="Exchange" hint="Live · refreshed every 30s" className={className}>
       <ul className="space-y-2">
         {others.map((c) => {
-          const d = base && base.rate > 0 ? ((c.rate - base.rate) / base.rate * 100) : 0;
+          const d = base && base.rate > 0 ? ((c.rate - base.rate) / base.rate) * 100 : 0;
           const up = d >= 0;
           return (
             <li
@@ -476,7 +486,8 @@ function FxCard({ className }: { className?: string }) {
               <span className="text-[12px] text-muted-foreground">{c.code}</span>
               <span className="font-numeric text-[13px]">{c.rate.toFixed(4)}</span>
               <span className={`font-numeric text-[10px] ${up ? "text-success" : "text-warning"}`}>
-                {up ? "+" : ""}{d.toFixed(2)}%
+                {up ? "+" : ""}
+                {d.toFixed(2)}%
               </span>
             </li>
           );
@@ -507,7 +518,9 @@ function BeneficiariesCard({ className }: { className?: string }) {
   }
 
   const favs = beneficiaries.filter((b) => b.favorite).slice(0, 4);
-  const others = beneficiaries.filter((b) => !b.favorite).slice(0, favs.length < 3 ? 6 - favs.length : 2);
+  const others = beneficiaries
+    .filter((b) => !b.favorite)
+    .slice(0, favs.length < 3 ? 6 - favs.length : 2);
   const ppl = [...favs, ...others].slice(0, 6);
 
   return (

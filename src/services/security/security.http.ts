@@ -37,6 +37,8 @@ export interface BehavioralAuthenticationInput {
   clickCount: number;
   scrollAmount: number;
   mouseTravelPx: number;
+  keysPerSec?: number;
+  velocityStd?: number;
 }
 
 export interface BehavioralAuthenticationResult {
@@ -203,9 +205,7 @@ function riskTrendToArray(trend: string | number[] | number | null | undefined):
   return nums.length > 0 ? nums : [50, 50, 50, 50, 50, 50, 50];
 }
 
-function mapSessionTimelineEvent(
-  e: BackendSessionTimelineEvent,
-): SessionTimelineEvent {
+function mapSessionTimelineEvent(e: BackendSessionTimelineEvent): SessionTimelineEvent {
   return {
     sessionId: e.sessionId,
     event: e.event,
@@ -218,9 +218,7 @@ function mapSessionTimelineEvent(
   };
 }
 
-function mapReportSummary(
-  s: BackendReportSummary,
-): ReportSummary {
+function mapReportSummary(s: BackendReportSummary): ReportSummary {
   return {
     logins: s.totalLogins,
     challenges: s.challengesIssued,
@@ -228,9 +226,7 @@ function mapReportSummary(
   };
 }
 
-function mapReportDevice(
-  d: BackendReportDevice,
-): ReportDevice {
+function mapReportDevice(d: BackendReportDevice): ReportDevice {
   return {
     deviceId: d.deviceId,
     label: d.label,
@@ -239,9 +235,7 @@ function mapReportDevice(
   };
 }
 
-function mapRiskEventItem(
-  e: BackendRiskEventItem,
-): RiskEventItem {
+function mapRiskEventItem(e: BackendRiskEventItem): RiskEventItem {
   return {
     id: e.id,
     occurredAt: e.occurredAt,
@@ -252,9 +246,7 @@ function mapRiskEventItem(
   };
 }
 
-function mapLocationBucket(
-  l: BackendLocationBucket,
-): LocationBucket {
+function mapLocationBucket(l: BackendLocationBucket): LocationBucket {
   const parts = l.location.split(/,\s*/);
 
   return {
@@ -264,30 +256,21 @@ function mapLocationBucket(
   };
 }
 
-function mapHourlyBucket(
-  h: BackendHourlyBucket,
-): HourlyBucket {
+function mapHourlyBucket(h: BackendHourlyBucket): HourlyBucket {
   return {
     hour: h.hour,
     count: h.count,
   };
 }
 
-function mapDeviceHealthItem(
-  d: BackendDeviceHealthItem,
-): DeviceHealthItem {
+function mapDeviceHealthItem(d: BackendDeviceHealthItem): DeviceHealthItem {
   return {
     deviceId: d.deviceId,
     label: d.label,
     trustScore: d.trustScore,
     sessions: d.sessionCount,
     lastSeen: d.lastActive,
-    anomalies:
-      d.recommendation === "revoke"
-        ? 3
-        : d.recommendation === "review"
-          ? 1
-          : 0,
+    anomalies: d.recommendation === "revoke" ? 3 : d.recommendation === "review" ? 1 : 0,
   };
 }
 
@@ -306,11 +289,7 @@ export const httpSecurityService: SecurityService & {
   // -------------------------------------------------------------------------
 
   async getOverview({ signal } = {}) {
-    const resp =
-      await httpRequest<BackendSecurityOverview>(
-        "/security/overview",
-        { signal },
-      );
+    const resp = await httpRequest<BackendSecurityOverview>("/security/overview", { signal });
 
     return {
       activeSessions: resp.activeSessions,
@@ -325,22 +304,14 @@ export const httpSecurityService: SecurityService & {
   // Session timeline
   // -------------------------------------------------------------------------
 
-  async getSessionTimeline({
-    limit,
-    offset,
-    signal,
-  } = {}) {
-    const resp =
-      await httpRequest<BackendSessionTimelineResponse>(
-        "/security/session-timeline",
-        {
-          params: {
-            limit,
-            offset,
-          },
-          signal,
-        },
-      );
+  async getSessionTimeline({ limit, offset, signal } = {}) {
+    const resp = await httpRequest<BackendSessionTimelineResponse>("/security/session-timeline", {
+      params: {
+        limit,
+        offset,
+      },
+      signal,
+    });
 
     return {
       events: resp.events.map(mapSessionTimelineEvent),
@@ -352,29 +323,20 @@ export const httpSecurityService: SecurityService & {
   // Daily report
   // -------------------------------------------------------------------------
 
-  async getDailyReport(
-    date,
-    { signal } = {},
-  ) {
-    const resp =
-      await httpRequest<BackendDailySecurityReport>(
-        "/security/reports/daily",
-        {
-          params: date
-            ? {
-                date,
-              }
-            : undefined,
-          signal,
-        },
-      );
+  async getDailyReport(date, { signal } = {}) {
+    const resp = await httpRequest<BackendDailySecurityReport>("/security/reports/daily", {
+      params: date
+        ? {
+            date,
+          }
+        : undefined,
+      signal,
+    });
 
     return {
       date: resp.date,
       summary: mapReportSummary(resp.summary),
-      activeDevices: resp.activeDevices.map(
-        mapReportDevice,
-      ),
+      activeDevices: resp.activeDevices.map(mapReportDevice),
       riskVerdict: resp.riskVerdict,
       generatedAt: resp.generatedAt,
     };
@@ -384,24 +346,15 @@ export const httpSecurityService: SecurityService & {
   // Risk events
   // -------------------------------------------------------------------------
 
-  async getRiskEvents({
-    severity,
-    limit,
-    offset,
-    signal,
-  } = {}) {
-    const resp =
-      await httpRequest<BackendRiskEventFeed>(
-        "/security/risk-events",
-        {
-          params: {
-            severity,
-            limit,
-            offset,
-          },
-          signal,
-        },
-      );
+  async getRiskEvents({ severity, limit, offset, signal } = {}) {
+    const resp = await httpRequest<BackendRiskEventFeed>("/security/risk-events", {
+      params: {
+        severity,
+        limit,
+        offset,
+      },
+      signal,
+    });
 
     return {
       events: resp.events.map(mapRiskEventItem),
@@ -414,31 +367,20 @@ export const httpSecurityService: SecurityService & {
   // Login analytics
   // -------------------------------------------------------------------------
 
-  async getLoginAnalytics(
-    periodDays = 30,
-    { signal } = {},
-  ) {
-    const resp =
-      await httpRequest<BackendLoginAnalytics>(
-        "/security/login-analytics",
-        {
-          params: {
-            periodDays,
-          },
-          signal,
-        },
-      );
+  async getLoginAnalytics(periodDays = 30, { signal } = {}) {
+    const resp = await httpRequest<BackendLoginAnalytics>("/security/login-analytics", {
+      params: {
+        periodDays,
+      },
+      signal,
+    });
 
     return {
       totalLogins: resp.totalLogins,
       uniqueDevices: resp.uniqueDevices,
       uniqueLocations: resp.uniqueLocations,
-      hourlyDistribution:
-        resp.hourlyDistribution.map(
-          mapHourlyBucket,
-        ),
-      byLocation:
-        resp.byLocation.map(mapLocationBucket),
+      hourlyDistribution: resp.hourlyDistribution.map(mapHourlyBucket),
+      byLocation: resp.byLocation.map(mapLocationBucket),
       periodDays: resp.periodDays,
     };
   },
@@ -448,32 +390,22 @@ export const httpSecurityService: SecurityService & {
   // -------------------------------------------------------------------------
 
   async getDeviceHealth({ signal } = {}) {
-    const resp =
-      await httpRequest<BackendDeviceHealthResponse>(
-        "/security/device-health",
-        {
-          signal,
-        },
-      );
+    const resp = await httpRequest<BackendDeviceHealthResponse>("/security/device-health", {
+      signal,
+    });
 
     return {
-      devices: resp.devices.map(
-        mapDeviceHealthItem,
-      ),
+      devices: resp.devices.map(mapDeviceHealthItem),
       flagged: resp.flagged,
     };
   },
 
   // -------------------------------------------------------------------------
-// Behavioral authentication
-// -------------------------------------------------------------------------
+  // Behavioral authentication
+  // -------------------------------------------------------------------------
 
-async behavioralAuthenticate(
-  input,
-  { signal } = {},
-) {
-  const resp =
-    await httpRequest<BackendBehavioralAuthenticationResponse>(
+  async behavioralAuthenticate(input, { signal } = {}) {
+    const resp = await httpRequest<BackendBehavioralAuthenticationResponse>(
       "/security/behavioral-authenticate",
       {
         method: "POST",
@@ -497,19 +429,17 @@ async behavioralAuthenticate(
       },
     );
 
-  // The backend serializes with camelCase aliases; accept snake_case too so
-  // a wire-format change can never silently blank the Security Center.
-  const lightgbmScore =
-    resp.lightgbmScore ?? resp.lightgbm_score ?? 0;
-  const ocsvmAnomalyScore =
-    resp.ocsvmAnomalyScore ?? resp.ocsvm_anomaly_score ?? 0;
-  const fusedScore = resp.fusedScore ?? resp.fused_score ?? 0;
+    // The backend serializes with camelCase aliases; accept snake_case too so
+    // a wire-format change can never silently blank the Security Center.
+    const lightgbmScore = resp.lightgbmScore ?? resp.lightgbm_score ?? 0;
+    const ocsvmAnomalyScore = resp.ocsvmAnomalyScore ?? resp.ocsvm_anomaly_score ?? 0;
+    const fusedScore = resp.fusedScore ?? resp.fused_score ?? 0;
 
-  return {
-    lightgbmScore,
-    ocsvmAnomalyScore,
-    fusedScore,
-    decision: resp.decision ?? "WAITING",
-  };
-},
+    return {
+      lightgbmScore,
+      ocsvmAnomalyScore,
+      fusedScore,
+      decision: resp.decision ?? "WAITING",
+    };
+  },
 };

@@ -22,13 +22,13 @@ paths:
     get:
       summary: List all accounts for the authenticated user
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Account' }
+                items: { $ref: "#/components/schemas/Account" }
   /accounts/{accountId}:
     get:
       summary: Get a single account by ID
@@ -38,12 +38,12 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Account' }
-        '404': { $ref: '#/components/responses/NotFound' }
+              schema: { $ref: "#/components/schemas/Account" }
+        "404": { $ref: "#/components/responses/NotFound" }
 
   # ---------------------------------------------------------------------------
   # Transactions
@@ -61,13 +61,13 @@ paths:
           required: false
           schema: { type: integer, default: 50 }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Transaction' }
+                items: { $ref: "#/components/schemas/Transaction" }
 
   # ---------------------------------------------------------------------------
   # Transfers
@@ -79,14 +79,14 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/TransferInput' }
+            schema: { $ref: "#/components/schemas/TransferInput" }
       responses:
-        '201':
+        "201":
           description: Transfer scheduled
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/TransferResult' }
-        '422': { $ref: '#/components/responses/Validation' }
+              schema: { $ref: "#/components/schemas/TransferResult" }
+        "422": { $ref: "#/components/responses/Validation" }
 
   # ---------------------------------------------------------------------------
   # Beneficiaries
@@ -95,27 +95,27 @@ paths:
     get:
       summary: List saved beneficiaries
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Beneficiary' }
+                items: { $ref: "#/components/schemas/Beneficiary" }
     post:
       summary: Add a new beneficiary
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/BeneficiaryInput' }
+            schema: { $ref: "#/components/schemas/BeneficiaryInput" }
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Beneficiary' }
-        '422': { $ref: '#/components/responses/Validation' }
+              schema: { $ref: "#/components/schemas/Beneficiary" }
+        "422": { $ref: "#/components/responses/Validation" }
 
   # ---------------------------------------------------------------------------
   # Cards
@@ -124,13 +124,13 @@ paths:
     get:
       summary: List bank cards
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/BankCard' }
+                items: { $ref: "#/components/schemas/BankCard" }
 
   # ---------------------------------------------------------------------------
   # Payments
@@ -139,13 +139,13 @@ paths:
     get:
       summary: List scheduled/recurring payments
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Payment' }
+                items: { $ref: "#/components/schemas/Payment" }
 
   # ---------------------------------------------------------------------------
   # Savings Goals
@@ -154,13 +154,13 @@ paths:
     get:
       summary: List savings goals
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/SavingsGoal' }
+                items: { $ref: "#/components/schemas/SavingsGoal" }
 
   # ---------------------------------------------------------------------------
   # Holdings (Investments)
@@ -169,13 +169,13 @@ paths:
     get:
       summary: List investment holdings
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Holding' }
+                items: { $ref: "#/components/schemas/Holding" }
 
   # ---------------------------------------------------------------------------
   # Loans
@@ -184,13 +184,13 @@ paths:
     get:
       summary: List loans
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/LoanRecord' }
+                items: { $ref: "#/components/schemas/LoanRecord" }
 
   # ---------------------------------------------------------------------------
   # Currencies
@@ -199,13 +199,13 @@ paths:
     get:
       summary: List available currencies with exchange rates
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Currency' }
+                items: { $ref: "#/components/schemas/Currency" }
 
   # ---------------------------------------------------------------------------
   # Insights
@@ -214,13 +214,13 @@ paths:
     get:
       summary: List AI-generated financial insights
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Insight' }
+                items: { $ref: "#/components/schemas/Insight" }
 
   # ---------------------------------------------------------------------------
   # Statements
@@ -229,13 +229,13 @@ paths:
     get:
       summary: List available statement year groups
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/StatementYearGroup' }
+                items: { $ref: "#/components/schemas/StatementYearGroup" }
   /statements/{year}/{month}:
     get:
       summary: Get a statement sample for a specific year and month
@@ -249,11 +249,11 @@ paths:
           required: true
           schema: { type: integer, minimum: 1, maximum: 12 }
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/StatementSample' }
+              schema: { $ref: "#/components/schemas/StatementSample" }
 
   # ---------------------------------------------------------------------------
   # Activity
@@ -262,13 +262,13 @@ paths:
     get:
       summary: List recent account activity events
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/ActivityEvent' }
+                items: { $ref: "#/components/schemas/ActivityEvent" }
 
   # ---------------------------------------------------------------------------
   # Budgets
@@ -277,13 +277,13 @@ paths:
     get:
       summary: List budget envelopes
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/BudgetEnvelope' }
+                items: { $ref: "#/components/schemas/BudgetEnvelope" }
 
 # =============================================================================
 # Components
@@ -299,17 +299,17 @@ components:
       description: Unauthorized
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     NotFound:
       description: Not found
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     Validation:
       description: Validation error
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
   schemas:
     # --- Envelope ---
     Error:
@@ -528,7 +528,7 @@ components:
         closingBalance: { type: number }
         transactions:
           type: array
-          items: { $ref: '#/components/schemas/Transaction' }
+          items: { $ref: "#/components/schemas/Transaction" }
 
     # --- Activity ---
     ActivityEvent:

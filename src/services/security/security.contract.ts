@@ -129,40 +129,26 @@ export interface BehavioralAuthenticationResult {
 /* -------------------------------------------------------------------------- */
 
 export interface SecurityService {
-  getOverview(
-    opts?: { signal?: AbortSignal },
-  ): Promise<SecurityOverview>;
+  getOverview(opts?: { signal?: AbortSignal }): Promise<SecurityOverview>;
 
-  getSessionTimeline(
-    opts?: {
-      limit?: number;
-      offset?: number;
-      signal?: AbortSignal;
-    },
-  ): Promise<SessionTimelineResponse>;
+  getSessionTimeline(opts?: {
+    limit?: number;
+    offset?: number;
+    signal?: AbortSignal;
+  }): Promise<SessionTimelineResponse>;
 
-  getDailyReport(
-    date?: string,
-    opts?: { signal?: AbortSignal },
-  ): Promise<DailySecurityReport>;
+  getDailyReport(date?: string, opts?: { signal?: AbortSignal }): Promise<DailySecurityReport>;
 
-  getRiskEvents(
-    opts?: {
-      severity?: string;
-      limit?: number;
-      offset?: number;
-      signal?: AbortSignal;
-    },
-  ): Promise<RiskEventFeed>;
+  getRiskEvents(opts?: {
+    severity?: string;
+    limit?: number;
+    offset?: number;
+    signal?: AbortSignal;
+  }): Promise<RiskEventFeed>;
 
-  getLoginAnalytics(
-    periodDays?: number,
-    opts?: { signal?: AbortSignal },
-  ): Promise<LoginAnalytics>;
+  getLoginAnalytics(periodDays?: number, opts?: { signal?: AbortSignal }): Promise<LoginAnalytics>;
 
-  getDeviceHealth(
-    opts?: { signal?: AbortSignal },
-  ): Promise<DeviceHealthResponse>;
+  getDeviceHealth(opts?: { signal?: AbortSignal }): Promise<DeviceHealthResponse>;
 
   /**
    * Authenticate the currently logged-in user using

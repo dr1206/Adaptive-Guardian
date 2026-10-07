@@ -75,7 +75,14 @@ interface BackendCard {
   exp: string;
   frozen: boolean;
   finish: string;
-  limits: { daily: number; monthly: number; atm: number; usedDaily: number; usedMonthly: number; usedAtm: number };
+  limits: {
+    daily: number;
+    monthly: number;
+    atm: number;
+    usedDaily: number;
+    usedMonthly: number;
+    usedAtm: number;
+  };
   spentMonth: number;
 }
 
@@ -207,9 +214,12 @@ function mapTransaction(t: BackendTransaction): Transaction {
 
 function mapTxTypeToCategory(type: string): string {
   switch (type) {
-    case "credit": return "Income";
-    case "debit": return "Shopping";
-    default: return "Transfer";
+    case "credit":
+      return "Income";
+    case "debit":
+      return "Shopping";
+    default:
+      return "Transfer";
   }
 }
 
@@ -223,7 +233,12 @@ function mapBeneficiary(b: BackendBeneficiary): Beneficiary {
     last4: last4Digits,
     lastSent: b.lastUsed ? { amount: 0, date: b.lastUsed } : undefined,
     category: deriveBeneficiaryCategory(b.name),
-    initials: b.name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase(),
+    initials: b.name
+      .split(" ")
+      .map((p) => p[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase(),
     tint: hashStrToTint(b.name),
   };
 }
@@ -268,8 +283,10 @@ function mapPayment(p: BackendPayment): Payment {
 function derivePaymentCategory(desc: string): string {
   const d = desc.toLowerCase();
   if (d.includes("rent")) return "Housing";
-  if (d.includes("netflix") || d.includes("spotify") || d.includes("icloud")) return "Entertainment";
-  if (d.includes("electric") || d.includes("mobile") || d.includes("vodafone") || d.includes("edp")) return "Bills";
+  if (d.includes("netflix") || d.includes("spotify") || d.includes("icloud"))
+    return "Entertainment";
+  if (d.includes("electric") || d.includes("mobile") || d.includes("vodafone") || d.includes("edp"))
+    return "Bills";
   if (d.includes("gym") || d.includes("insurance")) return "Health";
   if (d.includes("loan") || d.includes("emi")) return "Loans";
   return "Subscriptions";
@@ -282,9 +299,14 @@ function mapPaymentStatus(freq: string): string {
 function mapSavingsGoal(g: BackendSavingsGoal): SavingsGoal {
   const remaining = g.target - g.current;
   const monthlyRate = remaining > 0 ? Math.round(remaining / 12) : 0;
-  const etaDate = monthlyRate > 0
-    ? (() => { const d = new Date(); d.setMonth(d.getMonth() + Math.ceil(remaining / monthlyRate)); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); })()
-    : "Completed";
+  const etaDate =
+    monthlyRate > 0
+      ? (() => {
+          const d = new Date();
+          d.setMonth(d.getMonth() + Math.ceil(remaining / monthlyRate));
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        })()
+      : "Completed";
   return {
     id: g.id,
     name: g.name,
@@ -298,7 +320,15 @@ function mapSavingsGoal(g: BackendSavingsGoal): SavingsGoal {
 }
 
 function mapGoalImage(img: string): string {
-  const icons: Record<string, string> = { beach: "✈", car: "🚗", home: "🏠", education: "🎓", emergency: "🛟", health: "❤", vacation: "✈" };
+  const icons: Record<string, string> = {
+    beach: "✈",
+    car: "🚗",
+    home: "🏠",
+    education: "🎓",
+    emergency: "🛟",
+    health: "❤",
+    vacation: "✈",
+  };
   return icons[img.toLowerCase()] ?? (img.length <= 3 ? img : "💰");
 }
 
@@ -308,7 +338,8 @@ function deriveGoalCategory(name: string): string {
   if (n.includes("emergency")) return "Emergency";
   if (n.includes("car") || n.includes("ev")) return "Car";
   if (n.includes("education") || n.includes("tuition")) return "Education";
-  if (n.includes("apartment") || n.includes("home") || n.includes("deposit") || n.includes("house")) return "Home";
+  if (n.includes("apartment") || n.includes("home") || n.includes("deposit") || n.includes("house"))
+    return "Home";
   return "Retirement";
 }
 
@@ -326,7 +357,8 @@ function mapHolding(h: BackendHolding): Holding {
 }
 
 function mapLoan(l: BackendLoan): LoanRecord {
-  const paidPct = l.principal > 0 ? Math.round(((l.principal - l.remaining) / l.principal) * 100) : 0;
+  const paidPct =
+    l.principal > 0 ? Math.round(((l.principal - l.remaining) / l.principal) * 100) : 0;
   return {
     id: l.id,
     name: l.name,
@@ -334,14 +366,33 @@ function mapLoan(l: BackendLoan): LoanRecord {
     remaining: l.remaining,
     ratePct: l.rate,
     nextDate: l.nextPayment,
-    nextAmount: Math.round((l.remaining * (l.rate / 100)) / 12 * 100) / 100 + Math.round(l.remaining / 36 * 100) / 100,
+    nextAmount:
+      Math.round(((l.remaining * (l.rate / 100)) / 12) * 100) / 100 +
+      Math.round((l.remaining / 36) * 100) / 100,
     paidPct,
   };
 }
 
 function mapStatementYear(by: BackendStatementYear): StatementYearGroup {
-  const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const months = by.months.map((m) => ({ year: by.year, month: m, label: monthLabels[m - 1] ?? String(m) }));
+  const monthLabels = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const months = by.months.map((m) => ({
+    year: by.year,
+    month: m,
+    label: monthLabels[m - 1] ?? String(m),
+  }));
   return {
     year: by.year,
     count: months.length,
@@ -353,7 +404,13 @@ function mapActivity(e: BackendActivityEvent): ActivityEvent {
   return {
     id: e.id,
     ts: e.occurredAt,
-    type: (e.type === "login" ? "auth" : e.type === "transfer" ? "transfer" : e.type === "card_frozen" ? "card" : "tx") as ActivityEvent["type"],
+    type: (e.type === "login"
+      ? "auth"
+      : e.type === "transfer"
+        ? "transfer"
+        : e.type === "card_frozen"
+          ? "card"
+          : "tx") as ActivityEvent["type"],
     title: e.description.split(" ").slice(0, 3).join(" "),
     sub: e.description,
   };

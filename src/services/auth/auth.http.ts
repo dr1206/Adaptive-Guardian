@@ -12,7 +12,13 @@ import type {
   Session,
   VerifyOtpInput,
 } from "./auth.contract";
-import { httpRequest, setAccessToken, removeAccessToken, hasToken, setCurrentSessionId } from "../_transport/http";
+import {
+  httpRequest,
+  setAccessToken,
+  removeAccessToken,
+  hasToken,
+  setCurrentSessionId,
+} from "../_transport/http";
 import { AuthenticationError } from "../../lib/platform/errors";
 
 // ---------------------------------------------------------------------------

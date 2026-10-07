@@ -53,11 +53,7 @@ const SECTIONS: { label: string; items: Item[] }[] = [
   },
 ];
 
-export function VaultRail({
-  variant = "fixed",
-}: {
-  variant?: "fixed" | "drawer";
-}) {
+export function VaultRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" }) {
   const [expanded, setExpanded] = useState(true);
   const pathname = useRouterState({
     select: (s) => s.location.pathname,
@@ -95,11 +91,7 @@ export function VaultRail({
       <button
         onClick={() => !isDrawer && setExpanded((v) => !v)}
         aria-label={
-          isDrawer
-            ? "AdaptiveGuard"
-            : expanded
-              ? "Collapse navigation"
-              : "Expand navigation"
+          isDrawer ? "AdaptiveGuard" : expanded ? "Collapse navigation" : "Expand navigation"
         }
         className="group flex items-center gap-2.5 px-4 pt-5 pb-4 text-left min-h-11"
       >
@@ -127,11 +119,7 @@ export function VaultRail({
 
             {(expanded || isDrawer) && <Label>{section.label}</Label>}
 
-            <RailGroup
-              items={section.items}
-              expanded={expanded || isDrawer}
-              pathname={pathname}
-            />
+            <RailGroup items={section.items} expanded={expanded || isDrawer} pathname={pathname} />
           </div>
         ))}
       </nav>
@@ -152,13 +140,9 @@ export function VaultRail({
 
           {(expanded || isDrawer) && (
             <div className="leading-tight">
-              <div className="text-[11px] font-medium">
-                Session active
-              </div>
+              <div className="text-[11px] font-medium">Session active</div>
 
-              <div className="text-[10px] text-muted-foreground">
-                Security monitoring active
-              </div>
+              <div className="text-[10px] text-muted-foreground">Security monitoring active</div>
             </div>
           )}
 
@@ -224,10 +208,7 @@ function RailGroup({
         const Icon = it.icon;
 
         return (
-          <li
-            key={it.label}
-            className="group/item relative"
-          >
+          <li key={it.label} className="group/item relative">
             <Link
               to={it.to}
               aria-label={it.label}
@@ -243,16 +224,11 @@ function RailGroup({
                 <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-accent to-purple" />
               )}
 
-              <Icon
-                className="h-4 w-4 shrink-0"
-                aria-hidden
-              />
+              <Icon className="h-4 w-4 shrink-0" aria-hidden />
 
               {expanded && (
                 <>
-                  <span className="truncate">
-                    {it.label}
-                  </span>
+                  <span className="truncate">{it.label}</span>
 
                   {it.kbd && (
                     <span
@@ -276,11 +252,7 @@ function RailGroup({
               <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-[oklch(0.225_0.035_264/0.95)] px-2.5 py-1.5 text-[11px] opacity-0 shadow-xl backdrop-blur-xl transition-opacity duration-150 group-hover/item:opacity-100">
                 {it.label}
 
-                {it.kbd && (
-                  <span className="ml-2 text-muted-foreground">
-                    {it.kbd}
-                  </span>
-                )}
+                {it.kbd && <span className="ml-2 text-muted-foreground">{it.kbd}</span>}
               </span>
             )}
           </li>

@@ -35,16 +35,16 @@ The ML pipeline design is **literature-grounded and architecturally defensible**
 
 **The documentation contains two fundamentally different architectures that are unreconciled.**
 
-| Dimension | README.md Architecture | Master PRD + ADR Architecture |
-|---|---|---|
-| Database | MongoDB 7 (single) | PostgreSQL 16 + Redis 7 + ClickHouse + S3 |
-| Message Queue | Redis Streams | Apache Kafka (MSK) |
-| ML Serving | In-process FastAPI | Ray Serve behind Decision Service |
-| Deployment | Docker Compose (single host) | AWS EKS + ArgoCD GitOps |
-| Backend Structure | Monolithic FastAPI (`backend/app/`) | 6-service mesh (`services/identity/`, `behavior/`, `decision/`, `banking/`, `notification/`, `audit/`) |
-| Object Store | MinIO (dev) / S3 (prod) | S3 only (cold storage) |
-| Frontend Framework | React 18 + Vite (READ) | TanStack Start v1 (React 19, Vite 7) - ADR-0001 |
-| Auth Token Storage | JWT (no spec on storage) | Access token in-memory only; refresh token HttpOnly cookie |
+| Dimension          | README.md Architecture              | Master PRD + ADR Architecture                                                                          |
+| ------------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Database           | MongoDB 7 (single)                  | PostgreSQL 16 + Redis 7 + ClickHouse + S3                                                              |
+| Message Queue      | Redis Streams                       | Apache Kafka (MSK)                                                                                     |
+| ML Serving         | In-process FastAPI                  | Ray Serve behind Decision Service                                                                      |
+| Deployment         | Docker Compose (single host)        | AWS EKS + ArgoCD GitOps                                                                                |
+| Backend Structure  | Monolithic FastAPI (`backend/app/`) | 6-service mesh (`services/identity/`, `behavior/`, `decision/`, `banking/`, `notification/`, `audit/`) |
+| Object Store       | MinIO (dev) / S3 (prod)             | S3 only (cold storage)                                                                                 |
+| Frontend Framework | React 18 + Vite (READ)              | TanStack Start v1 (React 19, Vite 7) - ADR-0001                                                        |
+| Auth Token Storage | JWT (no spec on storage)            | Access token in-memory only; refresh token HttpOnly cookie                                             |
 
 **The Master PRD explicitly states it is the "single source of truth" and that "when a downstream document disagrees with the Master PRD, the Master PRD wins."** This means the README.md is the downstream document that is out of date, and the ADR/Master PRD architecture is canonical.
 
@@ -77,6 +77,7 @@ Routes (TanStack Router, file-based) → Hooks (React Query) → Services (typed
 ```
 
 Key strengths:
+
 - **Service layer abstraction.** The `src/services/` directory defines typed contracts (`AuthService`, `BankingService`, `AegisService`, `AdminService`) with mock implementations that simulate realistic latency (80-560ms). Swapping to real HTTP backends requires only implementing the same contracts and flipping `VITE_USE_REAL_API=true` — zero component changes.
 - **React Query integration.** Every API call flows through `useQuery` / `useMutation` hooks with proper cache invalidation, abort signal propagation, and stale-while-revalidate semantics.
 - **Error handling.** Typed `AppError` hierarchy (ValidationError, AuthenticationError, AuthorizationError, etc.) with stable machine-readable codes mapped to HTTP status codes.
@@ -103,6 +104,7 @@ As documented in the Executive Summary, the README.md and Master PRD + ADRs desc
 The README specifies WebSocket-based event streaming (`/ws/events/{session_id}`), while the Master PRD/AsyncAPI spec defines Kafka topics for event transport. The frontend currently has no WebSocket client implementation — the Aegis mock simulates live snapshots with `setInterval`.
 
 **Recommendation:** For the demo context, skip WebSocket and use REST-based polling:
+
 - The Behavioral Collector SDK (to be built) collects keystroke/mouse events client-side and aggregates them into 5-second feature vectors (per ADR-0005).
 - Every 60 seconds, the frontend POSTs a feature window to `POST /api/v1/events/batch`.
 - The backend scores the window and returns the verdict synchronously.
@@ -115,6 +117,7 @@ This eliminates WebSocket infrastructure complexity for the demo while preservin
 The README contains a detailed TypeScript sketch of `BehavioralCollector.ts` but this code does not exist in the frontend source. The project has local `data_collection/` scripts (`collect_behavioral_data.py`, CSV files) for offline data collection, but no browser-side collector.
 
 **Recommendation:** This must be built in Sprint 1 as a standalone TypeScript module. It should:
+
 - Attach `keydown`/`keyup`/`mousemove`/`mousedown`/`mouseup`/`wheel` listeners
 - Compute features client-side per ADR-0005 (aggregated features only, no raw key content)
 - Batch into 60-second windows with 50% overlap
@@ -127,6 +130,7 @@ This is the highest-risk frontend component and should be started early.
 The current repository does not match either proposed folder structure.
 
 **Current structure (flat, frontend-only):**
+
 ```
 src/
   components/  (7 domains + ui primitives)
@@ -137,6 +141,7 @@ src/
 ```
 
 **Missing from README's proposed structure:**
+
 ```
 backend/       — does not exist
 ml/            — does not exist (except data_collection/ scripts)
@@ -149,11 +154,11 @@ docs/api/      — incomplete (only openapi.identity.yaml exists)
 
 The frontend uses TanStack Router with file-based routing. The route structure maps to three authenticated layouts:
 
-| Layout | Route Prefix | Route File | Purpose |
-|---|---|---|---|
-| Auth | `/auth/*` | `src/routes/auth.tsx` | Login, Register, OTP, Calibrate, Signature |
-| App | `/app/*` | `src/routes/app.tsx` | Banking dashboard + Guard (security center) |
-| Admin | `/admin/*` | `src/routes/admin.tsx` | AI-SOC cockpit |
+| Layout | Route Prefix | Route File             | Purpose                                     |
+| ------ | ------------ | ---------------------- | ------------------------------------------- |
+| Auth   | `/auth/*`    | `src/routes/auth.tsx`  | Login, Register, OTP, Calibrate, Signature  |
+| App    | `/app/*`     | `src/routes/app.tsx`   | Banking dashboard + Guard (security center) |
+| Admin  | `/admin/*`   | `src/routes/admin.tsx` | AI-SOC cockpit                              |
 
 The backend must serve these routes and the corresponding API endpoints. The auth-protected routes (`/app/*`, `/admin/*`) require JWT validation middleware.
 
@@ -163,46 +168,46 @@ The backend must serve these routes and the corresponding API endpoints. The aut
 
 ### 3.1 Consistency Audit
 
-| Document Pair | Finding | Severity |
-|---|---|---|
-| README.md vs ADR-0003 | Database: MongoDB vs PostgreSQL | **Critical** |
-| README.md vs ADR-0007 | Message Queue: Redis Streams vs Kafka | **High** |
-| README.md vs ADR-0002 | Backend: Monolith vs 6-service mesh | **High** |
-| README.md vs ADR-0006 | ML Serving: In-process vs Ray Serve | **Medium** |
-| README.md vs ADR-0001 | Frontend: React 18 vs TanStack Start (React 19) | **Low** (frontend already built) |
-| README.md vs ADR-0004 | Auth: 15-min JWT vs 10-min JWT | **Low** |
-| README.md vs Master PRD | Auth: No refresh cookie spec vs HttpOnly cookie | **Medium** |
-| Master PRD §7 vs `docs/api/` | References 4 OpenAPI specs; only 1 exists | **High** |
-| Master PRD §8 vs `docs/db/ERD.md` | ERD shows PostgreSQL schema (consistent with ADR-0003) | **No issue** |
-| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/register` → OTP; frontend contract has `register()` → `challengeId` — **consistent** | **No issue** |
-| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/verify-otp` → AuthSession; frontend has `verifyOtp()` → Session — **consistent** | **No issue** |
-| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/enrollment`; frontend has `submitEnrollment()` — **consistent** | **No issue** |
-| Frontend contracts vs OpenAPI spec | Frontend has `login()` returning Session directly; OpenAPI spec has `/auth/login` returning 200 (AuthSession) or 202 (OTP challenge) — **partially consistent** (frontend mock doesn't model the OTP challenge path on login) | **Low** |
+| Document Pair                      | Finding                                                                                                                                                                                                                       | Severity                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| README.md vs ADR-0003              | Database: MongoDB vs PostgreSQL                                                                                                                                                                                               | **Critical**                     |
+| README.md vs ADR-0007              | Message Queue: Redis Streams vs Kafka                                                                                                                                                                                         | **High**                         |
+| README.md vs ADR-0002              | Backend: Monolith vs 6-service mesh                                                                                                                                                                                           | **High**                         |
+| README.md vs ADR-0006              | ML Serving: In-process vs Ray Serve                                                                                                                                                                                           | **Medium**                       |
+| README.md vs ADR-0001              | Frontend: React 18 vs TanStack Start (React 19)                                                                                                                                                                               | **Low** (frontend already built) |
+| README.md vs ADR-0004              | Auth: 15-min JWT vs 10-min JWT                                                                                                                                                                                                | **Low**                          |
+| README.md vs Master PRD            | Auth: No refresh cookie spec vs HttpOnly cookie                                                                                                                                                                               | **Medium**                       |
+| Master PRD §7 vs `docs/api/`       | References 4 OpenAPI specs; only 1 exists                                                                                                                                                                                     | **High**                         |
+| Master PRD §8 vs `docs/db/ERD.md`  | ERD shows PostgreSQL schema (consistent with ADR-0003)                                                                                                                                                                        | **No issue**                     |
+| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/register` → OTP; frontend contract has `register()` → `challengeId` — **consistent**                                                                                                                  | **No issue**                     |
+| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/verify-otp` → AuthSession; frontend has `verifyOtp()` → Session — **consistent**                                                                                                                      | **No issue**                     |
+| Frontend contracts vs OpenAPI spec | OpenAPI spec has `/auth/enrollment`; frontend has `submitEnrollment()` — **consistent**                                                                                                                                       | **No issue**                     |
+| Frontend contracts vs OpenAPI spec | Frontend has `login()` returning Session directly; OpenAPI spec has `/auth/login` returning 200 (AuthSession) or 202 (OTP challenge) — **partially consistent** (frontend mock doesn't model the OTP challenge path on login) | **Low**                          |
 
 ### 3.2 Missing Documentation
 
-| Document | Status | Action |
-|---|---|---|
-| `docs/api/openapi.banking.yaml` | **Missing** | Must be written before banking backend implementation |
-| `docs/api/openapi.behavior.yaml` | **Missing** | Must be written before behavioral ingestion implementation |
-| `docs/api/openapi.decision.yaml` | **Missing** | Must be written before scoring backend implementation |
-| `docs/runbooks/` | Template only (`RUNBOOK.template.md`) | Acceptable for pre-implementation phase |
-| `docs/sprints/SPRINT_1B.md` | **Missing** | First backend sprint needs a sprint plan |
-| Backend test structure | Not documented | Must be added to testing strategy |
+| Document                         | Status                                | Action                                                     |
+| -------------------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| `docs/api/openapi.banking.yaml`  | **Missing**                           | Must be written before banking backend implementation      |
+| `docs/api/openapi.behavior.yaml` | **Missing**                           | Must be written before behavioral ingestion implementation |
+| `docs/api/openapi.decision.yaml` | **Missing**                           | Must be written before scoring backend implementation      |
+| `docs/runbooks/`                 | Template only (`RUNBOOK.template.md`) | Acceptable for pre-implementation phase                    |
+| `docs/sprints/SPRINT_1B.md`      | **Missing**                           | First backend sprint needs a sprint plan                   |
+| Backend test structure           | Not documented                        | Must be added to testing strategy                          |
 
 ### 3.3 Documentation Quality
 
-| Document | Quality | Notes |
-|---|---|---|
-| README.md | **Excellent** | Comprehensive, well-structured, strong technical depth. The ML pipeline pseudocode is particularly good. |
-| Master PRD | **Excellent** | Clear source-of-truth, good cross-referencing, explicit change control process. |
-| ADRs 0001-0014 | **Excellent** | Well-reasoned decisions with alternatives and consequences. |
-| ERD | **Good** | Clear mermaid diagram, indexes, constraints, RLS, retention policies. |
-| OpenAPI Identity Spec | **Good** | Well-structured, uses `$ref` properly, has schemas for all types. |
-| AsyncAPI Events Spec | **Adequate** | Covers the 5 key topics. Schemas are inline rather than in a registry. |
-| Engineering Standards | **Excellent** | Comprehensive. Naming, error handling, logging, testing, git workflow — all clear. |
-| Definition of Ready | **Excellent** | Thorough checklist. Even includes "Accessibility checklist" and "Rollback plan." |
-| Component Inventory | **Good** | Tracks every component's Storybook status. |
+| Document              | Quality       | Notes                                                                                                    |
+| --------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| README.md             | **Excellent** | Comprehensive, well-structured, strong technical depth. The ML pipeline pseudocode is particularly good. |
+| Master PRD            | **Excellent** | Clear source-of-truth, good cross-referencing, explicit change control process.                          |
+| ADRs 0001-0014        | **Excellent** | Well-reasoned decisions with alternatives and consequences.                                              |
+| ERD                   | **Good**      | Clear mermaid diagram, indexes, constraints, RLS, retention policies.                                    |
+| OpenAPI Identity Spec | **Good**      | Well-structured, uses `$ref` properly, has schemas for all types.                                        |
+| AsyncAPI Events Spec  | **Adequate**  | Covers the 5 key topics. Schemas are inline rather than in a registry.                                   |
+| Engineering Standards | **Excellent** | Comprehensive. Naming, error handling, logging, testing, git workflow — all clear.                       |
+| Definition of Ready   | **Excellent** | Thorough checklist. Even includes "Accessibility checklist" and "Rollback plan."                         |
+| Component Inventory   | **Good**      | Tracks every component's Storybook status.                                                               |
 
 ---
 
@@ -240,17 +245,17 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Backend project scaffold, database schema, auth system working end-to-end.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S0.1** | Create `backend/` directory with FastAPI project structure | 0.5d |
-| **S0.2** | Docker Compose: add backend service; wire PostgreSQL + Redis + MinIO | 0.5d |
-| **S0.3** | Database schema: create all tables per ERD (users, sessions, OTP, behavioral_events, decisions, audit_events) | 1d |
-| **S0.4** | Database migrations tooling (Flyway or Alembic) | 0.5d |
-| **S0.5** | Auth implementation: register, login, verify-otp, logout, refresh | 2d |
-| **S0.6** | JWT middleware: validate access token, extract user context | 0.5d |
-| **S0.7** | Rate limiting middleware (Redis-based sliding window) | 0.5d |
-| **S0.8** | Frontend wiring: implement HTTP adapters for auth service and flip `VITE_USE_REAL_API=true` | 0.5d |
-| **S0.9** | End-to-end test: register → OTP → login → session → logout | 0.5d |
+| Task     | Description                                                                                                   | Est. |
+| -------- | ------------------------------------------------------------------------------------------------------------- | ---- |
+| **S0.1** | Create `backend/` directory with FastAPI project structure                                                    | 0.5d |
+| **S0.2** | Docker Compose: add backend service; wire PostgreSQL + Redis + MinIO                                          | 0.5d |
+| **S0.3** | Database schema: create all tables per ERD (users, sessions, OTP, behavioral_events, decisions, audit_events) | 1d   |
+| **S0.4** | Database migrations tooling (Flyway or Alembic)                                                               | 0.5d |
+| **S0.5** | Auth implementation: register, login, verify-otp, logout, refresh                                             | 2d   |
+| **S0.6** | JWT middleware: validate access token, extract user context                                                   | 0.5d |
+| **S0.7** | Rate limiting middleware (Redis-based sliding window)                                                         | 0.5d |
+| **S0.8** | Frontend wiring: implement HTTP adapters for auth service and flip `VITE_USE_REAL_API=true`                   | 0.5d |
+| **S0.9** | End-to-end test: register → OTP → login → session → logout                                                    | 0.5d |
 
 **Deliverable:** User can register, verify OTP, login, and see their Session in the frontend — backed by real PostgreSQL and Redis, not mocks.
 
@@ -258,14 +263,14 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Behavioral data collection working end-to-end. Feature extraction pipeline operational. Training data being collected.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S1.1** | Behavioral Collector SDK (TypeScript): keystroke + mouse event listeners with client-side feature aggregation | 2d |
-| **S1.2** | Event ingestion API: `POST /api/v1/events/batch` with Pydantic validation | 1d |
-| **S1.3** | Feature extraction module (Python): keystroke features (HT, DD, UD, digraphs, typing speed, errors) + mouse features (velocity, acceleration, jerk, straightness, clicks) | 2d |
-| **S1.4** | Data collection campaign: team + 20-30 volunteers use the app with collector active | 2d (parallel) |
-| **S1.5** | Aegis polling API: `GET /api/v1/scores/current` (returns placeholder scores for now) | 0.5d |
-| **S1.6** | Frontend wiring: implement HTTP adapter for aegis service; confidence ring shows real data | 0.5d |
+| Task     | Description                                                                                                                                                               | Est.          |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| **S1.1** | Behavioral Collector SDK (TypeScript): keystroke + mouse event listeners with client-side feature aggregation                                                             | 2d            |
+| **S1.2** | Event ingestion API: `POST /api/v1/events/batch` with Pydantic validation                                                                                                 | 1d            |
+| **S1.3** | Feature extraction module (Python): keystroke features (HT, DD, UD, digraphs, typing speed, errors) + mouse features (velocity, acceleration, jerk, straightness, clicks) | 2d            |
+| **S1.4** | Data collection campaign: team + 20-30 volunteers use the app with collector active                                                                                       | 2d (parallel) |
+| **S1.5** | Aegis polling API: `GET /api/v1/scores/current` (returns placeholder scores for now)                                                                                      | 0.5d          |
+| **S1.6** | Frontend wiring: implement HTTP adapter for aegis service; confidence ring shows real data                                                                                | 0.5d          |
 
 **Deliverable:** Behavioral events flow from browser → collector SDK → REST API → feature extractor → stored in PostgreSQL. Aegis widget shows live confidence (initially a placeholder). Training data being collected.
 
@@ -273,17 +278,17 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Trained models deployed. Real-time behavioral scoring returns actual decisions.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S2.1** | Data preparation: clean collected data, segment into windows, extract features, label | 1d |
-| **S2.2** | SMOTE implementation: balance genuine vs impostor samples | 0.5d |
-| **S2.3** | mRMR feature selection: reduce ~120 features to top-36 | 1d |
-| **S2.4** | LightGBM training: grid search hyperparameters, cross-validation | 1.5d |
-| **S2.5** | One-Class SVM training: per-user model with tuned nu/gamma | 1d |
-| **S2.6** | Score fusion: weighted ensemble + threshold calibration (EER optimization) | 1d |
-| **S2.7** | Model serialization: save trained artifacts to MinIO with versioning | 0.5d |
-| **S2.8** | Real-time inference endpoint: load models → score windows → return verdict | 1d |
-| **S2.9** | Model evaluation: compute FAR, FRR, EER, AUC-ROC on held-out test data | 0.5d |
+| Task     | Description                                                                           | Est. |
+| -------- | ------------------------------------------------------------------------------------- | ---- |
+| **S2.1** | Data preparation: clean collected data, segment into windows, extract features, label | 1d   |
+| **S2.2** | SMOTE implementation: balance genuine vs impostor samples                             | 0.5d |
+| **S2.3** | mRMR feature selection: reduce ~120 features to top-36                                | 1d   |
+| **S2.4** | LightGBM training: grid search hyperparameters, cross-validation                      | 1.5d |
+| **S2.5** | One-Class SVM training: per-user model with tuned nu/gamma                            | 1d   |
+| **S2.6** | Score fusion: weighted ensemble + threshold calibration (EER optimization)            | 1d   |
+| **S2.7** | Model serialization: save trained artifacts to MinIO with versioning                  | 0.5d |
+| **S2.8** | Real-time inference endpoint: load models → score windows → return verdict            | 1d   |
+| **S2.9** | Model evaluation: compute FAR, FRR, EER, AUC-ROC on held-out test data                | 0.5d |
 
 **Deliverable:** Real-time behavioral scoring returns actual `allow`/`challenge`/`step_up`/`block` verdicts. Aegis widget shows real confidence scores driven by ML models. OTP challenge triggers when score drops below threshold.
 
@@ -291,15 +296,15 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Adaptive profile update, SHAP explainability, admin dashboard API.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S3.1** | Adaptive profile manager: sliding window (max 500 samples) with high-confidence filter (score ≥ 0.90) | 1d |
-| **S3.2** | Periodic retraining trigger: after every 100 new high-confidence windows | 1d |
-| **S3.3** | SHAP explainer: TreeExplainer for LightGBM; generate per-decision waterfall data | 1.5d |
-| **S3.4** | Decision history API: `GET /api/v1/scores/history` with pagination | 0.5d |
-| **S3.5** | SHAP report API: `GET /api/v1/scores/shap/{decision_id}` | 0.5d |
-| **S3.6** | Admin API: users, anomalies, metrics (FAR/FRR/EER), sessions | 2d |
-| **S3.7** | Frontend wiring: admin cockpit reads real data from admin API | 0.5d |
+| Task     | Description                                                                                           | Est. |
+| -------- | ----------------------------------------------------------------------------------------------------- | ---- |
+| **S3.1** | Adaptive profile manager: sliding window (max 500 samples) with high-confidence filter (score ≥ 0.90) | 1d   |
+| **S3.2** | Periodic retraining trigger: after every 100 new high-confidence windows                              | 1d   |
+| **S3.3** | SHAP explainer: TreeExplainer for LightGBM; generate per-decision waterfall data                      | 1.5d |
+| **S3.4** | Decision history API: `GET /api/v1/scores/history` with pagination                                    | 0.5d |
+| **S3.5** | SHAP report API: `GET /api/v1/scores/shap/{decision_id}`                                              | 0.5d |
+| **S3.6** | Admin API: users, anomalies, metrics (FAR/FRR/EER), sessions                                          | 2d   |
+| **S3.7** | Frontend wiring: admin cockpit reads real data from admin API                                         | 0.5d |
 
 **Deliverable:** User profiles adapt over time. Every auth decision has a SHAP explanation visible in the admin cockpit. Admin dashboard shows live metrics.
 
@@ -307,13 +312,13 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** FinTech APIs fully implemented. Complete end-to-end banking demo.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S4.1** | Banking API: accounts, transactions, beneficiaries, transfers | 2d |
-| **S4.2** | Cards, payments, savings, holdings, loans, currencies, insights, budgets, statements, activity APIs | 2d |
-| **S4.3** | Transfer with behavioral signal integration (dwell time, typing rhythm during transfer) | 1d |
-| **S4.4** | Frontend wiring: implement HTTP adapters for banking service | 0.5d |
-| **S4.5** | Seed data: realistic banking demo data for the evaluator demo | 1d |
+| Task     | Description                                                                                         | Est. |
+| -------- | --------------------------------------------------------------------------------------------------- | ---- |
+| **S4.1** | Banking API: accounts, transactions, beneficiaries, transfers                                       | 2d   |
+| **S4.2** | Cards, payments, savings, holdings, loans, currencies, insights, budgets, statements, activity APIs | 2d   |
+| **S4.3** | Transfer with behavioral signal integration (dwell time, typing rhythm during transfer)             | 1d   |
+| **S4.4** | Frontend wiring: implement HTTP adapters for banking service                                        | 0.5d |
+| **S4.5** | Seed data: realistic banking demo data for the evaluator demo                                       | 1d   |
 
 **Deliverable:** Full banking flow works end-to-end with real backend: login → dashboard → view accounts → transfer funds → view transactions → manage beneficiaries. Behavioral auth runs silently throughout.
 
@@ -321,14 +326,14 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Production-readiness. Audit logging, security verification, test coverage.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S5.1** | Audit logging: append-only audit_events table with chain hashing | 1d |
-| **S5.2** | Security review: OWASP top-10 check, dependency audit, secret scan | 1d |
-| **S5.3** | Backend unit tests: auth, feature extraction, mRMR, score fusion | 2d |
+| Task     | Description                                                        | Est. |
+| -------- | ------------------------------------------------------------------ | ---- |
+| **S5.1** | Audit logging: append-only audit_events table with chain hashing   | 1d   |
+| **S5.2** | Security review: OWASP top-10 check, dependency audit, secret scan | 1d   |
+| **S5.3** | Backend unit tests: auth, feature extraction, mRMR, score fusion   | 2d   |
 | **S5.4** | Backend integration tests: event pipeline, OTP flow, model loading | 1.5d |
-| **S5.5** | ML evaluation: final FAR/FRR/EER/AUC report on held-out test data | 1d |
-| **S5.6** | Demo script preparation: step-by-step walkthrough with timing | 0.5d |
+| **S5.5** | ML evaluation: final FAR/FRR/EER/AUC report on held-out test data  | 1d   |
+| **S5.6** | Demo script preparation: step-by-step walkthrough with timing      | 0.5d |
 
 **Deliverable:** All tests passing. Audit trail operational. ML evaluation report complete. Demo script ready.
 
@@ -336,13 +341,13 @@ Banking API (accounts, transfers, transactions, beneficiaries)
 
 **Goal:** Bug fixes, performance tuning, documentation finalization, presentation prep.
 
-| Task | Description | Est. |
-|---|---|---|
-| **S6.1** | Bug bash: end-to-end testing of all flows | 1.5d |
-| **S6.2** | Performance optimization: query plans, Redis caching, response times | 1d |
-| **S6.3** | Documentation finalization: API docs (auto-generated OpenAPI), setup guide, README updates | 1d |
-| **S6.4** | Demo video recording | 1d |
-| **S6.5** | Presentation slides + defense preparation | 1.5d |
+| Task     | Description                                                                                | Est. |
+| -------- | ------------------------------------------------------------------------------------------ | ---- |
+| **S6.1** | Bug bash: end-to-end testing of all flows                                                  | 1.5d |
+| **S6.2** | Performance optimization: query plans, Redis caching, response times                       | 1d   |
+| **S6.3** | Documentation finalization: API docs (auto-generated OpenAPI), setup guide, README updates | 1d   |
+| **S6.4** | Demo video recording                                                                       | 1d   |
+| **S6.5** | Presentation slides + defense preparation                                                  | 1.5d |
 
 **Deliverable:** Production-ready demo. All documentation updated. Demo video recorded. Presentation slides complete.
 
@@ -355,21 +360,22 @@ S0 (Auth) → S1 (Collector) → S2 (ML Training) → S3 (Scoring + Explainabili
 ```
 
 **Blockers to watch:**
+
 - **Training data collection** (S1.4) is the highest-risk activity. If we cannot collect sufficient data from volunteers, we fall back to public datasets (CMU Keystroke Dataset, Buffalo dataset).
 - **Model performance** (S2.9) may require iteration. Budget extra time for hyperparameter tuning and feature engineering if initial results don't meet targets.
 - **Frontend wiring** (S0.8, S1.6, S3.7, S4.4) depends on service contract stability. Freeze the contracts at the end of Sprint 0.
 
 ### 4.4 Risk Register
 
-| # | Risk | Prob. | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | Insufficient training data | High | Critical | Start collection Week 1; use public datasets as fallback |
-| 2 | ML models don't meet accuracy targets | Medium | High | Budget 2 extra days for tuning; document lessons learned even if targets missed |
-| 3 | Browser API timing precision | Medium | Medium | Accept 5-10ms variance; literature confirms discriminative power remains |
-| 4 | Cold start for new users | High | Medium | Guided baseline collection; password-only fallback until profile matures |
-| 5 | Frontend-backend contract drift | Low | High | Generate TypeScript types from OpenAPI specs (per Master PRD §7); freeze contracts at Sprint 0 close |
-| 6 | PostgreSQL performance for event ingestion | Low | Low | Demo scale (1-5 users) won't stress PostgreSQL; production pathway documented |
-| 7 | Team member unavailability | Medium | Medium | All critical-path tasks have documented interfaces; any team member can pick up |
+| #   | Risk                                       | Prob.  | Impact   | Mitigation                                                                                           |
+| --- | ------------------------------------------ | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | Insufficient training data                 | High   | Critical | Start collection Week 1; use public datasets as fallback                                             |
+| 2   | ML models don't meet accuracy targets      | Medium | High     | Budget 2 extra days for tuning; document lessons learned even if targets missed                      |
+| 3   | Browser API timing precision               | Medium | Medium   | Accept 5-10ms variance; literature confirms discriminative power remains                             |
+| 4   | Cold start for new users                   | High   | Medium   | Guided baseline collection; password-only fallback until profile matures                             |
+| 5   | Frontend-backend contract drift            | Low    | High     | Generate TypeScript types from OpenAPI specs (per Master PRD §7); freeze contracts at Sprint 0 close |
+| 6   | PostgreSQL performance for event ingestion | Low    | Low      | Demo scale (1-5 users) won't stress PostgreSQL; production pathway documented                        |
+| 7   | Team member unavailability                 | Medium | Medium   | All critical-path tasks have documented interfaces; any team member can pick up                      |
 
 ---
 
@@ -380,6 +386,7 @@ S0 (Auth) → S1 (Collector) → S2 (ML Training) → S3 (Scoring + Explainabili
 The ERD in `docs/db/ERD.md` is well-designed. Key observations:
 
 **Strengths:**
+
 - Proper use of UUIDs as primary keys (avoiding sequential ID enumeration)
 - CITEXT for email (case-insensitive lookups without losing case)
 - JSONB for behavioral profiles and feature vectors (appropriate for semi-structured ML data)
@@ -431,26 +438,26 @@ The ERD in `docs/db/ERD.md` is well-designed. Key observations:
 
 5. **Indexes — verified against query patterns:**
 
-   | Query | Index Needed | In ERD? |
-   |---|---|---|
-   | "Get latest score for current session" | `decisions (session_id, evaluated_at DESC)` | Yes |
-   | "Find all challenges in last 24h" | `decisions (outcome, evaluated_at DESC)` | No — add |
-   | "Get active sessions for user" | `sessions (user_id, revoked_at) WHERE revoked_at IS NULL` | Yes |
-   | "Lookup OTP challenge" | `otp_challenges (user_id, purpose, expires_at DESC)` | Yes |
-   | "Check device fingerprint" | `trusted_devices (user_id, fingerprint)` UNIQUE | Yes |
+   | Query                                  | Index Needed                                              | In ERD?  |
+   | -------------------------------------- | --------------------------------------------------------- | -------- |
+   | "Get latest score for current session" | `decisions (session_id, evaluated_at DESC)`               | Yes      |
+   | "Find all challenges in last 24h"      | `decisions (outcome, evaluated_at DESC)`                  | No — add |
+   | "Get active sessions for user"         | `sessions (user_id, revoked_at) WHERE revoked_at IS NULL` | Yes      |
+   | "Lookup OTP challenge"                 | `otp_challenges (user_id, purpose, expires_at DESC)`      | Yes      |
+   | "Check device fingerprint"             | `trusted_devices (user_id, fingerprint)` UNIQUE           | Yes      |
 
 ### 5.2 Caching Strategy
 
 The README lists 6 Redis key patterns. For the hybrid architecture, I recommend:
 
-| Key | Type | TTL | Purpose |
-|---|---|---|---|
-| `session:{session_id}` | Hash | 30 min | Active session metadata + last score |
-| `otp:{user_id}` | String | 5 min | OTP value (hashed) |
-| `otp_rate:{user_id}` | String | 1 min | OTP request counter |
-| `rate_limit:{ip}` | String | 1 min | API rate limit counter |
-| `user_model:{user_id}` | String (JSON) | 1 hour | Cached model metadata (version, metrics) |
-| `feature_cache:{session_id}` | List | 2 min | Accumulating feature vectors for current window |
+| Key                          | Type          | TTL    | Purpose                                         |
+| ---------------------------- | ------------- | ------ | ----------------------------------------------- |
+| `session:{session_id}`       | Hash          | 30 min | Active session metadata + last score            |
+| `otp:{user_id}`              | String        | 5 min  | OTP value (hashed)                              |
+| `otp_rate:{user_id}`         | String        | 1 min  | OTP request counter                             |
+| `rate_limit:{ip}`            | String        | 1 min  | API rate limit counter                          |
+| `user_model:{user_id}`       | String (JSON) | 1 hour | Cached model metadata (version, metrics)        |
+| `feature_cache:{session_id}` | List          | 2 min  | Accumulating feature vectors for current window |
 
 **Additional recommendation:** Cache the latest Aegis snapshot per session to avoid scoring on every 2-second poll. The `GET /api/v1/scores/current` endpoint returns the cached snapshot; the actual scoring runs every 60 seconds on window boundaries.
 
@@ -477,28 +484,28 @@ Daily anchor hash should be written to a file (S3 Object Lock in production; loc
 
 ### 6.1 Contract Completeness
 
-| Domain | OpenAPI Spec | Frontend Contract | Status |
-|---|---|---|---|
-| Identity / Auth | `openapi.identity.yaml` — 7 endpoints | `auth.contract.ts` — 6 methods | **Aligned.** Missing: refresh endpoint not in frontend contract (handled by cookie) |
-| Banking | `openapi.banking.yaml` — **MISSING** | `banking.contract.ts` — 15 methods | **Spec must be written** from the frontend contract |
-| Behavior | `openapi.behavior.yaml` — **MISSING** | Embedded in `aegis.contract.ts` — 7 methods | **Spec must be written** from the frontend contract |
-| Decision | `openapi.decision.yaml` — **MISSING** | Embedded in `aegis.contract.ts` (snapshots, decisions, risk events) | **Spec must be written** from the frontend contract |
-| Admin | Not referenced in Master PRD | `admin.contract.ts` — 18+ methods | **Spec must be written** from the frontend contract |
-| Events | `events.asyncapi.yaml` — 5 topics | Not used by frontend (REST polling instead) | **Acceptable for now** |
+| Domain          | OpenAPI Spec                          | Frontend Contract                                                   | Status                                                                              |
+| --------------- | ------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Identity / Auth | `openapi.identity.yaml` — 7 endpoints | `auth.contract.ts` — 6 methods                                      | **Aligned.** Missing: refresh endpoint not in frontend contract (handled by cookie) |
+| Banking         | `openapi.banking.yaml` — **MISSING**  | `banking.contract.ts` — 15 methods                                  | **Spec must be written** from the frontend contract                                 |
+| Behavior        | `openapi.behavior.yaml` — **MISSING** | Embedded in `aegis.contract.ts` — 7 methods                         | **Spec must be written** from the frontend contract                                 |
+| Decision        | `openapi.decision.yaml` — **MISSING** | Embedded in `aegis.contract.ts` (snapshots, decisions, risk events) | **Spec must be written** from the frontend contract                                 |
+| Admin           | Not referenced in Master PRD          | `admin.contract.ts` — 18+ methods                                   | **Spec must be written** from the frontend contract                                 |
+| Events          | `events.asyncapi.yaml` — 5 topics     | Not used by frontend (REST polling instead)                         | **Acceptable for now**                                                              |
 
 ### 6.2 Endpoint-by-Endpoint Review
 
 #### Identity API (`openapi.identity.yaml`)
 
-| Endpoint | Assessment |
-|---|---|
-| `POST /auth/register` | Correct. Returns `202` with `challengeId`. Password minLength=12 is good. |
-| `POST /auth/verify-otp` | Correct. OTP code pattern `^[0-9]{6}$` is properly constrained. Returns `AuthSession` with access token + sets refresh cookie. |
-| `POST /auth/login` | Correct. Two possible responses: `200` (trusted device) or `202` (OTP challenge on unknown device). This maps to the "step-up" flow. |
-| `POST /auth/refresh` | Correct. Cookie-based; no request body. Rotates refresh token. |
-| `POST /auth/logout` | Correct. Returns `204`. |
-| `GET /auth/me` | Correct. Returns `{id, email, fullName, roles, enrollmentStatus}`. |
-| `POST /auth/enrollment` | Correct. Accepts keyboard + mouse feature vectors. Returns baseline ID and confidence. |
+| Endpoint                   | Assessment                                                                                                                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /auth/register`      | Correct. Returns `202` with `challengeId`. Password minLength=12 is good.                                                                                                  |
+| `POST /auth/verify-otp`    | Correct. OTP code pattern `^[0-9]{6}$` is properly constrained. Returns `AuthSession` with access token + sets refresh cookie.                                             |
+| `POST /auth/login`         | Correct. Two possible responses: `200` (trusted device) or `202` (OTP challenge on unknown device). This maps to the "step-up" flow.                                       |
+| `POST /auth/refresh`       | Correct. Cookie-based; no request body. Rotates refresh token.                                                                                                             |
+| `POST /auth/logout`        | Correct. Returns `204`.                                                                                                                                                    |
+| `GET /auth/me`             | Correct. Returns `{id, email, fullName, roles, enrollmentStatus}`.                                                                                                         |
+| `POST /auth/enrollment`    | Correct. Accepts keyboard + mouse feature vectors. Returns baseline ID and confidence.                                                                                     |
 | `GET /auth/session-status` | Listed in README but missing from OpenAPI spec. **Recommendation:** Add this endpoint. It returns the same data as `GET /auth/me` plus `currentScore` and `sessionHealth`. |
 
 #### Banking API (from frontend contract — spec to be written)
@@ -509,14 +516,14 @@ The frontend expects 15 endpoints. Write the OpenAPI spec first, then implement.
 
 Key endpoints the backend must implement:
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `GET` | `/api/v1/aegis/snapshot` | Latest confidence + risk + whisper + trend |
-| `GET` | `/api/v1/aegis/decisions` | Decision history |
-| `GET` | `/api/v1/aegis/devices` | Trusted devices |
-| `GET` | `/api/v1/aegis/risk-events` | Recent risk events |
-| `GET` | `/api/v1/aegis/device-profiles` | Rich device profiles for Guard |
-| `GET` | `/api/v1/aegis/decision-replays` | Decision replay with SHAP petals |
+| Method | Endpoint                         | Purpose                                    |
+| ------ | -------------------------------- | ------------------------------------------ |
+| `GET`  | `/api/v1/aegis/snapshot`         | Latest confidence + risk + whisper + trend |
+| `GET`  | `/api/v1/aegis/decisions`        | Decision history                           |
+| `GET`  | `/api/v1/aegis/devices`          | Trusted devices                            |
+| `GET`  | `/api/v1/aegis/risk-events`      | Recent risk events                         |
+| `GET`  | `/api/v1/aegis/device-profiles`  | Rich device profiles for Guard             |
+| `GET`  | `/api/v1/aegis/decision-replays` | Decision replay with SHAP petals           |
 
 The `subscribeSnapshots` method in the frontend contract is implemented as polling (see §2.2 Issue 2 recommendation).
 
@@ -556,6 +563,7 @@ The README specifies URI versioning (`/api/v1/...`). The OpenAPI spec uses `/api
 ### 7.1 Authentication
 
 **Strengths:**
+
 - Short-lived access tokens (10 min) minimize the window for token theft
 - Rotating refresh tokens prevent long-term replay
 - HttpOnly, Secure, SameSite=Strict cookie prevents XSS exfiltration of refresh tokens
@@ -576,6 +584,7 @@ The README specifies URI versioning (`/api/v1/...`). The OpenAPI spec uses `/api
 ### 7.2 Authorization
 
 **Strengths:**
+
 - Separate `user_roles` table with `has_role()` function
 - RLS policies scoped to `auth.uid()`
 - Three-tier role model: user, analyst, admin
@@ -595,6 +604,7 @@ The frontend's `EnrollmentSample` contract already enforces this — it takes `f
 ### 7.4 Secrets Management
 
 The `.env.example` file shows placeholder values. For the demo:
+
 - Use environment variables in Docker Compose (not committed to git)
 - Generate JWT signing keys on first run (script)
 - No AWS KMS dependency for dev — use local HMAC with HS256, document the KMS upgrade path
@@ -615,16 +625,16 @@ async def check_rate_limit(key: str, limit: int, window: int = 60):
 
 ### 7.6 Threat Model Review
 
-| Threat | Mitigation | Assessment |
-|---|---|---|
-| Session hijacking | Continuous behavioral auth → detects within 1-3 windows | **Effective** if model performance meets targets |
-| Credential stuffing | Rate limiting + behavioral anomaly on login | **Partially covered** — login anomaly detection not yet designed |
-| Replay attacks (behavioral) | Timestamp per window, session-scoped | **Needs implementation detail** |
-| Model poisoning | Only high-confidence (≥ 0.90) windows in adaptive update | **Correct design** |
-| Model extraction | Inference server-side only; no model download endpoint | **Correct** |
-| Insider threat (admin) | Audit logs + SHAP reports for accountability | **Correct design** |
-| XSS (access token theft) | Memory-only storage; short TTL (10 min) | **Effective** |
-| CSRF (refresh endpoint) | SameSite=Strict cookie scoped to `/api/auth` | **Effective** |
+| Threat                      | Mitigation                                               | Assessment                                                       |
+| --------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------- |
+| Session hijacking           | Continuous behavioral auth → detects within 1-3 windows  | **Effective** if model performance meets targets                 |
+| Credential stuffing         | Rate limiting + behavioral anomaly on login              | **Partially covered** — login anomaly detection not yet designed |
+| Replay attacks (behavioral) | Timestamp per window, session-scoped                     | **Needs implementation detail**                                  |
+| Model poisoning             | Only high-confidence (≥ 0.90) windows in adaptive update | **Correct design**                                               |
+| Model extraction            | Inference server-side only; no model download endpoint   | **Correct**                                                      |
+| Insider threat (admin)      | Audit logs + SHAP reports for accountability             | **Correct design**                                               |
+| XSS (access token theft)    | Memory-only storage; short TTL (10 min)                  | **Effective**                                                    |
+| CSRF (refresh endpoint)     | SameSite=Strict cookie scoped to `/api/auth`             | **Effective**                                                    |
 
 ---
 
@@ -635,12 +645,14 @@ async def check_rate_limit(key: str, limit: int, window: int = 60):
 The feature definitions in README §6.1 are comprehensive and literature-grounded:
 
 **Keystroke features (~60):**
+
 - Hold time (HT): mean, std, median, min, max — correctly capture keypress duration
 - Flight time (DD, UD): down-down and up-down latencies — distinguish typing styles
 - Typing speed (CPM), bursts, error patterns, digraphs, rhythm — well-chosen
 - The digraph set (th, he, in, er, an, on, at, en, nd, ti, es, or) covers the most common English bigrams
 
 **Mouse features (~60):**
+
 - Velocity, acceleration, jerk (derivative of acceleration) — kinematics hierarchy
 - Trajectory geometry: straightness ratio, angle of curvature — path analysis
 - Click behavior: rate, duration, double-click speed, right-click ratio — interaction patterns
@@ -663,6 +675,7 @@ The mRMR implementation in README §6.2 is correct algorithmically. Key observat
 - **36 feature target** matches Wang & Hou (2024) and Krishnamoorthy et al. (2018)
 
 **Recommendations:**
+
 - Consider using MID (Mutual Information Difference) vs MIQ (Mutual Information Quotient) — the README implements MID. Document this choice.
 - Cache the correlation matrix rather than recomputing per-iteration (O(n²) → O(n) per feature)
 - The mRMR selector should be trained once during offline training and stored; online inference uses the stored feature indices
@@ -679,17 +692,18 @@ Correct. SMOTE with `k_neighbors=5` and `sampling_strategy='auto'` is the standa
 
 The hyperparameter choices are reasonable:
 
-| Param | Value | Assessment |
-|---|---|---|
-| `num_leaves: 31` | Default | Good starting point; tune 15-63 |
-| `learning_rate: 0.05` | Conservative | Good for small datasets |
-| `feature_fraction: 0.8` | Column subsampling | Reduces overfitting |
-| `bagging_fraction: 0.8` | Row subsampling | Reduces overfitting |
-| `min_data_in_leaf: 20` | Regularization | Critical for small user base |
-| `lambda_l1: 0.1, lambda_l2: 0.1` | L1/L2 regularization | Prevents overfitting |
-| `early_stopping: 30 rounds` | Convergence | Standard |
+| Param                            | Value                | Assessment                      |
+| -------------------------------- | -------------------- | ------------------------------- |
+| `num_leaves: 31`                 | Default              | Good starting point; tune 15-63 |
+| `learning_rate: 0.05`            | Conservative         | Good for small datasets         |
+| `feature_fraction: 0.8`          | Column subsampling   | Reduces overfitting             |
+| `bagging_fraction: 0.8`          | Row subsampling      | Reduces overfitting             |
+| `min_data_in_leaf: 20`           | Regularization       | Critical for small user base    |
+| `lambda_l1: 0.1, lambda_l2: 0.1` | L1/L2 regularization | Prevents overfitting            |
+| `early_stopping: 30 rounds`      | Convergence          | Standard                        |
 
 **Recommendations:**
+
 - The expected performance numbers (94.68% accuracy, 0.98 AUC-ROC) are from the literature and will likely be lower on self-collected data with fewer users. Set realistic targets: 85%+ accuracy, 0.90+ AUC-ROC would be a strong result for a self-collected dataset.
 - Add `is_unbalance: true` or use `scale_pos_weight` if SMOTE is not applied during inference-time training.
 
@@ -727,13 +741,14 @@ final_score = meta_model.predict_proba([[lgbm_prob, ocsvm_score_norm]])[0, 1]
 
 The three-tier threshold system is well-designed:
 
-| Range | Action | UX |
-|---|---|---|
-| ≥ 0.85 | Silent pass | Green dot |
-| 0.60-0.85 | Log warning | Yellow dot |
-| < 0.60 | OTP challenge | Red dot + OTP modal |
+| Range     | Action        | UX                  |
+| --------- | ------------- | ------------------- |
+| ≥ 0.85    | Silent pass   | Green dot           |
+| 0.60-0.85 | Log warning   | Yellow dot          |
+| < 0.60    | OTP challenge | Red dot + OTP modal |
 
 **Recommendations:**
+
 - Calibrate thresholds using the Equal Error Rate (EER) point from the validation set
 - Consider per-user threshold adjustment: a user with consistently high scores (tight behavioral consistency) should have a higher threshold for challenges than a user with naturally variable behavior
 
@@ -754,6 +769,7 @@ The `AdaptiveProfileManager` class is correctly specified:
 - Retrain after every 100 new windows — conservative, prevents unnecessary retraining
 
 **Recommendations:**
+
 - Add a time-based retraining trigger: if profile size < 50 windows and 7 days have passed, retrain on whatever data is available (cold-start mitigation)
 - Add a "concept drift" detector: if the last 20 windows consistently score lower than the trailing average, retrain sooner (profile has shifted)
 
@@ -761,13 +777,13 @@ The `AdaptiveProfileManager` class is correctly specified:
 
 The targets in README §12.2 are ambitious:
 
-| Metric | Target | Assessment |
-|---|---|---|
-| F1 ≥ 0.90 | Ambitious but achievable | Literature reports 0.88-0.96 |
-| AUC-ROC ≥ 0.95 | Ambitious | Literature reports 0.97-0.99 |
-| EER ≤ 0.05 | Aggressive | Industry standard is 0.01-0.10 |
-| FAR ≤ 0.05 | Acceptable | Usable for demo |
-| FRR ≤ 0.10 | Acceptable | Balance with usability |
+| Metric         | Target                   | Assessment                     |
+| -------------- | ------------------------ | ------------------------------ |
+| F1 ≥ 0.90      | Ambitious but achievable | Literature reports 0.88-0.96   |
+| AUC-ROC ≥ 0.95 | Ambitious                | Literature reports 0.97-0.99   |
+| EER ≤ 0.05     | Aggressive               | Industry standard is 0.01-0.10 |
+| FAR ≤ 0.05     | Acceptable               | Usable for demo                |
+| FRR ≤ 0.10     | Acceptable               | Balance with usability         |
 
 **Recommendation:** Document both "target" and "acceptable" thresholds. An acceptable result for a self-collected dataset with 20-30 volunteers would be: F1 ≥ 0.80, AUC-ROC ≥ 0.85, EER ≤ 0.10. Any result exceeding the "target" thresholds is exceptional.
 
@@ -830,18 +846,18 @@ The targets in README §12.2 are ambitious:
 
 ## Appendix A: Technology Stack — Final Recommendation
 
-| Layer | Technology | Justification |
-|---|---|---|
-| **Backend** | FastAPI 0.110+ (Python 3.12) | Async-native, OpenAPI auto-gen, Python ML ecosystem |
-| **Database** | PostgreSQL 16 | Structured feature data, JSONB flexibility, industry standard |
-| **Cache / Sessions** | Redis 7 | Low-latency session store, rate limiting, OTP TTL |
-| **Object Store** | MinIO (dev) | S3-compatible, Dockerized, production upgrade path |
-| **ML Inference** | In-process (scikit-learn + LightGBM + SHAP) | No serving infrastructure needed at demo scale |
-| **ML Training** | Python scripts + Jupyter notebooks | Offline pipeline; reproducible via joblib serialization |
-| **Containerization** | Docker Compose | Single-command dev environment |
-| **CI** | GitHub Actions | Already configured for frontend; extend for backend |
-| **Auth** | JWT (HS256 dev; RS256+KMS prod) + bcrypt + OTP | Per ADR-0004 |
-| **Testing** | pytest + pytest-asyncio (backend), Vitest (frontend) | Per engineering standards |
+| Layer                | Technology                                           | Justification                                                 |
+| -------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
+| **Backend**          | FastAPI 0.110+ (Python 3.12)                         | Async-native, OpenAPI auto-gen, Python ML ecosystem           |
+| **Database**         | PostgreSQL 16                                        | Structured feature data, JSONB flexibility, industry standard |
+| **Cache / Sessions** | Redis 7                                              | Low-latency session store, rate limiting, OTP TTL             |
+| **Object Store**     | MinIO (dev)                                          | S3-compatible, Dockerized, production upgrade path            |
+| **ML Inference**     | In-process (scikit-learn + LightGBM + SHAP)          | No serving infrastructure needed at demo scale                |
+| **ML Training**      | Python scripts + Jupyter notebooks                   | Offline pipeline; reproducible via joblib serialization       |
+| **Containerization** | Docker Compose                                       | Single-command dev environment                                |
+| **CI**               | GitHub Actions                                       | Already configured for frontend; extend for backend           |
+| **Auth**             | JWT (HS256 dev; RS256+KMS prod) + bcrypt + OTP       | Per ADR-0004                                                  |
+| **Testing**          | pytest + pytest-asyncio (backend), Vitest (frontend) | Per engineering standards                                     |
 
 ## Appendix B: Files to Create (Backend Scaffold)
 

@@ -46,5 +46,8 @@ export interface NotificationsService {
   markRead(notificationId: string, opts?: { signal?: AbortSignal }): Promise<void>;
   markAllRead(opts?: { signal?: AbortSignal }): Promise<void>;
   getPreferences(opts?: { signal?: AbortSignal }): Promise<NotificationPreferences>;
-  updatePreferences(data: PreferenceUpdateRequest, opts?: { signal?: AbortSignal }): Promise<NotificationPreferences>;
+  updatePreferences(
+    data: PreferenceUpdateRequest,
+    opts?: { signal?: AbortSignal },
+  ): Promise<NotificationPreferences>;
 }

@@ -35,7 +35,7 @@ export function BankingHeader() {
   const { data: snapshot } = useAegisSnapshot();
   const logout = useLogout();
 
-  const isProtected = (snapshot?.confidence ?? 0.95) >= 0.70;
+  const isProtected = (snapshot?.confidence ?? 0.95) >= 0.7;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#D9E1EA] bg-white shadow-xs">
@@ -48,7 +48,9 @@ export function BankingHeader() {
           </span>
           <span className="hidden md:inline text-white/40">|</span>
           <span className="hidden md:flex items-center gap-1.5 text-white/80">
-            <span className={cn("size-2 rounded-full", isProtected ? "bg-emerald-400" : "bg-amber-400")} />
+            <span
+              className={cn("size-2 rounded-full", isProtected ? "bg-emerald-400" : "bg-amber-400")}
+            />
             Continuous Behavioral Authentication Active
           </span>
         </div>
@@ -91,7 +93,8 @@ export function BankingHeader() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((link) => {
-              const active = currentPath === link.to || (link.to !== "/app" && currentPath.startsWith(link.to));
+              const active =
+                currentPath === link.to || (link.to !== "/app" && currentPath.startsWith(link.to));
               const Icon = link.icon;
               return (
                 <Link
@@ -140,7 +143,8 @@ export function BankingHeader() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-[#D9E1EA] bg-white px-4 pt-2 pb-4 space-y-1">
           {NAV_LINKS.map((link) => {
-            const active = currentPath === link.to || (link.to !== "/app" && currentPath.startsWith(link.to));
+            const active =
+              currentPath === link.to || (link.to !== "/app" && currentPath.startsWith(link.to));
             const Icon = link.icon;
             return (
               <Link

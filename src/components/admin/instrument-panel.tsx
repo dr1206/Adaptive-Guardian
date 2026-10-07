@@ -17,10 +17,7 @@ export function InstrumentPanel({
 }) {
   return (
     <section
-      className={cn(
-        "relative rounded-xl border border-border bg-card shadow-xs",
-        className,
-      )}
+      className={cn("relative rounded-xl border border-border bg-card shadow-xs", className)}
     >
       {(title || actions || eyebrow) && (
         <header
