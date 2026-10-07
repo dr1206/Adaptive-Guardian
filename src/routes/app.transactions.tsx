@@ -65,15 +65,15 @@ function TransactionsPage() {
     <div>
       <PageHeader eyebrow="Transactions" title="Transactions" subtitle="Every move, fully searchable." />
 
-      <div className="sticky top-16 z-10 -mx-8 px-8 py-3 backdrop-blur-xl">
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/[0.06] bg-[oklch(0.13_0.025_264/0.6)] p-2">
+      <div className="sticky top-16 z-10 -mx-8 px-8 py-3 bg-background/90 backdrop-blur-md">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-xs">
           <div className="relative flex-1 min-w-[260px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search merchants, categories…"
-              className="h-9 w-full rounded-xl border border-transparent bg-white/[0.03] pl-9 pr-3 text-[13px] placeholder:text-muted-foreground/70 focus:border-accent/30 focus:outline-none"
+              placeholder="Search merchants, categories, narration…"
+              className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
           {(
@@ -87,10 +87,10 @@ function TransactionsPage() {
               key={f.key}
               onClick={() => toggleSort(f.key)}
               className={cn(
-                "inline-flex h-9 items-center gap-1 rounded-xl border px-3 text-[12px] transition-colors",
+                "inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-[12px] font-medium transition-colors",
                 sortKey === f.key
-                  ? "border-accent/40 bg-accent/10 text-accent"
-                  : "border-white/[0.05] bg-white/[0.02] text-muted-foreground hover:text-foreground",
+                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                  : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               {f.label} <ChevronDown className={cn("h-3 w-3", sortKey === f.key && sortAsc && "rotate-180")} />
@@ -103,45 +103,39 @@ function TransactionsPage() {
         isLoading={isLoading}
         error={error}
         isEmpty={groups.length === 0}
-        emptyLabel="No transactions match your filters."
+        emptyLabel="No transactions match your search criteria."
       >
         <div className="mt-3">
           {groups.map(([date, items]) => (
             <section key={date} className="mb-6">
-              <h3 className="mb-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {formatDay(date)}
               </h3>
-              <ul className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
+              <ul className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
                 {items.map((t) => (
-                  <li key={t.id} className="border-b border-white/[0.04] last:border-b-0">
+                  <li key={t.id} className="border-b border-border/60 last:border-b-0">
                     <button
                       onClick={() => setOpenId(openId === t.id ? null : t.id)}
-                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
+                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40"
                     >
                       <div className="flex items-center gap-3">
-                        <span
-                          className="grid h-10 w-10 place-items-center rounded-xl text-[11px] font-semibold"
-                          style={{
-                            background: "oklch(0.355 0.05 215 / 0.4)",
-                            color: "oklch(0.95 0.04 215)",
-                          }}
-                        >
+                        <span className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-[12px] font-bold text-primary">
                           {t.merchant.slice(0, 2).toUpperCase()}
                         </span>
                         <div>
-                          <div className="text-[13px] font-medium">{t.merchant}</div>
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[13.5px] font-semibold text-foreground">{t.merchant}</div>
+                          <div className="text-[11.5px] text-muted-foreground">
                             {t.category} · {t.time}
                           </div>
                         </div>
                       </div>
                       <span
                         className={cn(
-                          "font-numeric text-[14px] font-medium",
+                          "font-numeric text-[15px] font-bold tabular-nums",
                           t.amount >= 0 ? "text-success" : "text-foreground",
                         )}
                       >
-                        {fmt(t.amount)}
+                        {fmt(t.amount, "₹", 2)}
                       </span>
                     </button>
                     {openId === t.id && <Expanded tx={t} />}
@@ -158,13 +152,13 @@ function TransactionsPage() {
 
 function Expanded({ tx }: { tx: Transaction }) {
   return (
-    <div className="grid gap-3 border-t border-white/[0.04] bg-white/[0.02] p-4 md:grid-cols-3">
-      <Field k="Method" v={tx.method || "—"} />
-      <Field k="Reference" v={tx.ref} />
-      <Field k="Location" v={tx.location ?? "—"} />
-      <Field k="Status" v={tx.status} />
-      <Field k="Account" v={tx.account || "—"} />
-      <Field k="Amount" v={fmt(tx.amount)} />
+    <div className="grid gap-3 border-t border-border bg-muted/20 p-4 md:grid-cols-3">
+      <Field k="Payment Channel" v={tx.method || "IMPS / UPI"} />
+      <Field k="Reference Number" v={tx.ref} />
+      <Field k="Terminal / Location" v={tx.location ?? "Verified Client"} />
+      <Field k="Transaction Status" v={tx.status} />
+      <Field k="Account Debited" v={tx.account || "Primary Savings"} />
+      <Field k="Settled Amount" v={fmt(tx.amount, "₹", 2)} />
     </div>
   );
 }
@@ -172,8 +166,8 @@ function Expanded({ tx }: { tx: Transaction }) {
 function Field({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{k}</div>
-      <div className="mt-0.5 text-[12px]">{v}</div>
+      <div className="text-[10px] uppercase font-bold tracking-[0.14em] text-muted-foreground">{k}</div>
+      <div className="mt-0.5 text-[12.5px] font-medium text-foreground">{v}</div>
     </div>
   );
 }

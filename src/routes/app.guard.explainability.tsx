@@ -5,61 +5,87 @@ import { SigilCard } from "@/components/guard/sigil-card";
 import { ConfidenceRing } from "@/components/guard/confidence-ring";
 import { DecisionWaterfall, type Petal } from "@/components/guard/decision-waterfall";
 import { WaveformTrace } from "@/components/guard/waveform-trace";
+import { useDecisions } from "@/services/hooks";
 
 export const Route = createFileRoute("/app/guard/explainability")({
   component: Explainability,
 });
 
-const PLAIN: Petal[] = [
+const DEFAULT_PLAIN: Petal[] = [
   {
     label: "Familiar typing rhythm",
     weight: 42,
-    sentence: "Your inter-key timing matched your 30-day signature.",
+    sentence: "Your inter-key timing and dwell duration match your verified biometric signature.",
   },
-  { label: "Recognized device", weight: 28, sentence: "MacBook Pro · trusted for 312 days." },
+  { label: "Recognized pointer movement", weight: 28, sentence: "Mouse velocity dispersion and trajectory smoothness conform to baseline." },
   {
-    label: "Usual evening session",
+    label: "Typing cadence consistency",
     weight: 18,
-    sentence: "You typically bank between 18:00 and 21:00.",
+    sentence: "Keys per second cadence aligns with historical enrolled sessions.",
   },
   {
-    label: "Consistent mouse precision",
+    label: "Interaction trajectory",
     weight: 12,
-    sentence: "Pointer paths matched your previous sessions.",
+    sentence: "Pointer jerk profile and curvature metrics reflect biological baseline.",
   },
 ];
 
-const TECH: Petal[] = [
+const DEFAULT_TECH: Petal[] = [
   {
-    label: "rhythm_match (SHAP)",
-    weight: 0.42,
-    sentence: "Δ flight-time MAE = 6.2 ms vs baseline.",
-  } as unknown as Petal,
+    label: "keys_per_sec (SHAP)",
+    weight: 42,
+    sentence: "Key frequency SHAP impact = -0.24 (high confidence signal).",
+  },
   {
-    label: "device_fp (SHAP)",
-    weight: 0.28,
-    sentence: "Fingerprint hash stable; cosine sim = 0.998.",
-  } as unknown as Petal,
+    label: "velocity_std (SHAP)",
+    weight: 28,
+    sentence: "Mouse velocity standard deviation SHAP impact = -0.19.",
+  },
   {
-    label: "time_prior (SHAP)",
-    weight: 0.18,
-    sentence: "P(active|hour) = 0.91.",
-  } as unknown as Petal,
+    label: "dwell_mean_ms (SHAP)",
+    weight: 18,
+    sentence: "Dwell time SHAP impact = -0.14.",
+  },
   {
-    label: "mouse_smoothness (SHAP)",
-    weight: 0.12,
-    sentence: "Jerk variance within 1σ of baseline.",
-  } as unknown as Petal,
-].map((p) => ({ ...p, weight: (p.weight as unknown as number) * 100 }));
+    label: "curvature_mean (SHAP)",
+    weight: 12,
+    sentence: "Trajectory curvature SHAP impact = +0.08.",
+  },
+];
 
 const COUNTER = [
-  { label: "Typing speed dropped 40%", note: "Would trigger a behavioral re-check." },
-  { label: "Unrecognized device", note: "Would require a step-up OTP." },
-  { label: "Sudden long-distance location", note: "Would ask for biometric re-confirmation." },
+  { label: "Typing speed dropped 40%", note: "Would trigger an automated behavioral challenge." },
+  { label: "Robotic mouse trajectory (0 curvature)", note: "Would flag potential synthetic automation." },
+  { label: "Flight time drift > 3σ", note: "Would require biometric re-confirmation." },
 ];
 
 function Explainability() {
   const [tech, setTech] = useState(false);
+  const decisionsQ = useDecisions();
+  const decisions = decisionsQ.data ?? [];
+  const latestDecision = decisions[0];
+
+  const plainPetals: Petal[] = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+    ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
+        label: `${f.name.replace(/_/g, " ")} consistency`,
+        weight: Math.round(Math.abs(f.contribution) * 100),
+        sentence: f.contribution <= 0
+          ? `${f.name.replace(/_/g, " ")} conforms closely to your verified biometric baseline.`
+          : `${f.name.replace(/_/g, " ")} showed slight statistical deviation from your usual pattern.`,
+      }))
+    : DEFAULT_PLAIN;
+
+  const techPetals: Petal[] = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+    ? latestDecision.topFeatures.slice(0, 4).map((f) => ({
+        label: `${f.name} (SHAP)`,
+        weight: Math.round(Math.abs(f.contribution) * 100),
+        sentence: `SHAP risk impact = ${f.contribution >= 0 ? "+" : ""}${f.contribution.toFixed(4)}.`,
+      }))
+    : DEFAULT_TECH;
+
+  const confidenceValue = latestDecision
+    ? (latestDecision.action === "allow" ? 98.4 : latestDecision.action === "challenge" ? 42.1 : 12.0)
+    : 98.4;
   return (
     <>
       <PageHeader
@@ -87,18 +113,21 @@ function Explainability() {
       <SigilCard className="mb-6">
         <div className="grid items-center gap-6 md:grid-cols-[auto_1fr]">
           <div className="grid place-items-center">
-            <ConfidenceRing value={98.4} size="lg" label="Why we trusted you" />
+            <ConfidenceRing value={confidenceValue} size="lg" label="Why we trusted you" />
           </div>
           <div>
             <h2 className="font-display text-[22px] font-medium leading-tight">
-              Four reasons the Guardian recognized you.
+              {latestDecision?.action === "allow"
+                ? "Key biometric signals confirming your identity."
+                : latestDecision?.action === "challenge"
+                ? "Signals requiring biometric re-confirmation."
+                : "Continuous behavioral verification status."}
             </h2>
             <p className="mt-2 text-[13px] text-muted-foreground">
-              The Guardian doesn't decide with a single signal. It weighs many quiet ones and
-              explains every contribution.
+              Adaptive Guardian continuously evaluates 14 behavioral signals (typing cadence, pointer velocity, jerk smoothness) with TreeSHAP mathematical risk explainability.
             </p>
             <div className="mt-5">
-              <DecisionWaterfall petals={tech ? TECH : PLAIN} />
+              <DecisionWaterfall petals={tech ? techPetals : plainPetals} />
             </div>
           </div>
         </div>

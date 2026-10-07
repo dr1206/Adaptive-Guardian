@@ -48,4 +48,16 @@ export const httpTrainingService: TrainingService = {
   async getProgress(): Promise<TrainingProgress> {
     return httpRequest<TrainingProgress>("/training/progress");
   },
+
+  async resetProfile(): Promise<{ status: string; message: string }> {
+    return httpRequest<{ status: string; message: string }>("/training/profile/reset", {
+      method: "POST",
+    });
+  },
+
+  async enrollProfile(): Promise<{ status: string; message: string; samples_used?: number }> {
+    return httpRequest<{ status: string; message: string; samples_used?: number }>("/training/profile/enroll", {
+      method: "POST",
+    });
+  },
 };

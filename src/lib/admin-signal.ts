@@ -12,7 +12,7 @@
 
 export type Signal = "ok" | "watch" | "alert" | "critical";
 
-export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> = {
+const rawSignalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> = {
   ok: {
     fg: "text-emerald-300",
     bg: "bg-emerald-500/10",
@@ -28,6 +28,33 @@ export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; 
     label: "Critical",
   },
 };
+
+export const signalTone: Record<Signal, { fg: string; bg: string; ring: string; label: string }> = new Proxy(
+  rawSignalTone,
+  {
+    get(target, prop: string | symbol) {
+      if (typeof prop === "string") {
+        const key = prop.toLowerCase().trim() as Signal;
+        if (key in target) return target[key];
+        if (key === ("warn" as any) || key === ("warning" as any) || key === ("medium" as any)) return target.watch;
+        if (key === ("high" as any) || key === ("error" as any)) return target.alert;
+        if (key === ("danger" as any)) return target.critical;
+        return target.ok;
+      }
+      return Reflect.get(target, prop);
+    },
+  }
+);
+
+export function getSignalTone(sig?: string | null): { fg: string; bg: string; ring: string; label: string } {
+  if (!sig) return signalTone.ok;
+  const s = sig.toLowerCase().trim() as Signal;
+  if (s in signalTone) return signalTone[s];
+  if (s === ("warn" as any) || s === ("warning" as any) || s === ("medium" as any)) return signalTone.watch;
+  if (s === ("high" as any) || s === ("error" as any)) return signalTone.alert;
+  if (s === ("danger" as any)) return signalTone.critical;
+  return signalTone.ok;
+}
 
 function mulberry32(seed: number) {
   return function () {

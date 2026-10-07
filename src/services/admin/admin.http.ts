@@ -302,8 +302,16 @@ interface BackendAnomalySignatureList {
 
 import type { Signal } from "../../lib/admin-signal";
 
-function toSignal(value: number | string): Signal {
-  if (typeof value === "string") return value as Signal;
+function toSignal(value: number | string | undefined | null): Signal {
+  if (value === null || value === undefined) return "ok";
+  if (typeof value === "string") {
+    const s = value.toLowerCase().trim();
+    if (s === "critical" || s === "danger" || s === "error") return "critical";
+    if (s === "alert" || s === "high") return "alert";
+    if (s === "watch" || s === "warn" || s === "warning" || s === "medium") return "watch";
+    if (s === "ok" || s === "info" || s === "low" || s === "healthy" || s === "success" || s === "pass") return "ok";
+    return "ok";
+  }
   if (value >= 80) return "ok";
   if (value >= 50) return "watch";
   if (value >= 30) return "alert";

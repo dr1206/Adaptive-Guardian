@@ -71,12 +71,13 @@ async def lifespan(app: FastAPI):
             "Continuing without database connectivity"
         )
 
-    # ── Seed Default Admin User ───────────────────────────────
+    # ── Seed Default Admin User & ML Governance Metadata ───────
 
     try:
 
         from app.domain.auth import repository as auth_repo
         from app.domain.auth.security import hash_password
+        from app.domain.admin.governance_seeder import seed_governance_metadata
 
         if not await auth_repo.any_admin_exists():
 
@@ -93,10 +94,12 @@ async def lifespan(app: FastAPI):
                 settings.default_admin_email,
             )
 
+        await seed_governance_metadata()
+
     except Exception as exc:
 
         logger.warning(
-            "Could not seed admin user: %s",
+            "Could not seed admin user / governance metadata: %s",
             exc,
         )
 

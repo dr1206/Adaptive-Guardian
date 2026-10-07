@@ -191,3 +191,111 @@ def test_risk_event_feed_serialization() -> None:
     data = item.model_dump(by_alias=True)
     assert data["severity"] == "warn"
     assert data["occurredAt"] == "2026-06-29T12:00:00Z"
+
+
+# ── Behavioral ML Authentication & Decision Pipeline ───────────
+
+
+def test_behavioral_ml_predict_genuine_profile() -> None:
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    # Enrolled user (Amal) with realistic genuine features
+    user_id = "e92e7c09-c1b8-4f72-a7a8-f75077608d1b"
+    sample_features = {
+        "dwellMeanMs": 115.0,
+        "dwellStdMs": 22.0,
+        "flightMeanMs": 140.0,
+        "flightStdMs": 35.0,
+        "velocityMean": 620.0,
+        "accelerationMean": 18.0,
+        "accelerationStd": 14.0,
+        "curvatureMean": 0.42,
+        "curvatureStd": 0.28,
+        "clickCount": 4,
+        "scrollAmount": 120,
+        "mouseTravelPx": 850,
+    }
+
+    result = behavioral_ml_service.predict(user_id=user_id, features=sample_features)
+    assert "lightgbm_score" in result
+    assert "ocsvm_anomaly_score" in result
+    assert "fused_score" in result
+    assert "decision" in result
+    assert result["decision"] in ("ALLOW", "WARN", "CHALLENGE")
+    assert 0.0 <= result["fused_score"] <= 1.0
+    assert 0.0 <= result["lightgbm_score"] <= 1.0
+    assert 0.0 <= result["ocsvm_anomaly_score"] <= 1.0
+
+
+def test_behavioral_ml_predict_impostor_challenge() -> None:
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    # Enrolled user (Amal) evaluated against heavily aberrant / impostor dynamics
+    user_id = "e92e7c09-c1b8-4f72-a7a8-f75077608d1b"
+    aberrant_features = {
+        "dwellMeanMs": 950.0,  # extreme dwell
+        "dwellStdMs": 400.0,
+        "flightMeanMs": 1200.0,  # extreme flight
+        "flightStdMs": 600.0,
+        "velocityMean": 4500.0,  # extreme velocity
+        "accelerationMean": 300.0,
+        "accelerationStd": 250.0,
+        "curvatureMean": 2.8,
+        "curvatureStd": 1.9,
+        "clickCount": 0,
+        "scrollAmount": 0,
+        "mouseTravelPx": 12000,
+    }
+
+    result = behavioral_ml_service.predict(user_id=user_id, features=aberrant_features)
+    assert "decision" in result
+    assert result["decision"] in ("WARN", "CHALLENGE")
+    assert result["fused_score"] >= 0.60
+    assert result["lightgbm_score"] > 0.60
+    assert result["ocsvm_anomaly_score"] > 0.80
+
+
+def test_behavioral_ml_handles_empty_or_zero_features() -> None:
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    user_id = "e92e7c09-c1b8-4f72-a7a8-f75077608d1b"
+    result = behavioral_ml_service.predict(user_id=user_id, features={})
+    assert result["fused_score"] is not None
+    assert result["decision"] in ("ALLOW", "WARN", "CHALLENGE")
+
+
+def test_behavioral_authentication_schema_validation() -> None:
+    from app.domain.security.schemas import (
+        BehavioralAuthenticationRequest,
+        BehavioralAuthenticationResponse,
+    )
+
+    req = BehavioralAuthenticationRequest(
+        dwell_mean_ms=110.0,
+        dwell_std_ms=20.0,
+        flight_mean_ms=130.0,
+        flight_std_ms=30.0,
+        velocity_mean=500.0,
+        acceleration_mean=15.0,
+        acceleration_std=10.0,
+        curvature_mean=0.35,
+        curvature_std=0.25,
+        click_count=3,
+        scroll_amount=50,
+        mouse_travel_px=600,
+    )
+    dumped = req.model_dump(by_alias=True)
+    assert dumped["dwellMeanMs"] == 110.0
+    assert dumped["mouseTravelPx"] == 600
+
+    resp = BehavioralAuthenticationResponse(
+        lightgbm_score=0.15,
+        ocsvm_anomaly_score=0.22,
+        fused_score=0.178,
+        decision="ALLOW",
+    )
+    resp_dump = resp.model_dump(by_alias=True)
+    assert resp_dump["lightgbmScore"] == 0.15
+    assert resp_dump["fusedScore"] == 0.178
+    assert resp_dump["decision"] == "ALLOW"
+

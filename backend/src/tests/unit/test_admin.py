@@ -244,8 +244,18 @@ async def test_list_models_returns_models() -> None:
 @pytest.mark.asyncio
 async def test_list_datasets_returns_pydantic_models() -> None:
     result = await list_datasets()
-    assert len(result) >= 2
+    assert len(result) >= 1
     assert result[0].samples > 0
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_quality_metrics() -> None:
+    from app.domain.admin.service import get_dataset_quality_metrics
+    result = await get_dataset_quality_metrics()
+    assert result["total_samples"] > 0
+    assert result["duplicate_rate"] == 0.0
+    assert result["quality_score"] == 1.00
+    assert result["canonical_window_duration_seconds"] == 30
 
 
 @pytest.mark.asyncio

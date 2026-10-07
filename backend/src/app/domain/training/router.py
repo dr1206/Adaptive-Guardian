@@ -57,9 +57,22 @@ async def store_training_features(
 ):
     return await service.store_features(_uid(current_user), data)
 
-
 @router.get("/progress", response_model=TrainingProgressResponse)
 async def get_training_progress(
     current_user: dict[str, Any] = Depends(get_current_user),
 ):
     return await service.get_progress(_uid(current_user))
+
+
+@router.post("/profile/reset")
+async def reset_profile(
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.reset_user_profile(_uid(current_user))
+
+
+@router.post("/profile/enroll")
+async def enroll_profile(
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.enroll_user_profile(_uid(current_user))

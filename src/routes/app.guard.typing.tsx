@@ -46,11 +46,11 @@ function Typing() {
         title="Typing Intelligence"
         subtitle="Your keyboard rhythm — quietly recognized, never stored as text."
         actions={
-          <div className="flex rounded-full border border-white/[0.07] bg-white/[0.02] p-0.5 text-[11px]">
+          <div className="flex rounded-lg border border-border bg-card p-0.5 text-[12px] shadow-xs">
             {["Today", "Week", "Month"].map((t, i) => (
               <button
                 key={t}
-                className={`rounded-full px-3 py-1 ${i === 0 ? "bg-white/[0.08] text-foreground" : "text-muted-foreground"}`}
+                className={`rounded-md px-3 py-1 font-medium transition-colors ${i === 0 ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {t}
               </button>
@@ -62,7 +62,7 @@ function Typing() {
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {KPI.map((k) => (
           <SigilCard key={k.label} eyebrow={k.label}>
-            <div className="font-numeric text-[28px] font-semibold tabular-nums">{k.value}</div>
+            <div className="font-numeric text-[28px] font-bold tabular-nums text-foreground">{k.value}</div>
             <div className="mt-2">
               <Sparkline points={k.spark} width={200} height={28} />
             </div>
@@ -72,16 +72,16 @@ function Typing() {
       </section>
 
       <section className="mt-6">
-        <SigilCard eyebrow="Live" title="Typing waveform" live>
+        <SigilCard eyebrow="Live Biometric Stream" title="Typing rhythm waveform" live>
           <WaveformTrace seed={9} height={160} />
           <div className="mt-3 flex items-center justify-between text-[11.5px] text-muted-foreground">
-            <span>Today</span>
+            <span>Current Session</span>
             <span className="inline-flex items-center gap-3">
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-accent" /> Today
+                <span className="h-2 w-2 rounded-full bg-primary" /> Active Keystroke Dynamics
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-purple/70" /> Baseline
+                <span className="h-2 w-2 rounded-full bg-muted-foreground" /> Historical Baseline
               </span>
             </span>
           </div>
@@ -89,18 +89,18 @@ function Typing() {
       </section>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-5" eyebrow="Anonymized" title="Keyboard heatmap">
+        <SigilCard className="lg:col-span-5" eyebrow="Privacy-Preserving" title="Keyboard dwell time distribution">
           <KeyboardHeatmap />
           <p className="mt-3 text-[11.5px] text-muted-foreground">
-            We track dwell zones, never your keystrokes.
+            Only timing intervals and flight times are processed. Actual keystrokes are never captured or recorded.
           </p>
         </SigilCard>
 
-        <SigilCard className="lg:col-span-7" eyebrow="Week" title="Rhythm comparison">
+        <SigilCard className="lg:col-span-7" eyebrow="7-Day Timeline" title="Rhythm cadence consistency">
           <div className="grid grid-cols-7 gap-3">
             {DAYS.map((d, i) => (
-              <div key={d} className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-2.5">
-                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              <div key={d} className="rounded-lg border border-border bg-muted/20 p-2.5">
+                <div className="text-[10px] uppercase font-semibold tracking-[0.18em] text-muted-foreground">
                   {d}
                 </div>
                 <WaveformTrace seed={i + 2} height={48} baseline={false} />

@@ -1,0 +1,68 @@
+===========================================================================
+ADAPTIVE GUARDIAN — SCIENTIFIC DATASET VALIDATION AUDIT
+===========================================================================
+
+[1] DATASET VOLUME & DEDUPLICATION INTEGRITY
+  Total canonical unique windows: 299
+  Disjoint training windows:     205 (68.6%)
+  Disjoint testing windows:      94 (31.4%)
+  Total binary evaluation trials: 376
+  [PASS] Zero duplicate window_ids in canonical dataset.
+
+[2] STRICT SESSION-DISJOINTNESS & LEAKAGE AUDIT
+  [PASS] TRAIN_SESSIONS INTERSECT TEST_SESSIONS = EMPTY (Strictly 0 session overlap)
+         Unique train sessions: 26, test sessions: 12
+  [PASS] TRAIN_WINDOWS INTERSECT TEST_WINDOWS = EMPTY (Strictly 0 window overlap)
+  [PASS] Zero identical feature vectors across train and test splits
+
+[3] NUMERICAL DATA INTEGRITY
+  [PASS] Zero missing/NaN values across all 14 features
+  [PASS] Zero infinite values across all 14 features
+
+[4] DEGENERATE FEATURE AUDIT (VARIANCE CHECK)
+  [PASS] Feature 'accelerationMean': variance = 11.6352
+  [PASS] Feature 'accelerationStd': variance = 387.3727
+  [PASS] Feature 'clickCount': variance = 11.6664
+  [PASS] Feature 'curvatureMean': variance = 0.0147
+  [PASS] Feature 'curvatureStd': variance = 0.0405
+  [PASS] Feature 'dwellMeanMs': variance = 5306.7004
+  [PASS] Feature 'dwellStdMs': variance = 4326.6117
+  [PASS] Feature 'flightMeanMs': variance = 44425.7668
+  [PASS] Feature 'flightStdMs': variance = 7924.4601
+  [PASS] Feature 'keysPerSec': variance = 4.0126
+  [PASS] Feature 'mouseTravelPx': variance = 248685167.4644
+  [PASS] Feature 'scrollAmount': variance = 337646.8430
+  [PASS] Feature 'velocityMean': variance = 193623.5465
+  [PASS] Feature 'velocityStd': variance = 358472.2083
+
+[5] PHYSIOLOGICAL & DOMAIN BOUNDS CHECK
+  [PASS] Feature 'accelerationMean': range [  -23.568,    10.413] (within [-50.0, 50.0])
+  [PASS] Feature 'accelerationStd ': range [    0.000,   221.406] (within [0.0, 300.0])
+  [PASS] Feature 'clickCount      ': range [    0.000,    16.000] (within [0.0, 100.0])
+  [PASS] Feature 'dwellMeanMs     ': range [    0.000,  1004.900] (within [0.0, 2000.0])
+  [PASS] Feature 'dwellStdMs      ': range [    0.000,   995.100] (within [0.0, 2000.0])
+  [PASS] Feature 'flightMeanMs    ': range [    0.000,  2000.000] (within [0.0, 2000.0])
+  [PASS] Feature 'flightStdMs     ': range [    0.000,   758.720] (within [0.0, 2000.0])
+  [PASS] Feature 'keysPerSec      ': range [    0.000,     5.986] (within [0.0, 25.0])
+  [PASS] Feature 'mouseTravelPx   ': range [    0.000, 49998.817] (within [0.0, 100000.0])
+  [PASS] Feature 'scrollAmount    ': range [    0.000,  4889.000] (within [0.0, 50000.0])
+  [PASS] Feature 'velocityMean    ': range [    0.000,  3535.000] (within [0.0, 8000.0])
+  [PASS] Feature 'velocityStd     ': range [    0.000,  2977.900] (within [0.0, 8000.0])
+  [PASS] Feature 'curvatureMean   ': range [    0.000,     0.967] (within [0.0, 3.141593])
+  [PASS] Feature 'curvatureStd    ': range [    0.000,     1.150] (within [0.0, 3.141593])
+
+[6] USER & SESSION STRATIFICATION AUDIT
+  User Manasa  :  8 train sess ( 46 win) |  3 test sess ( 23 win)
+  User Vyas    :  4 train sess ( 36 win) |  2 test sess ( 24 win)
+  User Dristi  :  8 train sess ( 64 win) |  4 test sess ( 39 win)
+  User Amal    :  6 train sess ( 59 win) |  3 test sess (  8 win)
+
+[7] BINARY AUTHENTICATION EVALUATION INTEGRITY
+  Genuine evaluation trials:    94 (label=0)
+  Impostor evaluation trials:  282 (label=1)
+  Impostor-to-genuine ratio:  3.00:1
+  [PASS] Balanced multi-user continuous authentication trial formulation
+
+===========================================================================
+ALL AUDIT CHECKS PASSED PERFECTLY (100% PRODUCTION-GRADE INTEGRITY)
+===========================================================================

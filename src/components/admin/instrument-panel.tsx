@@ -18,15 +18,14 @@ export function InstrumentPanel({
   return (
     <section
       className={cn(
-        "relative rounded-2xl border border-white/[0.06] bg-[oklch(0.215_0.035_264/0.6)] backdrop-blur-xl",
-        "shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_24px_60px_-30px_rgba(0,0,0,0.7)]",
+        "relative rounded-xl border border-border bg-card shadow-xs",
         className,
       )}
     >
       {(title || actions || eyebrow) && (
         <header
           className={cn(
-            "flex items-end justify-between gap-4 border-b border-white/[0.05]",
+            "flex items-end justify-between gap-4 border-b border-border/60 bg-muted/20",
             dense ? "px-4 py-3" : "px-5 py-4",
           )}
         >

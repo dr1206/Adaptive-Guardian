@@ -121,41 +121,36 @@ function Hero() {
 
       <div className="relative mx-auto grid w-full max-w-[1400px] gap-16 px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center">
         <div>
-          <div className="glass-card inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-accent" />
-            New · Adaptive Learning v2 is now live
-            <ChevronRight className="h-3 w-3" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs">
+            <span className="h-2 w-2 rounded-full bg-success" />
+            Adaptive Continuous Security Engine v2.4 Active
           </div>
 
-          <h1 className="mt-6 text-balance text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-[68px]">
-            Continuous Authentication
+          <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[58px]">
+            Next-Generation Digital Banking.
             <br />
-            powered by <span className="text-gradient">Artificial Intelligence</span>.
+            Protected by <span className="text-primary">Continuous Biometrics</span>.
           </h1>
 
           <p className="mt-6 max-w-xl text-balance text-base text-muted-foreground sm:text-lg">
-            Traditional authentication verifies users only once. AdaptiveGuard AI continuously
-            verifies identity using behavioral biometrics, AI, and machine learning — protecting
-            every session, not just the login.
+            Traditional banks verify identity only once at sign-in. Adaptive Guardian continuously
+            verifies typing cadence and cursor dynamics throughout every session — protecting accounts against session takeover without interrupting legitimate customers.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link
               to="/auth"
-              className="hover-lift inline-flex items-center gap-2 rounded-2xl gradient-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-glow"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
             >
-              Enter the vault
+              Sign In to Online Banking
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <a
-              href="#watch"
-              className="glass-card hover-lift inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold"
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3.5 text-sm font-semibold text-foreground shadow-xs transition-colors hover:bg-muted"
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-accent/15 text-accent">
-                <Play className="h-3 w-3 fill-current" />
-              </span>
-              Watch Demo
-            </a>
+              Security Operations Console
+            </Link>
           </div>
 
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">

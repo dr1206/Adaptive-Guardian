@@ -19,31 +19,37 @@ def _fmt_dt(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+async def seed_notifications_if_empty(user_id: uuid.UUID) -> list[Notification]:
+    existing = await Notification.find(Notification.user_id == user_id).count()
+    if existing > 0:
+        return await Notification.find(Notification.user_id == user_id).to_list()
+    items, _, _ = generate_notifications(user_id)
+    docs = [
+        Notification(
+            user_id=user_id,
+            type=n["type"],
+            severity=n["severity"],
+            title=n["title"],
+            body=n["body"],
+            action_label=n.get("action_label"),
+            action_path=n.get("action_path"),
+            read=n["read"],
+            created_at=datetime.fromisoformat(n["created_at"].replace("Z", "+00:00")),
+        )
+        for n in items
+    ]
+    if docs:
+        await Notification.insert_many(docs)
+    return docs
+
+
 async def get_inbox(
     user_id: uuid.UUID,
     limit: int = 20,
     offset: int = 0,
     unread_only: bool = False,
 ) -> NotificationInbox:
-    existing = await Notification.find(Notification.user_id == user_id).count()
-    if existing == 0:
-        items, _, _ = generate_notifications(user_id)
-        docs = [
-            Notification(
-                user_id=user_id,
-                type=n["type"],
-                severity=n["severity"],
-                title=n["title"],
-                body=n["body"],
-                action_label=n.get("action_label"),
-                action_path=n.get("action_path"),
-                read=n["read"],
-                created_at=datetime.fromisoformat(n["created_at"].replace("Z", "+00:00")),
-            )
-            for n in items
-        ]
-        if docs:
-            await Notification.insert_many(docs)
+    await seed_notifications_if_empty(user_id)
 
     q = Notification.find(Notification.user_id == user_id)
     if unread_only:
@@ -74,10 +80,16 @@ async def get_inbox(
 
 
 async def mark_read(user_id: uuid.UUID, notification_id: str) -> None:
-    await Notification.find_one(
-        Notification.id == uuid.UUID(notification_id),
-        Notification.user_id == user_id,
-    ).set({"read": True})
+    try:
+        nid = notification_id if isinstance(notification_id, uuid.UUID) else uuid.UUID(str(notification_id))
+        doc = await Notification.find_one(
+            Notification.id == nid,
+            Notification.user_id == user_id,
+        )
+        if doc:
+            await doc.set({"read": True})
+    except (ValueError, TypeError):
+        pass
 
 
 async def mark_all_read(user_id: uuid.UUID) -> None:

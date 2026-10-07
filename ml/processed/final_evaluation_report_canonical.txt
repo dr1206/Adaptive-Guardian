@@ -1,0 +1,23 @@
+======================================================================
+ADAPTIVE GUARDIAN — FINAL MODEL EVALUATION REPORT
+======================================================================
+Evaluation Dataset:  ml_binary_evaluation_canonical.csv
+Total Test Trials:   376
+  Genuine Trials:    94 (label=0)
+  Impostor Trials:   282 (label=1)
+Test Sessions Used:  12 unseen sessions across 4 users
+
+ROC-AUC PERFORMANCE:
+  LightGBM ROC-AUC:   0.5598
+  OC-SVM ROC-AUC:     0.5062
+  Fused Ensemble AUC: 0.5448
+
+OPERATING BIOMETRIC METRICS (At Optimal Operating Threshold):
+  Operating Threshold: 0.8372
+  Equal Error Rate:    49.11%
+  False Acceptance (FAR): 49.29%
+  False Rejection (FRR):  48.94%
+  Accuracy:               50.80%
+  Precision:              0.7566
+  Recall:                 0.5071
+======================================================================

@@ -54,7 +54,15 @@ async def get_beneficiaries_for_user(user_id: uuid.UUID) -> list[Beneficiary]:
 
 
 async def get_beneficiary_by_id(beneficiary_id: str, user_id: uuid.UUID) -> Beneficiary | None:
-    return await Beneficiary.find_one(Beneficiary.id == uuid.UUID(beneficiary_id), Beneficiary.user_id == user_id)
+    try:
+        b_uuid = beneficiary_id if isinstance(beneficiary_id, uuid.UUID) else uuid.UUID(str(beneficiary_id))
+        return await Beneficiary.find_one(Beneficiary.id == b_uuid, Beneficiary.user_id == user_id)
+    except (ValueError, TypeError):
+        seeds = generate_beneficiaries(user_id)
+        match = next((b for b in seeds if b.get("id") == beneficiary_id), None)
+        if match:
+            return Beneficiary(user_id=user_id, **_drop_id(match))
+        return None
 
 
 async def create_beneficiary(user_id: uuid.UUID, name: str, iban: str, bank: str, currency: str) -> Beneficiary:
@@ -111,7 +119,15 @@ async def seed_accounts_if_empty(user_id: uuid.UUID) -> list[BankAccount]:
 
 
 async def get_account_by_id(account_id: str, user_id: uuid.UUID) -> BankAccount | None:
-    return await BankAccount.find_one(BankAccount.id == uuid.UUID(account_id), BankAccount.user_id == user_id)
+    try:
+        acc_uuid = account_id if isinstance(account_id, uuid.UUID) else uuid.UUID(str(account_id))
+        return await BankAccount.find_one(BankAccount.id == acc_uuid, BankAccount.user_id == user_id)
+    except (ValueError, TypeError):
+        seeds = generate_accounts(user_id)
+        match = next((a for a in seeds if a.get("id") == account_id), None)
+        if match:
+            return BankAccount(user_id=user_id, **_drop_id(match))
+        return None
 
 
 async def get_accounts_for_user(user_id: uuid.UUID) -> list[BankAccount]:

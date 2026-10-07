@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+import { hasToken } from "./_transport/http";
 import { services } from "./registry";
 import type {
   AegisSnapshot,
@@ -214,9 +215,8 @@ export function useSession(
   return useQuery<Session | null>({
     queryKey: queryKeys.session,
     queryFn: ({ signal }) => services.auth.getSession({ signal }),
+    enabled: hasToken(),
     staleTime: 30_000,
-    // A failed session fetch must NEVER log the user out: the query simply
-    // retries in the background / shows stale data instead of redirecting.
     retry: 1,
     ...opts,
   });
@@ -269,8 +269,8 @@ export function useLogout() {
   return useMutation({
     mutationFn: () => services.auth.logout(),
     onSuccess: () => {
-      qc.setQueryData(queryKeys.session, null);
-      qc.invalidateQueries();
+      qc.clear();
+      window.location.href = "/auth";
     },
   });
 }
@@ -298,6 +298,7 @@ export function useAccounts() {
     queryKey: queryKeys.accounts,
     queryFn: ({ signal }) =>
       services.banking.listAccounts({ signal }),
+    enabled: hasToken(),
   });
 }
 
@@ -306,7 +307,7 @@ export function useAccount(id: string) {
     queryKey: queryKeys.account(id),
     queryFn: ({ signal }) =>
       services.banking.getAccount(id, { signal }),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && hasToken(),
   });
 }
 
@@ -317,6 +318,7 @@ export function useTransactions(
     queryKey: queryKeys.transactions(query.accountId),
     queryFn: ({ signal }) =>
       services.banking.listTransactions(query, { signal }),
+    enabled: hasToken(),
   });
 }
 
@@ -451,6 +453,7 @@ export function useAegisSnapshot() {
     queryKey: queryKeys.aegisSnapshot,
     queryFn: ({ signal }) =>
       services.aegis.getSnapshot({ signal }),
+    enabled: hasToken(),
     staleTime: 1500,
   });
 }
@@ -461,11 +464,12 @@ export function useAegisLive(): AegisSnapshot | null {
     useState<AegisSnapshot | null>(null);
 
   useEffect(() => {
+    if (!hasToken()) return;
     let cancelled = false;
 
     services.aegis.getSnapshot().then((s) => {
       if (!cancelled) setSnap(s);
-    });
+    }).catch(() => {});
 
     const off = services.aegis.subscribeSnapshots((s) => {
       if (!cancelled) setSnap(s);
@@ -485,6 +489,7 @@ export function useDecisions() {
     queryKey: queryKeys.aegisDecisions,
     queryFn: ({ signal }) =>
       services.aegis.listDecisions({ signal }),
+    enabled: hasToken(),
   });
 }
 
@@ -493,6 +498,7 @@ export function useDevices() {
     queryKey: queryKeys.aegisDevices,
     queryFn: ({ signal }) =>
       services.aegis.listDevices({ signal }),
+    enabled: hasToken(),
   });
 }
 
@@ -501,6 +507,7 @@ export function useRiskEvents() {
     queryKey: queryKeys.aegisRisk,
     queryFn: ({ signal }) =>
       services.aegis.listRiskEvents({ signal }),
+    enabled: hasToken(),
   });
 }
 
@@ -745,6 +752,7 @@ export function useSecurityOverview() {
     queryKey: queryKeys.securityOverview,
     queryFn: ({ signal }) =>
       services.security.getOverview({ signal }),
+    enabled: hasToken(),
     staleTime: 15_000,
   });
 }
@@ -757,6 +765,7 @@ export function useSecurityRiskEvents(severity?: string) {
         severity,
         signal,
       }),
+    enabled: hasToken(),
     staleTime: 15_000,
   });
 }
@@ -766,6 +775,7 @@ export function useSecurityDeviceHealth() {
     queryKey: queryKeys.securityDeviceHealth,
     queryFn: ({ signal }) =>
       services.security.getDeviceHealth({ signal }),
+    enabled: hasToken(),
     staleTime: 60_000,
   });
 }
@@ -777,6 +787,7 @@ export function useSecurityLoginAnalytics(periodDays?: number) {
       services.security.getLoginAnalytics(periodDays, {
         signal,
       }),
+    enabled: hasToken(),
     staleTime: 60_000,
   });
 }
@@ -786,6 +797,7 @@ export function useSecurityDailyReport(date?: string) {
     queryKey: queryKeys.securityDailyReport(date),
     queryFn: ({ signal }) =>
       services.security.getDailyReport(date, { signal }),
+    enabled: hasToken(),
     staleTime: 300_000,
   });
 }
@@ -795,6 +807,7 @@ export function useSecuritySessionTimeline() {
     queryKey: queryKeys.securitySessionTimeline,
     queryFn: ({ signal }) =>
       services.security.getSessionTimeline({ signal }),
+    enabled: hasToken(),
     staleTime: 15_000,
   });
 }
@@ -994,12 +1007,11 @@ export function useSubmitTrainingFeatures(
     TrainingFeatureBatchRequest
   >,
 ) {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (input) =>
       services.training.submitFeatures(input),
     onSuccess: () => {
-      const qc = useQueryClient();
-
       qc.invalidateQueries({
         queryKey: ["training", "progress"],
       });
@@ -1007,3 +1019,35 @@ export function useSubmitTrainingFeatures(
     ...opts,
   });
 }
+
+export function useResetTrainingProfile(
+  opts?: UseMutationOptions<{ status: string; message: string }, Error, void>,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => services.training.resetProfile(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["training", "progress"] });
+      qc.invalidateQueries({ queryKey: ["security"] });
+    },
+    ...opts,
+  });
+}
+
+export function useEnrollTrainingProfile(
+  opts?: UseMutationOptions<
+    { status: string; message: string; samples_used?: number },
+    Error,
+    void
+  >,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => services.training.enrollProfile(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["training", "progress"] });
+      qc.invalidateQueries({ queryKey: ["security"] });
+    },
+    ...opts,
+  });
+}

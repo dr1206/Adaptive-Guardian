@@ -59,17 +59,17 @@ export function BehavioralLivePanel(p: BehavioralLivePanelProps) {
             </div>
           </div>
         </div>
-        <button type="button" onClick={authenticateNow} disabled={isAuthenticating} title="Finalize current window now (collection keeps running)" className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1.5 text-[11.5px] text-foreground transition-colors hover:bg-white/[0.08] disabled:opacity-50">
-          <RefreshCw className={`h-3 w-3 ${isAuthenticating ? "animate-spin" : ""}`} />
-          {isAuthenticating ? "Checking…" : "Check now"}
+        <button type="button" onClick={authenticateNow} disabled={isAuthenticating} title="Finalize current window now (collection keeps running)" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[12px] font-medium text-foreground shadow-xs transition-colors hover:bg-muted disabled:opacity-50">
+          <RefreshCw className={`h-3.5 w-3.5 ${isAuthenticating ? "animate-spin" : ""}`} />
+          {isAuthenticating ? "Checking…" : "Run Biometric Check"}
         </button>
       </div>
       <BehavioralScores behavioralAuth={behavioralAuth} />
       <div className="mt-3 text-[12px] text-muted-foreground">
-        {isWaiting && !lastError && (<span>WAITING — collecting typing and mouse rhythm{collectorStatus.state === "collecting" ? ` (${collectorStatus.keystrokesCaptured} keys · ${collectorStatus.mouseEventsCaptured} mouse). First result after first 30s window — or press Check now.` : " (starts after login)."}</span>)}
-        {behavioralDecision === "ALLOW" && (<span className="text-success">Session trusted — normal usage continues. Monitoring runs silently.{behavioralAuth && (<span className="text-muted-foreground"> · updated {formatTime(behavioralAuth.authenticatedAt)}</span>)}</span>)}
-        {behavioralDecision === "WARN" && (<span className="text-warning">Elevated risk — session stays usable while monitoring continues.{behavioralAuth && (<span className="text-muted-foreground"> · updated {formatTime(behavioralAuth.authenticatedAt)}</span>)}</span>)}
-        {behavioralDecision === "CHALLENGE" && (<span><span className="font-semibold text-destructive">Additional verification required.</span> <span className="text-muted-foreground">Session preserved — complete a quick check. </span><Link to="/app/guard/challenges" className="font-medium text-accent hover:underline">Open challenge history →</Link></span>)}
+        {isWaiting && !lastError && (<span>WAITING — collecting typing and mouse rhythm{collectorStatus.state === "collecting" ? ` (${collectorStatus.keystrokesCaptured} keys · ${collectorStatus.mouseEventsCaptured} mouse). First result after first 30s window — or click Run Biometric Check.` : " (starts after login)."}</span>)}
+        {behavioralDecision === "ALLOW" && (<span className="text-success font-medium">Session trusted — normal banking usage authorized. Biometric monitoring runs silently.{behavioralAuth && (<span className="text-muted-foreground font-normal"> · updated {formatTime(behavioralAuth.authenticatedAt)}</span>)}</span>)}
+        {behavioralDecision === "WARN" && (<span className="text-warning font-medium">Elevated risk pattern detected — session remains active while biometric observation continues.{behavioralAuth && (<span className="text-muted-foreground font-normal"> · updated {formatTime(behavioralAuth.authenticatedAt)}</span>)}</span>)}
+        {behavioralDecision === "CHALLENGE" && (<span><span className="font-semibold text-destructive">Additional verification required.</span> <span className="text-muted-foreground">Session preserved — complete a quick check. </span><Link to="/app/guard/challenges" className="font-medium text-primary hover:underline">Open challenge history →</Link></span>)}
         {lastError && (<span className="mt-1 block text-[11.5px] text-muted-foreground">Last check failed: {lastError} — will retry on next window.</span>)}
       </div>
     </section>
@@ -78,17 +78,17 @@ export function BehavioralLivePanel(p: BehavioralLivePanelProps) {
 function BehavioralScores({ behavioralAuth }: { behavioralAuth: BehavioralAuthSnapshot | null }) {
   return (
     <div className="mt-3 grid grid-cols-3 gap-2.5">
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-        <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Risk score</div>
-        <div data-testid="behavioral-risk" className="mt-1 font-numeric text-[16px] font-semibold tabular-nums">{behavioralAuth ? formatPct01(behavioralAuth.fusedScore) : "—"}</div>
+      <div className="rounded-lg border border-border bg-card p-2.5 shadow-xs">
+        <div className="text-[10px] uppercase font-semibold tracking-[0.16em] text-muted-foreground">Risk score</div>
+        <div data-testid="behavioral-risk" className="mt-1 font-numeric text-[16px] font-bold tabular-nums text-foreground">{behavioralAuth ? formatPct01(behavioralAuth.fusedScore) : "—"}</div>
       </div>
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-        <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">LightGBM</div>
-        <div data-testid="behavioral-lightgbm" className="mt-1 font-numeric text-[16px] font-semibold tabular-nums">{behavioralAuth ? formatPct01(behavioralAuth.lightgbmScore) : "—"}</div>
+      <div className="rounded-lg border border-border bg-card p-2.5 shadow-xs">
+        <div className="text-[10px] uppercase font-semibold tracking-[0.16em] text-muted-foreground">LightGBM Model</div>
+        <div data-testid="behavioral-lightgbm" className="mt-1 font-numeric text-[16px] font-bold tabular-nums text-foreground">{behavioralAuth ? formatPct01(behavioralAuth.lightgbmScore) : "—"}</div>
       </div>
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-        <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">OC-SVM anomaly</div>
-        <div data-testid="behavioral-ocsvm" className="mt-1 font-numeric text-[16px] font-semibold tabular-nums">{behavioralAuth ? formatPct01(behavioralAuth.ocsvmAnomalyScore) : "—"}</div>
+      <div className="rounded-lg border border-border bg-card p-2.5 shadow-xs">
+        <div className="text-[10px] uppercase font-semibold tracking-[0.16em] text-muted-foreground">OC-SVM Anomaly</div>
+        <div data-testid="behavioral-ocsvm" className="mt-1 font-numeric text-[16px] font-bold tabular-nums text-foreground">{behavioralAuth ? formatPct01(behavioralAuth.ocsvmAnomalyScore) : "—"}</div>
       </div>
     </div>
   );

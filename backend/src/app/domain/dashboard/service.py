@@ -194,7 +194,14 @@ async def get_analytics(user_id: uuid.UUID) -> AnalyticsResponse:
 
 
 async def get_notifications(user_id: uuid.UUID) -> NotificationFeed:
+    from app.domain.notifications.service import seed_notifications_if_empty
+
     docs = await Notification.find(Notification.user_id == user_id).sort(-Notification.created_at).limit(20).to_list()
+    if not docs:
+        docs = await seed_notifications_if_empty(user_id)
+        docs.sort(key=lambda n: n.created_at, reverse=True)
+        docs = docs[:20]
+
     unread = sum(1 for n in docs if not n.read)
 
     notifications: list[DashboardNotification] = [

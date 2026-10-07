@@ -19,24 +19,18 @@ export type Device = {
 export function DeviceCard({ device }: { device: Device }) {
   const Icon = ICONS[device.kind];
   return (
-    <article className="group relative overflow-hidden rounded-[24px] border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] p-6 backdrop-blur-2xl transition-transform hover:-translate-y-0.5">
-      {device.primary && (
-        <span
-          className="pointer-events-none absolute -top-12 left-1/2 h-28 w-56 -translate-x-1/2 rounded-full opacity-40 blur-3xl"
-          style={{ background: "oklch(0.655 0.195 258 / 0.55)" }}
-        />
-      )}
+    <article className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm">
       <header className="relative flex items-start justify-between">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/[0.07] bg-white/[0.03]">
-          <Icon className="h-5 w-5 text-accent" />
+        <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
         </div>
         <div className="flex items-center gap-2">
           {device.primary && (
-            <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-medium text-accent">
-              Primary
+            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+              Primary Device
             </span>
           )}
-          <button className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground">
+          <button className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
             <MoreHorizontal className="h-4 w-4" />
           </button>
         </div>

@@ -9,6 +9,7 @@ from pymongo import IndexModel
 
 
 class BehaviorWindow(Document):
+    window_id: str
     user_id: uuid.UUID
     session_id: uuid.UUID
     device_id: uuid.UUID | None = None
@@ -20,10 +21,13 @@ class BehaviorWindow(Document):
     class Settings:
         name = "behavior_windows"
         indexes = [
+            "window_id",
             "user_id",
             "session_id",
             "device_id",
+            IndexModel([("window_id", 1)], unique=True),
             IndexModel([("user_id", 1), ("session_id", 1), ("device_id", 1)]),
+            IndexModel([("user_id", 1), ("created_at", -1)]),
         ]
 
 
@@ -65,14 +69,31 @@ class BehavioralEvent(Document):
 
 
 class Decision(Document):
+    model_config = {"protected_namespaces": ()}
+    decision_id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    user_id: uuid.UUID | None = None
     session_id: uuid.UUID
-    outcome: str  # allow, challenge, step_up, block
-    score: float
+    window_id: str | None = None
+    lightgbm_score: float | None = None
+    ocsvm_score: float | None = None
+    fused_score: float | None = None
+    outcome: str  # allow, warn, challenge, step_up, block
+    risk_level: str = "low"  # low, medium, high, critical
+    score: float  # confidence (0..1) or fused score
+    model_version: str = "lgbm_ocsvm_v1"
+    feature_schema_version: str = "v1"
     top_contributors: list[dict] = []
     evaluated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
         name = "decisions"
+        indexes = [
+            "user_id",
+            "session_id",
+            "decision_id",
+            IndexModel([("user_id", 1), ("evaluated_at", -1)]),
+            IndexModel([("session_id", 1), ("evaluated_at", -1)]),
+        ]
 
 
 class DeviceProfile(Document):

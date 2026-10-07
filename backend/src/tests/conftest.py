@@ -79,14 +79,17 @@ def _mock_redis():
 
 @pytest.fixture(autouse=True)
 async def _init_db():
-    original = settings.mongodb_db_name
+    original_uri = settings.mongodb_uri
+    original_db = settings.mongodb_db_name
+    settings.mongodb_uri = "mongodb://localhost:27017"
     settings.mongodb_db_name = "adaptive_guardian_test"
     with suppress(Exception):
         await init_db(clean=True)
     yield
     with suppress(Exception):
         await close_db()
-    settings.mongodb_db_name = original
+    settings.mongodb_uri = original_uri
+    settings.mongodb_db_name = original_db
 
 
 @pytest.fixture

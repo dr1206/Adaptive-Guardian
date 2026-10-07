@@ -10,17 +10,14 @@ export function Wordmark({
   showShield?: boolean;
   size?: "sm" | "md" | "lg";
 }) {
-  const text = size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-base";
-  const shieldSize = size === "lg" ? 32 : size === "sm" ? 18 : 24;
+  const text = size === "lg" ? "text-xl font-bold" : size === "sm" ? "text-sm font-semibold" : "text-base font-semibold";
+  const shieldSize = size === "lg" ? 28 : size === "sm" ? 18 : 22;
   return (
     <span className={cn("inline-flex items-center gap-2 select-none", className)}>
       {showShield && <Shield size={shieldSize} />}
-      <span
-        className={cn("font-display font-semibold tracking-tight lowercase", text)}
-        style={{ letterSpacing: "-0.03em" }}
-      >
-        adaptiveguard
-        <span className="ml-0.5 opacity-60 font-normal">.ai</span>
+      <span className={cn("tracking-tight text-[#082A5C]", text)}>
+        Adaptive Guardian
+        <span className="ml-1 text-xs font-medium text-[#2563A6] uppercase tracking-wider">Bank</span>
       </span>
     </span>
   );

@@ -21,6 +21,7 @@ class FeatureWindow(BaseModel):
 
 class BehavioralWindow(BaseModel):
     """Schema matching the frontend BehavioralCollector's FeatureWindow shape."""
+    windowId: str | None = None
     windowStart: float
     windowEnd: float
     dwellMeanMs: float

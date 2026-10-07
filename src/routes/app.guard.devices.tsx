@@ -22,8 +22,8 @@ function Devices() {
         title="Trusted Devices"
         subtitle="Devices the Guardian recognizes as you."
         actions={
-          <button className="inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.03] px-4 py-2 text-[12px] hover:bg-white/[0.06]">
-            <Plus className="h-3.5 w-3.5" /> Pair new device
+          <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-[12px] font-medium text-foreground shadow-xs transition-colors hover:bg-muted">
+            <Plus className="h-4 w-4 text-primary" /> Register New Device
           </button>
         }
       />
@@ -32,12 +32,12 @@ function Devices() {
           {devices.map((d) => (
             <DeviceCard key={d.id} device={d} />
           ))}
-          <button className="grid min-h-[260px] place-items-center rounded-[24px] border border-dashed border-white/[0.1] bg-white/[0.01] text-muted-foreground transition-colors hover:border-white/[0.18] hover:text-foreground">
+          <button className="grid min-h-[240px] place-items-center rounded-xl border border-dashed border-border bg-muted/20 text-muted-foreground transition-all hover:border-primary/40 hover:bg-muted/30 hover:text-foreground">
             <div className="text-center">
-              <Plus className="mx-auto h-6 w-6" />
-              <div className="mt-2 text-[13px]">Pair a new device</div>
-              <div className="mt-1 text-[11px] text-muted-foreground">
-                It will be learned in the background.
+              <Plus className="mx-auto h-6 w-6 text-primary" />
+              <div className="mt-2 text-[13px] font-semibold text-foreground">Register a new device</div>
+              <div className="mt-1 text-[11.5px] text-muted-foreground">
+                Biometric profile will learn your rhythm seamlessly.
               </div>
             </div>
           </button>

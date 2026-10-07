@@ -32,11 +32,11 @@ export function Navbar() {
         }`}
       >
         <Link to="/" className="flex items-center gap-2.5 pl-1">
-          <span className="grid h-9 w-9 place-items-center rounded-xl gradient-cyber shadow-glow">
-            <Shield className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-xs">
+            <Shield className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          <span className="font-display text-[15px] font-semibold tracking-tight">
-            AdaptiveGuard <span className="text-gradient">AI</span>
+          <span className="font-display text-[16px] font-bold tracking-tight text-foreground">
+            Adaptive Guardian <span className="text-primary font-normal text-xs uppercase tracking-widest pl-1">Bank</span>
           </span>
         </Link>
 
@@ -45,7 +45,7 @@ export function Navbar() {
             <li key={item.label}>
               <a
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
               </a>
@@ -56,21 +56,15 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             to="/admin"
-            className="hidden rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+            className="hidden rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs hover:bg-muted md:inline-flex"
           >
-            Cockpit
+            Admin Portal
           </Link>
           <Link
             to="/auth"
-            className="hidden rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90"
           >
-            Sign in
-          </Link>
-          <Link
-            to="/auth"
-            className="hover-lift inline-flex items-center gap-1.5 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow"
-          >
-            Enter the vault
+            Banking Login
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <button

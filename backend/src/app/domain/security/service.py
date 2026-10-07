@@ -134,18 +134,23 @@ async def get_login_analytics(user_id: uuid.UUID, period_days: int = 30) -> Logi
 
 async def get_device_health(user_id: uuid.UUID) -> DeviceHealthResponse:
     devices = await auth_repo.get_devices_for_user(user_id)
+    if not devices:
+        mock_devs, flagged = mock_data.generate_device_health(user_id)
+        return DeviceHealthResponse(
+            devices=[DeviceHealthItem(**d) for d in mock_devs],
+            flagged=flagged,
+        )
+
     items: list[DeviceHealthItem] = []
     for d in devices:
         items.append(
             DeviceHealthItem(
                 device_id=str(d.id),
-                label=d.label,
-                fingerprint=d.fingerprint[:12],
-                is_trusted=d.is_trusted,
-                first_seen=d.first_seen_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                last_seen=d.last_seen_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                os=d.user_agent or "Unknown",
-                risk_level="low" if d.is_trusted else "medium",
+                label=d.label or d.user_agent or "Unknown Device",
+                trust_score=9.0 if d.is_trusted else 4.0,
+                session_count=1,
+                last_active=d.last_seen_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                recommendation="keep" if d.is_trusted else "review",
             )
         )
     flagged = sum(1 for d in devices if not d.is_trusted)

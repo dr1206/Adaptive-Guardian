@@ -122,13 +122,13 @@ def generate_admin_users(limit: int = 20, offset: int = 0) -> tuple[list[dict], 
 
 _INCIDENT_TEMPLATES = [
     ("critical", "open", "Account takeover suspected", "3 concurrent sessions from US, DE, BR"),
-    ("watch", "investigating", "Credential stuffing pattern detected", "42 failed logins across 18 accounts from same /24 subnet"),
+    ("warn", "investigating", "Credential stuffing pattern detected", "42 failed logins across 18 accounts from same /24 subnet"),
     ("critical", "resolved", "Admin API key leaked to GitHub", "Key found in public repo. Rotated within 4 minutes."),
-    ("watch", "open", "New device enrollment spike", "8 new device enrollments in 10 minutes"),
-    ("ok", "resolved", "Geo-hop: NYC to Singapore in 8 min", "Legitimate VPN exit node switch. User confirmed."),
-    ("watch", "investigating", "Unusual transfer velocity", "3 large transfers in 15 minutes from same account"),
+    ("warn", "open", "New device enrollment spike", "8 new device enrollments in 10 minutes"),
+    ("info", "resolved", "Geo-hop: NYC to Singapore in 8 min", "Legitimate VPN exit node switch. User confirmed."),
+    ("warn", "investigating", "Unusual transfer velocity", "3 large transfers in 15 minutes from same account"),
     ("critical", "open", "Brute-force on admin portal", "114 failed admin login attempts in 5 minutes"),
-    ("ok", "resolved", "Password reset storm", "7 password reset requests for same account in 2 minutes"),
+    ("info", "resolved", "Password reset storm", "7 password reset requests for same account in 2 minutes"),
 ]
 
 
@@ -242,12 +242,12 @@ def generate_api_services() -> dict:
 
 def generate_controls() -> list[dict]:
     return [
-        {"id": "ctrl-keystroke", "framework": "SOC 2 — CC6.1", "coverage": 94.0, "status": "ok", "evidence": 42, "owner": "Alice Chen", "next": "2026-08-15"},
-        {"id": "ctrl-mouse", "framework": "SOC 2 — CC6.1", "coverage": 88.0, "status": "ok", "evidence": 35, "owner": "Bob Kumar", "next": "2026-08-20"},
-        {"id": "ctrl-geo", "framework": "PCI DSS — 7.2", "coverage": 72.0, "status": "watch", "evidence": 18, "owner": "Carol Wu", "next": "2026-07-30"},
-        {"id": "ctrl-device-fp", "framework": "ISO 27001 — A.9.4", "coverage": 95.0, "status": "ok", "evidence": 56, "owner": "David Smith", "next": "2026-09-01"},
-        {"id": "ctrl-ip-reputation", "framework": "PCI DSS — 7.2", "coverage": 45.0, "status": "alert", "evidence": 12, "owner": "Eve Johnson", "next": "2026-07-15"},
-        {"id": "ctrl-session-limit", "framework": "ISO 27001 — A.9.2", "coverage": 30.0, "status": "critical", "evidence": 5, "owner": "Frank Li", "next": "2026-07-01"},
+        {"id": "ctrl-keystroke", "framework": "SOC 2 — CC6.1", "coverage": 94.0, "status": "ok", "evidence": 42, "owner": "Alice Chen", "next": "2026-08-15", "enabled": True, "actions": ["read", "review"]},
+        {"id": "ctrl-mouse", "framework": "SOC 2 — CC6.1", "coverage": 88.0, "status": "ok", "evidence": 35, "owner": "Bob Kumar", "next": "2026-08-20", "enabled": True, "actions": ["read", "review"]},
+        {"id": "ctrl-geo", "framework": "PCI DSS — 7.2", "coverage": 72.0, "status": "watch", "evidence": 18, "owner": "Carol Wu", "next": "2026-07-30", "enabled": True, "actions": ["read", "review"]},
+        {"id": "ctrl-device-fp", "framework": "ISO 27001 — A.9.4", "coverage": 95.0, "status": "ok", "evidence": 56, "owner": "David Smith", "next": "2026-09-01", "enabled": True, "actions": ["read", "review"]},
+        {"id": "ctrl-ip-reputation", "framework": "PCI DSS — 7.2", "coverage": 45.0, "status": "alert", "evidence": 12, "owner": "Eve Johnson", "next": "2026-07-15", "enabled": True, "actions": ["read", "review"]},
+        {"id": "ctrl-session-limit", "framework": "ISO 27001 — A.9.2", "coverage": 30.0, "status": "critical", "evidence": 5, "owner": "Frank Li", "next": "2026-07-01", "enabled": True, "actions": ["read", "review"]},
     ]
 
 
@@ -343,11 +343,11 @@ def generate_challenges(limit: int = 20, offset: int = 0) -> tuple[list[dict], i
 
 def generate_roles() -> list[dict]:
     return [
-        {"id": "role-admin", "label": "Admin", "members": 12, "color": "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)", "description": "Full platform access including user management, security controls, and audit"},
-        {"id": "role-security-analyst", "label": "Security Analyst", "members": 8, "color": "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)", "description": "View security dashboards, incidents, risk events, and audit logs"},
-        {"id": "role-compliance", "label": "Compliance Officer", "members": 5, "color": "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", "description": "Read-only access to audit logs, reports, and user activity"},
-        {"id": "role-support", "label": "Support Agent", "members": 24, "color": "linear-gradient(135deg, #059669 0%, #10B981 100%)", "description": "View user sessions, devices, and login history for troubleshooting"},
-        {"id": "role-user", "label": "User", "members": 12798, "color": "linear-gradient(135deg, #64748B 0%, #94A3B8 100%)", "description": "Standard banking platform access"},
+        {"id": "role-admin", "label": "Admin", "members": 12, "user_count": 12, "color": "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)", "description": "Full platform access including user management, security controls, and audit"},
+        {"id": "role-security-analyst", "label": "Security Analyst", "members": 8, "user_count": 8, "color": "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)", "description": "View security dashboards, incidents, risk events, and audit logs"},
+        {"id": "role-compliance", "label": "Compliance Officer", "members": 5, "user_count": 5, "color": "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", "description": "Read-only access to audit logs, reports, and user activity"},
+        {"id": "role-support", "label": "Support Agent", "members": 24, "user_count": 24, "color": "linear-gradient(135deg, #059669 0%, #10B981 100%)", "description": "View user sessions, devices, and login history for troubleshooting"},
+        {"id": "role-user", "label": "User", "members": 12798, "user_count": 12798, "color": "linear-gradient(135deg, #64748B 0%, #94A3B8 100%)", "description": "Standard banking platform access"},
     ]
 
 
@@ -356,15 +356,15 @@ def generate_roles() -> list[dict]:
 
 def generate_permissions() -> list[dict]:
     return [
-        {"resource": "users", "actions": ["read", "write", "suspend"]},
-        {"resource": "sessions", "actions": ["read", "revoke"]},
-        {"resource": "incidents", "actions": ["read", "create", "resolve"]},
-        {"resource": "controls", "actions": ["read", "write"]},
-        {"resource": "audit", "actions": ["read", "export"]},
-        {"resource": "models", "actions": ["read", "deploy", "retire"]},
-        {"resource": "reports", "actions": ["generate", "schedule"]},
-        {"resource": "datasets", "actions": ["read", "create", "update"]},
-        {"resource": "roles", "actions": ["read", "write"]},
+        {"resource": "users", "action": "read", "actions": ["read", "write", "suspend"]},
+        {"resource": "sessions", "action": "read", "actions": ["read", "revoke"]},
+        {"resource": "incidents", "action": "read", "actions": ["read", "create", "resolve"]},
+        {"resource": "controls", "action": "read", "actions": ["read", "write"]},
+        {"resource": "audit", "action": "read", "actions": ["read", "export"]},
+        {"resource": "models", "action": "read", "actions": ["read", "deploy", "retire"]},
+        {"resource": "reports", "action": "generate", "actions": ["generate", "schedule"]},
+        {"resource": "datasets", "action": "read", "actions": ["read", "create", "update"]},
+        {"resource": "roles", "action": "read", "actions": ["read", "write"]},
     ]
 
 
@@ -373,7 +373,17 @@ def generate_permissions() -> list[dict]:
 
 def generate_role_permissions() -> list[dict]:
     return [
-        {"role": "role-admin", "permissions": [
+        {"role": "role-admin", "role_id": "role-admin", "permissions": [
+            "users:read", "users:write", "users:suspend",
+            "sessions:read", "sessions:revoke",
+            "incidents:read", "incidents:create", "incidents:resolve",
+            "controls:read", "controls:write",
+            "audit:read", "audit:export",
+            "models:read", "models:deploy", "models:retire",
+            "reports:generate", "reports:schedule",
+            "datasets:read", "datasets:create", "datasets:update",
+            "roles:read", "roles:write",
+        ], "permission_ids": [
             "users:read", "users:write", "users:suspend",
             "sessions:read", "sessions:revoke",
             "incidents:read", "incidents:create", "incidents:resolve",
@@ -384,18 +394,26 @@ def generate_role_permissions() -> list[dict]:
             "datasets:read", "datasets:create", "datasets:update",
             "roles:read", "roles:write",
         ]},
-        {"role": "role-security-analyst", "permissions": [
+        {"role": "role-security-analyst", "role_id": "role-security-analyst", "permissions": [
+            "users:read", "sessions:read", "sessions:revoke",
+            "incidents:read", "incidents:create", "incidents:resolve",
+            "controls:read", "audit:read", "reports:generate",
+        ], "permission_ids": [
             "users:read", "sessions:read", "sessions:revoke",
             "incidents:read", "incidents:create", "incidents:resolve",
             "controls:read", "audit:read", "reports:generate",
         ]},
-        {"role": "role-compliance", "permissions": [
+        {"role": "role-compliance", "role_id": "role-compliance", "permissions": [
+            "users:read", "audit:read", "audit:export", "reports:generate",
+        ], "permission_ids": [
             "users:read", "audit:read", "audit:export", "reports:generate",
         ]},
-        {"role": "role-support", "permissions": [
+        {"role": "role-support", "role_id": "role-support", "permissions": [
+            "users:read", "sessions:read", "incidents:read",
+        ], "permission_ids": [
             "users:read", "sessions:read", "incidents:read",
         ]},
-        {"role": "role-user", "permissions": []},
+        {"role": "role-user", "role_id": "role-user", "permissions": [], "permission_ids": []},
     ]
 
 
@@ -418,18 +436,18 @@ def generate_geo_dots() -> dict:
     _seed()
     base = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     dots = [
-        {"x": 0.21, "y": 0.38, "intensity": 0.92, "anomaly": False},   # US East
-        {"x": 0.05, "y": 0.42, "intensity": 0.78, "anomaly": False},   # US West
-        {"x": 0.46, "y": 0.28, "intensity": 0.55, "anomaly": False},   # UK
-        {"x": 0.50, "y": 0.30, "intensity": 0.42, "anomaly": False},   # DE
-        {"x": 0.82, "y": 0.35, "intensity": 0.38, "anomaly": False},   # JP
-        {"x": 0.88, "y": 0.62, "intensity": 0.25, "anomaly": False},   # AU
-        {"x": 0.48, "y": 0.58, "intensity": 0.15, "anomaly": True},    # NG
-        {"x": 0.58, "y": 0.25, "intensity": 0.20, "anomaly": True},    # RU
-        {"x": 0.66, "y": 0.48, "intensity": 0.48, "anomaly": False},   # IN
-        {"x": 0.32, "y": 0.68, "intensity": 0.35, "anomaly": False},   # BR
-        {"x": 0.47, "y": 0.32, "intensity": 0.44, "anomaly": False},   # FR
-        {"x": 0.74, "y": 0.52, "intensity": 0.30, "anomaly": False},   # SG
+        {"x": 0.21, "y": 0.38, "lat": 40.71, "lng": -74.00, "intensity": 0.92, "anomaly": False},   # US East
+        {"x": 0.05, "y": 0.42, "lat": 37.77, "lng": -122.41, "intensity": 0.78, "anomaly": False},  # US West
+        {"x": 0.46, "y": 0.28, "lat": 51.50, "lng": -0.12, "intensity": 0.55, "anomaly": False},    # UK
+        {"x": 0.50, "y": 0.30, "lat": 52.52, "lng": 13.40, "intensity": 0.42, "anomaly": False},    # DE
+        {"x": 0.82, "y": 0.35, "lat": 35.68, "lng": 139.69, "intensity": 0.38, "anomaly": False},   # JP
+        {"x": 0.88, "y": 0.62, "lat": -33.86, "lng": 151.20, "intensity": 0.25, "anomaly": False},  # AU
+        {"x": 0.48, "y": 0.58, "lat": 6.52, "lng": 3.37, "intensity": 0.15, "anomaly": True},      # NG
+        {"x": 0.58, "y": 0.25, "lat": 55.75, "lng": 37.61, "intensity": 0.20, "anomaly": True},     # RU
+        {"x": 0.66, "y": 0.48, "lat": 28.61, "lng": 77.20, "intensity": 0.48, "anomaly": False},    # IN
+        {"x": 0.32, "y": 0.68, "lat": -23.55, "lng": -46.63, "intensity": 0.35, "anomaly": False},  # BR
+        {"x": 0.47, "y": 0.32, "lat": 48.85, "lng": 2.35, "intensity": 0.44, "anomaly": False},     # FR
+        {"x": 0.74, "y": 0.52, "lat": 1.35, "lng": 103.81, "intensity": 0.30, "anomaly": False},    # SG
     ]
     return {"dots": dots, "generated_at": base}
 
@@ -440,6 +458,7 @@ def generate_geo_dots() -> dict:
 def generate_infra() -> dict:
     _seed()
     return {
+        "region": "us-east-1",
         "cpu": {"value": 42.1, "series": _series(48, 30, 55)},
         "memory": {"value": 67.8, "series": _series(48, 55, 80)},
         "disk": {"value": 55.2, "series": _series(48, 48, 62)},
@@ -451,6 +470,13 @@ def generate_infra() -> dict:
         "jobs_running": 42,
         "jobs_queued": 7,
         "jobs_failed": 2,
+        "components": [
+            {"name": "mongodb-cluster", "status": "healthy", "kind": "database"},
+            {"name": "redis-cache", "status": "healthy", "kind": "cache"},
+            {"name": "aegis-inference-queue", "status": "healthy", "kind": "queue"},
+            {"name": "model-storage-s3", "status": "healthy", "kind": "storage"},
+            {"name": "inference-worker-nodes", "status": "healthy", "kind": "compute"},
+        ],
     }
 
 
@@ -508,11 +534,11 @@ def generate_anomaly_signatures() -> list[dict]:
     _seed()
     base = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     return [
-        {"name": "Hold Time Drift", "count": 87, "last": base, "severity": "watch"},
-        {"name": "Flight Time Spike", "count": 42, "last": base, "severity": "watch"},
-        {"name": "Mouse Velocity Anomaly", "count": 58, "last": base, "severity": "alert"},
-        {"name": "Jerk Profile Mismatch", "count": 31, "last": base, "severity": "watch"},
-        {"name": "Excessive Session Age", "count": 0, "last": "2026-06-01T00:00:00Z", "severity": "ok"},
-        {"name": "Impossible Geo-Hop", "count": 12, "last": base, "severity": "critical"},
-        {"name": "Copy-Paste Burst", "count": 23, "last": base, "severity": "alert"},
+        {"id": "sig-1", "name": "Hold Time Drift", "channel": "keystroke", "threshold_sigma": 2.5, "description": "Key press duration exceeds normal envelope", "count": 87, "trigger_count_24h": 87, "last": base, "severity": "watch"},
+        {"id": "sig-2", "name": "Flight Time Spike", "channel": "keystroke", "threshold_sigma": 2.8, "description": "Inter-key flight time hesitation", "count": 42, "trigger_count_24h": 42, "last": base, "severity": "watch"},
+        {"id": "sig-3", "name": "Mouse Velocity Anomaly", "channel": "mouse", "threshold_sigma": 3.0, "description": "Cursor speed deviates from biological baseline", "count": 58, "trigger_count_24h": 58, "last": base, "severity": "alert"},
+        {"id": "sig-4", "name": "Jerk Profile Mismatch", "channel": "mouse", "threshold_sigma": 2.7, "description": "Trajectory smoothness is robotic or uncharacteristic", "count": 31, "trigger_count_24h": 31, "last": base, "severity": "watch"},
+        {"id": "sig-5", "name": "Excessive Session Age", "channel": "session", "threshold_sigma": 2.0, "description": "Session active without re-verification", "count": 0, "trigger_count_24h": 0, "last": "2026-06-01T00:00:00Z", "severity": "ok"},
+        {"id": "sig-6", "name": "Impossible Geo-Hop", "channel": "geo", "threshold_sigma": 4.0, "description": "Location change violates physical speed limits", "count": 12, "trigger_count_24h": 12, "last": base, "severity": "critical"},
+        {"id": "sig-7", "name": "Copy-Paste Burst", "channel": "keystroke", "threshold_sigma": 2.2, "description": "Rapid text buffer insertions", "count": 23, "trigger_count_24h": 23, "last": base, "severity": "alert"},
     ]

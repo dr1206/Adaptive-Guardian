@@ -125,4 +125,6 @@ export interface TrainingService {
   submitBatch(input: TrainingBatchRequest): Promise<TrainingBatchResponse>;
   submitFeatures(input: TrainingFeatureBatchRequest): Promise<TrainingFeatureBatchResponse>;
   getProgress(): Promise<TrainingProgress>;
+  resetProfile(): Promise<{ status: string; message: string }>;
+  enrollProfile(): Promise<{ status: string; message: string; samples_used?: number }>;
 }

@@ -1,190 +1,180 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { AtSign, ArrowRight, Lock, Building2 } from "lucide-react";
-import { AuthShell } from "@/components/auth/auth-shell";
-import { ApertureInput } from "@/components/auth/aperture-input";
-import { ApertureSpinner } from "@/components/brand/shield";
-import { BalanceTile } from "@/components/banking/balance-tile";
-import { TransactionRow, sampleTxs } from "@/components/banking/transaction-row";
-import { useLogin, useRegister } from "@/services/hooks";
+import { Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
+import { Wordmark } from "@/components/brand/wordmark";
+import { useLogin } from "@/services/hooks";
 import { services } from "@/services/registry";
-import { AuthenticationError } from "@/lib/platform/errors";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth/")({
   beforeLoad: async () => {
     const session = await services.auth.getSession();
     if (session) {
+      if (session.roles?.includes("admin")) {
+        throw redirect({ to: "/admin" });
+      }
       throw redirect({ to: "/app" });
     }
   },
   component: IdentityScreen,
 });
 
-function deriveDisplayName(em: string) {
-  const local = em.split("@")[0] ?? "";
-  return (
-    local
-      .split(/[._-]/)
-      .filter(Boolean)
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" ") || "Member"
-  );
-}
-
 function IdentityScreen() {
   const nav = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailState, setEmailState] = useState<"idle" | "validating" | "valid" | "error">("idle");
-  const [passwordState, setPasswordState] = useState<"idle" | "validating" | "valid" | "error">("idle");
   const login = useLogin();
-  const register = useRegister();
-  const submitting = login.isPending || register.isPending;
-  const error = login.error ?? register.error;
+  const submitting = login.isPending;
+  const error = login.error;
 
-  const passwordMinLength = 12;
-  const canSubmit = emailState === "valid" && password.length >= passwordMinLength && !submitting;
-
-  function checkEmail(v: string) {
-    setEmail(v);
-    if (!v) return setEmailState("idle");
-    setEmailState("validating");
-    setTimeout(() => {
-      setEmailState(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "valid" : "error");
-    }, 500);
-  }
-
-  function checkPassword(v: string) {
-    setPassword(v);
-    if (!v) return setPasswordState("idle");
-    setPasswordState(v.length >= passwordMinLength ? "valid" : "error");
-  }
-
-  async function submit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSubmit) return;
-    try {
-      const session = await login.mutateAsync({ email, password });
-      nav({ to: session.roles.includes("admin") ? "/admin" : "/app" });
-      return;
-    } catch (err) {
-      // Only attempt registration when the account genuinely doesn't exist
-      if (!(err instanceof AuthenticationError)) return;
-    }
-    try {
-      const result = await register.mutateAsync({
-        email,
-        password,
-        displayName: deriveDisplayName(email),
-        acceptedTerms: true,
-      });
-      nav({ to: "/auth/verify", search: { e: email, c: result.challengeId } });
-    } catch {
-      /* surfaced via register.error below */
-    }
-  }
+    if (!email || !password || submitting) return;
+    login.mutate(
+      { email, password },
+      {
+        onSuccess: (session) => {
+          if (session.roles?.includes("admin")) {
+            window.location.href = "/admin";
+          } else {
+            window.location.href = "/app";
+          }
+        },
+      },
+    );
+  };
 
   return (
-    <AuthShell
-      step={1}
-      preview={
-        <div className="grid h-full grid-cols-2 gap-4 p-8">
-          <BalanceTile />
-          <BalanceTile label="Wealth · Sovereign" amount={2487102.12} delta="+ 0.84%" />
-          <div className="col-span-2 space-y-2">
-            {sampleTxs.slice(0, 4).map((t, i) => (
-              <TransactionRow key={i} tx={t} />
-            ))}
+    <div className="min-h-screen bg-[#F5F7FA] flex flex-col justify-between">
+      {/* Top Banking Navigation Bar */}
+      <header className="border-b border-[#D9E1EA] bg-white py-4 px-6 sm:px-12">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <Link to="/">
+            <Wordmark size="md" />
+          </Link>
+          <div className="flex items-center gap-2 text-xs font-medium text-[#16845B]">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Secure SSL Banking Gateway</span>
           </div>
         </div>
-      }
-    >
-      <div className="max-w-[440px]">
-        <p className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.02] px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Step 01 · Identity
-        </p>
-        <h1 className="mt-5 font-display text-[40px] font-semibold leading-[1.05] tracking-tight">
-          Welcome to your
-          <br />
-          <span className="text-gradient">private vault.</span>
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          AdaptiveGuard recognizes you by how you type, move, and decide — not just what you
-          remember. Begin with your credentials; the AI will quietly do the rest.
-        </p>
+      </header>
 
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <ApertureInput
-            label="Work email"
-            icon={AtSign}
-            type="email"
-            value={email}
-            onChange={(e) => checkEmail(e.target.value)}
-            state={emailState}
-            hint={emailState === "error" ? "That doesn't look like a valid address." : undefined}
-            whyWeAsk="We use your email only to identify your tenant and notify you of new sessions."
-            autoFocus
-          />
-          <ApertureInput
-            label="Password"
-            icon={Lock}
-            type="password"
-            value={password}
-            onChange={(e) => checkPassword(e.target.value)}
-            state={passwordState}
-            minLength={passwordMinLength}
-            hint={passwordState === "error" ? `Must be at least ${passwordMinLength} characters.` : undefined}
-            whyWeAsk="Encrypted at rest with Argon2id. Never logged, never shared."
-          />
-
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="group relative inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-accent px-6 text-sm font-semibold text-accent-foreground shadow-gold transition-all duration-300 hover:bg-accent/90 hover:translate-y-[-1px] disabled:opacity-40 disabled:hover:translate-y-0"
-          >
-            {submitting ? (
-              <ApertureSpinner size={18} />
-            ) : (
-              <>
-                Continue to verification
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </>
-            )}
-          </button>
-          {error ? (
-            <p className="text-[12px] text-danger" role="alert">
-              {error.message}
+      {/* Main Login Card Container */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-md bg-white border border-[#D9E1EA] rounded-xl shadow-sm p-8">
+          <div className="text-center mb-6">
+            <div className="inline-flex p-3 bg-[#EEF2F6] rounded-full text-[#0B3A82] mb-3">
+              <Lock className="w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-bold text-[#082A5C]">
+              Internet Banking Sign In
+            </h1>
+            <p className="text-xs text-[#667085] mt-1">
+              Protected by Continuous Behavioral Biometrics
             </p>
-          ) : null}
-        </form>
+          </div>
 
-        <div className="mt-8 flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          <span className="h-px flex-1 bg-white/8" />
-          or
-          <span className="h-px flex-1 bg-white/8" />
+          {error && (
+            <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2.5 text-xs text-[#C53030]">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div>
+                <strong>Authentication failed:</strong> {error.message || "Invalid credentials provided."}
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-[#172033] mb-1.5" htmlFor="email">
+                Registered Email ID / Customer ID
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#98A2B3]" />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. amal@adaptiveguardian.dev"
+                  className="w-full h-10 pl-10 pr-3 bg-white border border-[#D9E1EA] rounded-md text-sm text-[#172033] placeholder:text-[#98A2B3] focus:border-[#0B3A82] focus:ring-1 focus:ring-[#0B3A82] outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-xs font-semibold text-[#172033]" htmlFor="password">
+                  Password
+                </label>
+                <span className="text-xs text-[#2563A6] hover:underline cursor-pointer">
+                  Forgot Password?
+                </span>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#98A2B3]" />
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your banking password"
+                  className="w-full h-10 pl-10 pr-3 bg-white border border-[#D9E1EA] rounded-md text-sm text-[#172033] placeholder:text-[#98A2B3] focus:border-[#0B3A82] focus:ring-1 focus:ring-[#0B3A82] outline-none"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting || !email || !password}
+              className={cn(
+                "w-full h-10 mt-2 bg-[#0B3A82] hover:bg-[#082A5C] text-white font-semibold text-sm rounded-md flex items-center justify-center gap-2 transition-colors cursor-pointer",
+                submitting && "opacity-75 cursor-not-allowed",
+              )}
+            >
+              {submitting ? "Verifying Credentials..." : "Secure Sign In"}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Quick Demo Credentials Assistant */}
+          <div className="mt-6 pt-5 border-t border-[#D9E1EA]">
+            <span className="text-xs font-semibold text-[#667085] uppercase tracking-wider block mb-2">
+              Authorized Trial Accounts:
+            </span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("amal@adaptiveguardian.dev");
+                  setPassword("Demo@1234567890");
+                }}
+                className="p-2 border border-[#D9E1EA] rounded bg-[#F5F7FA] hover:bg-[#EEF2F6] text-left text-[#172033]"
+              >
+                <div className="font-semibold">Amal Varghese</div>
+                <div className="text-[10px] text-[#667085]">Demo@1234567890</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("admin@adaptiveguard.ai");
+                  setPassword("Admin@1234567890");
+                }}
+                className="p-2 border border-[#D9E1EA] rounded bg-[#F5F7FA] hover:bg-[#EEF2F6] text-left text-[#172033]"
+              >
+                <div className="font-semibold">Platform Admin</div>
+                <div className="text-[10px] text-[#667085]">Admin@1234567890</div>
+              </button>
+            </div>
+          </div>
         </div>
+      </main>
 
-        <button className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] text-sm text-foreground/90 transition-colors hover:border-accent/30 hover:bg-accent/[0.04]">
-          <Building2 className="h-4 w-4 text-accent" /> Continue with Enterprise SSO
-        </button>
-
-        <div className="mt-8 flex items-center justify-center gap-6 text-[11px] text-muted-foreground/70">
-          <span className="inline-flex items-center gap-1">
-            <span className="h-1 w-1 rounded-full bg-success" /> AES-256
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <span className="h-1 w-1 rounded-full bg-success" /> SOC 2
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <span className="h-1 w-1 rounded-full bg-success" /> GDPR
-          </span>
-        </div>
-
-        <p className="mt-4 text-[11px] text-muted-foreground">
-          By continuing you accept the AdaptiveGuard Trust Charter. Behavioral data is captured
-          on-device; only an encrypted vector ever leaves your browser.
-        </p>
-      </div>
-    </AuthShell>
+      {/* Trust Footer */}
+      <footer className="border-t border-[#D9E1EA] bg-white py-4 px-6 text-center text-xs text-[#667085]">
+        <span>© 2026 Adaptive Guardian Bank · RBI Cyber Security Framework Compliant · 256-Bit SSL Encryption</span>
+      </footer>
+    </div>
   );
 }

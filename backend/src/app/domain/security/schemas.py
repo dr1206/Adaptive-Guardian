@@ -147,6 +147,8 @@ class BehavioralAuthenticationRequest(BaseModel):
     click_count: float = Field(serialization_alias="clickCount")
     scroll_amount: float = Field(serialization_alias="scrollAmount")
     mouse_travel_px: float = Field(serialization_alias="mouseTravelPx")
+    keys_per_sec: float | None = Field(None, serialization_alias="keysPerSec")
+    velocity_std: float | None = Field(None, serialization_alias="velocityStd")
 
 
 class BehavioralAuthenticationResponse(BaseModel):

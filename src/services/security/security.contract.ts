@@ -113,6 +113,8 @@ export interface BehavioralAuthenticationInput {
   clickCount: number;
   scrollAmount: number;
   mouseTravelPx: number;
+  keysPerSec?: number;
+  velocityStd?: number;
 }
 
 export interface BehavioralAuthenticationResult {

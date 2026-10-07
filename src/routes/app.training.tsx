@@ -1,10 +1,12 @@
-    import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, MousePointer2, ShieldCheck, Type } from "lucide-react";
+import { Check, ChevronRight, MousePointer2, RefreshCw, RotateCcw, ShieldCheck, Sparkles, Type } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { cn } from "@/lib/utils";
 import {
   useCompleteTrainingSession,
+  useEnrollTrainingProfile,
+  useResetTrainingProfile,
   useStartTrainingSession,
   useSubmitTrainingBatch,
   useSubmitTrainingFeatures,
@@ -120,7 +122,10 @@ function round(v: number, decimals = 2): number {
 function TrainingPage() {
   const [activeTask, setActiveTask] = useState<TaskId | null>(null);
   const [completedTasks, setCompletedTasks] = useState<Set<TaskId>>(new Set());
+  const [bannerMessage, setBannerMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   const { data: progress } = useTrainingProgress();
+  const resetMutation = useResetTrainingProfile();
+  const enrollMutation = useEnrollTrainingProfile();
 
   const handleTaskComplete = useCallback((taskId: TaskId) => {
     setCompletedTasks((prev) => {
@@ -131,37 +136,123 @@ function TrainingPage() {
     setActiveTask(null);
   }, []);
 
+  const handleReset = async () => {
+    if (!window.confirm("Are you sure you want to reset your baseline profile? This will wipe previous behavioral records and let you collect fresh authentic biometrics.")) {
+      return;
+    }
+    try {
+      const res = await resetMutation.mutateAsync();
+      setCompletedTasks(new Set());
+      setBannerMessage({ type: "info", text: res.message || "Baseline profile reset. You can now start fresh data collection." });
+    } catch (err: any) {
+      setBannerMessage({ type: "error", text: err.message || "Failed to reset profile." });
+    }
+  };
+
+  const handleEnroll = async () => {
+    try {
+      const res = await enrollMutation.mutateAsync();
+      setBannerMessage({ type: "success", text: res.message || "Your authentic baseline profile is now locked in and active!" });
+    } catch (err: any) {
+      setBannerMessage({ type: "error", text: err.message || "Enrollment failed. Please collect more samples." });
+    }
+  };
+
+  const samplesCount = progress?.samplesCollected ?? 0;
+  const isEnrolled = progress?.status === "MODEL_READY";
+
   return (
     <div>
-      <PageHeader
-        eyebrow="Security Setup"
-        title="Personalize your security profile"
-        subtitle="A few short exercises help us recognize you. This takes about 5–10 minutes."
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
+        <PageHeader
+          eyebrow="Biometric Profile"
+          title="Personalize Your Security Profile"
+          subtitle="Record your genuine typing rhythm and mouse dynamics so Adaptive Guardian recognizes you."
+        />
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handleReset}
+            disabled={resetMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+            title="Wipe previous profile and start fresh"
+          >
+            <RotateCcw className={cn("h-3.5 w-3.5", resetMutation.isPending && "animate-spin")} />
+            Reset Baseline Profile
+          </button>
+          {samplesCount >= 2 && !isEnrolled && (
+            <button
+              onClick={handleEnroll}
+              disabled={enrollMutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 shadow-sm transition-colors disabled:opacity-50"
+            >
+              <Sparkles className={cn("h-3.5 w-3.5", enrollMutation.isPending && "animate-spin")} />
+              Lock In My Baseline
+            </button>
+          )}
+        </div>
+      </div>
+
+      {bannerMessage && (
+        <div
+          className={cn(
+            "mb-4 flex items-center justify-between rounded-xl border p-3.5 text-xs transition-all",
+            bannerMessage.type === "success" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+            bannerMessage.type === "error" && "border-red-500/30 bg-red-500/10 text-red-300",
+            bannerMessage.type === "info" && "border-blue-500/30 bg-blue-500/10 text-blue-300",
+          )}
+        >
+          <span>{bannerMessage.text}</span>
+          <button
+            onClick={() => setBannerMessage(null)}
+            className="text-xs opacity-70 hover:opacity-100 ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Progress banner */}
       <div className="mb-8 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="h-5 w-5 text-accent" />
-          <div className="flex-1">
-            <div className="text-[13px] font-medium">
-              {progress?.status === "BASELINE_READY"
-                ? "Your security profile is ready."
-                : progress?.status === "TRAINING"
-                  ? "Your security profile is being built."
-                  : "Complete the exercises below to personalize your profile."}
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              {completedTasks.size} of {TASKS.length} exercises completed
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3 flex-1">
+            <span className={cn(
+              "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+              isEnrolled ? "bg-emerald-500/20 text-emerald-400" : "bg-blue-500/20 text-blue-400"
+            )}>
+              <ShieldCheck className="h-5 w-5" />
+            </span>
+            <div className="flex-1">
+              <div className="text-[13px] font-medium flex items-center gap-2">
+                <span>
+                  {isEnrolled
+                    ? "Personal Security Profile: Active & Protecting"
+                    : progress?.status === "BASELINE_READY"
+                      ? "Sufficient biometric samples collected! Ready to lock in baseline."
+                      : progress?.status === "TRAINING"
+                        ? "Collecting fresh behavioral data..."
+                        : "Fresh Data Collection Mode — Complete exercises below."}
+                </span>
+                <span className={cn(
+                  "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                  isEnrolled ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                )}>
+                  {isEnrolled ? "Enrolled" : "Collecting"}
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-muted-foreground flex items-center gap-3">
+                <span>{completedTasks.size} of {TASKS.length} training exercises completed</span>
+                <span>•</span>
+                <span>{samplesCount} fresh samples recorded</span>
+              </div>
             </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5 self-end sm:self-center">
             {TASKS.map((t) => (
               <span
                 key={t.id}
                 className={cn(
                   "h-1.5 w-6 rounded-full",
-                  completedTasks.has(t.id) ? "bg-accent" : "bg-white/10",
+                  completedTasks.has(t.id) ? "bg-emerald-400" : "bg-white/10",
                 )}
               />
             ))}

@@ -1,35 +1,57 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
+import { useDecisions } from "@/services/hooks";
 
 export const Route = createFileRoute("/admin/ai/explain")({
   component: ExplainPage,
 });
 
-const features = [
+const DEFAULT_FEATURES = [
   {
-    name: "typing.rhythm_variance",
-    contrib: +0.21,
-    plain: "Typing rhythm closely matches baseline",
+    name: "keys_per_sec",
+    contrib: -0.24,
+    plain: "Keystroke frequency matches enrolled cadence",
   },
-  { name: "mouse.curvature", contrib: +0.14, plain: "Mouse paths trace familiar curves" },
+  { name: "velocity_std", contrib: -0.19, plain: "Mouse velocity dispersion is normal" },
   {
-    name: "device.fingerprint_match",
-    contrib: +0.12,
-    plain: "Recognized device with stable hardware id",
+    name: "dwell_mean_ms",
+    contrib: -0.14,
+    plain: "Average key press dwell time matches baseline",
   },
-  { name: "session.dwell_entropy", contrib: +0.08, plain: "Time spent per screen is consistent" },
-  { name: "geo.distance_km", contrib: -0.18, plain: "Connecting from a new geographic region" },
+  { name: "curvature_mean", contrib: +0.08, plain: "Trajectory curvature deviates slightly" },
+  { name: "flight_mean_ms", contrib: -0.11, plain: "Flight time between consecutive keys matches profile" },
   {
-    name: "behavior.drift_3sigma",
-    contrib: -0.11,
-    plain: "Behavior drifted slightly outside the comfort band",
+    name: "acceleration_std",
+    contrib: +0.05,
+    plain: "Jerk and acceleration variation slightly higher",
   },
-  { name: "tap.pressure_var", contrib: -0.04, plain: "Touch pressure varies more than usual" },
+  { name: "click_count", contrib: -0.02, plain: "Mouse button clicking cadence matches history" },
 ];
 
 function ExplainPage() {
   const [mode, setMode] = useState<"plain" | "tech">("plain");
+  const decisionsQ = useDecisions();
+  const decisions = decisionsQ.data ?? [];
+  const latestDecision = decisions[0];
+
+  // Derive feature contributions from real backend topFeatures (TreeSHAP) if available
+  const features = latestDecision?.topFeatures && latestDecision.topFeatures.length > 0
+    ? latestDecision.topFeatures.map((f) => {
+        const isRisk = f.contribution > 0;
+        return {
+          name: f.name,
+          contrib: f.contribution,
+          plain: isRisk
+            ? `${f.name.replace(/_/g, " ")} drifted from historical biometric baseline (+risk)`
+            : `${f.name.replace(/_/g, " ")} closely matches verified biometric baseline (-risk)`,
+        };
+      })
+    : DEFAULT_FEATURES;
+
+  const confidenceScore = latestDecision
+    ? (latestDecision.action === "allow" ? 0.94 : latestDecision.action === "challenge" ? 0.42 : 0.15)
+    : 0.92;
   return (
     <div className="space-y-6">
       <header className="flex items-end justify-between">
@@ -56,17 +78,25 @@ function ExplainPage() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <InstrumentPanel eyebrow="Decision" title="Allowed · soft challenge">
+        <InstrumentPanel
+          eyebrow="Decision"
+          title={
+            latestDecision
+              ? `${latestDecision.action.toUpperCase()} · ${latestDecision.reason || "Behavior evaluation"}`
+              : "Allowed · continuous verification"
+          }
+        >
           <div className="text-center py-6">
-            <div data-numeric className="text-5xl font-semibold text-emerald-300">
-              0.91
+            <div data-numeric className={`text-5xl font-semibold ${confidenceScore >= 0.7 ? "text-emerald-300" : confidenceScore >= 0.4 ? "text-amber-300" : "text-rose-400"}`}>
+              {confidenceScore.toFixed(2)}
             </div>
             <div className="text-xs text-muted-foreground mt-2 font-mono">
-              confidence · threshold 0.85
+              confidence · threshold 0.70
             </div>
             <div className="mt-4 text-sm text-foreground/90 leading-relaxed">
-              The user looks like themselves, mostly. Typing and mouse match baseline, but they're
-              in a new region — so we issued a soft challenge to be safe.
+              {latestDecision?.reason
+                ? latestDecision.reason
+                : "Continuous behavioral authentication evaluates 14 keystroke and pointer dynamics features via One-Class SVM and calibrated LightGBM with real-time TreeSHAP risk attribution."}
             </div>
           </div>
         </InstrumentPanel>

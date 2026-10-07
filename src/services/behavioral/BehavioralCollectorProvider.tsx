@@ -13,6 +13,7 @@ import {
   type BehavioralSessionDump,
   type CollectorStatus,
   type FeatureWindow,
+  type VerificationProgress,
 } from "./collector";
 import type { BehavioralService } from "./behavioral.contract";
 import { services } from "../registry";
@@ -36,6 +37,26 @@ function getDeviceId(): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+export type VerificationState =
+  | "IDLE"
+  | "COLLECTING"
+  | "READY_FOR_VERIFICATION"
+  | "VERIFYING"
+  | "SUCCESS"
+  | "FAILED"
+  | "ERROR";
+
+export interface VerificationSessionStatus {
+  state: VerificationState;
+  attemptId: string | null;
+  windowId: string | null;
+  startedAt: number | null;
+  progress: VerificationProgress | null;
+  error: string | null;
+  lastDecision: string | null;
+  lastFusedScore: number | null;
 }
 
 interface BehavioralContextValue {
@@ -71,6 +92,12 @@ interface BehavioralContextValue {
   challengeClearedAt: string | null;
   /** Record a successful step-up verification (clears the CHALLENGE modal). */
   markChallengeCleared: () => void;
+
+  /** Step-up Verification Window Lifecycle */
+  verification: VerificationSessionStatus;
+  startVerification: () => string;
+  cancelVerification: () => void;
+  submitVerification: () => Promise<boolean>;
 }
 
 export interface BehavioralAuthenticationState {
@@ -81,15 +108,43 @@ export interface BehavioralAuthenticationState {
   authenticatedAt: string;
 }
 
+const initialCollectorStatus: CollectorStatus = {
+  state: "idle",
+  keystrokesCaptured: 0,
+  mouseEventsCaptured: 0,
+  windowsSent: 0,
+  windowsBuffered: 0,
+  uptimeMs: 0,
+  windowRemainingSec: 30,
+  windowElapsedSec: 0,
+  windowDurationSec: 30,
+  lastDwellMs: 0,
+  lastFlightMs: 0,
+  meanDwellMs: 0,
+  meanFlightMs: 0,
+  keysPerSec: 0,
+  mouseVelocityPxS: 0,
+  mouseTravelPx: 0,
+  clicksCaptured: 0,
+  mouseX: 0,
+  mouseY: 0,
+  lastActivityAt: 0,
+  verification: null,
+};
+
+const initialVerificationStatus: VerificationSessionStatus = {
+  state: "IDLE",
+  attemptId: null,
+  windowId: null,
+  startedAt: null,
+  progress: null,
+  error: null,
+  lastDecision: null,
+  lastFusedScore: null,
+};
+
 const BehavioralCtx = createContext<BehavioralContextValue>({
-  status: {
-    state: "idle",
-    keystrokesCaptured: 0,
-    mouseEventsCaptured: 0,
-    windowsSent: 0,
-    windowsBuffered: 0,
-    uptimeMs: 0,
-  },
+  status: initialCollectorStatus,
   dumpSession: () => null,
   getWindows: () => [],
   authenticateNow: () => {},
@@ -101,6 +156,10 @@ const BehavioralCtx = createContext<BehavioralContextValue>({
   dismissWarning: () => {},
   challengeClearedAt: null,
   markChallengeCleared: () => {},
+  verification: initialVerificationStatus,
+  startVerification: () => "",
+  cancelVerification: () => {},
+  submitVerification: async () => false,
 });
 
 export function useBehavioralStatus(): CollectorStatus {
@@ -172,6 +231,18 @@ export function useMarkChallengeCleared(): () => void {
   return useContext(BehavioralCtx).markChallengeCleared;
 }
 
+/** Step-up Verification Lifecycle hooks */
+export function useVerification() {
+  const { verification, startVerification, cancelVerification, submitVerification } =
+    useContext(BehavioralCtx);
+  return {
+    verification,
+    startVerification,
+    cancelVerification,
+    submitVerification,
+  };
+}
+
 /** Set to true via env or URL param to auto-persist sessions to localStorage. */
 function isExportMode(): boolean {
   if (import.meta.env?.VITE_BEHAVIORAL_EXPORT === "true") {
@@ -188,14 +259,7 @@ export function BehavioralCollectorProvider({
 }: {
   children: ReactNode;
 }) {
-  const [status, setStatus] = useState<CollectorStatus>({
-    state: "idle",
-    keystrokesCaptured: 0,
-    mouseEventsCaptured: 0,
-    windowsSent: 0,
-    windowsBuffered: 0,
-    uptimeMs: 0,
-  });
+  const [status, setStatus] = useState<CollectorStatus>(initialCollectorStatus);
 
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -264,6 +328,8 @@ export function BehavioralCollectorProvider({
         clickCount: window.clickCount,
         scrollAmount: window.scrollAmount,
         mouseTravelPx: window.mouseTravelPx,
+        keysPerSec: window.keysPerSec,
+        velocityStd: window.velocityStd,
       });
 
       setAuthentication({
@@ -355,7 +421,7 @@ export function BehavioralCollectorProvider({
 
     statusTimerRef.current = setInterval(() => {
       setStatus(collector.getStatus());
-    }, 2000);
+    }, 250);
 
     setStatus(collector.getStatus());
 
@@ -386,21 +452,178 @@ export function BehavioralCollectorProvider({
         persistSession(dump);
       }
 
-      // Authenticate and submit any remaining partial window(s).
-      if (remaining.length > 0) {
+      // Authenticate and submit any remaining partial window(s) only if still logged in
+      if (remaining.length > 0 && !!localStorage.getItem("ag_access_token")) {
         submitWindows(remaining);
       }
 
-      setStatus({
-        state: "idle",
-        keystrokesCaptured: 0,
-        mouseEventsCaptured: 0,
-        windowsSent: 0,
-        windowsBuffered: 0,
-        uptimeMs: 0,
-      });
+      setStatus(initialCollectorStatus);
     }
   }, [submitWindows]);
+
+  /** Record a successful step-up verification → clears CHALLENGE modal. */
+  const markChallengeCleared = useCallback(() => {
+    setChallengeClearedAt(new Date().toISOString());
+  }, []);
+
+  /**
+   * Dismiss the WARN banner for the current result only.
+   * Never logs out, never clears tokens, never stops the collector.
+   */
+  const dismissWarning = useCallback(() => {
+    // Capture the current fused score at call time via the ref snapshot
+    // (avoids the stale-closure pitfall of reading state in a callback).
+    const current = authenticationRef.current;
+    if (current) setDismissedWarnScore(current.fusedScore);
+  }, []);
+
+  const [verification, setVerification] = useState<VerificationSessionStatus>(initialVerificationStatus);
+  const verificationInProgressRef = useRef(false);
+
+  /**
+   * Start a brand new, isolated verification window for step-up auth.
+   * Resets verification telemetry buffers, transitions to COLLECTING.
+   * Does NOT flush the suspicious continuous window into verification.
+   */
+  const startVerification = useCallback((): string => {
+    if (!collectorRef.current) return "";
+    const attemptId = `att-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const windowId = collectorRef.current.startVerificationWindow(attemptId);
+
+    verificationInProgressRef.current = false;
+    setVerification({
+      state: "COLLECTING",
+      attemptId,
+      windowId,
+      startedAt: Date.now(),
+      progress: collectorRef.current.getVerificationProgress(),
+      error: null,
+      lastDecision: null,
+      lastFusedScore: null,
+    });
+
+    console.debug(`[BehavioralVerification] Started attempt ${attemptId} on fresh window ${windowId}`);
+    return attemptId;
+  }, []);
+
+  /**
+   * Cancel active verification attempt.
+   */
+  const cancelVerification = useCallback(() => {
+    if (collectorRef.current) {
+      collectorRef.current.cancelVerificationWindow();
+    }
+    verificationInProgressRef.current = false;
+    setVerification(initialVerificationStatus);
+    console.debug("[BehavioralVerification] Cancelled active verification attempt");
+  }, []);
+
+  /**
+   * Submit the fresh verification window to LightGBM + OC-SVM.
+   * Validates minimum behavioral data and locks against concurrent requests.
+   */
+  const submitVerification = useCallback(async (): Promise<boolean> => {
+    if (!collectorRef.current) return false;
+    if (verificationInProgressRef.current) {
+      console.warn("[BehavioralVerification] Verification already in progress");
+      return false;
+    }
+
+    if (!collectorRef.current.isVerificationReady()) {
+      console.warn("[BehavioralVerification] Cannot submit: insufficient fresh behavioral data");
+      setVerification((prev) => ({
+        ...prev,
+        state: "COLLECTING",
+        error: "Keep interacting naturally. We need a little more behavioral data to complete verification.",
+      }));
+      return false;
+    }
+
+    const featureWindow = collectorRef.current.freezeVerificationWindow();
+    if (!featureWindow) {
+      setVerification((prev) => ({
+        ...prev,
+        state: "ERROR",
+        error: "Failed to construct fresh behavioral verification window.",
+      }));
+      return false;
+    }
+
+    verificationInProgressRef.current = true;
+    setVerification((prev) => ({
+      ...prev,
+      state: "VERIFYING",
+      error: null,
+    }));
+
+    try {
+      console.debug(`[BehavioralVerification] Submitting fresh window ${featureWindow.windowId} to ML models...`, {
+        keys: featureWindow.dwellMeanMs,
+        travel: featureWindow.mouseTravelPx,
+      });
+
+      const result = await services.security.behavioralAuthenticate({
+        dwellMeanMs: featureWindow.dwellMeanMs,
+        dwellStdMs: featureWindow.dwellStdMs,
+        flightMeanMs: featureWindow.flightMeanMs,
+        flightStdMs: featureWindow.flightStdMs,
+        velocityMean: featureWindow.velocityMean,
+        accelerationMean: featureWindow.accelerationMean,
+        accelerationStd: featureWindow.accelerationStd,
+        curvatureMean: featureWindow.curvatureMean,
+        curvatureStd: featureWindow.curvatureStd,
+        clickCount: featureWindow.clickCount,
+        scrollAmount: featureWindow.scrollAmount,
+        mouseTravelPx: featureWindow.mouseTravelPx,
+        keysPerSec: featureWindow.keysPerSec,
+        velocityStd: featureWindow.velocityStd,
+      });
+
+      console.debug("[BehavioralVerification] ML Decision:", result);
+
+      // Update global continuous authentication state to reflect latest ML decision
+      setAuthentication({
+        lightgbmScore: result.lightgbmScore,
+        ocsvmAnomalyScore: result.ocsvmAnomalyScore,
+        fusedScore: result.fusedScore,
+        decision: result.decision,
+        authenticatedAt: new Date().toISOString(),
+      });
+
+      if (result.decision === "ALLOW") {
+        setVerification((prev) => ({
+          ...prev,
+          state: "SUCCESS",
+          lastDecision: result.decision,
+          lastFusedScore: result.fusedScore,
+          error: null,
+        }));
+        // Mark challenge cleared so the challenge modal & pill dismiss cleanly
+        markChallengeCleared();
+        return true;
+      } else {
+        setVerification((prev) => ({
+          ...prev,
+          state: "FAILED",
+          lastDecision: result.decision,
+          lastFusedScore: result.fusedScore,
+          error: "Your recent behavioral pattern still differs from your established profile.",
+        }));
+        return false;
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Verification service could not process request.";
+      console.error("[BehavioralVerification] Verification API error:", err);
+      setVerification((prev) => ({
+        ...prev,
+        state: "ERROR",
+        error: msg,
+      }));
+      return false;
+    } finally {
+      verificationInProgressRef.current = false;
+    }
+  }, [markChallengeCleared, setAuthentication]);
 
   const dumpSession = useCallback((): BehavioralSessionDump | null => {
     return collectorRef.current?.dumpSession() ?? null;
@@ -417,22 +640,6 @@ export function BehavioralCollectorProvider({
    */
   const authenticateNow = useCallback(() => {
     collectorRef.current?.flushNow();
-  }, []);
-
-  /**
-   * Dismiss the WARN banner for the current result only.
-   * Never logs out, never clears tokens, never stops the collector.
-   */
-  const dismissWarning = useCallback(() => {
-    // Capture the current fused score at call time via the ref snapshot
-    // (avoids the stale-closure pitfall of reading state in a callback).
-    const current = authenticationRef.current;
-    if (current) setDismissedWarnScore(current.fusedScore);
-  }, []);
-
-  /** Record a successful step-up verification → clears CHALLENGE modal. */
-  const markChallengeCleared = useCallback(() => {
-    setChallengeClearedAt(new Date().toISOString());
   }, []);
 
   // Poll localStorage to detect authentication state changes.
@@ -453,6 +660,7 @@ export function BehavioralCollectorProvider({
         setWindowCount(0);
         setDismissedWarnScore(null);
         setChallengeClearedAt(null);
+        setVerification(initialVerificationStatus);
       }
     };
 
@@ -467,6 +675,28 @@ export function BehavioralCollectorProvider({
       stopCollection();
     };
   }, [startCollection, stopCollection]);
+
+  // Keep verification progress synchronized with collector tick
+  useEffect(() => {
+    if (verification.state === "COLLECTING" || verification.state === "READY_FOR_VERIFICATION") {
+      const prog = collectorRef.current?.getVerificationProgress();
+      if (prog) {
+        const nextState: VerificationState = prog.isReady ? "READY_FOR_VERIFICATION" : "COLLECTING";
+        if (
+          verification.progress?.keystrokes !== prog.keystrokes ||
+          verification.progress?.mouseMoves !== prog.mouseMoves ||
+          verification.progress?.clicks !== prog.clicks ||
+          verification.state !== nextState
+        ) {
+          setVerification((prev) => ({
+            ...prev,
+            state: prev.state === "VERIFYING" ? prev.state : nextState,
+            progress: prog,
+          }));
+        }
+      }
+    }
+  }, [status, verification.state, verification.progress]);
 
   return (
     <BehavioralCtx.Provider
@@ -483,6 +713,10 @@ export function BehavioralCollectorProvider({
         dismissWarning,
         challengeClearedAt,
         markChallengeCleared,
+        verification,
+        startVerification,
+        cancelVerification,
+        submitVerification,
       }}
     >
       {children}

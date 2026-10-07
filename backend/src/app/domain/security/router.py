@@ -116,22 +116,28 @@ async def behavioral_authenticate(
 
     user_id = str(_uid(current_user))
 
+    features = {
+        "dwellMeanMs": request.dwell_mean_ms,
+        "dwellStdMs": request.dwell_std_ms,
+        "flightMeanMs": request.flight_mean_ms,
+        "flightStdMs": request.flight_std_ms,
+        "velocityMean": request.velocity_mean,
+        "accelerationMean": request.acceleration_mean,
+        "accelerationStd": request.acceleration_std,
+        "curvatureMean": request.curvature_mean,
+        "curvatureStd": request.curvature_std,
+        "clickCount": request.click_count,
+        "scrollAmount": request.scroll_amount,
+        "mouseTravelPx": request.mouse_travel_px,
+    }
+    if request.keys_per_sec is not None:
+        features["keysPerSec"] = request.keys_per_sec
+    if request.velocity_std is not None:
+        features["velocityStd"] = request.velocity_std
+
     result = behavioral_ml_service.predict(
         user_id=user_id,
-        features={
-            "dwellMeanMs": request.dwell_mean_ms,
-            "dwellStdMs": request.dwell_std_ms,
-            "flightMeanMs": request.flight_mean_ms,
-            "flightStdMs": request.flight_std_ms,
-            "velocityMean": request.velocity_mean,
-            "accelerationMean": request.acceleration_mean,
-            "accelerationStd": request.acceleration_std,
-            "curvatureMean": request.curvature_mean,
-            "curvatureStd": request.curvature_std,
-            "clickCount": request.click_count,
-            "scrollAmount": request.scroll_amount,
-            "mouseTravelPx": request.mouse_travel_px,
-        },
+        features=features,
     )
 
     return BehavioralAuthenticationResponse(**result)

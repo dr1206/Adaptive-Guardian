@@ -76,18 +76,18 @@ function TransferPage() {
             <div key={s} className="flex flex-col gap-1.5">
               <span
                 className={cn(
-                  "h-1 rounded-full transition-all duration-500",
+                  "h-1.5 rounded-full transition-all duration-300",
                   i < step
-                    ? "bg-gradient-to-r from-accent to-purple"
+                    ? "bg-primary"
                     : i === step
-                      ? "bg-accent shadow-[0_0_12px_oklch(0.715_0.135_215/0.6)]"
-                      : "bg-white/[0.08]",
+                      ? "bg-secondary"
+                      : "bg-muted",
                 )}
               />
               <span
                 className={cn(
-                  "text-[10px] uppercase tracking-[0.16em]",
-                  i === step ? "text-accent" : "text-muted-foreground/60",
+                  "text-[11px] font-semibold uppercase tracking-[0.12em]",
+                  i === step ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 {s}
@@ -98,7 +98,7 @@ function TransferPage() {
 
         <div className="min-h-[440px]">
           {step === 0 && (
-            <StepShell title="Pick a source account">
+            <StepShell title="Select Debit / Source Account">
               <div className="-mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {accounts
                   .filter((a) => a.type !== "credit")
@@ -110,20 +110,20 @@ function TransferPage() {
                         setTimeout(next, 350);
                       }}
                       className={cn(
-                        "snap-start w-[260px] shrink-0 rounded-[20px] border p-4 text-left transition-all duration-300",
+                        "snap-start w-[270px] shrink-0 rounded-xl border p-4 text-left transition-all duration-200",
                         sourceId === a.id
-                          ? "-translate-y-2 border-accent/60 bg-gradient-to-br from-accent/15 to-purple/10 shadow-[0_20px_60px_-20px_oklch(0.715_0.135_215/0.5)]"
-                          : "border-white/[0.06] bg-white/[0.02] hover:border-white/15",
+                          ? "-translate-y-1 border-primary bg-primary/5 shadow-sm ring-1 ring-primary"
+                          : "border-border bg-card shadow-xs hover:border-primary/40",
                       )}
                     >
-                      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         {a.name} · {a.currency}
                       </div>
-                      <div className="mt-2 font-numeric text-[22px] font-semibold">
-                        {fmt(a.balance)}
+                      <div className="mt-2 font-numeric text-[24px] font-bold text-foreground">
+                        {fmt(a.balance, "₹", 0)}
                       </div>
-                      <div className="mt-1 text-[10px] text-muted-foreground">
-                        IBAN ••{a.iban.slice(-4)}
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        A/C ••{a.iban.slice(-4)}
                       </div>
                     </button>
                   ))}
@@ -250,37 +250,31 @@ function Recipients({
             autoFocus
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search beneficiaries…"
-            className="h-11 w-full rounded-xl border border-white/[0.06] bg-white/[0.03] pl-10 pr-3 text-[13px] focus:border-accent/30 focus:outline-none"
+            placeholder="Search beneficiaries by name or account…"
+            className="h-11 w-full rounded-lg border border-border bg-card pl-10 pr-3 text-[13px] text-foreground shadow-xs placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
-        <ul className="max-h-[420px] divide-y divide-white/[0.04] overflow-y-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+        <ul className="max-h-[420px] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card shadow-xs">
           {list.map((b) => (
             <li key={b.id}>
               <button
                 onClick={() => onPick(b.id)}
                 className={cn(
-                  "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]",
-                  picked === b.id && "bg-accent/10",
+                  "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50",
+                  picked === b.id && "bg-primary/10 text-primary",
                 )}
               >
-                <span
-                  className="grid h-10 w-10 place-items-center rounded-full text-[12px] font-semibold"
-                  style={{
-                    background: `oklch(0.355 0.08 ${b.tint} / 0.7)`,
-                    color: `oklch(0.95 0.04 ${b.tint})`,
-                  }}
-                >
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-[13px] font-bold text-primary">
                   {b.initials}
                 </span>
                 <div className="flex-1">
-                  <div className="text-[13px] font-medium">{b.name}</div>
-                  <div className="text-[10px] text-muted-foreground">
-                    {b.bank} · ••{b.last4}
+                  <div className="text-[13.5px] font-semibold text-foreground">{b.name}</div>
+                  <div className="text-[11.5px] text-muted-foreground">
+                    {b.bank} · A/C ••{b.last4}
                   </div>
                 </div>
                 {b.lastSent && (
-                  <span className="font-numeric text-[11px] text-muted-foreground">
+                  <span className="font-numeric text-[12px] font-medium text-muted-foreground">
                     {fmt(b.lastSent.amount, "₹", 0)}
                   </span>
                 )}
@@ -289,7 +283,7 @@ function Recipients({
           ))}
         </ul>
       </div>
-      <aside className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+      <aside className="rounded-xl border border-border bg-card p-5 shadow-xs">
         {picked ? (
           (() => {
             const b = beneficiaries.find((x) => x.id === picked);
@@ -297,32 +291,26 @@ function Recipients({
             return (
               <div>
                 <div className="mb-4 flex items-center gap-3">
-                  <span
-                    className="grid h-14 w-14 place-items-center rounded-full font-display text-[16px] font-semibold"
-                    style={{
-                      background: `oklch(0.355 0.08 ${b.tint} / 0.7)`,
-                      color: `oklch(0.95 0.04 ${b.tint})`,
-                    }}
-                  >
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 font-display text-[16px] font-bold text-primary">
                     {b.initials}
                   </span>
                   <div>
-                    <div className="font-display text-[16px] font-semibold">{b.name}</div>
-                    <div className="text-[11px] text-muted-foreground">{b.bank}</div>
+                    <div className="font-display text-[16px] font-bold text-foreground">{b.name}</div>
+                    <div className="text-[12px] text-muted-foreground">{b.bank}</div>
                   </div>
                 </div>
-                <div className="rounded-lg border border-white/[0.05] bg-white/[0.02] p-3">
-                  <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                    IBAN
+                <div className="rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
+                    Account / IFSC
                   </div>
-                  <div className="mt-1 font-numeric text-[12px]">{b.iban}</div>
+                  <div className="mt-1 font-numeric text-[13px] font-semibold text-foreground">{b.iban}</div>
                 </div>
-                <div className="mt-3 text-[11px] text-muted-foreground">Recent transfers</div>
-                <ul className="mt-1 space-y-1 text-[12px]">
+                <div className="mt-4 text-[12px] font-medium text-muted-foreground">Recent Transactions</div>
+                <ul className="mt-2 space-y-1.5 text-[12.5px]">
                   {b.lastSent && (
-                    <li className="flex justify-between">
-                      <span>{b.lastSent.date}</span>
-                      <span className="font-numeric">{fmt(b.lastSent.amount)}</span>
+                    <li className="flex justify-between border-b border-border/50 pb-1">
+                      <span className="text-muted-foreground">{b.lastSent.date}</span>
+                      <span className="font-numeric font-semibold text-foreground">{fmt(b.lastSent.amount, "₹", 0)}</span>
                     </li>
                   )}
                 </ul>
@@ -330,8 +318,8 @@ function Recipients({
             );
           })()
         ) : (
-          <div className="grid h-full place-items-center text-center text-[12px] text-muted-foreground">
-            Select a beneficiary to preview.
+          <div className="grid h-full place-items-center text-center text-[12.5px] text-muted-foreground">
+            Select a verified beneficiary from the list to preview details.
           </div>
         )}
       </aside>
@@ -372,22 +360,22 @@ function AmountStage({
   });
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-      <div className="rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.04] px-3 py-1 text-[11px] text-muted-foreground">
+    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="rounded-xl border border-border bg-card p-8 text-center shadow-xs">
+        <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1 text-[12px] text-foreground">
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="bg-transparent text-foreground focus:outline-none"
+            className="bg-transparent font-medium text-foreground focus:outline-none"
           >
             {currencies.map((cc) => (
-              <option key={cc.code} value={cc.code} className="bg-background">
+              <option key={cc.code} value={cc.code} className="bg-card text-foreground">
                 {cc.flag} {cc.code}
               </option>
             ))}
           </select>
         </div>
-        <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[72px] font-semibold tracking-tight">
+        <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[64px] font-bold tracking-tight text-foreground">
           <span className="text-muted-foreground">
             {currency === "INR" ? "₹" : currency === "USD" ? "$" : ""}
           </span>
@@ -397,76 +385,66 @@ function AmountStage({
             autoFocus
             value={amount}
             onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-            className="w-[360px] bg-transparent text-center focus:outline-none"
+            className="w-[320px] bg-transparent text-center focus:outline-none"
           />
         </div>
-        <div className="mt-3 text-[11px] text-muted-foreground">
-          Fee <span className="text-success">Free</span> · Arrives{" "}
-          <span className="text-foreground">Today · 14:32</span>
+        <div className="mt-3 text-[12px] text-muted-foreground">
+          Transfer Mode: <span className="font-semibold text-primary">IMPS Instant</span> · Charges:{" "}
+          <span className="font-semibold text-success">₹0.00 (Nil)</span>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          {["1000.00", "5000.00", "10000.00"].map((v) => (
+          {["1000.00", "5000.00", "10000.00", "25000.00"].map((v) => (
             <button
               key={v}
               onClick={() => setAmount(v)}
-              className="rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-lg border border-border bg-muted/30 px-3 py-1 text-[12px] font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
             >
-              {fmt(Number(v))}
+              {fmt(Number(v), "₹", 0)}
             </button>
           ))}
         </div>
       </div>
 
       <aside className="space-y-4">
-        <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-          <h3 className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            Live FX
+        <article className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <h3 className="mb-2 text-[11px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
+            Indicative FX Conversion
           </h3>
           <div className="flex items-center justify-between">
-            <span className="text-[13px]">{currency} → USD</span>
-            <span className="font-numeric text-[18px] font-semibold">${usd}</span>
-          </div>
-          <div className="mt-2 text-[10px] text-muted-foreground">
-            Rate <span className="font-numeric">{rate.toFixed(4)}</span> · spread 0.42%
+            <span className="text-[13px] font-medium text-muted-foreground">{currency} equivalent</span>
+            <span className="font-numeric text-[18px] font-bold text-foreground">${usd} USD</span>
           </div>
         </article>
 
-        <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5 space-y-3">
-          <Labelled label="Purpose">
+        <article className="rounded-xl border border-border bg-card p-5 shadow-xs space-y-3">
+          <Labelled label="Payment Purpose">
             <select
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
-              {["Rent", "Salary", "Gift", "Goods", "Services", "Family support"].map((p) => (
-                <option key={p} className="bg-background">
+              {["Rent", "Family Support", "Salary", "Vendor Payment", "Education Fee", "Investments"].map((p) => (
+                <option key={p} className="bg-card text-foreground">
                   {p}
                 </option>
               ))}
             </select>
           </Labelled>
-          <Labelled label="Note (optional)">
+          <Labelled label="Remarks / Note (Optional)">
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full rounded-lg bg-white/[0.04] px-3 py-2 text-[13px] focus:outline-none"
+              placeholder="e.g. June Maintenance"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </Labelled>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]">
-              <Calendar className="h-3 w-3" /> Schedule
-            </button>
-            <button className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 hover:bg-white/[0.08]">
-              <Repeat className="h-3 w-3" /> Repeat
-            </button>
-          </div>
         </article>
 
         <button
           onClick={onNext}
-          className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-accent/30 to-purple/25 px-5 py-3 font-display text-[14px] font-semibold text-accent transition-all hover:from-accent/40 hover:to-purple/35"
+          className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-display text-[14px] font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
         >
-          Review <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          Review Transfer <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </button>
       </aside>
     </div>
@@ -511,35 +489,35 @@ function ReviewStage({
 }) {
   return (
     <div className="grid place-items-center">
-      <article className="w-full max-w-[520px] rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.06] via-white/[0.025] to-transparent p-8 backdrop-blur-xl">
+      <article className="w-full max-w-[520px] rounded-xl border border-border bg-card p-8 shadow-sm">
         <header className="mb-6 flex items-center justify-between text-[11px]">
-          <span className="uppercase tracking-[0.2em] text-muted-foreground">Transfer ticket</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2 py-0.5 text-accent">
-            <Shield size={12} /> Aegis ready
+          <span className="uppercase font-bold tracking-[0.2em] text-muted-foreground">Transfer Confirmation</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
+            <Shield size={12} /> Behavioral Match Verified
           </span>
         </header>
 
         <dl className="space-y-3">
-          <Row k="From" v={`${from} · ••${fromIban}`} />
-          <Row k="To" v={`${to} · ${toBank} · ••${toLast4}`} />
-          <Row k="Amount" v={amount} big />
-          <Row k="Fee" v="Free · Arrives 14:32" />
+          <Row k="From Account" v={`${from} · A/C ••${fromIban}`} />
+          <Row k="Beneficiary" v={`${to} · ${toBank} · A/C ••${toLast4}`} />
+          <Row k="Transfer Amount" v={amount} big />
+          <Row k="Transaction Fee" v="₹0.00 (Free) · Arrives Instantly" />
           <Row k="Purpose" v={purpose} />
-          <Row k="Note" v={note || "—"} />
+          <Row k="Remarks" v={note || "—"} />
         </dl>
 
         <div className="mt-8 flex items-center justify-between gap-4">
           <button
             onClick={onEdit}
-            className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-3 text-[12px] text-muted-foreground hover:text-foreground"
+            className="rounded-lg border border-border bg-card px-5 py-2.5 text-[13px] font-medium text-foreground shadow-xs hover:bg-muted"
           >
-            Edit
+            Modify
           </button>
-          <PressHoldButton label="Hold to send" onComplete={onSend} />
+          <PressHoldButton label="Hold to Authorize & Send" onComplete={onSend} />
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          {sent ? "Sent. Verifying with Aegis…" : "Press and hold. Your session remains secure."}
+        <p className="mt-4 text-center text-[12px] text-muted-foreground">
+          {sent ? "Transfer authorized. Submitting to banking gateway…" : "Biometric session integrity will be verified upon authorization."}
         </p>
       </article>
     </div>
@@ -548,10 +526,10 @@ function ReviewStage({
 
 function Row({ k, v, big }: { k: string; v: string; big?: boolean }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-white/[0.04] pb-2 last:border-b-0">
-      <dt className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{k}</dt>
+    <div className="flex items-baseline justify-between gap-4 border-b border-border/60 pb-2.5 last:border-b-0">
+      <dt className="text-[11px] uppercase font-bold tracking-[0.14em] text-muted-foreground">{k}</dt>
       <dd
-        className={cn("font-numeric text-right", big ? "text-[28px] font-semibold" : "text-[13px]")}
+        className={cn("font-numeric text-right", big ? "text-[28px] font-bold text-foreground" : "text-[13.5px] font-medium text-foreground")}
       >
         {v}
       </dd>
@@ -572,31 +550,27 @@ function SuccessStage({
 }) {
   return (
     <div className="grid place-items-center py-10 text-center">
-      <div className="relative grid h-44 w-44 place-items-center">
-        <div className="absolute inset-0 rounded-full bg-success/15 blur-2xl" />
-        <SignatureGlyph seed={to} size={160} />
-        <span className="absolute inset-0 grid place-items-center">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-success text-background shadow-[0_0_20px_oklch(0.71_0.155_165/0.6)]">
-            <Check className="h-6 w-6" strokeWidth={3} />
-          </span>
+      <div className="relative grid h-28 w-28 place-items-center">
+        <span className="grid h-20 w-20 place-items-center rounded-full bg-success/15 text-success">
+          <Check className="h-10 w-10" strokeWidth={2.5} />
         </span>
       </div>
-      <h2 className="mt-6 font-display text-[28px] font-semibold tracking-tight">Sent.</h2>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        {to} will receive <span className="font-numeric text-foreground">{amount}</span> by 14:32.
+      <h2 className="mt-4 font-display text-[26px] font-bold tracking-tight text-foreground">Transfer Successful</h2>
+      <p className="mt-1 text-[14px] text-muted-foreground">
+        Payment of <span className="font-numeric font-bold text-foreground">{amount}</span> to <span className="font-semibold text-foreground">{to}</span> has been processed.
       </p>
-      <div className="mt-8 flex items-center gap-2">
+      <div className="mt-8 flex items-center gap-3">
         <button
           onClick={onAnother}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-[12px] hover:text-foreground"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-[13px] font-semibold text-foreground shadow-xs hover:bg-muted"
         >
-          Send another
+          Transfer Again
         </button>
         <button
           onClick={onDone}
-          className="rounded-xl bg-gradient-to-r from-accent/25 to-purple/20 px-4 py-2 text-[12px] font-medium text-accent"
+          className="rounded-lg bg-primary px-5 py-2 text-[13px] font-bold text-primary-foreground shadow-xs hover:bg-primary/90"
         >
-          Done
+          Return to Dashboard
         </button>
       </div>
     </div>

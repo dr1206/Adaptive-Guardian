@@ -72,12 +72,12 @@ function CursorTrail() {
     <svg viewBox="0 0 1000 320" className="block w-full">
       <defs>
         <pattern id="ct-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M40 0H0V40" fill="none" stroke="oklch(1 0 0 / 0.04)" />
+          <path d="M40 0H0V40" fill="none" stroke="#D9E1EA" strokeOpacity="0.4" />
         </pattern>
         <linearGradient id="ct-line" x1="0" x2="1">
-          <stop offset="0%" stopColor="oklch(0.715 0.135 215)" stopOpacity="0" />
-          <stop offset="50%" stopColor="oklch(0.715 0.135 215)" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="oklch(0.635 0.215 295)" stopOpacity="0" />
+          <stop offset="0%" stopColor="#0B3A82" stopOpacity="0.1" />
+          <stop offset="50%" stopColor="#0B3A82" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#2563A6" stopOpacity="0.1" />
         </linearGradient>
       </defs>
       <rect width="1000" height="320" fill="url(#ct-grid)" />
@@ -87,9 +87,9 @@ function CursorTrail() {
           d={p}
           fill="none"
           stroke="url(#ct-line)"
-          strokeWidth={1.6}
+          strokeWidth={2}
           strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 6px oklch(0.715 0.135 215))", opacity: 0.4 + i * 0.2 }}
+          style={{ opacity: 0.5 + i * 0.25 }}
         />
       ))}
     </svg>
@@ -106,18 +106,18 @@ function Heatmap() {
   });
   return (
     <div
-      className="grid gap-[2px]"
+      className="grid gap-[3px]"
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }}
     >
       {cells.map((v, i) => (
         <div
           key={i}
-          className="aspect-square rounded-[2px]"
+          className="aspect-square rounded-[3px]"
           style={{
             background:
               v < 0.02
-                ? "oklch(1 0 0 / 0.03)"
-                : `oklch(0.6 0.17 ${258 - v * 80} / ${0.2 + v * 0.7})`,
+                ? "rgba(11, 58, 130, 0.04)"
+                : `rgba(11, 58, 130, ${0.15 + v * 0.75})`,
           }}
         />
       ))}
@@ -138,8 +138,8 @@ function SpeedGraph() {
   }
   return (
     <svg viewBox="0 0 1000 200" className="block w-full">
-      <path d={p} fill="none" stroke="oklch(0.715 0.135 215 / 0.35)" strokeWidth="1" />
-      <path d={s} fill="none" stroke="oklch(0.655 0.195 258)" strokeWidth="2" />
+      <path d={p} fill="none" stroke="#94A3B8" strokeWidth="1" strokeDasharray="3 3" />
+      <path d={s} fill="none" stroke="#0B3A82" strokeWidth="2.5" />
     </svg>
   );
 }

@@ -171,6 +171,11 @@ async def store_features(
 
 async def get_progress(user_id: uuid.UUID) -> TrainingProgressResponse:
     """Return non-technical training progress for the participant UI."""
+    from app.domain.admin.models import BehavioralProfile
+    from app.domain.aegis.models import BehaviorWindow
+
+    profile = await BehavioralProfile.find_one(BehavioralProfile.user_id == user_id)
+
     total_sessions = await TrainingSession.find(
         TrainingSession.user_id == user_id,
         TrainingSession.status == "completed",
@@ -180,21 +185,186 @@ async def get_progress(user_id: uuid.UUID) -> TrainingProgressResponse:
         TrainingFeature.user_id == user_id,
     ).count()
 
-    # Determine status based on collected samples
-    if total_features == 0:
+    total_windows = await BehaviorWindow.find(
+        BehaviorWindow.user_id == user_id,
+    ).count()
+
+    total_samples = total_features + total_windows
+
+    if profile and profile.status == "MODEL_READY":
+        status = "MODEL_READY"
+        message = "Your personal behavioral profile is active and protecting your account."
+    elif total_samples == 0:
         status = "NOT_TRAINED"
-        message = "Complete the security setup to personalize your profile."
-    elif total_features < 10:
+        message = "Complete the security exercises below to record your fresh profile."
+    elif total_samples < 4:
         status = "TRAINING"
-        message = "Your security profile is being built. Keep using the app normally."
+        message = f"Recording your natural interactions ({total_samples} samples collected). Keep going."
     else:
         status = "BASELINE_READY"
-        message = "Your security profile is ready. You're fully protected."
+        message = f"Sufficient biometric data collected ({total_samples} samples). Ready to lock in your baseline."
 
     return TrainingProgressResponse(
         status=status,
         tasks_completed=total_sessions,
         total_tasks=4,
-        samples_collected=total_features,
+        samples_collected=total_samples,
         message=message,
     )
+
+
+async def reset_user_profile(user_id: uuid.UUID) -> dict[str, Any]:
+    """Wipe stale behavioral data, models, and return to fresh data collection mode."""
+    from app.domain.aegis.models import BehaviorWindow, Decision
+    from app.domain.admin.models import BehavioralProfile
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    # 1. Delete user documents from MongoDB
+    await BehaviorWindow.find(BehaviorWindow.user_id == user_id).delete()
+    await TrainingFeature.find(TrainingFeature.user_id == user_id).delete()
+    await TrainingEvent.find(TrainingEvent.user_id == user_id).delete()
+    await TrainingSession.find(TrainingSession.user_id == user_id).delete()
+    await Decision.find(Decision.user_id == user_id).delete()
+
+    # 2. Reset BehavioralProfile document
+    now = datetime.now(timezone.utc)
+    profile = await BehavioralProfile.find_one(BehavioralProfile.user_id == user_id)
+    if profile:
+        profile.status = "NOT_TRAINED"
+        profile.sample_count = 0
+        profile.accepted_windows_count = 0
+        profile.baseline_stats = {}
+        profile.updated_at = now
+        await profile.save()
+    else:
+        profile = BehavioralProfile(
+            user_id=user_id,
+            status="NOT_TRAINED",
+            sample_count=0,
+            accepted_windows_count=0,
+            baseline_stats={},
+            updated_at=now,
+        )
+        await profile.insert()
+
+    # 3. Reset in ML service (deletes models from disk and in-memory caches)
+    behavioral_ml_service.reset_user(str(user_id))
+
+    return {
+        "status": "ok",
+        "message": "Baseline profile and historical data cleared. Ready for fresh data collection.",
+    }
+
+
+async def enroll_user_profile(user_id: uuid.UUID) -> dict[str, Any]:
+    """Enroll fresh authentic samples from MongoDB into a personalized baseline and OC-SVM model."""
+    import numpy as np
+    import pandas as pd
+    from sklearn.svm import OneClassSVM
+    from app.domain.aegis.models import BehaviorWindow
+    from app.domain.admin.models import BehavioralProfile
+    from app.domain.security.ml_service import ALL_FEATURES, DEFAULT_BASELINE, behavioral_ml_service
+
+    windows = await BehaviorWindow.find(BehaviorWindow.user_id == user_id).to_list()
+    training_feats = await TrainingFeature.find(TrainingFeature.user_id == user_id).to_list()
+
+    features_list: list[dict[str, float]] = []
+
+    for w in windows:
+        if w.features and isinstance(w.features, dict):
+            features_list.append(w.features)
+
+    for tf in training_feats:
+        f_dict: dict[str, float] = {}
+        if tf.mean_key_hold and tf.mean_key_hold > 0:
+            f_dict["dwellMeanMs"] = float(tf.mean_key_hold)
+            f_dict["dwellStdMs"] = float(tf.std_key_hold or 12.0)
+        if tf.mean_flight_time and tf.mean_flight_time > 0:
+            f_dict["flightMeanMs"] = float(tf.mean_flight_time)
+            f_dict["flightStdMs"] = float(tf.std_flight_time or 15.0)
+        if tf.typing_speed and tf.typing_speed > 0:
+            f_dict["keysPerSec"] = float(tf.typing_speed)
+        if tf.mouse_speed_mean and tf.mouse_speed_mean > 0:
+            f_dict["velocityMean"] = float(tf.mouse_speed_mean * 1000)
+            f_dict["velocityStd"] = float((tf.mouse_speed_std or 0.1) * 1000)
+        if tf.mouse_acceleration is not None:
+            f_dict["accelerationMean"] = float(tf.mouse_acceleration)
+            f_dict["accelerationStd"] = 1.0
+        if tf.trajectory_length is not None:
+            f_dict["mouseTravelPx"] = float(tf.trajectory_length)
+        if f_dict:
+            features_list.append(f_dict)
+
+    if len(features_list) < 2:
+        return {
+            "status": "error",
+            "message": f"Need at least 2 behavioral samples to enroll (found {len(features_list)}). Please complete the exercises on the Training page first.",
+            "samples_collected": len(features_list),
+        }
+
+    # Aggregate genuine user baseline vector
+    computed_baseline: dict[str, float] = {}
+    baseline_stats_doc: dict[str, dict[str, float]] = {}
+
+    for feat in ALL_FEATURES:
+        vals = [float(f[feat]) for f in features_list if feat in f and f[feat] is not None and not np.isnan(f[feat])]
+        if not vals:
+            val_mean = DEFAULT_BASELINE.get(feat, 0.0)
+            val_std = 1.0
+        else:
+            val_mean = float(np.mean(vals))
+            val_std = float(np.std(vals)) if len(vals) > 1 else 1.0
+            if val_std < 1e-4:
+                val_std = max(1.0, abs(val_mean) * 0.1)
+
+        computed_baseline[feat] = round(val_mean, 4)
+        baseline_stats_doc[feat] = {"mean": round(val_mean, 4), "std": round(val_std, 4)}
+
+    # Build feature matrix
+    data_rows = []
+    for f in features_list:
+        row = [float(f.get(feat, computed_baseline[feat])) for feat in ALL_FEATURES]
+        data_rows.append(row)
+
+    # Synthesize variations if sample size is modest (< 25)
+    rng = np.random.default_rng(42)
+    while len(data_rows) < 25:
+        base_sample = data_rows[rng.integers(0, len(data_rows))]
+        noise = [rng.normal(0, max(0.01, abs(v) * 0.05)) for v in base_sample]
+        data_rows.append([max(0.0, v + n) for v, n in zip(base_sample, noise)])
+
+    df = pd.DataFrame(data_rows, columns=ALL_FEATURES)
+    scaled_matrix = behavioral_ml_service.scaler.transform(df)
+
+    ocsvm = OneClassSVM(kernel="rbf", gamma="scale", nu=0.08)
+    ocsvm.fit(scaled_matrix)
+
+    dfs = ocsvm.decision_function(scaled_matrix)
+    lb = float(np.percentile(dfs, 5))
+    ub = float(np.percentile(dfs, 95))
+    if ub <= lb:
+        ub = lb + 0.1
+    calib_bounds = {"lower_bound": lb, "upper_bound": ub}
+
+    # Register into running ML service & persist
+    uid_str = str(user_id).lower()
+    behavioral_ml_service.enroll_user(uid_str, computed_baseline, ocsvm, calib_bounds)
+
+    # Update MongoDB profile
+    now = datetime.now(timezone.utc)
+    profile = await BehavioralProfile.find_one(BehavioralProfile.user_id == user_id)
+    if not profile:
+        profile = BehavioralProfile(user_id=user_id)
+    profile.status = "MODEL_READY"
+    profile.sample_count = len(features_list)
+    profile.accepted_windows_count = len(features_list)
+    profile.baseline_stats = baseline_stats_doc
+    profile.updated_at = now
+    await profile.save()
+
+    return {
+        "status": "ok",
+        "message": f"Successfully enrolled profile using {len(features_list)} authentic behavioral samples!",
+        "samples_used": len(features_list),
+        "baseline": computed_baseline,
+    }

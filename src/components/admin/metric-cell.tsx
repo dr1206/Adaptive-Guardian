@@ -77,7 +77,7 @@ export function MetricCell({
 }) {
   const numericTarget = typeof value === "number" ? value : null;
   const animated = useCountUp(numericTarget ?? 0);
-  const tone = signalTone[signal];
+  const tone = signalTone[signal] ?? signalTone.ok;
 
   const display = typeof value === "string" ? value : fmt(animated, suffix);
 
@@ -94,8 +94,7 @@ export function MetricCell({
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] backdrop-blur-xl p-4",
-        "shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset] hover:border-white/[0.12] transition-colors",
+        "group relative rounded-xl border border-border bg-card p-4 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm",
         className,
       )}
     >

@@ -22,23 +22,10 @@ export function SigilCard({
   return (
     <article
       className={cn(
-        "group relative overflow-hidden rounded-[24px] border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] p-5 backdrop-blur-2xl",
-        "shadow-[0_30px_60px_-40px_rgba(0,0,0,0.6)]",
+        "group relative overflow-hidden rounded-xl border border-border bg-card p-5 shadow-xs transition-shadow hover:shadow-sm",
         className,
       )}
     >
-      <span
-        className="pointer-events-none absolute inset-0 rounded-[24px]"
-        style={{
-          background:
-            "linear-gradient(135deg, oklch(0.715 0.135 215 / 0.10), transparent 40%, oklch(0.635 0.215 295 / 0.08))",
-          mask: "linear-gradient(#000,#000) content-box, linear-gradient(#000,#000)",
-          padding: 1,
-          WebkitMask: "linear-gradient(#000,#000) content-box, linear-gradient(#000,#000)",
-          WebkitMaskComposite: "xor",
-          maskComposite: "exclude",
-        }}
-      />
       {(eyebrow || title || live || to || action) && (
         <header className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">

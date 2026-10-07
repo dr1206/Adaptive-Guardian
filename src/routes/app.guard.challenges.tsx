@@ -50,22 +50,22 @@ function Challenges() {
       />
 
       <section className="grid gap-5 lg:grid-cols-12">
-        <SigilCard className="lg:col-span-8" eyebrow="Filter" title="">
-          <div className="-mt-2 flex flex-wrap items-center gap-2">
-            <div className="flex flex-1 items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2">
-              <Search className="h-3.5 w-3.5 text-muted-foreground" />
+        <SigilCard className="lg:col-span-8" eyebrow="Activity Filter" title="Authentication Challenges">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-foreground shadow-xs">
+              <Search className="h-4 w-4 text-muted-foreground" />
               <input
-                placeholder="Search challenges…"
-                className="w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/60"
+                placeholder="Search challenges by reason or device…"
+                className="w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
               />
             </div>
             {["All", "Last 7d", "Last 30d", "OTP", "Biometric", "Device"].map((c, i) => (
               <button
                 key={c}
-                className={`rounded-full border px-3 py-1.5 text-[11.5px] ${
+                className={`rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
                   i === 0
-                    ? "border-accent/40 bg-accent/10 text-accent"
-                    : "border-white/[0.07] bg-white/[0.02] text-muted-foreground hover:text-foreground"
+                    ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {c}
@@ -77,27 +77,27 @@ function Challenges() {
             {ROWS.map((r, i) => (
               <li
                 key={i}
-                className="grid items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 sm:grid-cols-[1.6fr_auto_auto_1fr_auto]"
+                className="grid items-center gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 sm:grid-cols-[1.6fr_auto_auto_1fr_auto]"
               >
                 <div>
-                  <div className="text-[12.5px] font-medium">{r.reason}</div>
-                  <div className="font-numeric text-[11px] tabular-nums text-muted-foreground">
+                  <div className="text-[13px] font-semibold text-foreground">{r.reason}</div>
+                  <div className="font-numeric text-[11.5px] tabular-nums text-muted-foreground">
                     {r.t}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <ConfidenceRing value={r.before} size="sm" showShield={false} />
-                  <span className="text-[10px] text-muted-foreground">→</span>
+                  <span className="text-[11px] text-muted-foreground">→</span>
                   <ConfidenceRing value={r.after} size="sm" showShield={false} />
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] text-success">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-medium text-success">
                   <span className="h-1.5 w-1.5 rounded-full bg-success" />
                   {r.result}
                 </span>
-                <div className="text-[11.5px] text-muted-foreground">
+                <div className="text-[12px] text-muted-foreground">
                   {r.device} · {r.loc}
                 </div>
-                <button className="text-[11px] text-accent hover:underline">Open ↗</button>
+                <button className="text-[12px] font-medium text-primary hover:underline">Details →</button>
               </li>
             ))}
           </ul>

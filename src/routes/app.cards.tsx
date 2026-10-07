@@ -69,7 +69,7 @@ function CardsPage() {
               <div className="mt-6 flex items-center gap-3">
                 <button
                   onClick={() => setIdx((i) => Math.max(0, i - 1))}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-white/[0.08] bg-white/[0.03] disabled:opacity-30"
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-card text-foreground shadow-xs transition-colors hover:bg-muted disabled:opacity-30"
                   disabled={idx === 0}
                   aria-label="Previous card"
                 >
@@ -81,14 +81,14 @@ function CardsPage() {
                       key={i}
                       className={cn(
                         "h-1.5 rounded-full transition-all",
-                        i === idx ? "w-6 bg-accent" : "w-1.5 bg-white/15",
+                        i === idx ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30",
                       )}
                     />
                   ))}
                 </div>
                 <button
                   onClick={() => setIdx((i) => Math.min(cards.length - 1, i + 1))}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-white/[0.08] bg-white/[0.03] disabled:opacity-30"
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-card text-foreground shadow-xs transition-colors hover:bg-muted disabled:opacity-30"
                   disabled={idx === cards.length - 1}
                   aria-label="Next card"
                 >
@@ -98,32 +98,37 @@ function CardsPage() {
             </div>
 
             {/* Controls */}
-            <section className="mx-auto mt-6 max-w-2xl">
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Card Controls
+            <section className="mx-auto mt-6 max-w-2xl space-y-4">
+              <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+                <h3 className="mb-4 text-[11px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
+                  Card Security & Controls
                 </h3>
                 <button
                   onClick={toggleFreeze}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-2 py-3 text-left text-[13px] transition-colors hover:bg-white/[0.04]",
+                    "flex w-full items-center gap-3 rounded-lg border border-border bg-muted/20 p-3 text-left text-[13px] transition-colors hover:bg-muted/40",
                   )}
                 >
-                  <span className="grid h-8 w-8 place-items-center rounded-md bg-white/[0.04] text-muted-foreground">
+                  <span className="grid h-8 w-8 place-items-center rounded-md bg-primary/10 text-primary">
                     <Snowflake className="h-4 w-4" />
                   </span>
-                  <span className="flex-1 font-medium">
-                    {card.frozen ? "Unfreeze card" : "Freeze card"}
-                  </span>
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground">
+                      {card.frozen ? "Card Currently Frozen" : "Freeze Card Instantly"}
+                    </div>
+                    <div className="text-[11.5px] text-muted-foreground">
+                      Temporarily disable POS, ATM, and online transactions.
+                    </div>
+                  </div>
                   <span
                     className={cn(
                       "relative h-5 w-9 rounded-full transition-colors",
-                      card.frozen ? "bg-danger/50" : "bg-white/10",
+                      card.frozen ? "bg-danger" : "bg-muted-foreground/30",
                     )}
                   >
                     <span
                       className={cn(
-                        "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
+                        "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-xs transition-transform",
                         card.frozen ? "translate-x-[18px]" : "translate-x-0.5",
                       )}
                     />
@@ -132,13 +137,13 @@ function CardsPage() {
               </div>
 
               {/* Limits */}
-              <div className="mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-                <h3 className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Spending Limits
+              <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+                <h3 className="mb-4 text-[11px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
+                  Authorized Spending Limits
                 </h3>
-                <Limit label="Daily" used={card.limits.usedDaily} total={card.limits.daily} />
-                <Limit label="Monthly" used={card.limits.usedMonthly} total={card.limits.monthly} />
-                <Limit label="ATM" used={card.limits.usedAtm} total={card.limits.atm} />
+                <Limit label="Daily POS & E-Commerce" used={card.limits.usedDaily} total={card.limits.daily} />
+                <Limit label="Monthly Aggregate Limit" used={card.limits.usedMonthly} total={card.limits.monthly} />
+                <Limit label="Daily ATM Cash Withdrawal" used={card.limits.usedAtm} total={card.limits.atm} />
               </div>
             </section>
           </>
@@ -149,18 +154,18 @@ function CardsPage() {
 }
 
 function Limit({ label, used, total }: { label: string; used: number; total: number }) {
-  const pct = total === 0 ? 0 : (used / total) * 100;
+  const pct = total === 0 ? 0 : Math.min(100, (used / total) * 100);
   return (
-    <div className="mb-3">
-      <div className="mb-1 flex items-center justify-between text-[11px]">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-numeric">
+    <div className="mb-3.5">
+      <div className="mb-1 flex items-center justify-between text-[12px]">
+        <span className="font-medium text-foreground">{label}</span>
+        <span className="font-numeric font-semibold tabular-nums text-foreground">
           {fmt(used, "₹", 0)} / {fmt(total, "₹", 0)}
         </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent to-purple"
+          className="h-full rounded-full bg-primary"
           style={{ width: `${pct}%` }}
         />
       </div>

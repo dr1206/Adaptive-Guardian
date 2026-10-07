@@ -1,9 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowRight, Send, CreditCard, ListOrdered, Wallet } from "lucide-react";
-import { AsyncBoundary } from "@/components/ui/async-boundary";
+import {
+  ShieldCheck,
+  Send,
+  CreditCard,
+  ListOrdered,
+  Wallet,
+  ArrowRight,
+  TrendingUp,
+  Lock,
+  Smartphone,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 import { fmt, fmtShort } from "@/lib/format";
-import { useAccounts, useSession, useTransactions } from "@/services/hooks";
+import { useAccounts, useAegisSnapshot, useSession, useTransactions } from "@/services/hooks";
 import { cn } from "@/lib/utils";
 
 const search = z.object({ e: z.string().optional() });
@@ -14,154 +25,242 @@ export const Route = createFileRoute("/app/")({
 });
 
 const QUICK_ACTIONS = [
-  { label: "Transfer", icon: Send, to: "/app/transfer" },
-  { label: "Cards", icon: CreditCard, to: "/app/cards" },
-  { label: "Accounts", icon: Wallet, to: "/app/accounts" },
-  { label: "Transactions", icon: ListOrdered, to: "/app/transactions" },
+  { label: "Transfer Funds", desc: "IMPS / NEFT / RTGS", icon: Send, to: "/app/transfer" },
+  { label: "Manage Accounts", desc: "Savings & Checking", icon: Wallet, to: "/app/accounts" },
+  { label: "Cards Management", desc: "Debit & Credit Cards", icon: CreditCard, to: "/app/cards" },
+  { label: "Account Statement", desc: "Detailed records", icon: ListOrdered, to: "/app/transactions" },
 ];
 
 function DashboardPage() {
   const { e } = Route.useSearch();
-  const name = e ? deriveName(e) : "Test User";
   const { data: accounts } = useAccounts();
   const { data: session } = useSession();
-  const { data: transactions, isLoading, error } = useTransactions({ limit: 5 });
+  const { data: snapshot } = useAegisSnapshot();
+  const { data: transactions } = useTransactions({ limit: 6 });
 
-  const displayName = session?.displayName ?? name;
+  const displayName = session?.displayName ?? (e ? e.split("@")[0] : "Account Holder");
   const totalBalance = (accounts ?? []).reduce((s, a) => s + a.balance, 0);
-  const savings = (accounts ?? []).find((a) => a.type === "savings");
-  const primary = (accounts ?? []).find((a) => a.type === "primary");
+  const primary = (accounts ?? []).find((a) => a.type === "primary") ?? accounts?.[0];
+  const savings = (accounts ?? []).find((a) => a.type === "savings") ?? accounts?.[1];
+
+  const confPercent = snapshot?.confidence != null ? Math.round(snapshot.confidence * 100) : 98;
+  const isProtected = confPercent >= 70;
 
   return (
-    <div className="pb-16">
-      {/* Welcome header */}
-      <div className="mb-8">
-        <p className="text-[12px] uppercase tracking-[0.18em] text-muted-foreground">
-          Welcome back
-        </p>
-        <h1 className="mt-1 font-display text-[28px] font-semibold tracking-tight">
-          {displayName.split(" ")[0]}
-        </h1>
-      </div>
+    <div className="space-y-8">
+      {/* Top Welcome & Security Banner */}
+      <div className="bg-white rounded-lg border border-[#D9E1EA] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span className="text-xs font-semibold text-[#2563A6] uppercase tracking-wider">
+            Internet Banking Portal
+          </span>
+          <h1 className="text-2xl font-bold text-[#082A5C] mt-1">
+            Welcome back, {displayName}
+          </h1>
+          <p className="text-sm text-[#667085] mt-1">
+            Your account is actively protected by Adaptive Guardian continuous behavioral authentication.
+          </p>
+        </div>
 
-      {/* Balance card */}
-      <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.06] via-white/[0.03] to-transparent p-6">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          Total Balance
-        </p>
-        <p className="mt-2 font-numeric text-[36px] font-semibold tracking-tight">
-          {fmtShort(totalBalance)}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-4">
-          {primary && (
-            <div className="flex-1 rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                Salary
-              </p>
-              <p className="mt-1 font-numeric text-[16px] font-semibold">
-                {fmtShort(primary.balance)}
-              </p>
+        {/* Real Security Health Badge */}
+        <div className="flex items-center gap-4 bg-[#F5F7FA] border border-[#D9E1EA] rounded-lg p-4 shrink-0">
+          <div className="p-3 bg-white rounded-full border border-[#D9E1EA] text-[#16845B]">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block size-2 rounded-full bg-[#16845B]" />
+              <span className="text-xs font-bold text-[#16845B] uppercase tracking-wider">
+                {isProtected ? "Protected & Verified" : "Review Elevated"}
+              </span>
             </div>
-          )}
-          {savings && (
-            <div className="flex-1 rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                Savings
-              </p>
-              <p className="mt-1 font-numeric text-[16px] font-semibold">
-                {fmtShort(savings.balance)}
-              </p>
+            <div className="text-sm font-semibold text-[#172033] mt-0.5">
+              Behavioral Match: {confPercent}%
             </div>
-          )}
+            <div className="text-xs text-[#667085]">
+              Continuous keystroke & mouse dynamics
+            </div>
+          </div>
+          <Link
+            to="/app/guard"
+            className="text-xs font-semibold text-[#0B3A82] hover:underline ml-2"
+          >
+            Details
+          </Link>
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div className="mt-8">
-        <h2 className="mb-3 text-[12px] uppercase tracking-[0.18em] text-muted-foreground">
-          Quick Actions
+      {/* Account Balances Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Total Net Balance Card */}
+        <div className="bg-[#0B3A82] text-white rounded-lg p-6 shadow-sm relative overflow-hidden">
+          <div className="flex justify-between items-start">
+            <span className="text-xs font-medium text-white/80 uppercase tracking-wider">
+              Total Consolidated Balance
+            </span>
+            <Wallet className="w-5 h-5 text-white/60" />
+          </div>
+          <div className="mt-4 text-3xl font-bold font-numeric tracking-tight">
+            {fmt(totalBalance)}
+          </div>
+          <div className="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs text-white/80">
+            <span>Customer ID: {session?.userId?.slice(0, 8) ?? "AGB-8831"}</span>
+            <span className="text-emerald-300 font-medium">All Accounts Active</span>
+          </div>
+        </div>
+
+        {/* Primary Checking Account */}
+        <div className="bg-white rounded-lg border border-[#D9E1EA] p-6 shadow-xs">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-semibold text-[#667085] uppercase tracking-wider">
+                Primary Salary Account
+              </span>
+              <div className="text-xs text-[#98A2B3] mt-0.5">
+                A/C No: •••• {primary?.accountNumber?.slice(-4) ?? "4921"}
+              </div>
+            </div>
+            <span className="text-xs bg-emerald-50 text-[#16845B] border border-emerald-200 font-medium px-2 py-0.5 rounded">
+              Operating
+            </span>
+          </div>
+          <div className="mt-4 text-2xl font-bold text-[#172033] font-numeric">
+            {fmt(primary?.balance ?? 0)}
+          </div>
+          <div className="mt-4 pt-4 border-t border-[#D9E1EA] flex justify-between items-center text-xs">
+            <span className="text-[#667085]">Available Balance</span>
+            <Link to="/app/accounts" className="text-[#0B3A82] font-semibold hover:underline">
+              View Statement
+            </Link>
+          </div>
+        </div>
+
+        {/* Savings Account */}
+        <div className="bg-white rounded-lg border border-[#D9E1EA] p-6 shadow-xs">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-semibold text-[#667085] uppercase tracking-wider">
+                High-Yield Savings
+              </span>
+              <div className="text-xs text-[#98A2B3] mt-0.5">
+                A/C No: •••• {savings?.accountNumber?.slice(-4) ?? "8104"}
+              </div>
+            </div>
+            <span className="text-xs bg-blue-50 text-[#0B3A82] border border-blue-200 font-medium px-2 py-0.5 rounded">
+              Savings
+            </span>
+          </div>
+          <div className="mt-4 text-2xl font-bold text-[#172033] font-numeric">
+            {fmt(savings?.balance ?? 0)}
+          </div>
+          <div className="mt-4 pt-4 border-t border-[#D9E1EA] flex justify-between items-center text-xs">
+            <span className="text-[#667085]">Interest Rate: 4.25% p.a.</span>
+            <Link to="/app/accounts" className="text-[#0B3A82] font-semibold hover:underline">
+              Manage
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Banking Actions */}
+      <div>
+        <h2 className="text-base font-bold text-[#082A5C] mb-4">
+          Quick Banking Services
         </h2>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.label}
                 to={action.to}
-                className="flex flex-col items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-center transition-colors hover:border-accent/30 hover:bg-accent/[0.04]"
+                className="bg-white border border-[#D9E1EA] rounded-lg p-4 hover:border-[#0B3A82] hover:shadow-xs transition-all flex items-start gap-3.5 group"
               >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10">
-                  <Icon className="h-5 w-5 text-accent" />
-                </span>
-                <span className="text-[11px] font-medium text-foreground/80">{action.label}</span>
+                <div className="p-2.5 bg-[#EEF2F6] text-[#0B3A82] group-hover:bg-[#0B3A82] group-hover:text-white rounded-lg transition-colors">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-[#172033] group-hover:text-[#0B3A82]">
+                    {action.label}
+                  </div>
+                  <div className="text-xs text-[#667085] mt-0.5">
+                    {action.desc}
+                  </div>
+                </div>
               </Link>
             );
           })}
         </div>
       </div>
 
-      {/* Recent transactions */}
-      <div className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[12px] uppercase tracking-[0.18em] text-muted-foreground">
-            Recent Transactions
-          </h2>
+      {/* Recent Transactions Table */}
+      <div className="bg-white rounded-lg border border-[#D9E1EA] shadow-xs overflow-hidden">
+        <div className="p-5 border-b border-[#D9E1EA] flex justify-between items-center">
+          <div>
+            <h2 className="text-base font-bold text-[#082A5C]">
+              Recent Account Activity
+            </h2>
+            <p className="text-xs text-[#667085] mt-0.5">
+              Live ledger entries verified under continuous session protection
+            </p>
+          </div>
           <Link
             to="/app/transactions"
-            className="inline-flex items-center gap-1 text-[11px] text-accent"
+            className="text-xs font-semibold text-[#0B3A82] hover:underline flex items-center gap-1"
           >
-            View all <ArrowRight className="h-3 w-3" />
+            Detailed Ledger <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <AsyncBoundary
-          isLoading={isLoading}
-          error={error}
-          isEmpty={!transactions || transactions.length === 0}
-          emptyLabel="No recent transactions."
-        >
-          <div className="overflow-hidden rounded-2xl border border-white/[0.05]">
-            {(transactions ?? []).slice(0, 5).map((tx) => (
-              <div
-                key={tx.id}
-                className="flex items-center justify-between border-b border-white/[0.04] px-4 py-3 last:border-b-0"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="grid h-9 w-9 place-items-center rounded-xl text-[10px] font-semibold"
-                    style={{
-                      background: "oklch(0.355 0.05 215 / 0.4)",
-                      color: "oklch(0.95 0.04 215)",
-                    }}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-[#F5F7FA] text-xs font-semibold text-[#667085] uppercase tracking-wider border-b border-[#D9E1EA]">
+              <tr>
+                <th className="py-3 px-5">Date & Time</th>
+                <th className="py-3 px-5">Description</th>
+                <th className="py-3 px-5">Category</th>
+                <th className="py-3 px-5">Type</th>
+                <th className="py-3 px-5 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#D9E1EA]">
+              {(transactions ?? []).slice(0, 6).map((tx) => (
+                <tr key={tx.id} className="hover:bg-[#F9FBFC] transition-colors">
+                  <td className="py-3.5 px-5 text-xs text-[#667085] whitespace-nowrap">
+                    {tx.time}
+                  </td>
+                  <td className="py-3.5 px-5 font-medium text-[#172033]">
+                    {tx.merchant}
+                  </td>
+                  <td className="py-3.5 px-5 text-xs text-[#667085]">
+                    {tx.category}
+                  </td>
+                  <td className="py-3.5 px-5 text-xs">
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                        tx.amount >= 0
+                          ? "bg-emerald-50 text-[#16845B] border border-emerald-200"
+                          : "bg-gray-100 text-[#475467] border border-gray-200",
+                      )}
+                    >
+                      {tx.amount >= 0 ? "Credit" : "Debit"}
+                    </span>
+                  </td>
+                  <td
+                    className={cn(
+                      "py-3.5 px-5 text-right font-semibold font-numeric",
+                      tx.amount >= 0 ? "text-[#16845B]" : "text-[#172033]",
+                    )}
                   >
-                    {tx.merchant.slice(0, 2).toUpperCase()}
-                  </span>
-                  <div>
-                    <div className="text-[13px] font-medium">{tx.merchant}</div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {tx.category} · {tx.time}
-                    </div>
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    "font-numeric text-[14px] font-medium",
-                    tx.amount >= 0 ? "text-success" : "text-foreground",
-                  )}
-                >
-                  {fmt(tx.amount)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </AsyncBoundary>
+                    {fmt(tx.amount)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-}
-
-function deriveName(email: string) {
-  const local = email.split("@")[0] ?? "";
-  const first = local.split(/[._-]/)[0];
-  return first ? first[0].toUpperCase() + first.slice(1) : "Member";
 }

@@ -35,6 +35,7 @@ export interface ScrollEvent {
 }
 
 export interface FeatureWindow {
+  windowId: string;
   windowStart: number;
   windowEnd: number;
   dwellMeanMs: number;
@@ -61,6 +62,18 @@ export interface DeviceInfo {
   timezone: string;
 }
 
+export interface VerificationProgress {
+  attemptId: string;
+  windowId: string;
+  startedAt: number;
+  keystrokes: number;
+  mouseMoves: number;
+  clicks: number;
+  mouseTravelPx: number;
+  durationSec: number;
+  isReady: boolean;
+}
+
 export interface CollectorStatus {
   state: "idle" | "collecting" | "paused";
   keystrokesCaptured: number;
@@ -68,6 +81,21 @@ export interface CollectorStatus {
   windowsSent: number;
   windowsBuffered: number;
   uptimeMs: number;
+  windowRemainingSec: number;
+  windowElapsedSec: number;
+  windowDurationSec: number;
+  lastDwellMs: number;
+  lastFlightMs: number;
+  meanDwellMs: number;
+  meanFlightMs: number;
+  keysPerSec: number;
+  mouseVelocityPxS: number;
+  mouseTravelPx: number;
+  clicksCaptured: number;
+  mouseX: number;
+  mouseY: number;
+  lastActivityAt: number;
+  verification?: VerificationProgress | null;
 }
 
 export interface BehavioralSessionDump {
@@ -79,7 +107,9 @@ export interface BehavioralSessionDump {
   windows: FeatureWindow[];
 }
 
-const FLUSH_INTERVAL_MS = 30000;
+/** Canonical production behavioral window duration in seconds */
+export const BEHAVIOR_WINDOW_SECONDS = 30;
+export const FLUSH_INTERVAL_MS = BEHAVIOR_WINDOW_SECONDS * 1000;
 const MAX_BUFFERED_WINDOWS = 60;
 const MAX_VELOCITY_PX_MS = 8;
 /** Max time a key can be held before its entry is considered stale (ms). */
@@ -105,12 +135,33 @@ export class BehavioralCollector {
   private mouseTravelPx = 0;
   private mouseEventCount = 0;
 
+  // Active verification window buffers (fresh isolated state)
+  private verificationAttemptId: string | null = null;
+  private verificationWindowId: string | null = null;
+  private verificationStartedAt = 0;
+  private verificationKeyDownTimes = new Map<number, number>();
+  private verificationDwellTimes: number[] = [];
+  private verificationFlightTimes: number[] = [];
+  private verificationLastKeyDownAt = 0;
+  private verificationMouseSamples: MouseMoveSample[] = [];
+  private verificationClicks: MouseClickEvent[] = [];
+  private verificationScrolls: ScrollEvent[] = [];
+  private verificationMouseTravelPx = 0;
+
   // Window management
-  private currentWindowStart = 0;
+  private currentWindowStartWall = 0;
   private bufferedWindows: FeatureWindow[] = [];
   private windowsSent = 0;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private startedAt = 0;
+
+  // Real-time micro-telemetry snapshot state
+  private lastDwellTime = 0;
+  private lastFlightTime = 0;
+  private lastMouseX = 0;
+  private lastMouseY = 0;
+  private lastVelocityPxS = 0;
+  private lastActivityAt = 0;
 
   // Bound handlers for cleanup
   private onKeyDown: (e: KeyboardEvent) => void;
@@ -139,7 +190,7 @@ export class BehavioralCollector {
     this.onFlush = onFlush;
     this.state = "collecting";
     this.startedAt = Date.now();
-    this.currentWindowStart = performance.now();
+    this.currentWindowStartWall = Date.now();
 
     // Reset session-level accumulators
     this.mouseTravelPx = 0;
@@ -147,6 +198,12 @@ export class BehavioralCollector {
     this.mouseEventCount = 0;
     this.windowsSent = 0;
     this.bufferedWindows = [];
+    this.lastDwellTime = 0;
+    this.lastFlightTime = 0;
+    this.lastMouseX = 0;
+    this.lastMouseY = 0;
+    this.lastVelocityPxS = 0;
+    this.lastActivityAt = Date.now();
 
     document.addEventListener("keydown", this.onKeyDown, { passive: true });
     document.addEventListener("keyup", this.onKeyUp, { passive: true });
@@ -209,6 +266,31 @@ export class BehavioralCollector {
   }
 
   getStatus(): CollectorStatus {
+    const nowWall = Date.now();
+    const elapsedMs = this.currentWindowStartWall ? Math.max(0, nowWall - this.currentWindowStartWall) : 0;
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+    const durationSec = BEHAVIOR_WINDOW_SECONDS;
+    const remainingSec = Math.max(0, durationSec - (elapsedSec % durationSec));
+
+    const dwellAvg = this.dwellTimes.length ? Math.round(mean(this.dwellTimes)) : 0;
+    const flightAvg = this.flightTimes.length ? Math.round(mean(this.flightTimes)) : 0;
+    const windowSec = Math.max(elapsedSec % durationSec, 1);
+    const kps = round(this.dwellTimes.length / windowSec, 1);
+
+    const activeVerification = this.verificationAttemptId
+      ? {
+          attemptId: this.verificationAttemptId,
+          windowId: this.verificationWindowId || "",
+          startedAt: this.verificationStartedAt,
+          keystrokes: this.verificationDwellTimes.length,
+          mouseMoves: this.verificationMouseSamples.length,
+          clicks: this.verificationClicks.length,
+          mouseTravelPx: Math.round(this.verificationMouseTravelPx),
+          durationSec: Math.floor((nowWall - this.verificationStartedAt) / 1000),
+          isReady: this.isVerificationReady(),
+        }
+      : null;
+
     return {
       state: this.state,
       keystrokesCaptured: this.keyStrokeCount,
@@ -216,7 +298,163 @@ export class BehavioralCollector {
       windowsSent: this.windowsSent,
       windowsBuffered: this.bufferedWindows.length,
       uptimeMs: this.startedAt ? Date.now() - this.startedAt : 0,
+      windowRemainingSec: remainingSec,
+      windowElapsedSec: elapsedSec % durationSec,
+      windowDurationSec: durationSec,
+      lastDwellMs: this.lastDwellTime,
+      lastFlightMs: this.lastFlightTime,
+      meanDwellMs: dwellAvg,
+      meanFlightMs: flightAvg,
+      keysPerSec: kps,
+      mouseVelocityPxS: this.lastVelocityPxS,
+      mouseTravelPx: Math.round(this.mouseTravelPx),
+      clicksCaptured: this.clickEvents.length,
+      mouseX: this.lastMouseX,
+      mouseY: this.lastMouseY,
+      lastActivityAt: this.lastActivityAt,
+      verification: activeVerification,
     };
+  }
+
+  /**
+   * Start a brand new, isolated verification window with a unique attempt ID.
+   * Does NOT flush the suspicious continuous window into verification.
+   * Continuous monitoring keeps running in parallel.
+   */
+  startVerificationWindow(attemptId: string): string {
+    const nowWall = Date.now();
+    const sessionId = getCurrentSessionId() || "sess";
+    const windowId = `verif-${attemptId}-${nowWall}`;
+
+    this.verificationAttemptId = attemptId;
+    this.verificationWindowId = windowId;
+    this.verificationStartedAt = nowWall;
+    this.verificationDwellTimes = [];
+    this.verificationFlightTimes = [];
+    this.verificationLastKeyDownAt = 0;
+    this.verificationKeyDownTimes.clear();
+    this.verificationMouseSamples = [];
+    this.verificationClicks = [];
+    this.verificationScrolls = [];
+    this.verificationMouseTravelPx = 0;
+
+    console.debug(`[BehavioralCollector] Started new verification window ${windowId} (attempt: ${attemptId})`);
+    return windowId;
+  }
+
+  /**
+   * Check if current verification window meets minimum behavioral signal requirements:
+   * at least 4 keystrokes OR (15 mouse moves AND 20px travel) OR 2 clicks.
+   */
+  isVerificationReady(): boolean {
+    if (!this.verificationAttemptId) return false;
+    const keyCount = this.verificationDwellTimes.length;
+    const mouseCount = this.verificationMouseSamples.length;
+    const clickCount = this.verificationClicks.length;
+    const travel = this.verificationMouseTravelPx;
+
+    const hasBalancedSample = keyCount >= 4 && (mouseCount >= 10 || travel >= 20);
+    const hasSufficientKeys = keyCount >= 6;
+    const hasSufficientMouse = mouseCount >= 25 && travel >= 80;
+    const hasMinimum = keyCount >= 4 || (mouseCount >= 15 && travel >= 20) || clickCount >= 2;
+
+    return hasBalancedSample || hasSufficientKeys || hasSufficientMouse || hasMinimum;
+  }
+
+  /**
+   * Get telemetry progress for active verification window.
+   */
+  getVerificationProgress(): {
+    attemptId: string;
+    windowId: string;
+    keystrokes: number;
+    mouseMoves: number;
+    clicks: number;
+    mouseTravelPx: number;
+    durationSec: number;
+    isReady: boolean;
+  } | null {
+    if (!this.verificationAttemptId) return null;
+    const nowWall = Date.now();
+    return {
+      attemptId: this.verificationAttemptId,
+      windowId: this.verificationWindowId || "",
+      startedAt: this.verificationStartedAt,
+      keystrokes: this.verificationDwellTimes.length,
+      mouseMoves: this.verificationMouseSamples.length,
+      clicks: this.verificationClicks.length,
+      mouseTravelPx: Math.round(this.verificationMouseTravelPx),
+      durationSec: Math.max(0, Math.floor((nowWall - this.verificationStartedAt) / 1000)),
+      isReady: this.isVerificationReady(),
+    } as any;
+  }
+
+  /**
+   * Freeze and build the verification FeatureWindow from fresh isolated buffers.
+   * Returns null if verification has not collected minimum data or was cancelled.
+   */
+  freezeVerificationWindow(): FeatureWindow | null {
+    if (!this.verificationAttemptId || !this.isVerificationReady()) {
+      return null;
+    }
+
+    const windowStart = this.verificationStartedAt;
+    const windowEnd = Math.max(Date.now(), windowStart + 100);
+    const windowDurationMs = windowEnd - windowStart;
+
+    const dwells = [...this.verificationDwellTimes];
+    const flights = [...this.verificationFlightTimes];
+    const clicks = [...this.verificationClicks];
+    const scrolls = [...this.verificationScrolls];
+    const mouseSnapshot = [...this.verificationMouseSamples];
+    const mouseTravelPx = this.verificationMouseTravelPx;
+    const windowId = this.verificationWindowId || `verif-${this.verificationAttemptId}-${windowStart}`;
+
+    const features = this.computeFeatures(
+      dwells,
+      flights,
+      clicks.length,
+      scrolls,
+      mouseSnapshot,
+      windowDurationMs,
+      mouseTravelPx,
+    );
+
+    // Reset verification window state after freezing
+    this.cancelVerificationWindow();
+
+    const featureWindow: FeatureWindow = {
+      windowId,
+      windowStart,
+      windowEnd,
+      ...features,
+      deviceInfo: this.getDeviceInfo(),
+    };
+
+    console.debug(`[BehavioralCollector] Froze verification window ${windowId}`, {
+      keys: dwells.length,
+      mouse: mouseSnapshot.length,
+      travel: mouseTravelPx,
+    });
+
+    return featureWindow;
+  }
+
+  /**
+   * Cancel / clean up active verification window without building a window.
+   */
+  cancelVerificationWindow(): void {
+    this.verificationAttemptId = null;
+    this.verificationWindowId = null;
+    this.verificationStartedAt = 0;
+    this.verificationDwellTimes = [];
+    this.verificationFlightTimes = [];
+    this.verificationLastKeyDownAt = 0;
+    this.verificationKeyDownTimes.clear();
+    this.verificationMouseSamples = [];
+    this.verificationClicks = [];
+    this.verificationScrolls = [];
+    this.verificationMouseTravelPx = 0;
   }
 
   /** Returns all buffered (unflushed) feature windows without clearing them. */
@@ -259,28 +497,83 @@ export class BehavioralCollector {
     if (this.lastKeyDownAt > 0) {
       const flight = Math.min(2000, now - this.lastKeyDownAt);
       this.flightTimes.push(flight);
+      this.lastFlightTime = Math.round(flight);
     }
     this.lastKeyDownAt = now;
+    this.lastActivityAt = Date.now();
     this.keyStrokeCount++;
+
+    // Mirror to active verification window if running
+    if (this.verificationAttemptId) {
+      this.verificationKeyDownTimes.set(e.keyCode, now);
+      if (this.verificationLastKeyDownAt > 0) {
+        const vFlight = Math.min(2000, now - this.verificationLastKeyDownAt);
+        this.verificationFlightTimes.push(vFlight);
+      }
+      this.verificationLastKeyDownAt = now;
+    }
   }
 
   private handleKeyUp(e: KeyboardEvent): void {
     const downAt = this.keyDownTimes.get(e.keyCode);
-    if (downAt == null) return;
+    const vDownAt = this.verificationAttemptId ? this.verificationKeyDownTimes.get(e.keyCode) : null;
 
     const now = performance.now();
-    const dwell = Math.min(2000, now - downAt);
-    this.dwellTimes.push(dwell);
-    this.keyDownTimes.delete(e.keyCode);
+    if (downAt != null) {
+      const dwell = Math.min(2000, now - downAt);
+      this.dwellTimes.push(dwell);
+      this.lastDwellTime = Math.round(dwell);
+      this.lastActivityAt = Date.now();
+      this.keyDownTimes.delete(e.keyCode);
+    }
+
+    if (this.verificationAttemptId && vDownAt != null) {
+      const vDwell = Math.min(2000, now - vDownAt);
+      this.verificationDwellTimes.push(vDwell);
+      this.verificationKeyDownTimes.delete(e.keyCode);
+    }
   }
 
   private handleMouseMove(e: MouseEvent): void {
+    const nowPerf = performance.now();
     this.mouseSamples.push({
       x: e.clientX,
       y: e.clientY,
-      timestamp: performance.now(),
+      timestamp: nowPerf,
     });
     this.mouseEventCount++;
+    this.lastMouseX = Math.round(e.clientX);
+    this.lastMouseY = Math.round(e.clientY);
+    this.lastActivityAt = Date.now();
+
+    const n = this.mouseSamples.length;
+    if (n >= 2) {
+      const prev = this.mouseSamples[n - 2];
+      const dt = nowPerf - prev.timestamp;
+      if (dt > 0) {
+        const dx = e.clientX - prev.x;
+        const dy = e.clientY - prev.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const vel = Math.min((dist / dt) * 1000, 8000);
+        this.lastVelocityPxS = Math.round(vel);
+      }
+    }
+
+    // Mirror to active verification window if running
+    if (this.verificationAttemptId) {
+      this.verificationMouseSamples.push({
+        x: e.clientX,
+        y: e.clientY,
+        timestamp: nowPerf,
+      });
+      const vn = this.verificationMouseSamples.length;
+      if (vn >= 2) {
+        const vPrev = this.verificationMouseSamples[vn - 2];
+        const vDx = e.clientX - vPrev.x;
+        const vDy = e.clientY - vPrev.y;
+        this.verificationMouseTravelPx += Math.sqrt(vDx * vDx + vDy * vDy);
+      }
+    }
 
     // Keep buffer bounded
     if (this.mouseSamples.length > 2000) {
@@ -297,13 +590,21 @@ export class BehavioralCollector {
   }
 
   private handleClick(e: MouseEvent): void {
-    this.clickEvents.push({
+    const clickEvent: MouseClickEvent = {
       x: e.clientX,
       y: e.clientY,
       button: e.button,
       timestamp: performance.now(),
-    });
+    };
+    this.clickEvents.push(clickEvent);
     this.mouseEventCount++;
+    this.lastMouseX = Math.round(e.clientX);
+    this.lastMouseY = Math.round(e.clientY);
+    this.lastActivityAt = Date.now();
+
+    if (this.verificationAttemptId) {
+      this.verificationClicks.push(clickEvent);
+    }
 
     if (this.clickEvents.length > 200) {
       this.clickEvents.splice(0, 100);
@@ -311,11 +612,16 @@ export class BehavioralCollector {
   }
 
   private handleWheel(e: WheelEvent): void {
-    this.scrollDeltas.push({
+    const scrollEv: ScrollEvent = {
       deltaY: e.deltaY,
       timestamp: performance.now(),
-    });
+    };
+    this.scrollDeltas.push(scrollEv);
     this.mouseEventCount++;
+
+    if (this.verificationAttemptId) {
+      this.verificationScrolls.push(scrollEv);
+    }
 
     if (this.scrollDeltas.length > 200) {
       this.scrollDeltas.splice(0, 100);
@@ -343,14 +649,15 @@ export class BehavioralCollector {
   // ---------------------------------------------------------------------------
 
   private rotateWindow(): void {
-    const now = performance.now();
-    const windowEnd = now;
-    const windowStart = this.currentWindowStart;
-    const windowDurationMs = now - this.currentWindowStart;
+    const nowWall = Date.now();
+    const windowStart = this.currentWindowStartWall || (nowWall - FLUSH_INTERVAL_MS);
+    const windowEnd = Math.max(nowWall, windowStart + 100);
+    const windowDurationMs = windowEnd - windowStart;
 
     // Clean stale keydown entries (keydown fired but keyup never arrived)
+    const nowPerf = performance.now();
     for (const [keyCode, downAt] of this.keyDownTimes) {
-      if (now - downAt > STALE_KEYDOWN_MS) {
+      if (nowPerf - downAt > STALE_KEYDOWN_MS) {
         this.keyDownTimes.delete(keyCode);
       }
     }
@@ -378,14 +685,18 @@ export class BehavioralCollector {
       windowMouseTravel,
     );
 
+    const sessionId = getCurrentSessionId() || "sess";
+    const windowId = `${sessionId}-${Math.round(windowStart)}-${Math.round(windowEnd)}`;
+
     this.bufferedWindows.push({
+      windowId,
       windowStart,
       windowEnd,
       ...features,
       deviceInfo: this.getDeviceInfo(),
     });
 
-    this.currentWindowStart = windowEnd;
+    this.currentWindowStartWall = windowEnd;
 
     // Flush if buffer is full
     if (this.bufferedWindows.length >= MAX_BUFFERED_WINDOWS) {
@@ -449,6 +760,8 @@ export class BehavioralCollector {
     const accelerations: number[] = [];
     const curvatures: number[] = [];
 
+    const MAX_VELOCITY_PX_S = 8000;
+
     for (let i = 1; i < samples.length; i++) {
       const dt = samples[i].timestamp - samples[i - 1].timestamp;
       if (dt <= 0) continue;
@@ -456,10 +769,11 @@ export class BehavioralCollector {
       const dx = samples[i].x - samples[i - 1].x;
       const dy = samples[i].y - samples[i - 1].y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const vel = Math.min(dist / dt, MAX_VELOCITY_PX_MS);
+      // Velocity in pixels per second (px/s), capped at 8000 px/s (8 px/ms)
+      const vel = Math.min((dist / dt) * 1000, MAX_VELOCITY_PX_S);
       velocities.push(vel);
 
-      // Acceleration
+      // Acceleration: change in px/s per millisecond (px/s/ms)
       if (i >= 2 && velocities.length >= 2) {
         const prevVel = velocities[velocities.length - 2];
         const accDt = samples[i].timestamp - samples[i - 2].timestamp;

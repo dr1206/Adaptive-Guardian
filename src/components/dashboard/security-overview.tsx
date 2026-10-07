@@ -147,23 +147,23 @@ export function SecurityOverview() {
   ];
 
   return (
-    <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5 backdrop-blur-xl">
+    <article className="rounded-xl border border-border bg-card p-5 shadow-xs">
       <header className="mb-4 flex items-end justify-between">
         <div>
-          <h3 className="font-display text-[15px] font-semibold tracking-tight">
-            Security overview
+          <h3 className="font-display text-[15px] font-semibold tracking-tight text-foreground">
+            Security Overview
           </h3>
 
-          <p className="text-[11px] text-muted-foreground">
-            All systems nominal · Aegis last refreshed 4m ago
+          <p className="text-[12px] text-muted-foreground">
+            All behavioral biometric defenses active & continuously protecting your account.
           </p>
         </div>
 
         <Link
           to="/app/guard"
-          className="text-[11px] text-accent hover:text-foreground"
+          className="text-[12px] font-medium text-primary hover:underline"
         >
-          Open Security Center →
+          Security Details →
         </Link>
       </header>
 
@@ -190,7 +190,7 @@ export function SecurityOverview() {
           return (
             <div
               key={c.title}
-              className="group rounded-xl border border-white/[0.05] bg-white/[0.015] p-3.5 transition-colors hover:border-success/30"
+              className="group rounded-lg border border-border bg-muted/20 p-3.5 transition-all hover:border-primary/40 hover:bg-muted/30"
             >
               <div className="flex items-center justify-between">
                 <span
@@ -200,7 +200,7 @@ export function SecurityOverview() {
                 </span>
 
                 <CheckCircle2
-                  className={`h-3.5 w-3.5 ${
+                  className={`h-4 w-4 ${
                     c.status === "pass"
                       ? "text-success"
                       : "text-warning"
@@ -208,21 +208,17 @@ export function SecurityOverview() {
                 />
               </div>
 
-              <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                 {c.title}
               </div>
 
-              <div className="mt-1 font-numeric text-[15px] font-semibold tracking-tight">
+              <div className="mt-1 font-numeric text-[16px] font-semibold tracking-tight text-foreground">
                 {c.metric}
               </div>
 
-              <div className="mt-0.5 text-[11px] text-muted-foreground">
+              <div className="mt-0.5 text-[11.5px] text-muted-foreground">
                 {c.note}
               </div>
-
-              <button className="mt-3 text-[11px] text-accent opacity-0 transition-opacity group-hover:opacity-100">
-                {c.action} →
-              </button>
             </div>
           );
         })}

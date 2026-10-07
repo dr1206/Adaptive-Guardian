@@ -89,8 +89,11 @@ def _write_behavioral_events(zf: zipfile.ZipFile, folder_path: str, events: list
     if not events:
         return
 
-    # Filter out empty events
-    filtered_events = [event for event in events if not _is_training_event_empty(event)]
+    # Filter out empty events and window_aggregate duplicates
+    filtered_events = [
+        event for event in events
+        if not _is_training_event_empty(event) and getattr(event, "event_type", "") != "window_aggregate"
+    ]
     if not filtered_events:
         return
 
@@ -243,8 +246,8 @@ def _write_combined_biometrics_csv(
         if w.features:
             window_feature_keys.update(w.features.keys())
 
-    # Build comprehensive header
-    header = [
+    # Explicit canonical base columns for combined biometrics
+    base_columns = [
         "record_type",      # "training_event", "training_feature", "behavioral_event", "behavior_window"
         "source",           # "training" (controlled) or "continuous" (auth session)
         "user_id",
@@ -262,7 +265,8 @@ def _write_combined_biometrics_csv(
         "delta_x",
         "delta_y",
         "velocity",
-        # Window aggregate fields
+        # Window aggregate timing fields
+        "window_id",
         "window_start",
         "window_end",
         # Training-specific fields
@@ -298,193 +302,174 @@ def _write_combined_biometrics_csv(
         "direction_changes",
         "target_acquisition_mean",
         "feature_created_at",
+        # Canonical behavioral biometric features
+        "dwellMeanMs",
+        "dwellStdMs",
+        "flightMeanMs",
+        "flightStdMs",
+        "keysPerSec",
+        "velocityMean",
+        "velocityStd",
+        "accelerationMean",
+        "accelerationStd",
+        "curvatureMean",
+        "curvatureStd",
+        "clickCount",
+        "scrollAmount",
+        "mouseTravelPx",
     ]
 
-    # Add feature vector columns
-    for key in sorted(training_fv_keys):
-        header.append(f"training_fv_{key}")
-    for key in sorted(behavioral_fv_keys):
-        header.append(f"behavioral_fv_{key}")
-    for key in sorted(window_feature_keys):
-        header.append(f"window_f_{key}")
+    sorted_training_fv = sorted(training_fv_keys)
+    sorted_behavioral_fv = sorted(behavioral_fv_keys)
+    sorted_window_features = sorted(window_feature_keys)
+
+    header = (
+        list(base_columns)
+        + [f"training_fv_{key}" for key in sorted_training_fv]
+        + [f"behavioral_fv_{key}" for key in sorted_behavioral_fv]
+        + [f"window_f_{key}" for key in sorted_window_features]
+    )
+
+    def _build_row(data: dict) -> list[str]:
+        row = [str(data[col]) if data.get(col) is not None else "" for col in header]
+        assert len(row) == len(header), f"Row length {len(row)} != header length {len(header)}"
+        return row
 
     rows = []
-    now = datetime.now(timezone.utc)
 
     # 1. Training Events (controlled collection)
     filtered_training_events = [e for e in training_events if not _is_training_event_empty(e)]
     for event in filtered_training_events:
-        row = [
-            "training_event",
-            "training",
-            str(getattr(event, '_export_user_id', user_id) or ""),
-            str(getattr(event, 'session_id', "") or ""),
-            _fmt_dt(getattr(event, 'timestamp', None)),
-            getattr(event, 'event_type', ""),
-            # Keystroke
-            getattr(event, 'key_code', "") if getattr(event, 'key_code', None) is not None else "",
-            getattr(event, 'key_char', "") if getattr(event, 'key_char', None) is not None else "",
-            getattr(event, 'dwell_time_ms', "") if getattr(event, 'dwell_time_ms', None) is not None else "",
-            getattr(event, 'flight_time_ms', "") if getattr(event, 'flight_time_ms', None) is not None else "",
-            # Mouse
-            getattr(event, 'x', "") if getattr(event, 'x', None) is not None else "",
-            getattr(event, 'y', "") if getattr(event, 'y', None) is not None else "",
-            getattr(event, 'delta_x', "") if getattr(event, 'delta_x', None) is not None else "",
-            getattr(event, 'delta_y', "") if getattr(event, 'delta_y', None) is not None else "",
-            getattr(event, 'velocity', "") if getattr(event, 'velocity', None) is not None else "",
-            # Window
-            _fmt_dt(getattr(event, 'window_start', None)),
-            _fmt_dt(getattr(event, 'window_end', None)),
-            # Training-specific
-            getattr(event, 'task_type', ""),
-            getattr(event, 'task_index', "") if getattr(event, 'task_index', None) is not None else "",
-            getattr(event, 'trial_index', "") if getattr(event, 'trial_index', None) is not None else "",
-            getattr(event, 'text_length', "") if getattr(event, 'text_length', None) is not None else "",
-            getattr(event, 'backspace_count', "") if getattr(event, 'backspace_count', None) is not None else "",
-            getattr(event, 'correction_count', "") if getattr(event, 'correction_count', None) is not None else "",
-            getattr(event, 'total_duration_ms', "") if getattr(event, 'total_duration_ms', None) is not None else "",
-            getattr(event, 'pause_duration_ms', "") if getattr(event, 'pause_duration_ms', None) is not None else "",
-            getattr(event, 'target_id', "") if getattr(event, 'target_id', None) is not None else "",
-            getattr(event, 'target_size', "") if getattr(event, 'target_size', None) is not None else "",
-            getattr(event, 'click_duration_ms', "") if getattr(event, 'click_duration_ms', None) is not None else "",
-            getattr(event, 'page', "") if getattr(event, 'page', None) is not None else "",
-            getattr(event, 'device_id', "") if getattr(event, 'device_id', None) is not None else "",
-            # Training features (empty for event rows)
-            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-            # Feature vectors (empty for event rows)
-            *["" for _ in sorted(training_fv_keys)],
-            *["" for _ in sorted(behavioral_fv_keys)],
-            *["" for _ in sorted(window_feature_keys)],
-        ]
-        rows.append(row)
+        export_uid = getattr(event, "_export_user_id", user_id) or ""
+        row_dict = {
+            "record_type": "training_event",
+            "source": "training",
+            "user_id": str(export_uid),
+            "session_id": str(getattr(event, "session_id", "") or ""),
+            "timestamp": _fmt_dt(getattr(event, "timestamp", None)),
+            "event_type": getattr(event, "event_type", ""),
+            "key_code": getattr(event, "key_code", "") if getattr(event, "key_code", None) is not None else "",
+            "key_char": getattr(event, "key_char", "") if getattr(event, "key_char", None) is not None else "",
+            "dwell_time_ms": getattr(event, "dwell_time_ms", "") if getattr(event, "dwell_time_ms", None) is not None else "",
+            "flight_time_ms": getattr(event, "flight_time_ms", "") if getattr(event, "flight_time_ms", None) is not None else "",
+            "x": getattr(event, "x", "") if getattr(event, "x", None) is not None else "",
+            "y": getattr(event, "y", "") if getattr(event, "y", None) is not None else "",
+            "delta_x": getattr(event, "delta_x", "") if getattr(event, "delta_x", None) is not None else "",
+            "delta_y": getattr(event, "delta_y", "") if getattr(event, "delta_y", None) is not None else "",
+            "velocity": getattr(event, "velocity", "") if getattr(event, "velocity", None) is not None else "",
+            "window_start": _fmt_dt(getattr(event, "window_start", None)),
+            "window_end": _fmt_dt(getattr(event, "window_end", None)),
+            "task_type": getattr(event, "task_type", ""),
+            "task_index": getattr(event, "task_index", "") if getattr(event, "task_index", None) is not None else "",
+            "trial_index": getattr(event, "trial_index", "") if getattr(event, "trial_index", None) is not None else "",
+            "text_length": getattr(event, "text_length", "") if getattr(event, "text_length", None) is not None else "",
+            "backspace_count": getattr(event, "backspace_count", "") if getattr(event, "backspace_count", None) is not None else "",
+            "correction_count": getattr(event, "correction_count", "") if getattr(event, "correction_count", None) is not None else "",
+            "total_duration_ms": getattr(event, "total_duration_ms", "") if getattr(event, "total_duration_ms", None) is not None else "",
+            "pause_duration_ms": getattr(event, "pause_duration_ms", "") if getattr(event, "pause_duration_ms", None) is not None else "",
+            "target_id": getattr(event, "target_id", "") if getattr(event, "target_id", None) is not None else "",
+            "target_size": getattr(event, "target_size", "") if getattr(event, "target_size", None) is not None else "",
+            "click_duration_ms": getattr(event, "click_duration_ms", "") if getattr(event, "click_duration_ms", None) is not None else "",
+            "page": getattr(event, "page", "") if getattr(event, "page", None) is not None else "",
+            "device_id": getattr(event, "device_id", "") if getattr(event, "device_id", None) is not None else "",
+        }
+        rows.append(_build_row(row_dict))
 
     # 2. Training Features (derived metrics from training sessions)
     for feature in training_features:
-        row = [
-            "training_feature",
-            "training",
-            str(getattr(feature, '_export_user_id', user_id) or ""),
-            str(getattr(feature, 'session_id', "") or ""),
-            _fmt_dt(getattr(feature, 'created_at', None)),
-            "derived",  # event_type for features
-            # Keystroke (empty for feature rows)
-            "", "", "", "",
-            # Mouse (empty)
-            "", "", "", "", "",
-            # Window (empty)
-            "", "",
-            # Training-specific
-            getattr(feature, 'task_type', ""),
-            getattr(feature, 'task_index', "") if getattr(feature, 'task_index', None) is not None else "",
-            getattr(feature, 'trial_index', "") if getattr(feature, 'trial_index', None) is not None else "",
-            "", "", "", "", "", "", "", "", "", "", "", "",
-            # Feature fields
-            getattr(feature, 'typing_speed', "") if getattr(feature, 'typing_speed', None) is not None else "",
-            getattr(feature, 'mean_key_hold', "") if getattr(feature, 'mean_key_hold', None) is not None else "",
-            getattr(feature, 'std_key_hold', "") if getattr(feature, 'std_key_hold', None) is not None else "",
-            getattr(feature, 'mean_flight_time', "") if getattr(feature, 'mean_flight_time', None) is not None else "",
-            getattr(feature, 'std_flight_time', "") if getattr(feature, 'std_flight_time', None) is not None else "",
-            getattr(feature, 'backspace_rate', "") if getattr(feature, 'backspace_rate', None) is not None else "",
-            getattr(feature, 'correction_rate', "") if getattr(feature, 'correction_rate', None) is not None else "",
-            getattr(feature, 'pause_mean', "") if getattr(feature, 'pause_mean', None) is not None else "",
-            getattr(feature, 'pause_std', "") if getattr(feature, 'pause_std', None) is not None else "",
-            getattr(feature, 'mouse_speed_mean', "") if getattr(feature, 'mouse_speed_mean', None) is not None else "",
-            getattr(feature, 'mouse_speed_std', "") if getattr(feature, 'mouse_speed_std', None) is not None else "",
-            getattr(feature, 'mouse_acceleration', "") if getattr(feature, 'mouse_acceleration', None) is not None else "",
-            getattr(feature, 'click_interval_mean', "") if getattr(feature, 'click_interval_mean', None) is not None else "",
-            getattr(feature, 'scroll_speed', "") if getattr(feature, 'scroll_speed', None) is not None else "",
-            getattr(feature, 'trajectory_length', "") if getattr(feature, 'trajectory_length', None) is not None else "",
-            getattr(feature, 'direction_changes', "") if getattr(feature, 'direction_changes', None) is not None else "",
-            getattr(feature, 'target_acquisition_mean', "") if getattr(feature, 'target_acquisition_mean', None) is not None else "",
-            _fmt_dt(getattr(feature, 'created_at', None)),
-            # Training feature vectors
-            *[feature.feature_vector.get(key, "") if feature.feature_vector else "" for key in sorted(training_fv_keys)],
-            # Empty for behavioral/window feature vectors
-            *["" for _ in sorted(behavioral_fv_keys)],
-            *["" for _ in sorted(window_feature_keys)],
-        ]
-        rows.append(row)
+        export_uid = getattr(feature, "_export_user_id", user_id) or ""
+        row_dict = {
+            "record_type": "training_feature",
+            "source": "training",
+            "user_id": str(export_uid),
+            "session_id": str(getattr(feature, "session_id", "") or ""),
+            "timestamp": _fmt_dt(getattr(feature, "created_at", None)),
+            "event_type": "derived",
+            "task_type": getattr(feature, "task_type", ""),
+            "task_index": getattr(feature, "task_index", "") if getattr(feature, "task_index", None) is not None else "",
+            "trial_index": getattr(feature, "trial_index", "") if getattr(feature, "trial_index", None) is not None else "",
+            "typing_speed": getattr(feature, "typing_speed", "") if getattr(feature, "typing_speed", None) is not None else "",
+            "mean_key_hold": getattr(feature, "mean_key_hold", "") if getattr(feature, "mean_key_hold", None) is not None else "",
+            "std_key_hold": getattr(feature, "std_key_hold", "") if getattr(feature, "std_key_hold", None) is not None else "",
+            "mean_flight_time": getattr(feature, "mean_flight_time", "") if getattr(feature, "mean_flight_time", None) is not None else "",
+            "std_flight_time": getattr(feature, "std_flight_time", "") if getattr(feature, "std_flight_time", None) is not None else "",
+            "backspace_rate": getattr(feature, "backspace_rate", "") if getattr(feature, "backspace_rate", None) is not None else "",
+            "correction_rate": getattr(feature, "correction_rate", "") if getattr(feature, "correction_rate", None) is not None else "",
+            "pause_mean": getattr(feature, "pause_mean", "") if getattr(feature, "pause_mean", None) is not None else "",
+            "pause_std": getattr(feature, "pause_std", "") if getattr(feature, "pause_std", None) is not None else "",
+            "mouse_speed_mean": getattr(feature, "mouse_speed_mean", "") if getattr(feature, "mouse_speed_mean", None) is not None else "",
+            "mouse_speed_std": getattr(feature, "mouse_speed_std", "") if getattr(feature, "mouse_speed_std", None) is not None else "",
+            "mouse_acceleration": getattr(feature, "mouse_acceleration", "") if getattr(feature, "mouse_acceleration", None) is not None else "",
+            "click_interval_mean": getattr(feature, "click_interval_mean", "") if getattr(feature, "click_interval_mean", None) is not None else "",
+            "scroll_speed": getattr(feature, "scroll_speed", "") if getattr(feature, "scroll_speed", None) is not None else "",
+            "trajectory_length": getattr(feature, "trajectory_length", "") if getattr(feature, "trajectory_length", None) is not None else "",
+            "direction_changes": getattr(feature, "direction_changes", "") if getattr(feature, "direction_changes", None) is not None else "",
+            "target_acquisition_mean": getattr(feature, "target_acquisition_mean", "") if getattr(feature, "target_acquisition_mean", None) is not None else "",
+            "feature_created_at": _fmt_dt(getattr(feature, "created_at", None)),
+        }
+        if feature.feature_vector:
+            for k in sorted_training_fv:
+                row_dict[f"training_fv_{k}"] = feature.feature_vector.get(k, "")
+        rows.append(_build_row(row_dict))
 
-    # 3. Behavioral Events (continuous auth)
-    filtered_behavioral_events = [e for e in behavioral_events if not _is_training_event_empty(e)]
+    # 3. Behavioral Events (continuous raw events only — excluding window_aggregate to prevent duplicates)
+    filtered_behavioral_events = [
+        e for e in behavioral_events
+        if not _is_training_event_empty(e) and getattr(e, "event_type", "") != "window_aggregate"
+    ]
     for event in filtered_behavioral_events:
-        row = [
-            "behavioral_event",
-            "continuous",
-            str(getattr(event, '_export_user_id', user_id) or ""),
-            str(getattr(event, 'session_id', "") or ""),
-            _fmt_dt(getattr(event, 'timestamp', None)),
-            getattr(event, 'event_type', ""),
-            # Keystroke
-            getattr(event, 'key_code', "") if getattr(event, 'key_code', None) is not None else "",
-            "",  # key_char not in BehavioralEvent
-            getattr(event, 'dwell_time_ms', "") if getattr(event, 'dwell_time_ms', None) is not None else "",
-            getattr(event, 'flight_time_ms', "") if getattr(event, 'flight_time_ms', None) is not None else "",
-            # Mouse
-            getattr(event, 'x', "") if getattr(event, 'x', None) is not None else "",
-            getattr(event, 'y', "") if getattr(event, 'y', None) is not None else "",
-            getattr(event, 'delta_x', "") if getattr(event, 'delta_x', None) is not None else "",
-            getattr(event, 'delta_y', "") if getattr(event, 'delta_y', None) is not None else "",
-            getattr(event, 'velocity', "") if getattr(event, 'velocity', None) is not None else "",
-            # Window
-            _fmt_dt(getattr(event, 'window_start', None)),
-            _fmt_dt(getattr(event, 'window_end', None)),
-            # Training-specific (empty for continuous)
-            "", "", "", "", "", "", "", "", "", "", "", "",
-            # Feature fields (empty)
-            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-            # Feature vectors - training empty, behavioral filled
-            *["" for _ in sorted(training_fv_keys)],
-            *[event.feature_vector.get(key, "") if event.feature_vector else "" for key in sorted(behavioral_fv_keys)],
-            *["" for _ in sorted(window_feature_keys)],
-        ]
-        rows.append(row)
+        export_uid = getattr(event, "_export_user_id", user_id) or ""
+        row_dict = {
+            "record_type": "behavioral_event",
+            "source": "continuous",
+            "user_id": str(export_uid),
+            "session_id": str(getattr(event, "session_id", "") or ""),
+            "timestamp": _fmt_dt(getattr(event, "timestamp", None)),
+            "event_type": getattr(event, "event_type", ""),
+            "key_code": getattr(event, "key_code", "") if getattr(event, "key_code", None) is not None else "",
+            "dwell_time_ms": getattr(event, "dwell_time_ms", "") if getattr(event, "dwell_time_ms", None) is not None else "",
+            "flight_time_ms": getattr(event, "flight_time_ms", "") if getattr(event, "flight_time_ms", None) is not None else "",
+            "x": getattr(event, "x", "") if getattr(event, "x", None) is not None else "",
+            "y": getattr(event, "y", "") if getattr(event, "y", None) is not None else "",
+            "delta_x": getattr(event, "delta_x", "") if getattr(event, "delta_x", None) is not None else "",
+            "delta_y": getattr(event, "delta_y", "") if getattr(event, "delta_y", None) is not None else "",
+            "velocity": getattr(event, "velocity", "") if getattr(event, "velocity", None) is not None else "",
+            "window_start": _fmt_dt(getattr(event, "window_start", None)),
+            "window_end": _fmt_dt(getattr(event, "window_end", None)),
+        }
+        if event.feature_vector:
+            for k in sorted_behavioral_fv:
+                row_dict[f"behavioral_fv_{k}"] = event.feature_vector.get(k, "")
+        rows.append(_build_row(row_dict))
 
-    # 4. Behavior Windows (aggregated continuous features)
+    # 4. Behavior Windows (aggregated continuous biometric windows — exactly ONE row per window)
     filtered_behavior_windows = [w for w in behavior_windows if not _is_behavior_window_empty(w.features)]
     for window in filtered_behavior_windows:
-        row = [
-            "behavior_window",
-            "continuous",
-            str(getattr(window, "_export_user_id", user_id) or ""),
-            str(getattr(window, "session_id", "") or ""),
-            _fmt_dt(getattr(window, "created_at", None)),
-            "window_aggregate",
-            # Keystroke (empty for window)
-            "", "", "", "",
-            # Mouse (empty)
-            "", "", "", "", "",
-            # Window
-            _fmt_dt(getattr(window, "window_start", None)),
-            _fmt_dt(getattr(window, "window_end", None)),
-            # Training-specific (empty)
-            "", "", "", "", "", "", "", "", "", "", "", "",
-            window.features.get("typing_speed", "") if window.features.get("typing_speed") is not None else "",
-            window.features.get("mean_key_hold", "") if window.features.get("mean_key_hold") is not None else "",
-            window.features.get("std_key_hold", "") if window.features.get("std_key_hold") is not None else "",
-            window.features.get("mean_flight_time", "") if window.features.get("mean_flight_time") is not None else "",
-            window.features.get("std_flight_time", "") if window.features.get("std_flight_time") is not None else "",
-            window.features.get("backspace_rate", "") if window.features.get("backspace_rate") is not None else "",
-            window.features.get("correction_rate", "") if window.features.get("correction_rate") is not None else "",
-            window.features.get("pause_mean", "") if window.features.get("pause_mean") is not None else "",
-            window.features.get("pause_std", "") if window.features.get("pause_std") is not None else "",
-            window.features.get("mouse_speed_mean", "") if window.features.get("mouse_speed_mean") is not None else "",
-            window.features.get("mouse_speed_std", "") if window.features.get("mouse_speed_std") is not None else "",
-            window.features.get("mouse_acceleration", "") if window.features.get("mouse_acceleration") is not None else "",
-            window.features.get("click_interval_mean", "") if window.features.get("click_interval_mean") is not None else "",
-            window.features.get("scroll_speed", "") if window.features.get("scroll_speed") is not None else "",
-            window.features.get("trajectory_length", "") if window.features.get("trajectory_length") is not None else "",
-            window.features.get("direction_changes", "") if window.features.get("direction_changes") is not None else "",
-            window.features.get("target_acquisition_mean", "") if window.features.get("target_acquisition_mean") is not None else "",
-            _fmt_dt(getattr(window, "created_at", None)),
-            # Feature vectors - training empty, behavioral empty, window filled,
-            *["" for _ in sorted(training_fv_keys)],
-            *["" for _ in sorted(behavioral_fv_keys)],
-            *[window.features.get(key, "") for key in sorted(window_feature_keys)],
-        ]
-        rows.append(row)
-        rows.append(row)
-        rows.append(row)
+        export_uid = getattr(window, "_export_user_id", user_id) or ""
+        win_id = getattr(window, "window_id", "") or str(getattr(window, "id", ""))
+        row_dict = {
+            "record_type": "behavior_window",
+            "source": "continuous",
+            "user_id": str(export_uid),
+            "session_id": str(getattr(window, "session_id", "") or ""),
+            "timestamp": _fmt_dt(getattr(window, "created_at", None)),
+            "event_type": "window_aggregate",
+            "window_id": str(win_id),
+            "window_start": _fmt_dt(getattr(window, "window_start", None)),
+            "window_end": _fmt_dt(getattr(window, "window_end", None)),
+            "feature_created_at": _fmt_dt(getattr(window, "created_at", None)),
+        }
+        if window.features:
+            for k in sorted_window_features:
+                val = window.features.get(k)
+                if val is not None:
+                    row_dict[f"window_f_{k}"] = val
+                    # Also populate direct column name if present in base schema
+                    if k in base_columns:
+                        row_dict[k] = val
+
+        # Append row EXACTLY ONCE
+        rows.append(_build_row(row_dict))
 
     filename = f"{folder_path}behavioral_biometrics.csv" if folder_path else "behavioral_biometrics.csv"
     _write_csv(zf, filename, header, rows)

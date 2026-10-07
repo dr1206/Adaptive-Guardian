@@ -123,6 +123,11 @@ async def list_datasets():
     return await service.list_datasets()
 
 
+@router.get("/datasets/quality")
+async def get_dataset_quality():
+    return await service.get_dataset_quality_metrics()
+
+
 # ── API Services ───────────────────────────────────────────────
 
 

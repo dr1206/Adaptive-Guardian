@@ -32,6 +32,9 @@ class GlobalMetricItem(BaseModel):
     series: list[float]
 
 
+MetricSeries = GlobalMetricItem
+
+
 class GlobalMetricsResponse(BaseModel):
     series: list[GlobalMetricItem]
     period: str  # 24h, 7d, 30d
@@ -164,16 +167,21 @@ class ApiServicesResponse(BaseModel):
     overall: str  # healthy, degraded, down
 
 
-# ── Controls ───────────────────────────────────────────────────
-
 class ComplianceControl(BaseModel):
+    model_config = {"populate_by_name": True}
+
     id: str
-    framework: str
-    coverage: float
-    status: str  # ok, watch, alert, critical
-    evidence: int
-    owner: str
-    next: str  # next review date
+    framework: str = ""
+    coverage: float = 100.0
+    status: str = "ok"  # ok, watch, alert, critical
+    evidence: int = 0
+    owner: str = ""
+    next: str = ""  # next review date
+    enabled: bool = True
+    actions: list[str] = Field(default_factory=lambda: ["read", "review"])
+
+
+SecurityControl = ComplianceControl
 
 
 class ControlsResponse(BaseModel):
@@ -185,6 +193,7 @@ class ControlUpdateRequest(BaseModel):
     status: str | None = None
     evidence: int | None = None
     next: str | None = None
+    enabled: bool | None = None
 
 
 # ── Report Templates ───────────────────────────────────────────
@@ -246,9 +255,16 @@ class AdminChallengeList(BaseModel):
 class RoleDefinition(BaseModel):
     id: str
     label: str
-    members: int
-    color: str
+    members: int = 0
+    user_count: int = 0
+    color: str = ""
     description: str = ""
+
+    def model_post_init(self, __context: object) -> None:
+        if self.user_count == 0 and self.members > 0:
+            self.user_count = self.members
+        elif self.members == 0 and self.user_count > 0:
+            self.members = self.user_count
 
 
 class AdminRoleList(BaseModel):
@@ -259,7 +275,14 @@ class AdminRoleList(BaseModel):
 
 class PermissionItem(BaseModel):
     resource: str
-    actions: list[str]
+    actions: list[str] = Field(default_factory=list)
+    action: str = ""
+
+    def model_post_init(self, __context: object) -> None:
+        if not self.action and self.actions:
+            self.action = self.actions[0]
+        elif self.action and not self.actions:
+            self.actions = [self.action]
 
 
 class PermissionList(BaseModel):
@@ -269,8 +292,20 @@ class PermissionList(BaseModel):
 # ── Role Permissions ───────────────────────────────────────────
 
 class RolePermissionMapping(BaseModel):
-    role: str
-    permissions: list[str]
+    role: str = ""
+    role_id: str = ""
+    permissions: list[str] = Field(default_factory=list)
+    permission_ids: list[str] = Field(default_factory=list)
+
+    def model_post_init(self, __context: object) -> None:
+        if not self.role_id and self.role:
+            self.role_id = self.role
+        elif not self.role and self.role_id:
+            self.role = self.role_id
+        if not self.permission_ids and self.permissions:
+            self.permission_ids = list(self.permissions)
+        elif not self.permissions and self.permission_ids:
+            self.permissions = list(self.permission_ids)
 
 
 class RolePermissionsResponse(BaseModel):
@@ -293,10 +328,23 @@ class NotificationGroupList(BaseModel):
 # ── Geo Dots ───────────────────────────────────────────────────
 
 class GeoDot(BaseModel):
-    x: float
-    y: float
-    intensity: float
-    anomaly: bool
+    model_config = {"populate_by_name": True}
+
+    x: float = 0.0
+    y: float = 0.0
+    lat: float = 0.0
+    lng: float = 0.0
+    intensity: float = 1.0
+    anomaly: bool = False
+
+    def model_post_init(self, __context: object) -> None:
+        if self.lat == 0.0 and self.lng == 0.0 and (self.x != 0.0 or self.y != 0.0):
+            # map normalized x/y (0..1) to lat (-90..90) and lng (-180..180)
+            self.lng = round((self.x - 0.5) * 360, 2)
+            self.lat = round((0.5 - self.y) * 180, 2)
+        elif (self.lat != 0.0 or self.lng != 0.0) and self.x == 0.0 and self.y == 0.0:
+            self.x = round((self.lng + 180) / 360, 4)
+            self.y = round((90 - self.lat) / 180, 4)
 
 
 class GeoDotsResponse(BaseModel):
@@ -311,7 +359,15 @@ class InfraMetric(BaseModel):
     series: list[float]
 
 
+class InfraComponent(BaseModel):
+    name: str = "primary"
+    status: str = "healthy"  # healthy, degraded, down
+    kind: str = "database"   # database, cache, queue, storage, compute
+
+
 class InfraResponse(BaseModel):
+    model_config = {"populate_by_name": True}
+
     cpu: InfraMetric
     memory: InfraMetric
     disk: InfraMetric
@@ -323,6 +379,12 @@ class InfraResponse(BaseModel):
     jobs_running: int = Field(serialization_alias="jobsRunning")
     jobs_queued: int = Field(serialization_alias="jobsQueued")
     jobs_failed: int = Field(serialization_alias="jobsFailed")
+    region: str = "us-east-1"
+    components: list[InfraComponent] = Field(default_factory=lambda: [
+        InfraComponent(name="mongodb-cluster", status="healthy", kind="database"),
+        InfraComponent(name="redis-cache", status="healthy", kind="cache"),
+        InfraComponent(name="inference-worker", status="healthy", kind="compute"),
+    ])
 
 
 # ── Admin Accounts ─────────────────────────────────────────────
@@ -345,10 +407,23 @@ class AdminAccountList(BaseModel):
 # ── Anomaly Signatures ─────────────────────────────────────────
 
 class AnomalySignature(BaseModel):
+    model_config = {"populate_by_name": True}
+
+    id: str = ""
     name: str
-    count: int
-    last: str
-    severity: str  # ok, watch, alert, critical
+    channel: str = "keystroke"
+    threshold_sigma: float = Field(2.5, serialization_alias="thresholdSigma")
+    description: str = ""
+    trigger_count_24h: int = Field(0, serialization_alias="triggerCount24h")
+    count: int = 0
+    last: str = ""
+    severity: str = "watch"  # ok, watch, alert, critical
+
+    def model_post_init(self, __context: object) -> None:
+        if self.count == 0 and self.trigger_count_24h > 0:
+            self.count = self.trigger_count_24h
+        elif self.trigger_count_24h == 0 and self.count > 0:
+            self.trigger_count_24h = self.count
 
 
 class AnomalySignatureList(BaseModel):

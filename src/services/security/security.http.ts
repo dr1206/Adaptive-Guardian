@@ -490,6 +490,8 @@ async behavioralAuthenticate(
           click_count: input.clickCount,
           scroll_amount: input.scrollAmount,
           mouse_travel_px: input.mouseTravelPx,
+          keys_per_sec: input.keysPerSec,
+          velocity_std: input.velocityStd,
         },
         signal,
       },

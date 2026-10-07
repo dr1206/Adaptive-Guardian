@@ -1,0 +1,80 @@
+{
+  "468f03a2-d7c9-4701-abf8-bb2c692f696b": {
+    "user_name": "manasa",
+    "total_sessions": 11,
+    "train_sessions": [
+      "1b8db34d-f938-4d87-b78e-315476e05b56",
+      "6ae6b1ad-3ebd-4091-9109-dc16551befc8",
+      "942fb1bf-f729-4da0-8e08-d14095bcdfcf",
+      "bed84938-5c26-4776-a5c1-dfafb616181c",
+      "c565b9ef-2cbb-424c-970f-c61fd2e45677",
+      "e3b1241c-dc36-4812-ba05-47cbf46120c8",
+      "e68dfd83-bb44-4626-993b-3362cea449d9",
+      "f434e8b4-c562-4c95-8413-8ee6bed06cb2"
+    ],
+    "test_sessions": [
+      "4328e952-1400-491c-b111-e77ab6ac9320",
+      "892182e1-215c-4a77-bb62-02b4c7028887",
+      "a245bcdd-43a0-45f4-9fb9-96b30280020e"
+    ],
+    "train_windows": 46,
+    "test_windows": 23
+  },
+  "4958d349-1ff1-4f6b-8344-fca7d4d717aa": {
+    "user_name": "vyas",
+    "total_sessions": 6,
+    "train_sessions": [
+      "3049d141-ca28-439a-869d-c8f2d5b5b882",
+      "ab8aa270-082d-4529-9b11-ad17b456a161",
+      "dd8db810-64d3-4a3e-b264-bbb8473ae07b",
+      "fabcc866-0af6-4c58-b795-fdb8040fd04f"
+    ],
+    "test_sessions": [
+      "b18da398-8da7-48c4-a227-ad674d8de565",
+      "e21d6bcf-d489-452a-8434-9fdeb4a8a4ff"
+    ],
+    "train_windows": 36,
+    "test_windows": 24
+  },
+  "dba80c84-68fd-45b2-ba28-10f10075b239": {
+    "user_name": "dristi",
+    "total_sessions": 12,
+    "train_sessions": [
+      "05bc7ce0-dbdf-4bb8-babe-c66084786cd0",
+      "27cc7537-a40e-47c3-a98f-89dbe78e8cb9",
+      "3101621a-6611-4c9a-bcf2-4066b246e265",
+      "8ba454a9-5ea9-4382-b9d1-d3842fef3cab",
+      "8dec00b7-651f-4f45-8159-64f6f5015822",
+      "9bff92a1-dd3a-448a-8302-4bf76d6ddc6b",
+      "9c78cf5f-3af1-4853-a943-f4b652c3fae4",
+      "d840a02c-5fc4-4737-90f0-cd5b47cac023"
+    ],
+    "test_sessions": [
+      "15fa92b6-bb21-469b-8ebe-486f21886538",
+      "db6f35ed-6b4e-48c7-b48b-16ee244855bf",
+      "e361373e-1e90-4e5b-8754-8723673796d6",
+      "f3535aac-a602-48a9-8b38-38b3526dfb00"
+    ],
+    "train_windows": 64,
+    "test_windows": 39
+  },
+  "e92e7c09-c1b8-4f72-a7a8-f75077608d1b": {
+    "user_name": "amal",
+    "total_sessions": 9,
+    "train_sessions": [
+      "43c7c9d4-9f4b-4823-bc49-2bdd58b9a92d",
+      "683fb37f-6a47-4d27-b196-f268e545c7fc",
+      "a36c8d90-c089-40c7-921e-909160986f4f",
+      "a90f9b8d-c3f1-4748-99d5-cc782623de81",
+      "ab25bfe3-fb2a-4125-9fc1-f942cf986fdf",
+      "e9fb2cdf-79e4-478e-b6ac-0a722e9e07c6"
+    ],
+    "test_sessions": [
+      "024a219c-b4f9-4b79-9849-65b13577f642",
+      "094e9c7b-c46e-46d7-b155-28108d1ea807",
+      "eaa77718-5754-4734-b3cf-a779b607ee8f"
+    ],
+    "train_windows": 59,
+    "test_windows": 8
+  }
+}

@@ -5,7 +5,7 @@ import { RiverChart } from "@/components/admin/river-chart";
 import { PipelineFlow } from "@/components/admin/pipeline-flow";
 import { LiveTape } from "@/components/admin/live-tape";
 import { SignalDot } from "@/components/admin/signal-dot";
-import { seedSeries, signalTone } from "@/lib/admin-signal";
+import { seedSeries, signalTone, getSignalTone } from "@/lib/admin-signal";
 import { useAdminIncidents, useAdminKpis, useAdminLiveSessions } from "@/services/hooks";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { AlertOctagon, ChevronRight, Cpu, MemoryStick, HardDrive, Activity } from "lucide-react";
@@ -39,17 +39,17 @@ function PulsePage() {
         {/* Hero */}
         <div className="flex items-end justify-between gap-6">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-mono">
-              Today's overview · Sun 28 Jun
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+              Enterprise Continuous Biometric Security
             </div>
-            <h1 className="text-3xl font-semibold mt-1 tracking-tight">Cockpit</h1>
-            <p className="text-sm text-muted-foreground mt-1.5">
-              Behavioral biometrics in production · 124,891 enrolled users · model v2.4.1
+            <h1 className="text-2xl font-bold mt-1 tracking-tight text-foreground">Security Operations Center</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Production behavioral telemetry · Real-time inference & threat mitigation platform
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            aegis online · 1.24k predictions/s
+          <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground shadow-xs">
+            <span className="size-2 rounded-full bg-success animate-pulse" />
+            <span className="font-semibold text-foreground">Aegis Core Online</span> · 1.24k predictions/s
           </div>
         </div>
 
@@ -150,8 +150,7 @@ function PulsePage() {
                     cy="50"
                     r="42"
                     fill="none"
-                    stroke="white"
-                    strokeOpacity="0.06"
+                    stroke="#D9E1EA"
                     strokeWidth="4"
                   />
                   <circle
@@ -159,7 +158,7 @@ function PulsePage() {
                     cy="50"
                     r="42"
                     fill="none"
-                    stroke="oklch(0.71 0.135 215)"
+                    stroke="#0B3A82"
                     strokeWidth="4"
                     strokeDasharray="263.9"
                     strokeDashoffset="2.6"
@@ -178,19 +177,19 @@ function PulsePage() {
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2 w-full text-center">
-                <div className="rounded-lg border border-white/[0.05] py-2">
+                <div className="rounded-lg border border-border bg-muted/20 py-2">
                   <div data-numeric className="text-sm font-semibold">
                     1.24k
                   </div>
                   <div className="text-[10px] text-muted-foreground font-mono">pred/s</div>
                 </div>
-                <div className="rounded-lg border border-white/[0.05] py-2">
+                <div className="rounded-lg border border-border bg-muted/20 py-2">
                   <div data-numeric className="text-sm font-semibold">
                     12 ms
                   </div>
                   <div className="text-[10px] text-muted-foreground font-mono">p50</div>
                 </div>
-                <div className="rounded-lg border border-white/[0.05] py-2">
+                <div className="rounded-lg border border-border bg-muted/20 py-2">
                   <div data-numeric className="text-sm font-semibold">
                     38 ms
                   </div>
@@ -200,7 +199,7 @@ function PulsePage() {
             </div>
             <Link
               to="/admin/ai/live"
-              className="mt-4 block text-center text-xs text-cyan-300 hover:text-cyan-200"
+              className="mt-4 block text-center text-xs font-semibold text-primary hover:underline"
             >
               Open Live AI Monitor →
             </Link>
@@ -212,9 +211,9 @@ function PulsePage() {
           eyebrow="Inference pipeline · live"
           title="Decision flow"
           actions={
-            <span className="text-[11px] font-mono text-emerald-300 flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              all stages green
+            <span className="text-[11px] font-mono text-emerald-600 flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              all stages operational
             </span>
           }
         >
@@ -225,12 +224,12 @@ function PulsePage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-3">
             <InstrumentPanel
-              eyebrow="Attention lane"
-              title="Open incidents"
+              eyebrow="Incident Monitoring"
+              title="Recent Security Incidents"
               actions={
                 <Link
                   to="/admin/notifications"
-                  className="text-xs text-cyan-300 hover:text-cyan-200 inline-flex items-center gap-0.5"
+                  className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5"
                 >
                   All
                   <ChevronRight className="size-3" />
@@ -239,11 +238,11 @@ function PulsePage() {
             >
               <div className="space-y-2">
                 {incidents.slice(0, 5).map((i) => {
-                  const tone = signalTone[i.severity];
+                  const tone = getSignalTone(i.severity);
                   return (
                     <div
                       key={i.id}
-                      className={`flex items-start gap-3 rounded-xl border border-white/[0.05] p-3 hover:bg-white/[0.03] transition-colors`}
+                      className={`flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-3 hover:bg-muted/40 transition-colors`}
                     >
                       <div
                         className={`size-8 rounded-lg ${tone.bg} flex items-center justify-center shrink-0`}

@@ -1,167 +1,124 @@
-import { Link } from "@tanstack/react-router";
-import { cn } from "@/lib/utils";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   Activity,
   Users,
   Wallet,
   KeyRound,
-  Brain,
-  Shield,
-  AlertOctagon,
-  Radar,
-  Cpu,
+  ShieldAlert,
   Database,
-  Lightbulb,
-  FileBarChart2,
-  History,
-  Bell,
-  UserCog,
-  ScrollText,
-  Network,
-  Server,
+  Cpu,
+  FileText,
   Settings,
   ShieldCheck,
-  GitBranch,
-  MessageCircleQuestion,
+  Server,
+  LogOut,
 } from "lucide-react";
+import { useLogout } from "@/services/hooks";
+import { cn } from "@/lib/utils";
 
-type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
-type Group = { id: string; title: string; items: Item[] };
-
-const groups: Group[] = [
+const ADMIN_GROUPS = [
   {
-    id: "pulse",
-    title: "Pulse",
-    items: [{ to: "/admin", label: "Dashboard", icon: Activity }],
-  },
-  {
-    id: "people",
-    title: "People",
+    title: "Operations & Overview",
     items: [
-      { to: "/admin/users", label: "Users", icon: Users },
-      { to: "/admin/profile", label: "User history", icon: History },
-      { to: "/admin/accounts", label: "Accounts", icon: Wallet },
-      { to: "/admin/roles", label: "Roles & permissions", icon: UserCog },
+      { to: "/admin", label: "Operations Dashboard", icon: Activity },
+      { to: "/admin/users", label: "User Management", icon: Users },
+      { to: "/admin/sessions", label: "Active Sessions", icon: KeyRound },
     ],
   },
   {
-    id: "identity",
-    title: "Identity Ops",
+    title: "Security & Risk",
     items: [
-      { to: "/admin/sessions", label: "Auth sessions", icon: KeyRound },
-      { to: "/admin/challenges", label: "Challenge center", icon: ShieldCheck },
-      { to: "/admin/behavior", label: "Behavior analytics", icon: Radar },
+      { to: "/admin/challenges", label: "Challenge Log", icon: ShieldAlert },
+      { to: "/admin/risk", label: "Risk Assessments", icon: ShieldCheck },
+      { to: "/admin/anomalies", label: "Anomaly Signatures", icon: Server },
     ],
   },
   {
-    id: "ai",
-    title: "AI Core",
+    title: "AI & ML Governance",
     items: [
-      { to: "/admin/ai/live", label: "Live AI monitoring", icon: Brain },
-      { to: "/admin/ai/models", label: "Model management", icon: Cpu },
-      { to: "/admin/ai/datasets", label: "Datasets", icon: Database },
-      { to: "/admin/ai/explain", label: "Explainability", icon: Lightbulb },
+      { to: "/admin/ai/live", label: "Live Inference", icon: Cpu },
+      { to: "/admin/ai/models", label: "Model Registry", icon: Cpu },
+      { to: "/admin/ai/datasets", label: "Dataset Management", icon: Database },
+      { to: "/admin/ai/explain", label: "Model Explainability", icon: Activity },
     ],
   },
   {
-    id: "defense",
-    title: "Defense",
+    title: "Governance & Audit",
     items: [
-      { to: "/admin/risk", label: "Risk center", icon: Shield },
-      { to: "/admin/anomalies", label: "Anomaly detection", icon: AlertOctagon },
-      { to: "/admin/audit", label: "Audit logs", icon: ScrollText },
-      { to: "/admin/notifications", label: "Notifications", icon: Bell },
-    ],
-  },
-  {
-    id: "platform",
-    title: "Platform",
-    items: [
-      { to: "/admin/api", label: "API health", icon: Network },
-      { to: "/admin/infra", label: "Infrastructure", icon: Server },
-      { to: "/admin/compliance", label: "Compliance", icon: GitBranch },
-      { to: "/admin/reports", label: "Reports", icon: FileBarChart2 },
-      { to: "/admin/settings", label: "Settings", icon: Settings },
+      { to: "/admin/audit", label: "Audit Logs", icon: FileText },
+      { to: "/admin/compliance", label: "Compliance Controls", icon: ShieldCheck },
+      { to: "/admin/reports", label: "Enterprise Reports", icon: FileText },
     ],
   },
 ];
 
-export function OpsRail({ variant = "fixed" }: { variant?: "fixed" | "drawer" }) {
-  const isDrawer = variant === "drawer";
+export function OpsRail() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const logout = useLogout();
+
   return (
-    <aside
-      aria-label="Admin navigation"
-      className={
-        isDrawer
-          ? "h-full w-full flex flex-col border-r border-white/[0.06] bg-[oklch(0.16_0.025_264/0.95)] backdrop-blur-2xl overflow-hidden"
-          : "fixed left-4 top-4 bottom-4 w-[240px] z-40 flex flex-col rounded-2xl border border-white/[0.06] bg-[oklch(0.16_0.025_264/0.85)] backdrop-blur-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)] overflow-hidden"
-      }
-    >
-      {/* Org switcher */}
-      <div className="px-4 py-4 border-b border-white/[0.05]">
-        <div className="flex items-center gap-2.5">
-          <div className="size-9 rounded-xl gradient-cyber flex items-center justify-center font-bold text-sm shadow-glow">
-            A
+    <aside className="w-64 fixed top-0 bottom-0 left-0 bg-[#082A5C] text-white flex flex-col z-30 border-r border-[#133D7C]">
+      {/* Brand Header */}
+      <div className="h-16 border-b border-[#133D7C] px-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="size-7 rounded bg-[#2563A6] flex items-center justify-center font-bold text-xs text-white">
+            AG
           </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold truncate">AdaptiveGuard</div>
-            <div className="text-[10px] text-muted-foreground font-mono">Aurora Bank · prod</div>
-          </div>
-        </div>
-        <div className="mt-3 flex items-center gap-1.5 text-[10px] font-mono">
-          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-emerald-300/90">PROD · eu-west-1</span>
+          <span className="font-semibold text-sm tracking-tight">Admin Operations</span>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
-        {groups.map((g) => (
-          <div key={g.id}>
-            <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-mono">
-              {g.title}
+      {/* Navigation Sections */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        {ADMIN_GROUPS.map((group) => (
+          <div key={group.title}>
+            <div className="text-[11px] font-semibold text-[#8C9BB5] uppercase tracking-wider mb-2 px-2">
+              {group.title}
             </div>
-            <ul className="space-y-0.5">
-              {g.items.map((it) => {
-                const Icon = it.icon;
+            <nav className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = currentPath === item.to;
+                const Icon = item.icon;
                 return (
-                  <li key={it.to}>
-                    <Link
-                      to={it.to}
-                      activeOptions={{ exact: it.to === "/admin" }}
-                      className={cn(
-                        "group flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-muted-foreground transition-colors",
-                        "hover:bg-white/[0.04] hover:text-foreground",
-                        "data-[status=active]:bg-white/[0.06] data-[status=active]:text-foreground data-[status=active]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]",
-                      )}
-                    >
-                      <Icon className="size-4 text-muted-foreground group-hover:text-cyan-300 group-data-[status=active]:text-cyan-300 transition-colors" />
-                      <span className="truncate">{it.label}</span>
-                    </Link>
-                  </li>
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors",
+                      active
+                        ? "bg-[#0B3A82] text-white font-semibold"
+                        : "text-white/80 hover:bg-[#0E3670] hover:text-white",
+                    )}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 text-white/70" />
+                    <span>{item.label}</span>
+                  </Link>
                 );
               })}
-            </ul>
+            </nav>
           </div>
         ))}
-      </nav>
+      </div>
 
-      {/* Operator footer */}
-      <div className="px-3 py-3 border-t border-white/[0.05] flex items-center gap-2">
-        <div className="size-8 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-[11px] font-mono">
-          LH
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-medium truncate">Lina Halsey</div>
-          <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-emerald-400" /> on call · admin
-          </div>
-        </div>
-        <button
-          className="size-8 rounded-lg hover:bg-white/[0.06] flex items-center justify-center text-muted-foreground"
-          title="AI Assistant (⌘J)"
+      {/* Footer Return Link & Sign Out */}
+      <div className="p-4 border-t border-[#133D7C] space-y-2">
+        <Link
+          to="/app"
+          className="w-full py-2 px-3 text-xs font-semibold text-center rounded bg-[#0B3A82] hover:bg-[#2563A6] text-white flex items-center justify-center gap-1.5 transition-colors"
         >
-          <MessageCircleQuestion className="size-4" />
+          Return to Customer Portal
+        </Link>
+        <button
+          onClick={() => {
+            logout.mutateAsync().finally(() => {
+              window.location.href = "/auth";
+            });
+          }}
+          className="w-full py-1.5 px-3 text-xs font-medium text-center rounded border border-white/20 hover:bg-white/10 text-white/80 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Sign Out
         </button>
       </div>
     </aside>

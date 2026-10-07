@@ -51,17 +51,17 @@ function Behavior() {
           <Link
             key={p.to}
             to={p.to}
-            className="group rounded-[24px] border border-white/[0.06] bg-[oklch(0.225_0.035_264/0.55)] p-6 backdrop-blur-2xl transition-transform hover:-translate-y-0.5"
+            className="group rounded-xl border border-border bg-card p-6 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-accent">Dedicated</div>
-                <div className="mt-1 font-display text-[18px] font-medium tracking-tight">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Biometric Stream</div>
+                <div className="mt-1 font-display text-[18px] font-semibold tracking-tight text-foreground">
                   {p.label}
                 </div>
                 <p className="mt-1.5 text-[12.5px] text-muted-foreground">{p.note}</p>
               </div>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
             </div>
             <div className="mt-4">
               <WaveformTrace seed={p.label.length} height={70} baseline={false} />

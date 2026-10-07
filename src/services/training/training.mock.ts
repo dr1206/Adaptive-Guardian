@@ -57,4 +57,18 @@ export const mockTrainingService: TrainingService = {
       { latencyMs: [40, 80] },
     );
   },
+
+  async resetProfile(): Promise<{ status: string; message: string }> {
+    return mockResolve<{ status: string; message: string }>(
+      { status: "ok", message: "Mock profile reset" },
+      { latencyMs: [40, 80] },
+    );
+  },
+
+  async enrollProfile(): Promise<{ status: string; message: string; samples_used?: number }> {
+    return mockResolve<{ status: string; message: string; samples_used?: number }>(
+      { status: "ok", message: "Mock profile enrolled", samples_used: 10 },
+      { latencyMs: [40, 80] },
+    );
+  },
 };
