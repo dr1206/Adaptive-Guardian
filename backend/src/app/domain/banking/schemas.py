@@ -42,12 +42,21 @@ class TransferInput(BaseModel):
     currency: str
     reference: str | None = None
     dwell_ms: float | None = Field(None, validation_alias="dwellMs")
+    idempotency_key: str | None = Field(None, validation_alias="idempotencyKey")
+    behavioral_features: dict | None = Field(None, validation_alias="behavioralFeatures")
+    otp_code: str | None = Field(None, validation_alias="otpCode")
+    challenge_id: str | None = Field(None, validation_alias="challengeId")
 
 
 class TransferResult(BaseModel):
     transaction_id: str = Field(serialization_alias="transactionId")
     scheduled_for: str = Field(serialization_alias="scheduledFor")
     signature: str
+    status: str = "completed"  # completed, step_up_required, blocked
+    risk_score: float | None = Field(None, serialization_alias="riskScore")
+    risk_decision: str | None = Field(None, serialization_alias="riskDecision")
+    message: str | None = None
+    challenge_id: str | None = Field(None, serialization_alias="challengeId")
 
 
 # ── Deposit ────────────────────────────────────────────────────
@@ -59,6 +68,7 @@ class DepositInput(BaseModel):
     currency: str
     description: str | None = None
     reference: str | None = None
+    idempotency_key: str | None = Field(None, validation_alias="idempotencyKey")
 
 
 class DepositResult(BaseModel):
@@ -74,7 +84,11 @@ class BeneficiaryOut(BaseModel):
     name: str
     iban: str
     bank: str
-    currency: str = "USD"
+    currency: str = "INR"
+    category: str = "General"
+    is_verified: bool = Field(True, serialization_alias="isVerified")
+    cooling_until: str | None = Field(None, serialization_alias="coolingUntil")
+    cooling_limit: float | None = Field(None, serialization_alias="coolingLimit")
     last_used: str | None = Field(None, serialization_alias="lastUsed")
 
 
@@ -82,7 +96,9 @@ class BeneficiaryInput(BaseModel):
     name: str
     iban: str
     bank: str
-    currency: str = "USD"
+    currency: str = "INR"
+    category: str = "General"
+    idempotency_key: str | None = Field(None, validation_alias="idempotencyKey")
 
 
 # ── Bank Card ─────────────────────────────────────────────────
@@ -141,6 +157,7 @@ class Payment(BaseModel):
     next_date: str = Field(serialization_alias="nextDate")
     frequency: str  # weekly, monthly, quarterly, yearly
     beneficiary: str
+    status: str = "active"
 
 
 # ── Savings Goal ──────────────────────────────────────────────
@@ -253,3 +270,60 @@ class BudgetEnvelope(BaseModel):
     spent: float
     currency: str
     color: str | None = None
+
+
+# ── Card Security & Control Actions ─────────────────────────────
+
+class CardLimitsUpdate(BaseModel):
+    model_config = {"populate_by_name": True}
+    daily: float = Field(ge=0)
+    monthly: float = Field(ge=0)
+    atm: float = Field(ge=0)
+
+
+class CardPinChange(BaseModel):
+    pin: str = Field(min_length=4, max_length=6)
+
+
+# ── Savings Contribution / Withdrawal ───────────────────────────
+
+class GoalFundAction(BaseModel):
+    model_config = {"populate_by_name": True}
+    amount: float = Field(gt=0)
+    account_id: str = Field(validation_alias="accountId")
+
+
+# ── Transaction Dispute ─────────────────────────────────────────
+
+class DisputeInput(BaseModel):
+    model_config = {"populate_by_name": True}
+    transaction_id: str = Field(validation_alias="transactionId")
+    reason: str
+    details: str = ""
+
+
+class DisputeOut(BaseModel):
+    id: str
+    transaction_id: str = Field(serialization_alias="transactionId")
+    status: str
+    created_at: str = Field(serialization_alias="createdAt")
+
+
+# ── FX Exchange ─────────────────────────────────────────────────
+
+class ExchangeExecuteInput(BaseModel):
+    model_config = {"populate_by_name": True}
+    from_account_id: str = Field(validation_alias="fromAccountId")
+    to_account_id: str = Field(validation_alias="toAccountId")
+    from_currency: str = Field(validation_alias="fromCurrency")
+    to_currency: str = Field(validation_alias="toCurrency")
+    amount: float = Field(gt=0)
+    idempotency_key: str | None = Field(None, validation_alias="idempotencyKey")
+
+
+class ExchangeExecuteResult(BaseModel):
+    transaction_id: str = Field(serialization_alias="transactionId")
+    from_amount: float = Field(serialization_alias="fromAmount")
+    to_amount: float = Field(serialization_alias="toAmount")
+    exchange_rate: float = Field(serialization_alias="exchangeRate")
+    status: str = "completed"

@@ -11,12 +11,14 @@ pytestmark = pytest.mark.asyncio
 async def _auth_headers(client: AsyncClient) -> dict:
     """Register, verify OTP, and return auth headers."""
     import json
+    import uuid
 
     from app.db.redis import get_otp
 
+    email = f"banker_{uuid.uuid4().hex[:8]}@test.com"
     r1 = await client.post(
         "/api/v1/auth/register",
-        json={"email": "banker@test.com", "password": "securePassword123", "fullName": "Bank Tester"},
+        json={"email": email, "password": "securePassword123", "fullName": "Bank Tester"},
     )
     challenge_id = r1.json()["challengeId"]
     stored = await get_otp(str(challenge_id))

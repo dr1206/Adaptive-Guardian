@@ -23,14 +23,19 @@ from app.domain.banking.models import (
     Beneficiary,
     BudgetEnvelope,
     Currency,
+    DisputeRecord,
     Holding,
+    IdempotencyRecord,
     Insight,
+    LedgerEntry,
+    LedgerTransaction,
     LoanRecord,
     SavingsGoal,
     ScheduledPayment,
     TransactionRecord,
     TransferRecord,
 )
+from app.shared.money import from_paise, to_paise
 
 
 def _parse_dt(s: str) -> datetime:
@@ -65,8 +70,22 @@ async def get_beneficiary_by_id(beneficiary_id: str, user_id: uuid.UUID) -> Bene
         return None
 
 
-async def create_beneficiary(user_id: uuid.UUID, name: str, iban: str, bank: str, currency: str) -> Beneficiary:
-    beneficiary = Beneficiary(user_id=user_id, name=name, iban=iban, bank=bank, currency=currency)
+async def create_beneficiary(
+    user_id: uuid.UUID,
+    name: str,
+    iban: str,
+    bank: str,
+    currency: str = "INR",
+    category: str = "General",
+) -> Beneficiary:
+    beneficiary = Beneficiary(
+        user_id=user_id,
+        name=name,
+        iban=iban,
+        bank=bank,
+        currency=currency,
+        category=category,
+    )
     return await beneficiary.insert()
 
 
@@ -80,6 +99,9 @@ async def create_transfer(
     amount: float,
     currency: str,
     reference: str | None = None,
+    amount_paise: int = 0,
+    risk_score: float | None = None,
+    risk_decision: str = "allow",
 ) -> TransferRecord:
     record = TransferRecord(
         user_id=user_id,
@@ -87,8 +109,11 @@ async def create_transfer(
         beneficiary_id=beneficiary_id,
         beneficiary_name=beneficiary_name,
         amount=amount,
+        amount_paise=amount_paise,
         currency=currency,
         reference=reference,
+        risk_score=risk_score,
+        risk_decision=risk_decision,
     )
     return await record.insert()
 
@@ -112,7 +137,15 @@ async def seed_accounts_if_empty(user_id: uuid.UUID) -> list[BankAccount]:
     if existing > 0:
         return await BankAccount.find(BankAccount.user_id == user_id).to_list()
     seeds = generate_accounts(user_id)
-    docs = [BankAccount(user_id=user_id, **_drop_id(a)) for a in seeds]
+    docs = [
+        BankAccount(
+            user_id=user_id,
+            balance_paise=to_paise(a["balance"]),
+            pending_paise=to_paise(a.get("pending", 0)),
+            **_drop_id(dict(a)),
+        )
+        for a in seeds
+    ]
     if docs:
         await BankAccount.insert_many(docs)
     return docs
@@ -371,6 +404,15 @@ async def delete_payment(payment_id: str, user_id: uuid.UUID) -> bool:
     return True
 
 
+async def update_payment_status(payment_id: str, user_id: uuid.UUID, status: str) -> ScheduledPayment | None:
+    payment = await get_payment_by_id(payment_id, user_id)
+    if not payment:
+        return None
+    payment.status = status
+    await payment.save()
+    return payment
+
+
 # ── Savings Goals ────────────────────────────────────────────
 
 async def list_savings_goals(user_id: uuid.UUID) -> list[SavingsGoal]:
@@ -560,3 +602,169 @@ async def create_budget(
         color=color,
     )
     return await budget.insert()
+
+
+async def delete_budget(budget_id: str, user_id: uuid.UUID) -> bool:
+    try:
+        b_uuid = uuid.UUID(str(budget_id))
+        budget = await BudgetEnvelope.find_one(BudgetEnvelope.id == b_uuid, BudgetEnvelope.user_id == user_id)
+        if budget:
+            await budget.delete()
+            return True
+    except Exception:
+        pass
+    return False
+
+
+async def delete_beneficiary(beneficiary_id: str, user_id: uuid.UUID) -> bool:
+    b = await get_beneficiary_by_id(beneficiary_id, user_id)
+    if b:
+        await b.delete()
+        return True
+    return False
+
+
+async def verify_beneficiary(beneficiary_id: str, user_id: uuid.UUID) -> Beneficiary | None:
+    b = await get_beneficiary_by_id(beneficiary_id, user_id)
+    if b:
+        b.is_verified = True
+        await b.save()
+    return b
+
+
+async def update_card_limits(
+    card_id: str, user_id: uuid.UUID, daily: float, monthly: float, atm: float
+) -> BankCard | None:
+    card = await get_card_by_id(card_id, user_id)
+    if not card:
+        return None
+    limits = dict(card.limits or {})
+    limits["daily"] = round(daily, 2)
+    limits["monthly"] = round(monthly, 2)
+    limits["atm"] = round(atm, 2)
+    card.limits = limits
+    await card.save()
+    return card
+
+
+# ── Idempotency Store ──────────────────────────────────────────
+
+async def check_idempotency(user_id: uuid.UUID, key: str) -> IdempotencyRecord | None:
+    return await IdempotencyRecord.find_one(
+        IdempotencyRecord.user_id == user_id,
+        IdempotencyRecord.key == key,
+    )
+
+
+async def start_idempotency(
+    user_id: uuid.UUID, key: str, action: str, request_hash: str, ttl_seconds: int = 86400
+) -> IdempotencyRecord:
+    from datetime import timedelta
+    rec = IdempotencyRecord(
+        user_id=user_id,
+        key=key,
+        action=action,
+        request_hash=request_hash,
+        status="processing",
+        expires_at=datetime.now(UTC) + timedelta(seconds=ttl_seconds),
+    )
+    return await rec.insert()
+
+
+async def finish_idempotency(
+    record: IdempotencyRecord, response_code: int, response_body: dict
+) -> None:
+    record.status = "completed"
+    record.response_code = response_code
+    record.response_body = response_body
+    await record.save()
+
+
+# ── Immutable Financial Ledger ──────────────────────────────────
+
+async def record_ledger_movement(
+    user_id: uuid.UUID,
+    transaction_ref: str,
+    transaction_type: str,
+    amount_paise: int,
+    currency: str,
+    source_account_id: str | None,
+    destination_account_id: str | None,
+    reference: str | None = None,
+    risk_score: float | None = None,
+    risk_decision: str | None = "allow",
+    status: str = "completed",
+    initiated_by: str = "customer",
+    authorized_by: str = "system",
+) -> tuple[LedgerTransaction, list[LedgerEntry]]:
+    txn = LedgerTransaction(
+        transaction_ref=transaction_ref,
+        user_id=user_id,
+        source_account_id=source_account_id,
+        destination_account_id=destination_account_id,
+        amount_paise=amount_paise,
+        currency=currency,
+        transaction_type=transaction_type,
+        status=status,
+        reference=reference,
+        initiated_by=initiated_by,
+        authorized_by=authorized_by,
+        risk_score=risk_score,
+        risk_decision=risk_decision,
+    )
+    await txn.insert()
+
+    entries: list[LedgerEntry] = []
+    # Double-entry: Debit source account
+    if source_account_id:
+        src = await get_account_by_id(source_account_id, user_id)
+        bal = src.balance_paise if (src and src.balance_paise is not None) else (to_paise(src.balance) if src else 0)
+        debit_entry = LedgerEntry(
+            ledger_txn_id=txn.id,
+            account_id=source_account_id,
+            entry_type="debit",
+            amount_paise=amount_paise,
+            balance_after_paise=bal,
+            currency=currency,
+            description=f"{transaction_type.capitalize()} debit ref {transaction_ref}",
+        )
+        await debit_entry.insert()
+        entries.append(debit_entry)
+
+    # Double-entry: Credit destination account
+    if destination_account_id:
+        dst = await get_account_by_id(destination_account_id, user_id)
+        bal = dst.balance_paise if (dst and dst.balance_paise is not None) else (to_paise(dst.balance) if dst else 0)
+        credit_entry = LedgerEntry(
+            ledger_txn_id=txn.id,
+            account_id=destination_account_id,
+            entry_type="credit",
+            amount_paise=amount_paise,
+            balance_after_paise=bal,
+            currency=currency,
+            description=f"{transaction_type.capitalize()} credit ref {transaction_ref}",
+        )
+        await credit_entry.insert()
+        entries.append(credit_entry)
+
+    return txn, entries
+
+
+# ── Disputes ────────────────────────────────────────────────────
+
+async def create_dispute(
+    user_id: uuid.UUID, transaction_id: str, reason: str, details: str = ""
+) -> DisputeRecord:
+    rec = DisputeRecord(
+        user_id=user_id,
+        transaction_id=transaction_id,
+        reason=reason,
+        details=details,
+        status="under_investigation",
+    )
+    return await rec.insert()
+
+
+async def get_disputes_for_user(user_id: uuid.UUID) -> list[DisputeRecord]:
+    return await DisputeRecord.find(DisputeRecord.user_id == user_id).sort(-DisputeRecord.created_at).to_list()
+

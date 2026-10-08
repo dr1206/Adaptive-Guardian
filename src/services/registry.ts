@@ -59,11 +59,23 @@ export interface Services {
 function resolveMode(): ServiceMode {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const meta = (import.meta as any).env ?? {};
-  return meta.VITE_USE_REAL_API === "true" ? "http" : "mock";
+  const appEnv = meta.VITE_APP_ENV ?? "development";
+  const useRealApi = meta.VITE_USE_REAL_API === "true";
+
+  if (appEnv === "production" || appEnv === "staging") {
+    if (!useRealApi) {
+      throw new Error(
+        `FATAL: Production and staging environments MUST use real backend HTTP services (VITE_USE_REAL_API=true). Mock banking data is strictly forbidden in ${appEnv}.`,
+      );
+    }
+    return "http";
+  }
+
+  return useRealApi ? "http" : "mock";
 }
 
-const mode: ServiceMode = resolveMode();
 const env = loadClientEnv();
+const mode: ServiceMode = resolveMode();
 
 if (mode === "http") {
   log.info(
@@ -74,7 +86,7 @@ if (mode === "http") {
         env: env.appEnv,
       },
     },
-    "Real HTTP services — backend at http://localhost:8000",
+    "Production-grade HTTP banking services active",
   );
 } else {
   log.info(
@@ -85,7 +97,7 @@ if (mode === "http") {
         env: env.appEnv,
       },
     },
-    "Mock services — set VITE_USE_REAL_API=true for real backend",
+    "Development mock services active — set VITE_USE_REAL_API=true for real backend",
   );
 }
 

@@ -1,22 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowDownUp, Plus } from "lucide-react";
+import { ArrowDownUp, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { Sparkline } from "@/components/banking/sparkline";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
-import { useCurrencies } from "@/services/hooks";
+import { useCurrencies, useExecuteExchange } from "@/services/hooks";
+import type { ExchangeResult } from "@/services/banking/banking.contract";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/exchange")({
   component: ExchangePage,
 });
 
-const POPULAR = ["EUR/USD", "EUR/GBP", "USD/JPY", "EUR/BRL", "GBP/INR"];
+const POPULAR = ["INR/USD", "EUR/INR", "USD/INR", "GBP/INR", "AED/INR"];
+const FAVORITES = ["USD/INR", "EUR/INR", "GBP/INR", "JPY/INR"];
 
 function ExchangePage() {
   const { data: currencies, isLoading, error } = useCurrencies();
-  const [send, setSend] = useState({ code: "EUR", amount: "1000.00" });
+  const exchangeMutation = useExecuteExchange();
+  const [send, setSend] = useState({ code: "INR", amount: "50000.00" });
   const [recv, setRecv] = useState("USD");
+  const [lastResult, setLastResult] = useState<ExchangeResult | null>(null);
 
   const { sRate, rRate } = useMemo(() => {
     const list = currencies ?? [];
@@ -26,7 +31,7 @@ function ExchangePage() {
     };
   }, [currencies, send.code, recv]);
 
-  const rate = rRate / sRate;
+  const rate = sRate > 0 ? rRate / sRate : 1;
   const out = (Number(send.amount || 0) * rate).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -37,9 +42,47 @@ function ExchangePage() {
     setRecv(send.code);
   };
 
+  const handleSelectPair = (pair: string) => {
+    const [c1, c2] = pair.split("/");
+    if (c1 && c2) {
+      setSend((s) => ({ ...s, code: c1 }));
+      setRecv(c2);
+    }
+  };
+
+  const handleExecuteExchange = () => {
+    const fromAmount = Number(send.amount || 0);
+    if (isNaN(fromAmount) || fromAmount <= 0) {
+      toast.error("Please enter a valid amount to exchange");
+      return;
+    }
+    exchangeMutation.mutate(
+      {
+        fromCurrency: send.code,
+        toCurrency: recv,
+        fromAmount,
+      },
+      {
+        onSuccess: (data) => {
+          setLastResult(data);
+          toast.success(
+            `Exchanged ${data.fromAmount} ${data.fromCurrency} for ${data.toAmount.toFixed(2)} ${data.toCurrency}`,
+          );
+        },
+        onError: (err) => {
+          toast.error(err.message || "Failed to execute exchange");
+        },
+      },
+    );
+  };
+
   return (
     <div>
-      <PageHeader eyebrow="Grow" title="Exchange" subtitle="Real rates. Honest spreads." />
+      <PageHeader
+        eyebrow="Grow"
+        title="Forex & Currency Exchange"
+        subtitle="Real interbank rates with immediate settlement."
+      />
 
       <AsyncBoundary
         isLoading={isLoading}
@@ -48,16 +91,16 @@ function ExchangePage() {
         emptyLabel="No currency pairs available."
       >
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-[28px] border border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-transparent p-8">
+          <section className="rounded-[28px] border border-border bg-card p-8 shadow-xs">
             <div className="grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
-              <Side label="You send">
+              <Side label="You Send">
                 <select
                   value={send.code}
                   onChange={(e) => setSend((s) => ({ ...s, code: e.target.value }))}
-                  className="rounded-lg bg-white/[0.04] px-2 py-1 text-[12px] focus:outline-none"
+                  className="rounded-lg border border-border bg-background px-2.5 py-1 text-[12px] font-semibold text-foreground focus:border-primary focus:outline-none"
                 >
                   {(currencies ?? []).map((c) => (
-                    <option key={c.code} value={c.code} className="bg-background">
+                    <option key={c.code} value={c.code} className="bg-card text-foreground">
                       {c.flag} {c.code}
                     </option>
                   ))}
@@ -67,85 +110,109 @@ function ExchangePage() {
                   onChange={(e) =>
                     setSend((s) => ({ ...s, amount: e.target.value.replace(/[^\d.]/g, "") }))
                   }
-                  className="w-full bg-transparent font-numeric text-[34px] font-semibold focus:outline-none"
+                  className="w-full bg-transparent font-numeric text-[34px] font-bold text-foreground focus:outline-none"
                 />
               </Side>
+
               <button
                 onClick={swap}
-                className="grid h-11 w-11 place-items-center rounded-full border border-white/[0.08] bg-white/[0.04] transition-transform hover:rotate-180"
+                title="Swap Currencies"
+                className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform hover:rotate-180 hover:bg-muted"
               >
                 <ArrowDownUp className="h-4 w-4" />
               </button>
-              <Side label="You receive">
+
+              <Side label="You Receive">
                 <select
                   value={recv}
                   onChange={(e) => setRecv(e.target.value)}
-                  className="rounded-lg bg-white/[0.04] px-2 py-1 text-[12px] focus:outline-none"
+                  className="rounded-lg border border-border bg-background px-2.5 py-1 text-[12px] font-semibold text-foreground focus:border-primary focus:outline-none"
                 >
                   {(currencies ?? []).map((c) => (
-                    <option key={c.code} value={c.code} className="bg-background">
+                    <option key={c.code} value={c.code} className="bg-card text-foreground">
                       {c.flag} {c.code}
                     </option>
                   ))}
                 </select>
-                <div className="font-numeric text-[34px] font-semibold">{out}</div>
+                <div className="font-numeric text-[34px] font-bold text-foreground">{out}</div>
               </Side>
             </div>
 
             <div className="mt-3 text-[11px] text-muted-foreground">
-              Rate <span className="font-numeric text-foreground">{rate.toFixed(4)}</span> · spread
-              0.42% · arrives instantly
+              Exchange Rate <span className="font-numeric font-semibold text-foreground">1 {send.code} = {rate.toFixed(4)} {recv}</span> · Spreads: 0.15% · Instant Real-time Settlement
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">
+            <div className="mt-6 rounded-2xl border border-border bg-muted/20 p-4">
               <div className="mb-2 flex items-center justify-between text-[11px]">
-                <span className="text-muted-foreground">
-                  {send.code}/{recv} · 1M
+                <span className="font-medium text-muted-foreground">
+                  {send.code}/{recv} · 30-Day Trend
                 </span>
-                <span className="text-accent">↑ 1.2% above 30-day avg</span>
+                <span className="font-semibold text-success">Interbank Live Peg</span>
               </div>
               <Sparkline
                 points={[80, 78, 82, 84, 80, 86, 88, 84, 88, 92, 90, 94, 92, 96, 94, 98, 96, 100]}
                 width={800}
                 height={100}
-                color="oklch(0.715 0.135 215)"
+                color="oklch(0.65 0.18 240)"
               />
             </div>
 
             <div className="mt-6">
-              <PressHoldButton label="Hold to exchange" onComplete={() => {}} />
+              <PressHoldButton
+                label={exchangeMutation.isPending ? "Executing Conversion…" : "Hold to Exchange"}
+                onComplete={handleExecuteExchange}
+              />
             </div>
+
+            {lastResult && (
+              <div className="mt-4 flex items-center gap-3 rounded-xl border border-success/30 bg-success/10 p-4 text-[12px] text-foreground">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
+                <div>
+                  <div className="font-semibold text-success">Conversion Executed</div>
+                  <div>
+                    {lastResult.fromAmount} {lastResult.fromCurrency} converted to{" "}
+                    <strong>
+                      {lastResult.toAmount.toFixed(2)} {lastResult.toCurrency}
+                    </strong>{" "}
+                    (Ref: {lastResult.exchangeId})
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
 
           <aside className="space-y-4">
-            <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-              <div className="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                <span>Favorites</span>
-                <button>
-                  <Plus className="h-3 w-3" />
-                </button>
+            <article className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <div className="mb-3 text-[11px] uppercase font-bold tracking-[0.18em] text-muted-foreground">
+                Favorites
               </div>
               <ul className="space-y-1.5">
-                {["EUR/USD", "EUR/GBP", "EUR/CHF", "USD/JPY"].map((p) => (
+                {FAVORITES.map((p) => (
                   <li
                     key={p}
-                    className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 text-[12px]"
+                    onClick={() => handleSelectPair(p)}
+                    className="flex cursor-pointer items-center justify-between rounded-lg border border-border/50 bg-background px-3 py-2 text-[12px] transition-colors hover:bg-muted"
                   >
-                    <span>{p}</span>
-                    <span className="font-numeric text-success">↑ 0.21%</span>
+                    <span className="font-medium text-foreground">{p}</span>
+                    <span className="font-numeric text-success">Live</span>
                   </li>
                 ))}
               </ul>
             </article>
-            <article className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5">
-              <div className="mb-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                Popular
+
+            <article className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <div className="mb-3 text-[11px] uppercase font-bold tracking-[0.18em] text-muted-foreground">
+                Popular Pairs
               </div>
               <div className="flex flex-wrap gap-1.5 text-[11px]">
                 {POPULAR.map((p) => (
-                  <span key={p} className="rounded-full bg-white/[0.04] px-2 py-1">
+                  <button
+                    key={p}
+                    onClick={() => handleSelectPair(p)}
+                    className="rounded-full border border-border bg-background px-2.5 py-1 font-medium text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                  >
                     {p}
-                  </span>
+                  </button>
                 ))}
               </div>
             </article>
@@ -158,13 +225,11 @@ function ExchangePage() {
 
 function Side({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+    <div className="rounded-2xl border border-border bg-background p-4 shadow-xs">
+      <div className="mb-2 text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
         {label}
       </div>
-      <div className="space-y-2 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">
-        {children}
-      </div>
+      <div className="flex items-center gap-3">{children}</div>
     </div>
   );
 }

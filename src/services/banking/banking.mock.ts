@@ -92,6 +92,131 @@ export const mockBankingService: BankingService = {
   async listBudgets({ signal } = {}) {
     return mockResolve<ReadonlyArray<BudgetEnvelope>>(BUDGET_ENVELOPES, { signal });
   },
+  async addBeneficiary(b, { signal } = {}) {
+    const newB: Beneficiary = {
+      id: `b-${Date.now()}`,
+      name: b.name,
+      bank: b.bank,
+      iban: b.iban,
+      last4: b.iban.slice(-4),
+      category: (b.category as any) || "General",
+      initials: b.name.slice(0, 2).toUpperCase(),
+      tint: 1,
+    };
+    return mockResolve<Beneficiary>(newB, { signal });
+  },
+  async deleteBeneficiary(_id, { signal } = {}) {
+    return mockResolve<void>(undefined, { signal });
+  },
+  async verifyBeneficiary(id, { signal } = {}) {
+    const found = BENEFICIARIES.find((b) => b.id === id) || BENEFICIARIES[0];
+    return mockResolve<Beneficiary>(found, { signal });
+  },
+  async freezeCard(cardId, { signal } = {}) {
+    const card = CARDS.find((c) => c.id === cardId) || { ...CARDS[0], id: cardId };
+    return mockResolve<BankCard>({ ...card, frozen: true }, { signal });
+  },
+  async unfreezeCard(cardId, { signal } = {}) {
+    const card = CARDS.find((c) => c.id === cardId) || { ...CARDS[0], id: cardId };
+    return mockResolve<BankCard>({ ...card, frozen: false }, { signal });
+  },
+  async updateCardLimits(cardId, limits, { signal } = {}) {
+    const card = CARDS.find((c) => c.id === cardId) || { ...CARDS[0], id: cardId };
+    return mockResolve<BankCard>({
+      ...card,
+      limits: { ...card.limits, ...limits },
+    }, { signal });
+  },
+  async changeCardPin(_cardId, _pin, { signal } = {}) {
+    return mockResolve({ status: "success", message: "Card PIN updated" }, { signal });
+  },
+  async createPayment(p, { signal } = {}) {
+    const newP: Payment = {
+      id: `pay-${Date.now()}`,
+      description: p.description,
+      amount: p.amount,
+      currency: p.currency,
+      nextDate: p.nextDate,
+      frequency: p.frequency as any,
+      beneficiary: p.beneficiary,
+    };
+    return mockResolve<Payment>(newP, { signal });
+  },
+  async deletePayment(_id, { signal } = {}) {
+    return mockResolve<void>(undefined, { signal });
+  },
+  async pausePayment(id, { signal } = {}) {
+    const found = PAYMENTS.find((p) => p.id === id) || PAYMENTS[0];
+    return mockResolve<Payment>({ ...found, status: "paused" as any }, { signal });
+  },
+  async resumePayment(id, { signal } = {}) {
+    const found = PAYMENTS.find((p) => p.id === id) || PAYMENTS[0];
+    return mockResolve<Payment>({ ...found, status: "active" as any }, { signal });
+  },
+  async createSavingsGoal(g, { signal } = {}) {
+    const newG: SavingsGoal = {
+      id: `sg-${Date.now()}`,
+      name: g.name,
+      target: g.target,
+      current: 0,
+      currency: g.currency,
+      deadline: g.deadline,
+      image: g.image,
+    };
+    return mockResolve<SavingsGoal>(newG, { signal });
+  },
+  async contributeSavingsGoal(id, amount, _acc, { signal } = {}) {
+    const found = GOALS.find((g) => g.id === id) || GOALS[0];
+    return mockResolve<SavingsGoal>({ ...found, current: found.current + amount }, { signal });
+  },
+  async withdrawSavingsGoal(id, amount, _acc, { signal } = {}) {
+    const found = GOALS.find((g) => g.id === id) || GOALS[0];
+    return mockResolve<SavingsGoal>({ ...found, current: Math.max(0, found.current - amount) }, { signal });
+  },
+  async deleteSavingsGoal(_id, { signal } = {}) {
+    return mockResolve<void>(undefined, { signal });
+  },
+  async executeExchange(input, { signal } = {}) {
+    return mockResolve({
+      transactionId: `fx-${Date.now()}`,
+      fromCurrency: input.fromCurrency,
+      toCurrency: input.toCurrency,
+      fromAmount: input.fromAmount,
+      toAmount: input.fromAmount * 86.5,
+      rate: 86.5,
+      fee: input.fromAmount * 0.002,
+      executedAt: new Date().toISOString(),
+    }, { signal });
+  },
+  async exportStatement(_year, _month, { signal } = {}) {
+    const blob = new Blob(["Date,Amount,Description\n"], { type: "text/csv" });
+    return mockResolve(blob, { signal });
+  },
+  async createBudget(b, { signal } = {}) {
+    const newB: BudgetEnvelope = {
+      id: `bg-${Date.now()}`,
+      category: b.category,
+      budgeted: b.budgeted,
+      spent: 0,
+      currency: b.currency,
+      color: b.color || "emerald",
+    };
+    return mockResolve<BudgetEnvelope>(newB, { signal });
+  },
+  async deleteBudget(_id, { signal } = {}) {
+    return mockResolve<void>(undefined, { signal });
+  },
+  async createDispute(input, { signal } = {}) {
+    return mockResolve({
+      id: `dsp-${Date.now()}`,
+      transactionId: input.transactionId,
+      reason: input.reason,
+      status: "under_review",
+    }, { signal });
+  },
+  async listDisputes({ signal } = {}) {
+    return mockResolve([], { signal });
+  },
   async initiateTransfer(input: TransferInput, { signal } = {}) {
     if (input.amount <= 0) {
       return mockReject(
@@ -111,6 +236,10 @@ export const mockBankingService: BankingService = {
       transactionId: `txn_${Date.now().toString(36)}`,
       scheduledFor: new Date(Date.now() + 1000 * 60 * 5).toISOString(),
       signature: `sig_${Math.random().toString(36).slice(2, 10)}`,
+      status: "COMPLETED",
+      riskScore: 0.12,
+      riskDecision: "ALLOW",
+      message: "Transfer completed successfully",
     };
     return mockResolve(result, { signal, latencyMs: [420, 720] });
   },

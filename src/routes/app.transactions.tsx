@@ -1,12 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, AlertCircle, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { fmt } from "@/lib/format";
-import { useTransactions } from "@/services/hooks";
+import { useTransactions, useCreateDispute } from "@/services/hooks";
 import type { Transaction } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/app/transactions")({
   component: TransactionsPage,
@@ -20,13 +28,20 @@ function TransactionsPage() {
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortAsc, setSortAsc] = useState(false);
   const { data: transactions, isLoading, error } = useTransactions({});
+  const disputeMutation = useCreateDispute();
+
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [disputingTx, setDisputingTx] = useState<Transaction | null>(null);
+  const [reason, setReason] = useState("Unauthorized Transaction");
+  const [explanation, setExplanation] = useState("");
 
   const filtered = useMemo(() => {
     let list = (transactions ?? []).filter(
       (t) =>
         q === "" ||
         t.merchant.toLowerCase().includes(q.toLowerCase()) ||
-        t.category.toLowerCase().includes(q.toLowerCase()),
+        t.category.toLowerCase().includes(q.toLowerCase()) ||
+        t.ref.toLowerCase().includes(q.toLowerCase()),
     );
 
     list = [...list].sort((a, b) => {
@@ -57,16 +72,44 @@ function TransactionsPage() {
       setSortAsc((v) => !v);
     } else {
       setSortKey(key);
-      setSortAsc(false);
     }
+  };
+
+  const handleOpenDispute = (tx: Transaction) => {
+    setDisputingTx(tx);
+    setReason("Unauthorized Transaction");
+    setExplanation("");
+    setDisputeOpen(true);
+  };
+
+  const handleDisputeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!disputingTx) return;
+    disputeMutation.mutate(
+      {
+        transactionId: disputingTx.id,
+        reason,
+        explanation: explanation.trim() || undefined,
+      },
+      {
+        onSuccess: (res) => {
+          toast.success(`Dispute ${res.id} registered. Our fraud ops desk is reviewing it.`);
+          setDisputeOpen(false);
+          setDisputingTx(null);
+        },
+        onError: (err) => {
+          toast.error(err.message || "Failed to submit dispute");
+        },
+      },
+    );
   };
 
   return (
     <div>
       <PageHeader
         eyebrow="Transactions"
-        title="Transactions"
-        subtitle="Every move, fully searchable."
+        title="Transaction History"
+        subtitle="Immutable ledger records, audit logs, and chargeback dispute controls."
       />
 
       <div className="sticky top-16 z-10 -mx-8 px-8 py-3 bg-background/90 backdrop-blur-md">
@@ -76,7 +119,7 @@ function TransactionsPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search merchants, categories, narration…"
+              placeholder="Search merchants, categories, narration, reference…"
               className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
@@ -147,7 +190,9 @@ function TransactionsPage() {
                         {fmt(t.amount, "₹", 2)}
                       </span>
                     </button>
-                    {openId === t.id && <Expanded tx={t} />}
+                    {openId === t.id && (
+                      <Expanded tx={t} onRaiseDispute={() => handleOpenDispute(t)} />
+                    )}
                   </li>
                 ))}
               </ul>
@@ -155,19 +200,105 @@ function TransactionsPage() {
           ))}
         </div>
       </AsyncBoundary>
+
+      {/* Dispute Modal */}
+      <Dialog open={disputeOpen} onOpenChange={setDisputeOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5" /> Raise Chargeback / Dispute
+            </DialogTitle>
+          </DialogHeader>
+          {disputingTx && (
+            <form onSubmit={handleDisputeSubmit} className="space-y-4 pt-2">
+              <div className="rounded-lg bg-muted/40 p-3 text-[12px] space-y-1">
+                <div>
+                  <span className="text-muted-foreground">Merchant:</span>{" "}
+                  <strong>{disputingTx.merchant}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Amount:</span>{" "}
+                  <strong>{fmt(disputingTx.amount, "₹", 2)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Reference:</span>{" "}
+                  <code className="font-mono text-[11px]">{disputingTx.ref}</code>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-medium text-foreground">Dispute Reason</label>
+                <select
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-[13px] focus:border-primary focus:outline-none"
+                >
+                  <option value="Unauthorized Transaction">Unauthorized / Fraudulent Charge</option>
+                  <option value="Duplicate Charge">Duplicate Debit for Single Purchase</option>
+                  <option value="Incorrect Amount Charged">Incorrect Amount Charged</option>
+                  <option value="Merchandise Not Received">Merchandise or Service Not Received</option>
+                  <option value="ATM Cash Not Dispensed">ATM Cash Not Dispensed</option>
+                  <option value="Other">Other Grievance</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-medium text-foreground">
+                  Explanation / Statement of Facts (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={explanation}
+                  onChange={(e) => setExplanation(e.target.value)}
+                  placeholder="Provide any additional details or merchant communications…"
+                  className="mt-1 w-full rounded-md border border-border bg-background p-3 text-[13px] focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <DialogFooter>
+                <button
+                  type="button"
+                  onClick={() => setDisputeOpen(false)}
+                  className="h-9 rounded-md border border-border px-4 text-[12px] font-medium hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={disputeMutation.isPending}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md bg-destructive px-4 text-[12px] font-semibold text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+                >
+                  {disputeMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Submit Dispute Claim
+                </button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function Expanded({ tx }: { tx: Transaction }) {
+function Expanded({ tx, onRaiseDispute }: { tx: Transaction; onRaiseDispute: () => void }) {
   return (
-    <div className="grid gap-3 border-t border-border bg-muted/20 p-4 md:grid-cols-3">
-      <Field k="Payment Channel" v={tx.method || "IMPS / UPI"} />
-      <Field k="Reference Number" v={tx.ref} />
-      <Field k="Terminal / Location" v={tx.location ?? "Verified Client"} />
-      <Field k="Transaction Status" v={tx.status} />
-      <Field k="Account Debited" v={tx.account || "Primary Savings"} />
-      <Field k="Settled Amount" v={fmt(tx.amount, "₹", 2)} />
+    <div className="border-t border-border bg-muted/20 p-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <Field k="Payment Channel" v={tx.method || "IMPS / UPI"} />
+        <Field k="Reference Number" v={tx.ref} />
+        <Field k="Terminal / Location" v={tx.location ?? "Verified Client"} />
+        <Field k="Transaction Status" v={tx.status} />
+        <Field k="Account Debited" v={tx.account || "Primary Savings"} />
+        <Field k="Settled Amount" v={fmt(tx.amount, "₹", 2)} />
+      </div>
+      <div className="mt-4 flex justify-end border-t border-border/60 pt-3">
+        <button
+          onClick={onRaiseDispute}
+          className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-card px-3 py-1.5 text-[11.5px] font-semibold text-destructive hover:bg-destructive/10"
+        >
+          <AlertCircle className="h-3.5 w-3.5" /> Raise Dispute / Chargeback
+        </button>
+      </div>
     </div>
   );
 }

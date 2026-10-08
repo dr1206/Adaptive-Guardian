@@ -1,10 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useMemo, useState } from "react";
-import { ArrowRight, Search, Calendar, Repeat, Check } from "lucide-react";
+import { useMemo, useState, useRef } from "react";
+import { ArrowRight, Search, Check, Shield, ShieldAlert, Loader2, KeyRound } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
-import { Shield } from "@/components/brand/shield";
-import { SignatureGlyph } from "@/components/brand/signature-glyph";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
 import { fmt } from "@/lib/format";
@@ -14,8 +12,17 @@ import {
   useCurrencies,
   useInitiateTransfer,
 } from "@/services/hooks";
-import type { Account, Beneficiary, Currency } from "@/services/banking/banking.contract";
+import { useBehavioralExport } from "@/services/behavioral/BehavioralCollectorProvider";
+import type { Beneficiary, Currency, TransferResult } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const search = z.object({ to: z.string().optional(), from: z.string().optional() });
 
@@ -34,6 +41,7 @@ function TransferPage() {
   const beneficiariesQ = useBeneficiaries();
   const currenciesQ = useCurrencies();
   const transferMutation = useInitiateTransfer();
+  const { getWindows } = useBehavioralExport();
 
   const [step, setStep] = useState<Step>(presetTo ? 2 : 0);
   const [sourceId, setSourceId] = useState<string>(presetFrom ?? "primary");
@@ -41,8 +49,21 @@ function TransferPage() {
   const [amount, setAmount] = useState<string>("5000.00");
   const [currency, setCurrency] = useState("INR");
   const [purpose, setPurpose] = useState("Rent");
-  const [note, setNote] = useState("June");
-  const [done, setDone] = useState(false);
+  const [note, setNote] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Step-up Challenge State
+  const [challengeOpen, setChallengeOpen] = useState(false);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [challengeMessage, setChallengeMessage] = useState<string>("");
+  const [otpCode, setOtpCode] = useState("");
+
+  // Completed Transfer Details
+  const [transferResult, setTransferResult] = useState<TransferResult | null>(null);
+
+  // Idempotency key per transfer attempt
+  const idempotencyKeyRef = useRef<string>(crypto.randomUUID());
 
   const accounts = accountsQ.data ?? [];
   const beneficiaries = beneficiariesQ.data ?? [];
@@ -51,7 +72,85 @@ function TransferPage() {
   const recipient = beneficiaries.find((b) => b.id === recipientId);
 
   const next = () => setStep((s) => Math.min(4, s + 1) as Step);
-  const back = () => setStep((s) => Math.max(0, s - 1) as Step);
+  const back = () => {
+    setErrorMsg(null);
+    setStep((s) => Math.max(0, s - 1) as Step);
+  };
+
+  const getLatestBehavioralFeatures = () => {
+    try {
+      const windows = getWindows();
+      if (windows.length > 0) {
+        return windows[windows.length - 1].features;
+      }
+    } catch {
+      /* ignore */
+    }
+    return undefined;
+  };
+
+  const executeTransfer = (otp?: string, chId?: string) => {
+    if (!recipient || !source) return;
+    setIsSending(true);
+    setErrorMsg(null);
+
+    const numAmount = Number(amount || 0);
+    const behavioralFeatures = getLatestBehavioralFeatures();
+
+    transferMutation.mutate(
+      {
+        fromAccountId: source.id,
+        beneficiaryId: recipient.id,
+        amount: numAmount,
+        currency,
+        reference: `${purpose}${note ? ` — ${note}` : ""}`,
+        idempotencyKey: idempotencyKeyRef.current,
+        behavioralFeatures,
+        otpCode: otp,
+        challengeId: chId,
+      },
+      {
+        onSuccess: (data) => {
+          setIsSending(false);
+          if (data.status === "CHALLENGED") {
+            setChallengeId(data.challengeId ?? null);
+            setChallengeMessage(
+              data.message || "Unusual behavioral biometric signals detected. Please verify OTP.",
+            );
+            setChallengeOpen(true);
+            return;
+          }
+          if (data.status === "BLOCKED") {
+            setErrorMsg(
+              data.message || "Transfer was declined by real-time risk evaluation engine.",
+            );
+            toast.error("Transfer Blocked by Risk Controls");
+            return;
+          }
+          // Success
+          setChallengeOpen(false);
+          setTransferResult(data);
+          toast.success("Transfer executed successfully");
+          setStep(4);
+        },
+        onError: (err: any) => {
+          setIsSending(false);
+          const msg = err.message || "Failed to execute transfer. Please try again.";
+          setErrorMsg(msg);
+          toast.error(msg);
+        },
+      },
+    );
+  };
+
+  const handleChallengeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode.trim()) {
+      toast.error("Please enter the 6-digit OTP");
+      return;
+    }
+    executeTransfer(otpCode.trim(), challengeId ?? undefined);
+  };
 
   const isLoading = accountsQ.isLoading || beneficiariesQ.isLoading || currenciesQ.isLoading;
   const error = accountsQ.error ?? beneficiariesQ.error ?? currenciesQ.error;
@@ -61,7 +160,7 @@ function TransferPage() {
       <PageHeader
         eyebrow="Money"
         title="Transfer"
-        subtitle="A calm, four-step motion. Aegis verifies along the way."
+        subtitle="Secure inter-bank and intra-bank funds transfer protected by Aegis ML."
       />
 
       <AsyncBoundary
@@ -77,7 +176,7 @@ function TransferPage() {
               <span
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
-                  i < step ? "bg-primary" : i === step ? "bg-secondary" : "bg-muted",
+                  i < step ? "bg-primary" : i === step ? "bg-primary/80" : "bg-muted",
                 )}
               />
               <span
@@ -91,6 +190,16 @@ function TransferPage() {
             </div>
           ))}
         </div>
+
+        {errorMsg && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-[13px] text-destructive">
+            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex-1">
+              <div className="font-semibold">Transfer Not Processed</div>
+              <div className="mt-0.5 text-foreground/80">{errorMsg}</div>
+            </div>
+          </div>
+        )}
 
         <div className="min-h-[440px]">
           {step === 0 && (
@@ -152,12 +261,23 @@ function TransferPage() {
                 setPurpose={setPurpose}
                 note={note}
                 setNote={setNote}
-                onNext={next}
+                onNext={() => {
+                  const val = Number(amount || 0);
+                  if (isNaN(val) || val <= 0) {
+                    toast.error("Please enter a valid transfer amount greater than 0");
+                    return;
+                  }
+                  if (source && val > source.balance) {
+                    toast.error("Insufficient account balance");
+                    return;
+                  }
+                  next();
+                }}
               />
             </StepShell>
           )}
 
-          {step === 3 && recipient && (
+          {step === 3 && recipient && source && (
             <ReviewStage
               from={source.name}
               fromIban={source.iban.slice(-4)}
@@ -168,20 +288,8 @@ function TransferPage() {
               purpose={purpose}
               note={note}
               onEdit={back}
-              onSend={() => {
-                setDone(true);
-                transferMutation.mutate(
-                  {
-                    fromAccountId: source.id,
-                    beneficiaryId: recipient.id,
-                    amount: Number(amount || 0),
-                    currency,
-                    reference: `${purpose}${note ? ` — ${note}` : ""}`,
-                  },
-                  { onSettled: () => setTimeout(() => setStep(4), 700) },
-                );
-              }}
-              sent={done}
+              onSend={() => executeTransfer()}
+              isSending={isSending}
             />
           )}
 
@@ -189,9 +297,12 @@ function TransferPage() {
             <SuccessStage
               amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
               to={recipient.name}
+              result={transferResult}
               onAnother={() => {
+                idempotencyKeyRef.current = crypto.randomUUID();
                 setStep(0);
-                setDone(false);
+                setTransferResult(null);
+                setErrorMsg(null);
               }}
               onDone={() => navigate({ to: "/app" })}
             />
@@ -209,6 +320,54 @@ function TransferPage() {
           </div>
         )}
       </AsyncBoundary>
+
+      {/* Step-Up Challenge Dialog */}
+      <Dialog open={challengeOpen} onOpenChange={setChallengeOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-warning" /> Step-Up Security Verification
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-[13px] text-muted-foreground">{challengeMessage}</p>
+            <form onSubmit={handleChallengeSubmit} className="space-y-4">
+              <div>
+                <label className="text-[12px] font-medium text-foreground">
+                  Enter 6-Digit SMS / App OTP
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="123456"
+                  required
+                  autoFocus
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-center font-mono text-[18px] tracking-widest focus:border-primary focus:outline-none"
+                />
+              </div>
+              <DialogFooter>
+                <button
+                  type="button"
+                  onClick={() => setChallengeOpen(false)}
+                  className="h-9 rounded-md border border-border px-4 text-[12px] font-medium hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSending}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-[12px] font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                >
+                  {isSending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Verify & Transfer
+                </button>
+              </DialogFooter>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -260,73 +419,22 @@ function Recipients({
                   picked === b.id && "bg-primary/10 text-primary",
                 )}
               >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-[13px] font-bold text-primary">
+                <span className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-[12px] font-bold text-primary">
                   {b.initials}
                 </span>
-                <div className="flex-1">
-                  <div className="text-[13.5px] font-semibold text-foreground">{b.name}</div>
-                  <div className="text-[11.5px] text-muted-foreground">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13.5px] font-semibold text-foreground">
+                    {b.name}
+                  </div>
+                  <div className="truncate text-[11.5px] text-muted-foreground">
                     {b.bank} · A/C ••{b.last4}
                   </div>
                 </div>
-                {b.lastSent && (
-                  <span className="font-numeric text-[12px] font-medium text-muted-foreground">
-                    {fmt(b.lastSent.amount, "₹", 0)}
-                  </span>
-                )}
               </button>
             </li>
           ))}
         </ul>
       </div>
-      <aside className="rounded-xl border border-border bg-card p-5 shadow-xs">
-        {picked ? (
-          (() => {
-            const b = beneficiaries.find((x) => x.id === picked);
-            if (!b) return null;
-            return (
-              <div>
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 font-display text-[16px] font-bold text-primary">
-                    {b.initials}
-                  </span>
-                  <div>
-                    <div className="font-display text-[16px] font-bold text-foreground">
-                      {b.name}
-                    </div>
-                    <div className="text-[12px] text-muted-foreground">{b.bank}</div>
-                  </div>
-                </div>
-                <div className="rounded-lg border border-border bg-muted/20 p-3">
-                  <div className="text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
-                    Account / IFSC
-                  </div>
-                  <div className="mt-1 font-numeric text-[13px] font-semibold text-foreground">
-                    {b.iban}
-                  </div>
-                </div>
-                <div className="mt-4 text-[12px] font-medium text-muted-foreground">
-                  Recent Transactions
-                </div>
-                <ul className="mt-2 space-y-1.5 text-[12.5px]">
-                  {b.lastSent && (
-                    <li className="flex justify-between border-b border-border/50 pb-1">
-                      <span className="text-muted-foreground">{b.lastSent.date}</span>
-                      <span className="font-numeric font-semibold text-foreground">
-                        {fmt(b.lastSent.amount, "₹", 0)}
-                      </span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            );
-          })()
-        ) : (
-          <div className="grid h-full place-items-center text-center text-[12.5px] text-muted-foreground">
-            Select a verified beneficiary from the list to preview details.
-          </div>
-        )}
-      </aside>
     </div>
   );
 }
@@ -354,15 +462,6 @@ function AmountStage({
   setNote: (s: string) => void;
   onNext: () => void;
 }) {
-  const c = currencies.find((x) => x.code === currency) ?? currencies[0];
-  const usdC = currencies.find((x) => x.code === "USD") ?? c;
-  const value = Number(amount || 0);
-  const rate = c ? usdC.rate / c.rate : 1;
-  const usd = (value * rate).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
   return (
     <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
       <div className="rounded-xl border border-border bg-card p-8 text-center shadow-xs">
@@ -380,9 +479,7 @@ function AmountStage({
           </select>
         </div>
         <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[64px] font-bold tracking-tight text-foreground">
-          <span className="text-muted-foreground">
-            {currency === "INR" ? "₹" : currency === "USD" ? "$" : ""}
-          </span>
+          <span className="text-muted-foreground">₹</span>
           <input
             type="text"
             inputMode="decimal"
@@ -393,7 +490,7 @@ function AmountStage({
           />
         </div>
         <div className="mt-3 text-[12px] text-muted-foreground">
-          Transfer Mode: <span className="font-semibold text-primary">IMPS Instant</span> · Charges:{" "}
+          Transfer Mode: <span className="font-semibold text-primary">IMPS / NEFT</span> · Charges:{" "}
           <span className="font-semibold text-success">₹0.00 (Nil)</span>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
@@ -410,18 +507,6 @@ function AmountStage({
       </div>
 
       <aside className="space-y-4">
-        <article className="rounded-xl border border-border bg-card p-5 shadow-xs">
-          <h3 className="mb-2 text-[11px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
-            Indicative FX Conversion
-          </h3>
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-muted-foreground">
-              {currency} equivalent
-            </span>
-            <span className="font-numeric text-[18px] font-bold text-foreground">${usd} USD</span>
-          </div>
-        </article>
-
         <article className="rounded-xl border border-border bg-card p-5 shadow-xs space-y-3">
           <Labelled label="Payment Purpose">
             <select
@@ -487,7 +572,7 @@ function ReviewStage({
   note,
   onEdit,
   onSend,
-  sent,
+  isSending,
 }: {
   from: string;
   fromIban: string;
@@ -499,7 +584,7 @@ function ReviewStage({
   note: string;
   onEdit: () => void;
   onSend: () => void;
-  sent: boolean;
+  isSending: boolean;
 }) {
   return (
     <div className="grid place-items-center">
@@ -524,18 +609,20 @@ function ReviewStage({
 
         <div className="mt-8 flex items-center justify-between gap-4">
           <button
+            disabled={isSending}
             onClick={onEdit}
-            className="rounded-lg border border-border bg-card px-5 py-2.5 text-[13px] font-medium text-foreground shadow-xs hover:bg-muted"
+            className="rounded-lg border border-border bg-card px-5 py-2.5 text-[13px] font-medium text-foreground shadow-xs hover:bg-muted disabled:opacity-50"
           >
             Modify
           </button>
-          <PressHoldButton label="Hold to Authorize & Send" onComplete={onSend} />
+          <PressHoldButton
+            label={isSending ? "Authorizing Transfer…" : "Hold to Authorize & Send"}
+            onComplete={onSend}
+          />
         </div>
 
         <p className="mt-4 text-center text-[12px] text-muted-foreground">
-          {sent
-            ? "Transfer authorized. Submitting to banking gateway…"
-            : "Biometric session integrity will be verified upon authorization."}
+          Biometric session integrity and double-entry ledger balance will be verified upon authorization.
         </p>
       </article>
     </div>
@@ -565,11 +652,13 @@ function Row({ k, v, big }: { k: string; v: string; big?: boolean }) {
 function SuccessStage({
   amount,
   to,
+  result,
   onAnother,
   onDone,
 }: {
   amount: string;
   to: string;
+  result: TransferResult | null;
   onAnother: () => void;
   onDone: () => void;
 }) {
@@ -581,12 +670,34 @@ function SuccessStage({
         </span>
       </div>
       <h2 className="mt-4 font-display text-[26px] font-bold tracking-tight text-foreground">
-        Transfer Successful
+        Transfer Completed
       </h2>
       <p className="mt-1 text-[14px] text-muted-foreground">
         Payment of <span className="font-numeric font-bold text-foreground">{amount}</span> to{" "}
-        <span className="font-semibold text-foreground">{to}</span> has been processed.
+        <span className="font-semibold text-foreground">{to}</span> has been debited and posted.
       </p>
+
+      {result && (
+        <div className="mt-5 max-w-sm rounded-lg border border-border bg-card p-4 text-left text-[12px] space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Transaction ID:</span>
+            <span className="font-mono font-medium text-foreground">{result.transactionId}</span>
+          </div>
+          {result.riskScore !== undefined && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Risk Score:</span>
+              <span className="font-medium text-success">{result.riskScore.toFixed(3)} (Low Risk)</span>
+            </div>
+          )}
+          {result.riskDecision && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Decision:</span>
+              <span className="font-medium text-foreground">{result.riskDecision}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="mt-8 flex items-center gap-3">
         <button
           onClick={onAnother}

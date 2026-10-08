@@ -85,8 +85,8 @@ async def register(data: RegisterRequest) -> RegistrationPending:
     }
     await redis_set_otp(str(challenge.challenge_id), json.dumps({"code": otp_code, "pending": pending}))
 
-    # In production this would send an email via SMTP
-    logger.info("OTP for %s: %s", data.email, otp_code)
+    # In production this would send an email via SMTP or SMS gateway
+    logger.info("OTP challenge generated for verification: challenge_id=%s", challenge.challenge_id)
 
     return RegistrationPending(
         challenge_id=challenge.challenge_id,
@@ -222,7 +222,7 @@ async def request_password_reset(data: PasswordResetRequest) -> PasswordResetPen
     challenge = await repo.create_password_reset_challenge(user.id)
     await redis_set_otp(str(challenge.challenge_id), json.dumps({"code": otp_code, "user_id": str(user.id)}))
 
-    logger.info("Password reset OTP for %s: %s", data.email, otp_code)
+    logger.info("Password reset OTP challenge generated: challenge_id=%s", challenge.challenge_id)
 
     return PasswordResetPending(
         challenge_id=challenge.challenge_id,

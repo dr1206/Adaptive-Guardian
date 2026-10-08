@@ -144,6 +144,7 @@ export const queryKeys = {
   statement: (q: StatementQuery) => ["banking", "statements", q.year, q.month] as const,
   activity: ["banking", "activity"] as const,
   budgets: ["banking", "budgets"] as const,
+  disputes: ["banking", "disputes"] as const,
   aegisSnapshot: ["aegis", "snapshot"] as const,
   aegisDecisions: ["aegis", "decisions"] as const,
   aegisDevices: ["aegis", "devices"] as const,
@@ -391,8 +392,242 @@ export function useInitiateTransfer(
       qc.invalidateQueries({
         queryKey: ["banking", "transactions"],
       });
+      qc.invalidateQueries({
+        queryKey: queryKeys.activity,
+      });
     },
     ...opts,
+  });
+}
+
+export function useFreezeCard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (cardId: string) => services.banking.freezeCard(cardId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.cards });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useUnfreezeCard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (cardId: string) => services.banking.unfreezeCard(cardId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.cards });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useUpdateCardLimits() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ cardId, limits }: { cardId: string; limits: { daily?: number; monthly?: number; atm?: number } }) =>
+      services.banking.updateCardLimits(cardId, limits),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.cards });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useChangeCardPin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ cardId, pin }: { cardId: string; pin: string }) =>
+      services.banking.changeCardPin(cardId, pin),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useAddBeneficiary() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (beneficiary: { name: string; iban: string; bank: string; category?: string; currency?: string }) =>
+      services.banking.addBeneficiary(beneficiary),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.beneficiaries });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useDeleteBeneficiary() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.deleteBeneficiary(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.beneficiaries });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useVerifyBeneficiary() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.verifyBeneficiary(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.beneficiaries });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useCreatePayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payment: { description: string; amount: number; currency: string; nextDate: string; frequency: string; beneficiary: string }) =>
+      services.banking.createPayment(payment),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.payments });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useDeletePayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.deletePayment(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.payments });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function usePausePayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.pausePayment(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.payments });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useResumePayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.resumePayment(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.payments });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useCreateSavingsGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (goal: { name: string; target: number; currency: string; deadline: string; image?: string }) =>
+      services.banking.createSavingsGoal(goal),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useContributeSavingsGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) =>
+      services.banking.contributeSavingsGoal(goalId, amount, accountId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
+      qc.invalidateQueries({ queryKey: queryKeys.accounts });
+      qc.invalidateQueries({ queryKey: ["banking", "transactions"] });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useWithdrawSavingsGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) =>
+      services.banking.withdrawSavingsGoal(goalId, amount, accountId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
+      qc.invalidateQueries({ queryKey: queryKeys.accounts });
+      qc.invalidateQueries({ queryKey: ["banking", "transactions"] });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useDeleteSavingsGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.deleteSavingsGoal(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useCreateBudget() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (budget: { category: string; budgeted: number; currency: string; color?: string }) =>
+      services.banking.createBudget(budget),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.budgets });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useDeleteBudget() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => services.banking.deleteBudget(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.budgets });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useExecuteExchange() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { fromCurrency: string; toCurrency: string; fromAmount: number; fromAccountId?: string }) =>
+      services.banking.executeExchange(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.accounts });
+      qc.invalidateQueries({ queryKey: ["banking", "transactions"] });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
+  });
+}
+
+export function useDisputes() {
+  return useQuery({
+    queryKey: queryKeys.disputes,
+    queryFn: ({ signal }) => services.banking.listDisputes({ signal }),
+    enabled: hasToken(),
+  });
+}
+
+export function useCreateDispute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { transactionId: string; reason: string; explanation?: string }) =>
+      services.banking.createDispute(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.disputes });
+      qc.invalidateQueries({ queryKey: queryKeys.activity });
+    },
   });
 }
 

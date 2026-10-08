@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 
 from app.api.deps import get_current_user
 from app.domain.banking import service
@@ -16,9 +16,16 @@ from app.domain.banking.schemas import (
     BudgetEnvelope,
     BudgetInput,
     CardInput,
+    CardLimitsUpdate,
+    CardPinChange,
     Currency,
     DepositInput,
     DepositResult,
+    DisputeInput,
+    DisputeOut,
+    ExchangeExecuteInput,
+    ExchangeExecuteResult,
+    GoalFundAction,
     Holding,
     Insight,
     LoanRecord,
@@ -103,6 +110,22 @@ async def add_beneficiary(
     return await service.add_beneficiary(_uid(current_user), data)
 
 
+@router.delete("/beneficiaries/{beneficiary_id}", status_code=204)
+async def delete_beneficiary(
+    beneficiary_id: str,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    await service.delete_beneficiary(_uid(current_user), beneficiary_id)
+
+
+@router.post("/beneficiaries/{beneficiary_id}/verify", response_model=BeneficiaryOut)
+async def verify_beneficiary(
+    beneficiary_id: str,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.verify_beneficiary(_uid(current_user), beneficiary_id)
+
+
 # ── Cards ─────────────────────────────────────────────────────
 
 
@@ -139,6 +162,24 @@ async def unfreeze_card(
     return await service.unfreeze_card(_uid(current_user), card_id)
 
 
+@router.patch("/cards/{card_id}/limits", response_model=BankCard)
+async def update_card_limits(
+    card_id: str,
+    data: CardLimitsUpdate,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.update_card_limits(_uid(current_user), card_id, data)
+
+
+@router.post("/cards/{card_id}/pin")
+async def change_card_pin(
+    card_id: str,
+    data: CardPinChange,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.change_card_pin(_uid(current_user), card_id, data.pin)
+
+
 # ── Payments ──────────────────────────────────────────────────
 
 
@@ -165,6 +206,22 @@ async def delete_payment(
     current_user: dict[str, Any] = Depends(get_current_user),
 ):
     await service.delete_payment(_uid(current_user), payment_id)
+
+
+@router.patch("/payments/{payment_id}/pause", response_model=Payment)
+async def pause_payment(
+    payment_id: str,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.pause_payment(_uid(current_user), payment_id)
+
+
+@router.patch("/payments/{payment_id}/resume", response_model=Payment)
+async def resume_payment(
+    payment_id: str,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.resume_payment(_uid(current_user), payment_id)
 
 
 # ── Savings Goals ─────────────────────────────────────────────
@@ -206,6 +263,28 @@ async def delete_savings_goal(
     await service.delete_savings_goal(_uid(current_user), goal_id)
 
 
+@router.post("/savings-goals/{goal_id}/contribute", response_model=SavingsGoal)
+async def contribute_savings_goal(
+    goal_id: str,
+    data: GoalFundAction,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.contribute_savings_goal(
+        _uid(current_user), goal_id, data.amount, data.account_id
+    )
+
+
+@router.post("/savings-goals/{goal_id}/withdraw", response_model=SavingsGoal)
+async def withdraw_savings_goal(
+    goal_id: str,
+    data: GoalFundAction,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.withdraw_savings_goal(
+        _uid(current_user), goal_id, data.amount, data.account_id
+    )
+
+
 # ── Holdings ──────────────────────────────────────────────────
 
 
@@ -228,6 +307,20 @@ async def list_loans(current_user: dict[str, Any] = Depends(get_current_user)):
 @router.get("/currencies", response_model=list[Currency])
 async def list_currencies(current_user: dict[str, Any] = Depends(get_current_user)):
     return await service.list_currencies(_uid(current_user))
+
+
+@router.post("/exchange/execute", response_model=ExchangeExecuteResult)
+async def execute_exchange(
+    data: ExchangeExecuteInput,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.execute_exchange(
+        _uid(current_user),
+        data.from_currency,
+        data.to_currency,
+        data.from_amount,
+        data.from_account_id,
+    )
 
 
 # ── Insights ──────────────────────────────────────────────────
@@ -253,6 +346,21 @@ async def get_statement(
     current_user: dict[str, Any] = Depends(get_current_user),
 ):
     return await service.get_statement(_uid(current_user), year, month)
+
+
+@router.get("/statements/{year}/{month}/export")
+async def export_statement(
+    year: int,
+    month: int,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    csv_content = await service.export_statement_csv(_uid(current_user), year, month)
+    filename = f"statement_{year}_{month:02d}.csv"
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 # ── Activity ──────────────────────────────────────────────────
@@ -282,3 +390,27 @@ async def create_budget(
     return await service.create_budget(
         _uid(current_user), data.category, data.budgeted, data.currency, data.color
     )
+
+
+@router.delete("/budgets/{budget_id}", status_code=204)
+async def delete_budget(
+    budget_id: str,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    await service.delete_budget(_uid(current_user), budget_id)
+
+
+# ── Disputes ──────────────────────────────────────────────────
+
+
+@router.post("/disputes", response_model=DisputeOut, status_code=201)
+async def create_dispute(
+    data: DisputeInput,
+    current_user: dict[str, Any] = Depends(get_current_user),
+):
+    return await service.create_dispute(_uid(current_user), data)
+
+
+@router.get("/disputes", response_model=list[DisputeOut])
+async def list_disputes(current_user: dict[str, Any] = Depends(get_current_user)):
+    return await service.list_disputes(_uid(current_user))

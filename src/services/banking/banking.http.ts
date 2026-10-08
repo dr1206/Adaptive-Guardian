@@ -536,6 +536,179 @@ export const httpBankingService: BankingService = {
     return budgets.map(mapBudget);
   },
 
+  async addBeneficiary(b, { signal } = {}) {
+    const res = await httpRequest<BackendBeneficiary>("/beneficiaries", {
+      method: "POST",
+      body: b,
+      signal,
+    });
+    return mapBeneficiary(res);
+  },
+
+  async deleteBeneficiary(id, { signal } = {}) {
+    await httpRequest<void>(`/beneficiaries/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+  },
+
+  async verifyBeneficiary(id, { signal } = {}) {
+    const res = await httpRequest<BackendBeneficiary>(`/beneficiaries/${id}/verify`, {
+      method: "POST",
+      signal,
+    });
+    return mapBeneficiary(res);
+  },
+
+  async freezeCard(cardId, { signal } = {}) {
+    const card = await httpRequest<BackendCard>(`/cards/${cardId}/freeze`, {
+      method: "PATCH",
+      signal,
+    });
+    return mapCard(card);
+  },
+
+  async unfreezeCard(cardId, { signal } = {}) {
+    const card = await httpRequest<BackendCard>(`/cards/${cardId}/unfreeze`, {
+      method: "PATCH",
+      signal,
+    });
+    return mapCard(card);
+  },
+
+  async updateCardLimits(cardId, limits, { signal } = {}) {
+    const card = await httpRequest<BackendCard>(`/cards/${cardId}/limits`, {
+      method: "PATCH",
+      body: limits,
+      signal,
+    });
+    return mapCard(card);
+  },
+
+  async changeCardPin(cardId, pin, { signal } = {}) {
+    return httpRequest<{ status: string; message: string }>(`/cards/${cardId}/pin`, {
+      method: "POST",
+      body: { pin },
+      signal,
+    });
+  },
+
+  async createPayment(payment, { signal } = {}) {
+    const res = await httpRequest<BackendPayment>("/payments", {
+      method: "POST",
+      body: payment,
+      signal,
+    });
+    return mapPayment(res);
+  },
+
+  async deletePayment(id, { signal } = {}) {
+    await httpRequest<void>(`/payments/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+  },
+
+  async pausePayment(id, { signal } = {}) {
+    const res = await httpRequest<BackendPayment>(`/payments/${id}/pause`, {
+      method: "PATCH",
+      signal,
+    });
+    return mapPayment(res);
+  },
+
+  async resumePayment(id, { signal } = {}) {
+    const res = await httpRequest<BackendPayment>(`/payments/${id}/resume`, {
+      method: "PATCH",
+      signal,
+    });
+    return mapPayment(res);
+  },
+
+  async createSavingsGoal(goal, { signal } = {}) {
+    const res = await httpRequest<BackendSavingsGoal>("/savings-goals", {
+      method: "POST",
+      body: goal,
+      signal,
+    });
+    return mapSavingsGoal(res);
+  },
+
+  async contributeSavingsGoal(goalId, amount, accountId, { signal } = {}) {
+    const res = await httpRequest<BackendSavingsGoal>(`/savings-goals/${goalId}/contribute`, {
+      method: "POST",
+      body: { amount, accountId },
+      signal,
+    });
+    return mapSavingsGoal(res);
+  },
+
+  async withdrawSavingsGoal(goalId, amount, accountId, { signal } = {}) {
+    const res = await httpRequest<BackendSavingsGoal>(`/savings-goals/${goalId}/withdraw`, {
+      method: "POST",
+      body: { amount, accountId },
+      signal,
+    });
+    return mapSavingsGoal(res);
+  },
+
+  async deleteSavingsGoal(id, { signal } = {}) {
+    await httpRequest<void>(`/savings-goals/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+  },
+
+  async executeExchange(input, { signal } = {}) {
+    return httpRequest<any>("/exchange/execute", {
+      method: "POST",
+      body: input,
+      signal,
+    });
+  },
+
+  async exportStatement(year, month, { signal } = {}) {
+    const res = await fetch(`/api/v1/statements/${year}/${month}/export`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
+      },
+      signal,
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to export statement (${res.status})`);
+    }
+    return res.blob();
+  },
+
+  async createBudget(budget, { signal } = {}) {
+    const res = await httpRequest<BackendBudget>("/budgets", {
+      method: "POST",
+      body: budget,
+      signal,
+    });
+    return mapBudget(res);
+  },
+
+  async deleteBudget(id, { signal } = {}) {
+    await httpRequest<void>(`/budgets/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+  },
+
+  async createDispute(input, { signal } = {}) {
+    return httpRequest<any>("/disputes", {
+      method: "POST",
+      body: input,
+      signal,
+    });
+  },
+
+  async listDisputes({ signal } = {}) {
+    return httpRequest<any[]>("/disputes", { signal });
+  },
+
   async initiateTransfer(input: TransferInput, { signal } = {}) {
     const result = await httpRequest<BackendTransferResult>("/transfers", {
       method: "POST",
@@ -545,6 +718,10 @@ export const httpBankingService: BankingService = {
         amount: input.amount,
         currency: input.currency,
         reference: input.reference,
+        idempotencyKey: input.idempotencyKey,
+        behavioralFeatures: input.behavioralFeatures,
+        otpCode: input.otpCode,
+        challengeId: input.challengeId,
       },
       signal,
     });
@@ -552,6 +729,11 @@ export const httpBankingService: BankingService = {
       transactionId: result.transactionId,
       scheduledFor: result.scheduledFor,
       signature: result.signature,
+      status: result.status,
+      riskScore: result.riskScore,
+      riskDecision: result.riskDecision,
+      challengeId: result.challengeId,
+      message: result.message,
     };
   },
 };

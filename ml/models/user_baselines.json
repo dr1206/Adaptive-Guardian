@@ -1,0 +1,18 @@
+{
+  "e92e7c09-c1b8-4f72-a7a8-f75077608d1b": {
+    "accelerationMean": -0.3008,
+    "accelerationStd": 10.9661,
+    "clickCount": 3.6,
+    "curvatureMean": 0.2249,
+    "curvatureStd": 0.3359,
+    "dwellMeanMs": 103.2372,
+    "dwellStdMs": 69.8011,
+    "flightMeanMs": 366.7239,
+    "flightStdMs": 333.1139,
+    "keysPerSec": 2.2463,
+    "mouseTravelPx": 2410.4209,
+    "scrollAmount": 0.0,
+    "velocityMean": 619.4261,
+    "velocityStd": 742.7084
+  }
+}

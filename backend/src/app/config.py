@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from typing_extensions import Self
 
 
 class Settings(BaseSettings):
@@ -14,15 +15,16 @@ class Settings(BaseSettings):
 
     # App
     app_name: str = "AdaptiveGuard"
+    app_env: str = Field(default="development", alias="APP_ENV")
     debug: bool = False
     cors_origins: list[str] = Field(
         default=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:8081", "http://127.0.0.1:8080", "http://127.0.0.1:5173"],
         alias="CORS_ORIGINS",
     )
 
-    # MongoDB Atlas
-    mongodb_uri: str = "mongodb+srv://avarghese23comp_db_user:6Tqa3hmBRf0Uf1ip@cluster0.wlkiqaf.mongodb.net/?appName=Cluster0"
-    mongodb_db_name: str = "adaptive_guardian"
+    # Database
+    mongodb_uri: str = Field(default="mongodb://localhost:27017", alias="MONGODB_URI")
+    mongodb_db_name: str = Field(default="adaptive_guardian", alias="MONGODB_DB_NAME")
 
     # Redis
     redis_uri: str = "redis://localhost:6379"
@@ -71,6 +73,23 @@ class Settings(BaseSettings):
     smtp_host: str = "localhost"
     smtp_port: int = 1025
     email_from: str = "noreply@adaptiveguard.ai"
+
+    @model_validator(mode="after")
+    def validate_production_security(self) -> Self:
+        if self.app_env.lower() in ("production", "prod"):
+            insecure_jwt = (
+                "dev-secret-change-in-production",
+                "dev-secret-change-in-production-local-dev-only-do-not-use-in-prod",
+            )
+            if self.jwt_secret in insecure_jwt or len(self.jwt_secret) < 32:
+                raise ValueError("FATAL: Insecure JWT_SECRET configured for production.")
+            if "localhost" in self.mongodb_uri or "127.0.0.1" in self.mongodb_uri:
+                raise ValueError("FATAL: Insecure localhost MONGODB_URI configured for production.")
+            if self.default_admin_password == "Admin@1234567890":
+                raise ValueError("FATAL: Default weak admin password configured for production.")
+            if self.debug:
+                raise ValueError("FATAL: DEBUG cannot be true in production.")
+        return self
 
 
 settings = Settings()

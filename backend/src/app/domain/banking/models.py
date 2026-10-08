@@ -14,7 +14,11 @@ class Beneficiary(Document):
     name: str
     iban: str
     bank: str
-    currency: str = "USD"
+    currency: str = "INR"
+    category: str = "General"
+    is_verified: bool = True
+    cooling_until: datetime | None = None
+    cooling_limit_paise: int = 5000000  # ₹50,000 maximum during cooling window
     last_used: datetime | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -33,10 +37,13 @@ class TransferRecord(Document):
     beneficiary_id: str
     beneficiary_name: str
     amount: float
+    amount_paise: int = 0
     currency: str
     reference: str | None = None
     scheduled_for: datetime = Field(default_factory=lambda: datetime.now(UTC))
     signature: str = Field(default_factory=lambda: uuid.uuid4().hex[:12])
+    risk_score: float | None = None
+    risk_decision: str = "allow"
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Settings:
@@ -53,7 +60,9 @@ class BankAccount(Document):
     type: str
     currency: str
     balance: float
+    balance_paise: int | None = None
     pending: float = 0
+    pending_paise: int | None = None
     iban: str
     delta_pct: float
     spark: list[float]
@@ -120,6 +129,7 @@ class ScheduledPayment(Document):
     next_date: datetime
     frequency: str
     beneficiary: str
+    status: str = "active"  # "active" | "paused"
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Settings:
@@ -242,3 +252,90 @@ class BudgetEnvelope(Document):
     class Settings:
         name = "budget_envelopes"
         indexes = ["user_id"]
+
+
+# ── Financial Ledger & Idempotency ──────────────────────────────
+
+class LedgerTransaction(Document):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)  # type: ignore[assignment]
+    transaction_ref: str
+    user_id: uuid.UUID
+    source_account_id: str | None = None
+    destination_account_id: str | None = None
+    amount_paise: int
+    currency: str = "INR"
+    transaction_type: str  # transfer, deposit, withdrawal, payment, fee, reversal, exchange
+    status: str = "completed"  # completed, pending, failed, reversed
+    reference: str | None = None
+    initiated_by: str = "customer"
+    authorized_by: str = "system"
+    risk_score: float | None = None
+    risk_decision: str | None = "allow"
+    failure_reason: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    class Settings:
+        name = "ledger_transactions"
+        indexes = [
+            "user_id",
+            IndexModel([("transaction_ref", 1)], unique=True),
+            IndexModel([("user_id", 1), ("created_at", -1)]),
+        ]
+
+
+class LedgerEntry(Document):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)  # type: ignore[assignment]
+    ledger_txn_id: uuid.UUID
+    account_id: str
+    entry_type: str  # debit | credit
+    amount_paise: int
+    balance_after_paise: int
+    currency: str = "INR"
+    description: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    class Settings:
+        name = "ledger_entries"
+        indexes = [
+            "account_id",
+            "ledger_txn_id",
+            IndexModel([("account_id", 1), ("created_at", -1)]),
+        ]
+
+
+class IdempotencyRecord(Document):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)  # type: ignore[assignment]
+    key: str
+    user_id: uuid.UUID
+    action: str
+    request_hash: str
+    status: str = "processing"  # processing, completed, failed
+    response_code: int = 200
+    response_body: dict = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    expires_at: datetime
+
+    class Settings:
+        name = "idempotency_records"
+        indexes = [
+            IndexModel([("user_id", 1), ("key", 1)], unique=True),
+            IndexModel([("expires_at", 1)], expireAfterSeconds=0),
+        ]
+
+
+class DisputeRecord(Document):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)  # type: ignore[assignment]
+    user_id: uuid.UUID
+    transaction_id: str
+    reason: str
+    details: str
+    status: str = "under_investigation"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    class Settings:
+        name = "dispute_records"
+        indexes = [
+            "user_id",
+            "transaction_id",
+        ]

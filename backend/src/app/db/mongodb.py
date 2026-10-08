@@ -45,6 +45,10 @@ async def init_db(clean: bool = False) -> None:
         ScheduledPayment,
         TransactionRecord,
         TransferRecord,
+        DisputeRecord,
+        IdempotencyRecord,
+        LedgerEntry,
+        LedgerTransaction,
     )
     from app.domain.notifications.models import Notification, NotificationPreference
     from app.domain.training.models import TrainingEvent, TrainingFeature, TrainingSession
@@ -76,6 +80,10 @@ async def init_db(clean: bool = False) -> None:
             BudgetEnvelope,
             Beneficiary,
             TransferRecord,
+            LedgerTransaction,
+            LedgerEntry,
+            IdempotencyRecord,
+            DisputeRecord,
             Notification,
             NotificationPreference,
             AuditRecord,
