@@ -88,8 +88,16 @@ export function appendStoredWindows(
     session = {
       sessionId: sid,
       capturedAt: new Date().toISOString(),
+      totalKeystrokes: 0,
+      totalMouseEvents: 0,
+      deviceInfo: {
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+        viewport: `${typeof window !== "undefined" ? window.innerWidth : 0}x${typeof window !== "undefined" ? window.innerHeight : 0}`,
+        platform: typeof navigator !== "undefined" ? navigator.platform : "unknown",
+        timezone: typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
+      },
       windows: [],
-    } as BehavioralSessionDump;
+    };
     ds.sessions.push(session);
   }
   session.windows.push(...windows);
