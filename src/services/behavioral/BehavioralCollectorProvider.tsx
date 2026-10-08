@@ -384,7 +384,6 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
     [authenticateWindow],
   );
 
-
   const startCollection = useCallback(() => {
     if (collectorRef.current) return;
 

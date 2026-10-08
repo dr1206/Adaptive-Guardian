@@ -54,21 +54,37 @@ function UsersPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => {
-              const csv = ["ID,Name,Email,Status,Tier,Trust,Risk,Last Seen",
-                ...filtered.map(u => `${u.id},"${u.name}",${u.email},${u.status},${u.tier},${u.trust},${u.risk},${u.lastSeen}`)
-              ].join("\n");
-              const blob = new Blob([csv], { type: 'text/csv' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url; a.download = `users-export-${Date.now()}.csv`;
-              a.click(); URL.revokeObjectURL(url);
-              toast.success(`Exported ${filtered.length} users`);
-            }} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.05] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                const csv = [
+                  "ID,Name,Email,Status,Tier,Trust,Risk,Last Seen",
+                  ...filtered.map(
+                    (u) =>
+                      `${u.id},"${u.name}",${u.email},${u.status},${u.tier},${u.trust},${u.risk},${u.lastSeen}`,
+                  ),
+                ].join("\n");
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `users-export-${Date.now()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success(`Exported ${filtered.length} users`);
+              }}
+              className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.05] px-3 py-2 text-xs inline-flex items-center gap-1.5"
+            >
               <Download className="size-3.5" />
               Export
             </button>
-            <button onClick={() => toast.info('User invitation sent', { description: 'Enter email above to invite a new user to the platform' })} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+            <button
+              onClick={() =>
+                toast.info("User invitation sent", {
+                  description: "Enter email above to invite a new user to the platform",
+                })
+              }
+              className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow"
+            >
               <UserPlus className="size-3.5" />
               Invite user
             </button>
@@ -100,7 +116,14 @@ function UsersPage() {
               className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/60"
             />
           </div>
-          <button onClick={() => toast.info('Advanced filters', { description: 'Filter by country, tier, last seen, and risk score — coming soon' })} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-1.5 text-xs inline-flex items-center gap-1.5">
+          <button
+            onClick={() =>
+              toast.info("Advanced filters", {
+                description: "Filter by country, tier, last seen, and risk score — coming soon",
+              })
+            }
+            className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-1.5 text-xs inline-flex items-center gap-1.5"
+          >
             <Filter className="size-3.5" />
             Filters
           </button>
@@ -343,25 +366,52 @@ function UsersPage() {
               </div>
 
               <footer className="sticky bottom-0 bg-[oklch(0.18_0.03_264)] border-t border-white/[0.06] px-6 py-3 flex items-center gap-2">
-                <button onClick={() => {
-                  toast.loading(`Locking ${user.name}...`);
-                  setTimeout(() => { toast.dismiss(); toast.success(`${user.name} account locked — all sessions terminated`); }, 1200);
-                }} className="rounded-xl border border-rose-400/30 text-rose-300 hover:bg-rose-500/10 px-3 py-2 text-xs inline-flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    toast.loading(`Locking ${user.name}...`);
+                    setTimeout(() => {
+                      toast.dismiss();
+                      toast.success(`${user.name} account locked — all sessions terminated`);
+                    }, 1200);
+                  }}
+                  className="rounded-xl border border-rose-400/30 text-rose-300 hover:bg-rose-500/10 px-3 py-2 text-xs inline-flex items-center gap-1.5"
+                >
                   <Lock className="size-3.5" />
                   Lock account
                 </button>
-                <button onClick={() => {
-                  toast.loading(`Unlocking ${user.name}...`);
-                  setTimeout(() => { toast.dismiss(); toast.success(`${user.name} account unlocked`); }, 1000);
-                }} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    toast.loading(`Unlocking ${user.name}...`);
+                    setTimeout(() => {
+                      toast.dismiss();
+                      toast.success(`${user.name} account unlocked`);
+                    }, 1000);
+                  }}
+                  className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5"
+                >
                   <Unlock className="size-3.5" />
                   Unlock
                 </button>
-                <button onClick={() => toast.warning(`Enrollment reset for ${user.name}`, { description: 'User will need to re-enroll their behavioral baseline on next login' })} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+                <button
+                  onClick={() =>
+                    toast.warning(`Enrollment reset for ${user.name}`, {
+                      description:
+                        "User will need to re-enroll their behavioral baseline on next login",
+                    })
+                  }
+                  className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5"
+                >
                   <RefreshCw className="size-3.5" />
                   Reset enrollment
                 </button>
-                <button onClick={() => toast.success(`Step-up challenge issued to ${user.name}`, { description: 'User will be prompted for MFA on next request' })} className="rounded-xl border border-amber-400/30 text-amber-200 hover:bg-amber-500/10 px-3 py-2 text-xs inline-flex items-center gap-1.5">
+                <button
+                  onClick={() =>
+                    toast.success(`Step-up challenge issued to ${user.name}`, {
+                      description: "User will be prompted for MFA on next request",
+                    })
+                  }
+                  className="rounded-xl border border-amber-400/30 text-amber-200 hover:bg-amber-500/10 px-3 py-2 text-xs inline-flex items-center gap-1.5"
+                >
                   <ShieldAlert className="size-3.5" />
                   Force re-auth
                 </button>

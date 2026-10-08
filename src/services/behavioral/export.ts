@@ -74,10 +74,7 @@ export function clearStoredDataset(): void {
  * requiring a full BehavioralSessionDump. Called after every 30-second
  * collection window completes so data accumulates automatically.
  */
-export function appendStoredWindows(
-  windows: FeatureWindow[],
-  sessionId?: string,
-): void {
+export function appendStoredWindows(windows: FeatureWindow[], sessionId?: string): void {
   if (windows.length === 0) return;
   const ds = loadDataset();
 
@@ -94,7 +91,8 @@ export function appendStoredWindows(
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
         viewport: `${typeof window !== "undefined" ? window.innerWidth : 0}x${typeof window !== "undefined" ? window.innerHeight : 0}`,
         platform: typeof navigator !== "undefined" ? navigator.platform : "unknown",
-        timezone: typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
+        timezone:
+          typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
       },
       windows: [],
     };
@@ -104,7 +102,7 @@ export function appendStoredWindows(
   saveDataset(ds);
   console.debug(
     `[BehavioralExport] +${windows.length} windows persisted — ` +
-    `session ${sid} now has ${session.windows.length} windows`,
+      `session ${sid} now has ${session.windows.length} windows`,
   );
 }
 
@@ -112,7 +110,6 @@ export function appendStoredWindows(
 export function loadStoredWindows(): StoredDataset {
   return loadDataset();
 }
-
 
 export function datasetStats(): { sessions: number; windows: number } {
   const ds = loadDataset();

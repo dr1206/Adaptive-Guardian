@@ -16,7 +16,7 @@ function DatasetsPage() {
   const datasets = datasetsQ.data ?? [];
   const fileRef = useRef<HTMLInputElement>(null);
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    toast.success('Dataset upload started', { description: e.target.files?.[0]?.name });
+    toast.success("Dataset upload started", { description: e.target.files?.[0]?.name });
   };
   return (
     <AsyncBoundary
@@ -35,11 +35,20 @@ function DatasetsPage() {
               Versioned training data with lineage to deployed models
             </p>
           </div>
-          <button onClick={() => fileRef.current?.click()} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow"
+          >
             <Upload className="size-3.5" />
             Upload
           </button>
-          <input type='file' accept='.csv,.json,.zip' ref={fileRef} onChange={handleUpload} style={{display:'none'}} />
+          <input
+            type="file"
+            accept=".csv,.json,.zip"
+            ref={fileRef}
+            onChange={handleUpload}
+            style={{ display: "none" }}
+          />
         </header>
 
         <OpsTable

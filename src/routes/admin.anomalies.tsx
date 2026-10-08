@@ -51,13 +51,34 @@ function AnomaliesPage() {
                     </div>
                   </div>
                   <div className="flex gap-1.5">
-                    <button onClick={() => toast.success(`${s.name} acknowledged`, { description: 'Assigned to SOC queue. No further alerts for 24h.' })} className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]">
+                    <button
+                      onClick={() =>
+                        toast.success(`${s.name} acknowledged`, {
+                          description: "Assigned to SOC queue. No further alerts for 24h.",
+                        })
+                      }
+                      className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]"
+                    >
                       Acknowledge
                     </button>
-                    <button onClick={() => toast.warning(`${s.name} escalated to P1`, { description: 'Security lead notified. Incident ticket created.' })} className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]">
+                    <button
+                      onClick={() =>
+                        toast.warning(`${s.name} escalated to P1`, {
+                          description: "Security lead notified. Incident ticket created.",
+                        })
+                      }
+                      className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]"
+                    >
                       Escalate
                     </button>
-                    <button onClick={() => toast.info('Detection rule created', { description: `Rule based on ${s.name} pattern added to the anomaly engine` })} className="rounded-md border border-cyan-400/30 hover:bg-cyan-500/10 text-cyan-300 px-2.5 py-1 text-[11px]">
+                    <button
+                      onClick={() =>
+                        toast.info("Detection rule created", {
+                          description: `Rule based on ${s.name} pattern added to the anomaly engine`,
+                        })
+                      }
+                      className="rounded-md border border-cyan-400/30 hover:bg-cyan-500/10 text-cyan-300 px-2.5 py-1 text-[11px]"
+                    >
                       Make rule
                     </button>
                   </div>

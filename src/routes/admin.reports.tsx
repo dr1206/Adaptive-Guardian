@@ -29,7 +29,14 @@ function ReportsPage() {
               Scheduled briefings · authentication, risk, behavior, AI, compliance
             </p>
           </div>
-          <button onClick={() => toast.info('Report builder', { description: 'Select a template above, configure parameters, and schedule delivery' })} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+          <button
+            onClick={() =>
+              toast.info("Report builder", {
+                description: "Select a template above, configure parameters, and schedule delivery",
+              })
+            }
+            className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow"
+          >
             <Plus className="size-3.5" />
             New report
           </button>
@@ -57,15 +64,37 @@ function ReportsPage() {
               </div>
               <div className="mt-3 text-[11px] font-mono text-muted-foreground">{r.format}</div>
               <div className="mt-4 flex gap-1.5">
-                <button onClick={() => { toast.loading('Generating PDF...'); setTimeout(() => { toast.dismiss(); toast.success(`${r.name} PDF ready`, { description: 'Check your downloads folder' }); window.print(); }, 800); }} className="flex-1 rounded-lg border border-white/[0.06] hover:border-white/[0.12] py-1.5 text-[11px] inline-flex items-center justify-center gap-1">
+                <button
+                  onClick={() => {
+                    toast.loading("Generating PDF...");
+                    setTimeout(() => {
+                      toast.dismiss();
+                      toast.success(`${r.name} PDF ready`, {
+                        description: "Check your downloads folder",
+                      });
+                      window.print();
+                    }, 800);
+                  }}
+                  className="flex-1 rounded-lg border border-white/[0.06] hover:border-white/[0.12] py-1.5 text-[11px] inline-flex items-center justify-center gap-1"
+                >
                   <Download className="size-3" />
                   PDF
                 </button>
-                <button onClick={() => toast.success(`${r.name} XLSX export queued`, { description: 'Report will be sent to your registered email' })} className="flex-1 rounded-lg border border-white/[0.06] hover:border-white/[0.12] py-1.5 text-[11px] inline-flex items-center justify-center gap-1">
+                <button
+                  onClick={() =>
+                    toast.success(`${r.name} XLSX export queued`, {
+                      description: "Report will be sent to your registered email",
+                    })
+                  }
+                  className="flex-1 rounded-lg border border-white/[0.06] hover:border-white/[0.12] py-1.5 text-[11px] inline-flex items-center justify-center gap-1"
+                >
                   <FileSpreadsheet className="size-3" />
                   XLSX
                 </button>
-                <button onClick={() => window.print()} className="size-7 rounded-lg border border-white/[0.06] hover:border-white/[0.12] inline-flex items-center justify-center">
+                <button
+                  onClick={() => window.print()}
+                  className="size-7 rounded-lg border border-white/[0.06] hover:border-white/[0.12] inline-flex items-center justify-center"
+                >
                   <Printer className="size-3" />
                 </button>
               </div>

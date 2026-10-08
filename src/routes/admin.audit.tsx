@@ -21,10 +21,14 @@ const classTone: Record<string, string> = {
 function AuditPage() {
   const auditQ = useAdminAudit();
   const [q, setQ] = useState("");
-  const auditLog = (auditQ.data ?? []).filter(e => {
+  const auditLog = (auditQ.data ?? []).filter((e) => {
     if (!q) return true;
     const term = q.toLowerCase();
-    return e.actor.toLowerCase().includes(term) || e.action.toLowerCase().includes(term) || e.target.toLowerCase().includes(term);
+    return (
+      e.actor.toLowerCase().includes(term) ||
+      e.action.toLowerCase().includes(term) ||
+      e.target.toLowerCase().includes(term)
+    );
   });
   return (
     <AsyncBoundary
@@ -44,18 +48,27 @@ function AuditPage() {
               Immutable · cryptographically chained · 2,481,204 entries this quarter
             </p>
           </div>
-          <button onClick={() => {
-            const entries = auditQ.data ?? [];
-            const csv = ["ID,Time,Actor,Action,Target,Hash,Class",
-              ...entries.map(e => `${e.id},${e.time},"${e.actor}","${e.action}","${e.target}",${e.hash},${e.class}`)
-            ].join("\n");
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `audit-export-${Date.now()}.csv`; a.click();
-            URL.revokeObjectURL(url);
-            toast.success(`Exported ${entries.length} audit entries`);
-          }} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+          <button
+            onClick={() => {
+              const entries = auditQ.data ?? [];
+              const csv = [
+                "ID,Time,Actor,Action,Target,Hash,Class",
+                ...entries.map(
+                  (e) =>
+                    `${e.id},${e.time},"${e.actor}","${e.action}","${e.target}",${e.hash},${e.class}`,
+                ),
+              ].join("\n");
+              const blob = new Blob([csv], { type: "text/csv" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `audit-export-${Date.now()}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success(`Exported ${entries.length} audit entries`);
+            }}
+            className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5"
+          >
             <Download className="size-3.5" />
             Export · signed
           </button>

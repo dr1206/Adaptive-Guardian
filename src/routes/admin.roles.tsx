@@ -32,7 +32,15 @@ function RolesPage() {
               43 operators across 6 roles · changes are auditable and require 2-person approval
             </p>
           </div>
-          <button onClick={() => toast.info('Create new role', { description: 'Role editor requires superadmin privileges. Contact your administrator.' })} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+          <button
+            onClick={() =>
+              toast.info("Create new role", {
+                description:
+                  "Role editor requires superadmin privileges. Contact your administrator.",
+              })
+            }
+            className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow"
+          >
             <Plus className="size-3.5" />
             New role
           </button>

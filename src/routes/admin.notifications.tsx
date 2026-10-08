@@ -17,9 +17,10 @@ function NotificationsPage() {
   const incidentsQ = useAdminIncidents();
   const notifGroups = groupsQ.data ?? [];
   const incidents = incidentsQ.data ?? [];
-  const filteredIncidents = notifGroups.length > 0 && group === notifGroups[0].id 
-    ? incidents 
-    : incidents.filter(i => i.source.toLowerCase().includes(group.toLowerCase()));
+  const filteredIncidents =
+    notifGroups.length > 0 && group === notifGroups[0].id
+      ? incidents
+      : incidents.filter((i) => i.source.toLowerCase().includes(group.toLowerCase()));
   return (
     <AsyncBoundary
       isLoading={groupsQ.isLoading || incidentsQ.isLoading}
@@ -67,14 +68,38 @@ function NotificationsPage() {
               title="Inbox"
               actions={
                 <div className="flex gap-1.5">
-                  <button onClick={() => toast.success('Notifications muted', { description: 'This alert channel is muted for 8 hours' })} className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px] inline-flex items-center gap-1">
+                  <button
+                    onClick={() =>
+                      toast.success("Notifications muted", {
+                        description: "This alert channel is muted for 8 hours",
+                      })
+                    }
+                    className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px] inline-flex items-center gap-1"
+                  >
                     <BellOff className="size-3" />
                     Mute
                   </button>
-                  <button onClick={() => toast.success('Snoozed for 1 hour', { description: 'Notifications will resume at ' + new Date(Date.now() + 3600000).toLocaleTimeString() })} className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]">
+                  <button
+                    onClick={() =>
+                      toast.success("Snoozed for 1 hour", {
+                        description:
+                          "Notifications will resume at " +
+                          new Date(Date.now() + 3600000).toLocaleTimeString(),
+                      })
+                    }
+                    className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]"
+                  >
                     Snooze 1h
                   </button>
-                  <button onClick={() => toast.info('Slack routing', { description: 'Configure Slack webhook in Settings → Integrations to enable routing' })} className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]">
+                  <button
+                    onClick={() =>
+                      toast.info("Slack routing", {
+                        description:
+                          "Configure Slack webhook in Settings → Integrations to enable routing",
+                      })
+                    }
+                    className="rounded-md border border-white/[0.06] hover:border-white/[0.12] px-2.5 py-1 text-[11px]"
+                  >
                     Route to Slack
                   </button>
                 </div>

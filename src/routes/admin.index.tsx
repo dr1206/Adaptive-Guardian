@@ -259,7 +259,14 @@ function PulsePage() {
                         </div>
                         <div className="text-sm mt-1 truncate">{i.title}</div>
                       </div>
-                      <button onClick={() => toast.info(`Incident ${i.id} triaged — assigned to SOC queue`, { description: i.title })} className="text-[11px] rounded-md border border-white/[0.06] hover:border-cyan-400/40 hover:text-cyan-300 px-2 py-1 transition-colors">
+                      <button
+                        onClick={() =>
+                          toast.info(`Incident ${i.id} triaged — assigned to SOC queue`, {
+                            description: i.title,
+                          })
+                        }
+                        className="text-[11px] rounded-md border border-white/[0.06] hover:border-cyan-400/40 hover:text-cyan-300 px-2 py-1 transition-colors"
+                      >
                         Triage
                       </button>
                     </div>

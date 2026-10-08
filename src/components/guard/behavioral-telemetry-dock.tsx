@@ -480,7 +480,8 @@ export function BehavioralTelemetryDock() {
           </div>
 
           <p className="mt-1.5 text-[10px] text-[#667085]">
-            All completed 30s windows are auto-saved. Export JSON or CSV below to download everything.
+            All completed 30s windows are auto-saved. Export JSON or CSV below to download
+            everything.
           </p>
 
           <div className="mt-2">

@@ -32,7 +32,8 @@ export const Route = createFileRoute("/app/guard/")({
 });
 
 function GuardErrorFallback({ error, reset }: ErrorComponentProps) {
-  const errorMessage = error instanceof Error ? error.message : String(error ?? "An error occurred");
+  const errorMessage =
+    error instanceof Error ? error.message : String(error ?? "An error occurred");
   return (
     <div role="alert" className="rounded-2xl border border-warning/30 bg-warning/[0.06] p-6">
       <div className="text-[14px] font-semibold">Security Center had trouble loading.</div>
