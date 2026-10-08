@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { useAdminAudit } from "@/services/hooks";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
@@ -18,7 +20,12 @@ const classTone: Record<string, string> = {
 
 function AuditPage() {
   const auditQ = useAdminAudit();
-  const auditLog = auditQ.data ?? [];
+  const [q, setQ] = useState("");
+  const auditLog = (auditQ.data ?? []).filter(e => {
+    if (!q) return true;
+    const term = q.toLowerCase();
+    return e.actor.toLowerCase().includes(term) || e.action.toLowerCase().includes(term) || e.target.toLowerCase().includes(term);
+  });
   return (
     <AsyncBoundary
       isLoading={auditQ.isLoading}
@@ -37,7 +44,18 @@ function AuditPage() {
               Immutable · cryptographically chained · 2,481,204 entries this quarter
             </p>
           </div>
-          <button className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+          <button onClick={() => {
+            const entries = auditQ.data ?? [];
+            const csv = ["ID,Time,Actor,Action,Target,Hash,Class",
+              ...entries.map(e => `${e.id},${e.time},"${e.actor}","${e.action}","${e.target}",${e.hash},${e.class}`)
+            ].join("\n");
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `audit-export-${Date.now()}.csv`; a.click();
+            URL.revokeObjectURL(url);
+            toast.success(`Exported ${entries.length} audit entries`);
+          }} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
             <Download className="size-3.5" />
             Export · signed
           </button>
@@ -46,6 +64,8 @@ function AuditPage() {
         <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 max-w-xl">
           <Search className="size-3.5 text-muted-foreground" />
           <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
             placeholder="Filter: actor:omar action:deploy date:24h …"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
           />

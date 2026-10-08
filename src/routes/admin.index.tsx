@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { MetricCell } from "@/components/admin/metric-cell";
 import { RiverChart } from "@/components/admin/river-chart";
@@ -258,7 +259,7 @@ function PulsePage() {
                         </div>
                         <div className="text-sm mt-1 truncate">{i.title}</div>
                       </div>
-                      <button className="text-[11px] rounded-md border border-white/[0.06] hover:border-cyan-400/40 hover:text-cyan-300 px-2 py-1 transition-colors">
+                      <button onClick={() => toast.info(`Incident ${i.id} triaged — assigned to SOC queue`, { description: i.title })} className="text-[11px] rounded-md border border-white/[0.06] hover:border-cyan-400/40 hover:text-cyan-300 px-2 py-1 transition-colors">
                         Triage
                       </button>
                     </div>

@@ -9,79 +9,74 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
-import { Route as AuthIndexRouteImport } from './routes/auth.index'
-import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
-import { Route as AppTransferRouteImport } from './routes/app.transfer'
-import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
-import { Route as AppTrainingRouteImport } from './routes/app.training'
-import { Route as AppStatementsRouteImport } from './routes/app.statements'
-import { Route as AppSavingsRouteImport } from './routes/app.savings'
-import { Route as AppProfileRouteImport } from './routes/app.profile'
-import { Route as AppPaymentsRouteImport } from './routes/app.payments'
-import { Route as AppLoansRouteImport } from './routes/app.loans'
-import { Route as AppInvestmentsRouteImport } from './routes/app.investments'
-import { Route as AppInsightsRouteImport } from './routes/app.insights'
-import { Route as AppGuardRouteImport } from './routes/app.guard'
-import { Route as AppExchangeRouteImport } from './routes/app.exchange'
-import { Route as AppCardsRouteImport } from './routes/app.cards'
-import { Route as AppBudgetsRouteImport } from './routes/app.budgets'
-import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
-import { Route as AppActivityRouteImport } from './routes/app.activity'
-import { Route as AppAccountsRouteImport } from './routes/app.accounts'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
-import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
-import { Route as AdminRolesRouteImport } from './routes/admin.roles'
-import { Route as AdminRiskRouteImport } from './routes/admin.risk'
-import { Route as AdminReportsRouteImport } from './routes/admin.reports'
-import { Route as AdminProfileRouteImport } from './routes/admin.profile'
-import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
-import { Route as AdminInfraRouteImport } from './routes/admin.infra'
-import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
-import { Route as AdminChallengesRouteImport } from './routes/admin.challenges'
-import { Route as AdminBehaviorRouteImport } from './routes/admin.behavior'
-import { Route as AdminAuditRouteImport } from './routes/admin.audit'
-import { Route as AdminApiRouteImport } from './routes/admin.api'
-import { Route as AdminAnomaliesRouteImport } from './routes/admin.anomalies'
-import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
-import { Route as AppGuardIndexRouteImport } from './routes/app.guard.index'
-import { Route as AppGuardTypingRouteImport } from './routes/app.guard.typing'
-import { Route as AppGuardSessionRouteImport } from './routes/app.guard.session'
-import { Route as AppGuardRiskRouteImport } from './routes/app.guard.risk'
-import { Route as AppGuardReportsRouteImport } from './routes/app.guard.reports'
-import { Route as AppGuardPrivacyRouteImport } from './routes/app.guard.privacy'
-import { Route as AppGuardMouseRouteImport } from './routes/app.guard.mouse'
-import { Route as AppGuardLearningRouteImport } from './routes/app.guard.learning'
-import { Route as AppGuardExplainabilityRouteImport } from './routes/app.guard.explainability'
-import { Route as AppGuardDevicesRouteImport } from './routes/app.guard.devices'
-import { Route as AppGuardDecisionsRouteImport } from './routes/app.guard.decisions'
-import { Route as AppGuardChallengesRouteImport } from './routes/app.guard.challenges'
-import { Route as AppGuardBehaviorTimelineRouteImport } from './routes/app.guard.behavior-timeline'
-import { Route as AppGuardBehaviorRouteImport } from './routes/app.guard.behavior'
-import { Route as AppGuardAuthenticationRouteImport } from './routes/app.guard.authentication'
-import { Route as AppGuardAuthTimelineRouteImport } from './routes/app.guard.auth-timeline'
-import { Route as AppAccountsIdRouteImport } from './routes/app.accounts.$id'
-import { Route as AdminAiModelsRouteImport } from './routes/admin.ai.models'
-import { Route as AdminAiLiveRouteImport } from './routes/admin.ai.live'
-import { Route as AdminAiExplainRouteImport } from './routes/admin.ai.explain'
+import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAnomaliesRouteImport } from './routes/admin.anomalies'
+import { Route as AdminApiRouteImport } from './routes/admin.api'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminBehaviorRouteImport } from './routes/admin.behavior'
+import { Route as AdminChallengesRouteImport } from './routes/admin.challenges'
+import { Route as AdminComplianceRouteImport } from './routes/admin.compliance'
+import { Route as AdminInfraRouteImport } from './routes/admin.infra'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminRiskRouteImport } from './routes/admin.risk'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAccountsRouteImport } from './routes/app.accounts'
+import { Route as AppActivityRouteImport } from './routes/app.activity'
+import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
+import { Route as AppBudgetsRouteImport } from './routes/app.budgets'
+import { Route as AppCardsRouteImport } from './routes/app.cards'
+import { Route as AppExchangeRouteImport } from './routes/app.exchange'
+import { Route as AppGuardRouteImport } from './routes/app.guard'
+import { Route as AppInsightsRouteImport } from './routes/app.insights'
+import { Route as AppInvestmentsRouteImport } from './routes/app.investments'
+import { Route as AppLoansRouteImport } from './routes/app.loans'
+import { Route as AppPaymentsRouteImport } from './routes/app.payments'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppSavingsRouteImport } from './routes/app.savings'
+import { Route as AppStatementsRouteImport } from './routes/app.statements'
+import { Route as AppTrainingRouteImport } from './routes/app.training'
+import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
+import { Route as AppTransferRouteImport } from './routes/app.transfer'
+import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as AdminAiDatasetsRouteImport } from './routes/admin.ai.datasets'
+import { Route as AdminAiExplainRouteImport } from './routes/admin.ai.explain'
+import { Route as AdminAiLiveRouteImport } from './routes/admin.ai.live'
+import { Route as AdminAiModelsRouteImport } from './routes/admin.ai.models'
+import { Route as AppAccountsIdRouteImport } from './routes/app.accounts.$id'
+import { Route as AppGuardIndexRouteImport } from './routes/app.guard.index'
+import { Route as AppGuardAuthTimelineRouteImport } from './routes/app.guard.auth-timeline'
+import { Route as AppGuardAuthenticationRouteImport } from './routes/app.guard.authentication'
+import { Route as AppGuardBehaviorRouteImport } from './routes/app.guard.behavior'
+import { Route as AppGuardBehaviorTimelineRouteImport } from './routes/app.guard.behavior-timeline'
+import { Route as AppGuardChallengesRouteImport } from './routes/app.guard.challenges'
+import { Route as AppGuardDecisionsRouteImport } from './routes/app.guard.decisions'
+import { Route as AppGuardDevicesRouteImport } from './routes/app.guard.devices'
+import { Route as AppGuardExplainabilityRouteImport } from './routes/app.guard.explainability'
+import { Route as AppGuardLearningRouteImport } from './routes/app.guard.learning'
+import { Route as AppGuardMouseRouteImport } from './routes/app.guard.mouse'
+import { Route as AppGuardPrivacyRouteImport } from './routes/app.guard.privacy'
+import { Route as AppGuardReportsRouteImport } from './routes/app.guard.reports'
+import { Route as AppGuardRiskRouteImport } from './routes/app.guard.risk'
+import { Route as AppGuardSessionRouteImport } from './routes/app.guard.session'
+import { Route as AppGuardTypingRouteImport } from './routes/app.guard.typing'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -89,199 +84,19 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
-  id: '/onboarding/',
-  path: '/onboarding/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AuthVerifyRoute = AuthVerifyRouteImport.update({
-  id: '/verify',
-  path: '/verify',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AppTransferRoute = AppTransferRouteImport.update({
-  id: '/transfer',
-  path: '/transfer',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppTransactionsRoute = AppTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppTrainingRoute = AppTrainingRouteImport.update({
-  id: '/training',
-  path: '/training',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppStatementsRoute = AppStatementsRouteImport.update({
-  id: '/statements',
-  path: '/statements',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSavingsRoute = AppSavingsRouteImport.update({
-  id: '/savings',
-  path: '/savings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPaymentsRoute = AppPaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLoansRoute = AppLoansRouteImport.update({
-  id: '/loans',
-  path: '/loans',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInvestmentsRoute = AppInvestmentsRouteImport.update({
-  id: '/investments',
-  path: '/investments',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInsightsRoute = AppInsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGuardRoute = AppGuardRouteImport.update({
-  id: '/guard',
-  path: '/guard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppExchangeRoute = AppExchangeRouteImport.update({
-  id: '/exchange',
-  path: '/exchange',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppCardsRoute = AppCardsRouteImport.update({
-  id: '/cards',
-  path: '/cards',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBudgetsRoute = AppBudgetsRouteImport.update({
-  id: '/budgets',
-  path: '/budgets',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBeneficiariesRoute = AppBeneficiariesRouteImport.update({
-  id: '/beneficiaries',
-  path: '/beneficiaries',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppActivityRoute = AppActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAccountsRoute = AppAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
-  getParentRoute: () => AppRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSessionsRoute = AdminSessionsRouteImport.update({
-  id: '/sessions',
-  path: '/sessions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRolesRoute = AdminRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRiskRoute = AdminRiskRouteImport.update({
-  id: '/risk',
-  path: '/risk',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminProfileRoute = AdminProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminInfraRoute = AdminInfraRouteImport.update({
-  id: '/infra',
-  path: '/infra',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminComplianceRoute = AdminComplianceRouteImport.update({
-  id: '/compliance',
-  path: '/compliance',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminChallengesRoute = AdminChallengesRouteImport.update({
-  id: '/challenges',
-  path: '/challenges',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminBehaviorRoute = AdminBehaviorRouteImport.update({
-  id: '/behavior',
-  path: '/behavior',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAuditRoute = AdminAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminApiRoute = AdminApiRouteImport.update({
-  id: '/api',
-  path: '/api',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAnomaliesRoute = AdminAnomaliesRouteImport.update({
-  id: '/anomalies',
-  path: '/anomalies',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAiRoute = AdminAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAccountsRoute = AdminAccountsRouteImport.update({
@@ -289,64 +104,234 @@ const AdminAccountsRoute = AdminAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnomaliesRoute = AdminAnomaliesRouteImport.update({
+  id: '/anomalies',
+  path: '/anomalies',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApiRoute = AdminApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBehaviorRoute = AdminBehaviorRouteImport.update({
+  id: '/behavior',
+  path: '/behavior',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminChallengesRoute = AdminChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminComplianceRoute = AdminComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInfraRoute = AdminInfraRouteImport.update({
+  id: '/infra',
+  path: '/infra',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRiskRoute = AdminRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSessionsRoute = AdminSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountsRoute = AppAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppActivityRoute = AppActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBeneficiariesRoute = AppBeneficiariesRouteImport.update({
+  id: '/beneficiaries',
+  path: '/beneficiaries',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBudgetsRoute = AppBudgetsRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCardsRoute = AppCardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExchangeRoute = AppExchangeRouteImport.update({
+  id: '/exchange',
+  path: '/exchange',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGuardRoute = AppGuardRouteImport.update({
+  id: '/guard',
+  path: '/guard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInsightsRoute = AppInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvestmentsRoute = AppInvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLoansRoute = AppLoansRouteImport.update({
+  id: '/loans',
+  path: '/loans',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSavingsRoute = AppSavingsRouteImport.update({
+  id: '/savings',
+  path: '/savings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStatementsRoute = AppStatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTrainingRoute = AppTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransactionsRoute = AppTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransferRoute = AppTransferRouteImport.update({
+  id: '/transfer',
+  path: '/transfer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthVerifyRoute = AuthVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => AuthRoute,
+} as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/onboarding/',
+  path: '/onboarding/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAiDatasetsRoute = AdminAiDatasetsRouteImport.update({
+  id: '/datasets',
+  path: '/datasets',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiExplainRoute = AdminAiExplainRouteImport.update({
+  id: '/explain',
+  path: '/explain',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiLiveRoute = AdminAiLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AdminAiModelsRoute = AdminAiModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => AdminAiRoute,
+} as any)
+const AppAccountsIdRoute = AppAccountsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAccountsRoute,
+} as any)
 const AppGuardIndexRoute = AppGuardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppGuardTypingRoute = AppGuardTypingRouteImport.update({
-  id: '/typing',
-  path: '/typing',
+const AppGuardAuthTimelineRoute = AppGuardAuthTimelineRouteImport.update({
+  id: '/auth-timeline',
+  path: '/auth-timeline',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppGuardSessionRoute = AppGuardSessionRouteImport.update({
-  id: '/session',
-  path: '/session',
+const AppGuardAuthenticationRoute = AppGuardAuthenticationRouteImport.update({
+  id: '/authentication',
+  path: '/authentication',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppGuardRiskRoute = AppGuardRiskRouteImport.update({
-  id: '/risk',
-  path: '/risk',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardReportsRoute = AppGuardReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardPrivacyRoute = AppGuardPrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardMouseRoute = AppGuardMouseRouteImport.update({
-  id: '/mouse',
-  path: '/mouse',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardLearningRoute = AppGuardLearningRouteImport.update({
-  id: '/learning',
-  path: '/learning',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardExplainabilityRoute = AppGuardExplainabilityRouteImport.update({
-  id: '/explainability',
-  path: '/explainability',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardDevicesRoute = AppGuardDevicesRouteImport.update({
-  id: '/devices',
-  path: '/devices',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardDecisionsRoute = AppGuardDecisionsRouteImport.update({
-  id: '/decisions',
-  path: '/decisions',
-  getParentRoute: () => AppGuardRoute,
-} as any)
-const AppGuardChallengesRoute = AppGuardChallengesRouteImport.update({
-  id: '/challenges',
-  path: '/challenges',
+const AppGuardBehaviorRoute = AppGuardBehaviorRouteImport.update({
+  id: '/behavior',
+  path: '/behavior',
   getParentRoute: () => AppGuardRoute,
 } as any)
 const AppGuardBehaviorTimelineRoute =
@@ -355,45 +340,60 @@ const AppGuardBehaviorTimelineRoute =
     path: '/behavior-timeline',
     getParentRoute: () => AppGuardRoute,
   } as any)
-const AppGuardBehaviorRoute = AppGuardBehaviorRouteImport.update({
-  id: '/behavior',
-  path: '/behavior',
+const AppGuardChallengesRoute = AppGuardChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppGuardAuthenticationRoute = AppGuardAuthenticationRouteImport.update({
-  id: '/authentication',
-  path: '/authentication',
+const AppGuardDecisionsRoute = AppGuardDecisionsRouteImport.update({
+  id: '/decisions',
+  path: '/decisions',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppGuardAuthTimelineRoute = AppGuardAuthTimelineRouteImport.update({
-  id: '/auth-timeline',
-  path: '/auth-timeline',
+const AppGuardDevicesRoute = AppGuardDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
   getParentRoute: () => AppGuardRoute,
 } as any)
-const AppAccountsIdRoute = AppAccountsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppAccountsRoute,
+const AppGuardExplainabilityRoute = AppGuardExplainabilityRouteImport.update({
+  id: '/explainability',
+  path: '/explainability',
+  getParentRoute: () => AppGuardRoute,
 } as any)
-const AdminAiModelsRoute = AdminAiModelsRouteImport.update({
-  id: '/models',
-  path: '/models',
-  getParentRoute: () => AdminAiRoute,
+const AppGuardLearningRoute = AppGuardLearningRouteImport.update({
+  id: '/learning',
+  path: '/learning',
+  getParentRoute: () => AppGuardRoute,
 } as any)
-const AdminAiLiveRoute = AdminAiLiveRouteImport.update({
-  id: '/live',
-  path: '/live',
-  getParentRoute: () => AdminAiRoute,
+const AppGuardMouseRoute = AppGuardMouseRouteImport.update({
+  id: '/mouse',
+  path: '/mouse',
+  getParentRoute: () => AppGuardRoute,
 } as any)
-const AdminAiExplainRoute = AdminAiExplainRouteImport.update({
-  id: '/explain',
-  path: '/explain',
-  getParentRoute: () => AdminAiRoute,
+const AppGuardPrivacyRoute = AppGuardPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => AppGuardRoute,
 } as any)
-const AdminAiDatasetsRoute = AdminAiDatasetsRouteImport.update({
-  id: '/datasets',
-  path: '/datasets',
-  getParentRoute: () => AdminAiRoute,
+const AppGuardReportsRoute = AppGuardReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardRiskRoute = AppGuardRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardSessionRoute = AppGuardSessionRouteImport.update({
+  id: '/session',
+  path: '/session',
+  getParentRoute: () => AppGuardRoute,
+} as any)
+const AppGuardTypingRoute = AppGuardTypingRouteImport.update({
+  id: '/typing',
+  path: '/typing',
+  getParentRoute: () => AppGuardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -798,18 +798,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -819,277 +812,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding/': {
-      id: '/onboarding/'
-      path: '/onboarding'
-      fullPath: '/onboarding/'
-      preLoaderRoute: typeof OnboardingIndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/auth/': {
-      id: '/auth/'
-      path: '/'
-      fullPath: '/auth/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
     }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/auth/verify': {
-      id: '/auth/verify'
-      path: '/verify'
-      fullPath: '/auth/verify'
-      preLoaderRoute: typeof AuthVerifyRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/app/transfer': {
-      id: '/app/transfer'
-      path: '/transfer'
-      fullPath: '/app/transfer'
-      preLoaderRoute: typeof AppTransferRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/transactions': {
-      id: '/app/transactions'
-      path: '/transactions'
-      fullPath: '/app/transactions'
-      preLoaderRoute: typeof AppTransactionsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/training': {
-      id: '/app/training'
-      path: '/training'
-      fullPath: '/app/training'
-      preLoaderRoute: typeof AppTrainingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/statements': {
-      id: '/app/statements'
-      path: '/statements'
-      fullPath: '/app/statements'
-      preLoaderRoute: typeof AppStatementsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/savings': {
-      id: '/app/savings'
-      path: '/savings'
-      fullPath: '/app/savings'
-      preLoaderRoute: typeof AppSavingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/profile': {
-      id: '/app/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/payments': {
-      id: '/app/payments'
-      path: '/payments'
-      fullPath: '/app/payments'
-      preLoaderRoute: typeof AppPaymentsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/loans': {
-      id: '/app/loans'
-      path: '/loans'
-      fullPath: '/app/loans'
-      preLoaderRoute: typeof AppLoansRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/investments': {
-      id: '/app/investments'
-      path: '/investments'
-      fullPath: '/app/investments'
-      preLoaderRoute: typeof AppInvestmentsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/insights': {
-      id: '/app/insights'
-      path: '/insights'
-      fullPath: '/app/insights'
-      preLoaderRoute: typeof AppInsightsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/guard': {
-      id: '/app/guard'
-      path: '/guard'
-      fullPath: '/app/guard'
-      preLoaderRoute: typeof AppGuardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/exchange': {
-      id: '/app/exchange'
-      path: '/exchange'
-      fullPath: '/app/exchange'
-      preLoaderRoute: typeof AppExchangeRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/cards': {
-      id: '/app/cards'
-      path: '/cards'
-      fullPath: '/app/cards'
-      preLoaderRoute: typeof AppCardsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/budgets': {
-      id: '/app/budgets'
-      path: '/budgets'
-      fullPath: '/app/budgets'
-      preLoaderRoute: typeof AppBudgetsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/beneficiaries': {
-      id: '/app/beneficiaries'
-      path: '/beneficiaries'
-      fullPath: '/app/beneficiaries'
-      preLoaderRoute: typeof AppBeneficiariesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/activity': {
-      id: '/app/activity'
-      path: '/activity'
-      fullPath: '/app/activity'
-      preLoaderRoute: typeof AppActivityRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/accounts': {
-      id: '/app/accounts'
-      path: '/accounts'
-      fullPath: '/app/accounts'
-      preLoaderRoute: typeof AppAccountsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/sessions': {
-      id: '/admin/sessions'
-      path: '/sessions'
-      fullPath: '/admin/sessions'
-      preLoaderRoute: typeof AdminSessionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/roles': {
-      id: '/admin/roles'
-      path: '/roles'
-      fullPath: '/admin/roles'
-      preLoaderRoute: typeof AdminRolesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/risk': {
-      id: '/admin/risk'
-      path: '/risk'
-      fullPath: '/admin/risk'
-      preLoaderRoute: typeof AdminRiskRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/profile': {
-      id: '/admin/profile'
-      path: '/profile'
-      fullPath: '/admin/profile'
-      preLoaderRoute: typeof AdminProfileRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/notifications': {
-      id: '/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AdminNotificationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/infra': {
-      id: '/admin/infra'
-      path: '/infra'
-      fullPath: '/admin/infra'
-      preLoaderRoute: typeof AdminInfraRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/compliance': {
-      id: '/admin/compliance'
-      path: '/compliance'
-      fullPath: '/admin/compliance'
-      preLoaderRoute: typeof AdminComplianceRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/challenges': {
-      id: '/admin/challenges'
-      path: '/challenges'
-      fullPath: '/admin/challenges'
-      preLoaderRoute: typeof AdminChallengesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/behavior': {
-      id: '/admin/behavior'
-      path: '/behavior'
-      fullPath: '/admin/behavior'
-      preLoaderRoute: typeof AdminBehaviorRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/audit': {
-      id: '/admin/audit'
-      path: '/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/api': {
-      id: '/admin/api'
-      path: '/api'
-      fullPath: '/admin/api'
-      preLoaderRoute: typeof AdminApiRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/anomalies': {
-      id: '/admin/anomalies'
-      path: '/anomalies'
-      fullPath: '/admin/anomalies'
-      preLoaderRoute: typeof AdminAnomaliesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/ai': {
-      id: '/admin/ai'
-      path: '/ai'
-      fullPath: '/admin/ai'
-      preLoaderRoute: typeof AdminAiRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/accounts': {
@@ -1099,137 +840,270 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/app/guard/': {
-      id: '/app/guard/'
-      path: '/'
-      fullPath: '/app/guard/'
-      preLoaderRoute: typeof AppGuardIndexRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/typing': {
-      id: '/app/guard/typing'
-      path: '/typing'
-      fullPath: '/app/guard/typing'
-      preLoaderRoute: typeof AppGuardTypingRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/anomalies': {
+      id: '/admin/anomalies'
+      path: '/anomalies'
+      fullPath: '/admin/anomalies'
+      preLoaderRoute: typeof AdminAnomaliesRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/session': {
-      id: '/app/guard/session'
-      path: '/session'
-      fullPath: '/app/guard/session'
-      preLoaderRoute: typeof AppGuardSessionRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/api': {
+      id: '/admin/api'
+      path: '/api'
+      fullPath: '/admin/api'
+      preLoaderRoute: typeof AdminApiRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/risk': {
-      id: '/app/guard/risk'
-      path: '/risk'
-      fullPath: '/app/guard/risk'
-      preLoaderRoute: typeof AppGuardRiskRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/reports': {
-      id: '/app/guard/reports'
-      path: '/reports'
-      fullPath: '/app/guard/reports'
-      preLoaderRoute: typeof AppGuardReportsRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/privacy': {
-      id: '/app/guard/privacy'
-      path: '/privacy'
-      fullPath: '/app/guard/privacy'
-      preLoaderRoute: typeof AppGuardPrivacyRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/mouse': {
-      id: '/app/guard/mouse'
-      path: '/mouse'
-      fullPath: '/app/guard/mouse'
-      preLoaderRoute: typeof AppGuardMouseRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/learning': {
-      id: '/app/guard/learning'
-      path: '/learning'
-      fullPath: '/app/guard/learning'
-      preLoaderRoute: typeof AppGuardLearningRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/explainability': {
-      id: '/app/guard/explainability'
-      path: '/explainability'
-      fullPath: '/app/guard/explainability'
-      preLoaderRoute: typeof AppGuardExplainabilityRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/devices': {
-      id: '/app/guard/devices'
-      path: '/devices'
-      fullPath: '/app/guard/devices'
-      preLoaderRoute: typeof AppGuardDevicesRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/decisions': {
-      id: '/app/guard/decisions'
-      path: '/decisions'
-      fullPath: '/app/guard/decisions'
-      preLoaderRoute: typeof AppGuardDecisionsRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/challenges': {
-      id: '/app/guard/challenges'
-      path: '/challenges'
-      fullPath: '/app/guard/challenges'
-      preLoaderRoute: typeof AppGuardChallengesRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/behavior-timeline': {
-      id: '/app/guard/behavior-timeline'
-      path: '/behavior-timeline'
-      fullPath: '/app/guard/behavior-timeline'
-      preLoaderRoute: typeof AppGuardBehaviorTimelineRouteImport
-      parentRoute: typeof AppGuardRoute
-    }
-    '/app/guard/behavior': {
-      id: '/app/guard/behavior'
+    '/admin/behavior': {
+      id: '/admin/behavior'
       path: '/behavior'
-      fullPath: '/app/guard/behavior'
-      preLoaderRoute: typeof AppGuardBehaviorRouteImport
-      parentRoute: typeof AppGuardRoute
+      fullPath: '/admin/behavior'
+      preLoaderRoute: typeof AdminBehaviorRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/authentication': {
-      id: '/app/guard/authentication'
-      path: '/authentication'
-      fullPath: '/app/guard/authentication'
-      preLoaderRoute: typeof AppGuardAuthenticationRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/challenges': {
+      id: '/admin/challenges'
+      path: '/challenges'
+      fullPath: '/admin/challenges'
+      preLoaderRoute: typeof AdminChallengesRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/guard/auth-timeline': {
-      id: '/app/guard/auth-timeline'
-      path: '/auth-timeline'
-      fullPath: '/app/guard/auth-timeline'
-      preLoaderRoute: typeof AppGuardAuthTimelineRouteImport
-      parentRoute: typeof AppGuardRoute
+    '/admin/compliance': {
+      id: '/admin/compliance'
+      path: '/compliance'
+      fullPath: '/admin/compliance'
+      preLoaderRoute: typeof AdminComplianceRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/app/accounts/$id': {
-      id: '/app/accounts/$id'
-      path: '/$id'
-      fullPath: '/app/accounts/$id'
-      preLoaderRoute: typeof AppAccountsIdRouteImport
-      parentRoute: typeof AppAccountsRoute
+    '/admin/infra': {
+      id: '/admin/infra'
+      path: '/infra'
+      fullPath: '/admin/infra'
+      preLoaderRoute: typeof AdminInfraRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/ai/models': {
-      id: '/admin/ai/models'
-      path: '/models'
-      fullPath: '/admin/ai/models'
-      preLoaderRoute: typeof AdminAiModelsRouteImport
-      parentRoute: typeof AdminAiRoute
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/ai/live': {
-      id: '/admin/ai/live'
-      path: '/live'
-      fullPath: '/admin/ai/live'
-      preLoaderRoute: typeof AdminAiLiveRouteImport
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/risk': {
+      id: '/admin/risk'
+      path: '/risk'
+      fullPath: '/admin/risk'
+      preLoaderRoute: typeof AdminRiskRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sessions': {
+      id: '/admin/sessions'
+      path: '/sessions'
+      fullPath: '/admin/sessions'
+      preLoaderRoute: typeof AdminSessionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/accounts': {
+      id: '/app/accounts'
+      path: '/accounts'
+      fullPath: '/app/accounts'
+      preLoaderRoute: typeof AppAccountsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/activity': {
+      id: '/app/activity'
+      path: '/activity'
+      fullPath: '/app/activity'
+      preLoaderRoute: typeof AppActivityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/beneficiaries': {
+      id: '/app/beneficiaries'
+      path: '/beneficiaries'
+      fullPath: '/app/beneficiaries'
+      preLoaderRoute: typeof AppBeneficiariesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/budgets': {
+      id: '/app/budgets'
+      path: '/budgets'
+      fullPath: '/app/budgets'
+      preLoaderRoute: typeof AppBudgetsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/cards': {
+      id: '/app/cards'
+      path: '/cards'
+      fullPath: '/app/cards'
+      preLoaderRoute: typeof AppCardsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/exchange': {
+      id: '/app/exchange'
+      path: '/exchange'
+      fullPath: '/app/exchange'
+      preLoaderRoute: typeof AppExchangeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/guard': {
+      id: '/app/guard'
+      path: '/guard'
+      fullPath: '/app/guard'
+      preLoaderRoute: typeof AppGuardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/insights': {
+      id: '/app/insights'
+      path: '/insights'
+      fullPath: '/app/insights'
+      preLoaderRoute: typeof AppInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/investments': {
+      id: '/app/investments'
+      path: '/investments'
+      fullPath: '/app/investments'
+      preLoaderRoute: typeof AppInvestmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/loans': {
+      id: '/app/loans'
+      path: '/loans'
+      fullPath: '/app/loans'
+      preLoaderRoute: typeof AppLoansRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/payments': {
+      id: '/app/payments'
+      path: '/payments'
+      fullPath: '/app/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/savings': {
+      id: '/app/savings'
+      path: '/savings'
+      fullPath: '/app/savings'
+      preLoaderRoute: typeof AppSavingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/statements': {
+      id: '/app/statements'
+      path: '/statements'
+      fullPath: '/app/statements'
+      preLoaderRoute: typeof AppStatementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/training': {
+      id: '/app/training'
+      path: '/training'
+      fullPath: '/app/training'
+      preLoaderRoute: typeof AppTrainingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transactions': {
+      id: '/app/transactions'
+      path: '/transactions'
+      fullPath: '/app/transactions'
+      preLoaderRoute: typeof AppTransactionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transfer': {
+      id: '/app/transfer'
+      path: '/transfer'
+      fullPath: '/app/transfer'
+      preLoaderRoute: typeof AppTransferRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/ai/datasets': {
+      id: '/admin/ai/datasets'
+      path: '/datasets'
+      fullPath: '/admin/ai/datasets'
+      preLoaderRoute: typeof AdminAiDatasetsRouteImport
       parentRoute: typeof AdminAiRoute
     }
     '/admin/ai/explain': {
@@ -1239,12 +1113,138 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAiExplainRouteImport
       parentRoute: typeof AdminAiRoute
     }
-    '/admin/ai/datasets': {
-      id: '/admin/ai/datasets'
-      path: '/datasets'
-      fullPath: '/admin/ai/datasets'
-      preLoaderRoute: typeof AdminAiDatasetsRouteImport
+    '/admin/ai/live': {
+      id: '/admin/ai/live'
+      path: '/live'
+      fullPath: '/admin/ai/live'
+      preLoaderRoute: typeof AdminAiLiveRouteImport
       parentRoute: typeof AdminAiRoute
+    }
+    '/admin/ai/models': {
+      id: '/admin/ai/models'
+      path: '/models'
+      fullPath: '/admin/ai/models'
+      preLoaderRoute: typeof AdminAiModelsRouteImport
+      parentRoute: typeof AdminAiRoute
+    }
+    '/app/accounts/$id': {
+      id: '/app/accounts/$id'
+      path: '/$id'
+      fullPath: '/app/accounts/$id'
+      preLoaderRoute: typeof AppAccountsIdRouteImport
+      parentRoute: typeof AppAccountsRoute
+    }
+    '/app/guard/': {
+      id: '/app/guard/'
+      path: '/'
+      fullPath: '/app/guard/'
+      preLoaderRoute: typeof AppGuardIndexRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/auth-timeline': {
+      id: '/app/guard/auth-timeline'
+      path: '/auth-timeline'
+      fullPath: '/app/guard/auth-timeline'
+      preLoaderRoute: typeof AppGuardAuthTimelineRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/authentication': {
+      id: '/app/guard/authentication'
+      path: '/authentication'
+      fullPath: '/app/guard/authentication'
+      preLoaderRoute: typeof AppGuardAuthenticationRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/behavior': {
+      id: '/app/guard/behavior'
+      path: '/behavior'
+      fullPath: '/app/guard/behavior'
+      preLoaderRoute: typeof AppGuardBehaviorRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/behavior-timeline': {
+      id: '/app/guard/behavior-timeline'
+      path: '/behavior-timeline'
+      fullPath: '/app/guard/behavior-timeline'
+      preLoaderRoute: typeof AppGuardBehaviorTimelineRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/challenges': {
+      id: '/app/guard/challenges'
+      path: '/challenges'
+      fullPath: '/app/guard/challenges'
+      preLoaderRoute: typeof AppGuardChallengesRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/decisions': {
+      id: '/app/guard/decisions'
+      path: '/decisions'
+      fullPath: '/app/guard/decisions'
+      preLoaderRoute: typeof AppGuardDecisionsRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/devices': {
+      id: '/app/guard/devices'
+      path: '/devices'
+      fullPath: '/app/guard/devices'
+      preLoaderRoute: typeof AppGuardDevicesRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/explainability': {
+      id: '/app/guard/explainability'
+      path: '/explainability'
+      fullPath: '/app/guard/explainability'
+      preLoaderRoute: typeof AppGuardExplainabilityRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/learning': {
+      id: '/app/guard/learning'
+      path: '/learning'
+      fullPath: '/app/guard/learning'
+      preLoaderRoute: typeof AppGuardLearningRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/mouse': {
+      id: '/app/guard/mouse'
+      path: '/mouse'
+      fullPath: '/app/guard/mouse'
+      preLoaderRoute: typeof AppGuardMouseRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/privacy': {
+      id: '/app/guard/privacy'
+      path: '/privacy'
+      fullPath: '/app/guard/privacy'
+      preLoaderRoute: typeof AppGuardPrivacyRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/reports': {
+      id: '/app/guard/reports'
+      path: '/reports'
+      fullPath: '/app/guard/reports'
+      preLoaderRoute: typeof AppGuardReportsRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/risk': {
+      id: '/app/guard/risk'
+      path: '/risk'
+      fullPath: '/app/guard/risk'
+      preLoaderRoute: typeof AppGuardRiskRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/session': {
+      id: '/app/guard/session'
+      path: '/session'
+      fullPath: '/app/guard/session'
+      preLoaderRoute: typeof AppGuardSessionRouteImport
+      parentRoute: typeof AppGuardRoute
+    }
+    '/app/guard/typing': {
+      id: '/app/guard/typing'
+      path: '/typing'
+      fullPath: '/app/guard/typing'
+      preLoaderRoute: typeof AppGuardTypingRouteImport
+      parentRoute: typeof AppGuardRoute
     }
   }
 }

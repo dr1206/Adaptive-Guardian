@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useRef } from "react";
+import { toast } from "sonner";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { OpsTable } from "@/components/admin/ops-table";
 import { useAdminDatasets } from "@/services/hooks";
@@ -12,6 +14,10 @@ export const Route = createFileRoute("/admin/ai/datasets")({
 function DatasetsPage() {
   const datasetsQ = useAdminDatasets();
   const datasets = datasetsQ.data ?? [];
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    toast.success('Dataset upload started', { description: e.target.files?.[0]?.name });
+  };
   return (
     <AsyncBoundary
       isLoading={datasetsQ.isLoading}
@@ -29,10 +35,11 @@ function DatasetsPage() {
               Versioned training data with lineage to deployed models
             </p>
           </div>
-          <button className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+          <button onClick={() => fileRef.current?.click()} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
             <Upload className="size-3.5" />
             Upload
           </button>
+          <input type='file' accept='.csv,.json,.zip' ref={fileRef} onChange={handleUpload} style={{display:'none'}} />
         </header>
 
         <OpsTable

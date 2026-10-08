@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 import { useAdminModels } from "@/services/hooks";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
@@ -29,15 +30,15 @@ function ModelsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+            <button onClick={() => toast.info('Model history', { description: 'Viewing version history for all deployed models' })} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
               <History className="size-3.5" />
               History
             </button>
-            <button className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
+            <button onClick={() => toast.info('Model comparison', { description: 'Select two model versions to compare metrics side by side' })} className="rounded-xl border border-white/[0.06] hover:border-white/[0.12] px-3 py-2 text-xs inline-flex items-center gap-1.5">
               <GitCompare className="size-3.5" />
               Compare
             </button>
-            <button className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
+            <button onClick={() => { toast.loading('Initiating retraining pipeline...'); setTimeout(() => { toast.dismiss(); toast.success('Retraining job queued', { description: 'Estimated completion: 45 minutes. You will be notified.' }); }, 1500); }} className="rounded-xl gradient-primary px-3 py-2 text-xs inline-flex items-center gap-1.5 shadow-glow">
               <Upload className="size-3.5" />
               Retrain
             </button>
@@ -101,18 +102,18 @@ function ModelsPage() {
 
                 <div className="flex gap-1.5">
                   {isCandidate && (
-                    <button className="flex-1 rounded-lg gradient-primary py-1.5 text-xs inline-flex items-center justify-center gap-1 shadow-glow">
+                    <button onClick={() => { toast.loading('Deploying model...'); setTimeout(() => { toast.dismiss(); toast.success(`Model ${m.version} deployed`, { description: 'Traffic routing updated. Previous version archived.' }); }, 2000); }} className="flex-1 rounded-lg gradient-primary py-1.5 text-xs inline-flex items-center justify-center gap-1 shadow-glow">
                       <Play className="size-3" />
                       Deploy
                     </button>
                   )}
                   {isActive && (
-                    <button className="flex-1 rounded-lg border border-white/[0.08] hover:border-white/[0.15] py-1.5 text-xs inline-flex items-center justify-center gap-1">
+                    <button onClick={() => toast.warning('Rollback initiated', { description: 'Rolling back to previous stable version. Active sessions maintained.' })} className="flex-1 rounded-lg border border-white/[0.08] hover:border-white/[0.15] py-1.5 text-xs inline-flex items-center justify-center gap-1">
                       <RotateCcw className="size-3" />
                       Rollback
                     </button>
                   )}
-                  <button className="flex-1 rounded-lg border border-white/[0.08] hover:border-white/[0.15] py-1.5 text-xs">
+                  <button onClick={() => { toast.loading('Running evaluation suite...'); setTimeout(() => { toast.dismiss(); toast.success('Evaluation complete', { description: `Accuracy: ${(m.accuracy * 100).toFixed(1)}% · F1: ${(m.f1 * 100).toFixed(1)}%` }); }, 2000); }} className="flex-1 rounded-lg border border-white/[0.08] hover:border-white/[0.15] py-1.5 text-xs">
                     Evaluate
                   </button>
                 </div>
@@ -130,10 +131,10 @@ function ModelsPage() {
                 +0.2pp F1 · awaiting 1 of 2 approvals · requested by ai@adaptiveguard
               </div>
             </div>
-            <button className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs hover:border-white/[0.15]">
+            <button onClick={() => toast.info('Review requested', { description: 'Opening diff view for v2.4.2-rc' })} className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs hover:border-white/[0.15]">
               Review
             </button>
-            <button className="rounded-lg gradient-primary px-3 py-1.5 text-xs shadow-glow">
+            <button onClick={() => toast.success('Approval recorded', { description: '1 of 2 approvals received. Awaiting second approver.' })} className="rounded-lg gradient-primary px-3 py-1.5 text-xs shadow-glow">
               Approve
             </button>
           </div>

@@ -17,7 +17,7 @@ import {
 } from "./collector";
 import type { BehavioralService } from "./behavioral.contract";
 import { services } from "../registry";
-import { persistSession } from "./export";
+import { appendStoredWindows, persistSession } from "./export";
 import { getCurrentSessionId } from "../_transport/http";
 
 // Reuse the existing client-side device identity.
@@ -360,6 +360,14 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
       const sessionId = getCurrentSessionId() ?? undefined;
       const deviceId = getDeviceId();
 
+      // Always persist completed windows to localStorage so they accumulate
+      // for CSV/JSON export via the telemetry dock — regardless of export mode.
+      try {
+        appendStoredWindows(windows, sessionId);
+      } catch {
+        // non-critical — don't block authentication pipeline
+      }
+
       // Preserve the existing behavioral data collection pipeline.
       await services.aegis.submitBatch?.(windows, sessionId, deviceId)?.catch((error) => {
         console.warn("[BehavioralCollector] Backend batch submission failed:", error);
@@ -375,6 +383,7 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
     },
     [authenticateWindow],
   );
+
 
   const startCollection = useCallback(() => {
     if (collectorRef.current) return;

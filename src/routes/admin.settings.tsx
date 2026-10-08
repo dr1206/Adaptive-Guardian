@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { InstrumentPanel } from "@/components/admin/instrument-panel";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -58,7 +59,7 @@ function SettingsPage() {
               {s.items.map((it) => (
                 <li key={it} className="flex items-center justify-between py-2.5 text-sm">
                   <span className="text-foreground/90">{it}</span>
-                  <button className="text-xs text-cyan-300 hover:text-cyan-200">Configure →</button>
+                  <button onClick={() => toast.info(`${s.label}: ${it}`, { description: 'Configuration panel — open Settings API to modify this value' })} className="text-xs text-cyan-300 hover:text-cyan-200">Configure →</button>
                 </li>
               ))}
             </ul>

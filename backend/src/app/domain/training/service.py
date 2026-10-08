@@ -336,19 +336,53 @@ async def enroll_user_profile(user_id: uuid.UUID) -> dict[str, Any]:
     df = pd.DataFrame(data_rows, columns=ALL_FEATURES)
     scaled_matrix = behavioral_ml_service.scaler.transform(df)
 
-    ocsvm = OneClassSVM(kernel="rbf", gamma="scale", nu=0.08)
+    # 1. Fit personalized OC-SVM with relaxed boundary for natural human variance
+    ocsvm = OneClassSVM(kernel="rbf", gamma="auto", nu=0.03)
     ocsvm.fit(scaled_matrix)
 
     dfs = ocsvm.decision_function(scaled_matrix)
-    lb = float(np.percentile(dfs, 5))
-    ub = float(np.percentile(dfs, 95))
+    lb = float(np.min(dfs)) - 0.2
+    ub = float(np.max(dfs)) + 0.2
     if ub <= lb:
         ub = lb + 0.1
     calib_bounds = {"lower_bound": lb, "upper_bound": ub}
 
+    # 2. Fit personalized LightGBM binary classifier (Class 0: Genuine User, Class 1: Impostor)
+    lgbm_model = None
+    try:
+        from lightgbm import LGBMClassifier
+        # Build synthetic impostor samples (Class 1) by perturbing features drastically
+        impostor_rows = []
+        for _ in range(25):
+            imp_sample = []
+            for feat in ALL_FEATURES:
+                base_v = computed_baseline[feat]
+                mult = float(rng.choice([0.3, 0.4, 2.2, 3.0]))
+                imp_sample.append(max(0.0, base_v * mult))
+            impostor_rows.append(imp_sample)
+
+        imp_df = pd.DataFrame(impostor_rows, columns=ALL_FEATURES)
+        scaled_imp = behavioral_ml_service.scaler.transform(imp_df)
+
+        X_tr = np.vstack([scaled_matrix, scaled_imp])
+        y_tr = np.array([0] * len(scaled_matrix) + [1] * len(scaled_imp))
+
+        lgbm = LGBMClassifier(
+            n_estimators=30,
+            max_depth=3,
+            learning_rate=0.05,
+            random_state=42,
+            verbosity=-1,
+        )
+        lgbm.fit(X_tr, y_tr)
+        lgbm_model = lgbm
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Note training per-user LightGBM: {e}")
+
     # Register into running ML service & persist
     uid_str = str(user_id).lower()
-    behavioral_ml_service.enroll_user(uid_str, computed_baseline, ocsvm, calib_bounds)
+    behavioral_ml_service.enroll_user(uid_str, computed_baseline, ocsvm, calib_bounds, lgbm_model=lgbm_model)
 
     # Update MongoDB profile
     now = datetime.now(timezone.utc)

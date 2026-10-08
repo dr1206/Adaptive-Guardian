@@ -307,6 +307,7 @@ class BehavioralMLService:
         baseline: dict[str, float],
         ocsvm_model: Any,
         calib_bounds: dict[str, float],
+        lgbm_model: Any | None = None,
     ) -> None:
         """Enroll or update authentic user baseline and model in-memory and disk."""
         uid_str = str(uid_str).lower()
@@ -314,6 +315,14 @@ class BehavioralMLService:
         self.calibration_bounds[uid_str] = calib_bounds
         self.dynamic_baselines[uid_str] = baseline
         USER_BASELINES[uid_str] = baseline
+
+        if lgbm_model is not None:
+            self.lgbm_models[uid_str] = lgbm_model
+            lgbm_file = MODELS_DIR / f"lightgbm_{uid_str}.joblib"
+            try:
+                joblib.dump(lgbm_model, lgbm_file)
+            except Exception as e:
+                logger.warning(f"Error saving lightgbm_{uid_str}.joblib: {e}")
 
         ocsvm_file = MODELS_DIR / f"ocsvm_{uid_str}.joblib"
         joblib.dump(ocsvm_model, ocsvm_file)
@@ -394,24 +403,23 @@ class BehavioralMLService:
 
         effective_features = dict(features)
 
-        # If user only moved mouse during this sample, impute genuine typing rhythm baseline
-        if not has_typing and has_mouse:
+        # Impute missing typing / mouse modalities cleanly from user baseline
+        if not has_typing or features.get("dwellMeanMs", 0.0) <= 0.0:
             for k in ["dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs", "keysPerSec"]:
-                effective_features[k] = baseline[k]
+                effective_features[k] = baseline.get(k, DEFAULT_BASELINE.get(k, 100.0))
 
-        # If user only typed during this sample, impute genuine mouse trajectory baseline
-        if not has_mouse and has_typing:
+        if not has_mouse or features.get("mouseTravelPx", 0.0) <= 0.0:
             for k in [
                 "accelerationMean", "accelerationStd", "clickCount", "curvatureMean",
                 "curvatureStd", "mouseTravelPx", "scrollAmount", "velocityMean", "velocityStd"
             ]:
-                effective_features[k] = baseline[k]
+                effective_features[k] = baseline.get(k, DEFAULT_BASELINE.get(k, 0.0))
 
         # Fill remaining zeros for missing secondary features with user baseline
         if effective_features.get("keysPerSec", 0.0) <= 0.0:
-            effective_features["keysPerSec"] = baseline["keysPerSec"]
+            effective_features["keysPerSec"] = baseline.get("keysPerSec", 4.0)
         if effective_features.get("velocityStd", 0.0) <= 0.0:
-            effective_features["velocityStd"] = baseline["velocityStd"]
+            effective_features["velocityStd"] = baseline.get("velocityStd", 130.0)
 
         # Build clean input DataFrame in authoritative ALL_FEATURES column order
         row_vals = []
@@ -428,23 +436,36 @@ class BehavioralMLService:
         normalized_df = pd.DataFrame(normalized, columns=ALL_FEATURES)
         model_input = normalized_df[self.selected_features]
 
-        # 1. LightGBM scoring
-        lgbm_model = self.lgbm_models.get(uid_str, self.lightgbm)
-        try:
-            lgbm_probs = lgbm_model.predict_proba(model_input)[0]
-            lightgbm_score = float(lgbm_probs[1]) if len(lgbm_probs) > 1 else float(lgbm_probs[0])
-        except Exception as e:
-            logger.warning(f"LightGBM prediction error: {e}")
-            lightgbm_score = 0.50
+        # 1. LightGBM scoring (Personalized model if available, else baseline z-score)
+        lgbm_model = self.lgbm_models.get(uid_str)
+        if lgbm_model:
+            try:
+                lgbm_probs = lgbm_model.predict_proba(model_input)[0]
+                lightgbm_score = float(lgbm_probs[1]) if len(lgbm_probs) > 1 else float(lgbm_probs[0])
+            except Exception as e:
+                logger.warning(f"LightGBM prediction error: {e}")
+                lightgbm_score = 0.12
+        else:
+            z_diffs = []
+            for k in ALL_FEATURES:
+                b_val = float(baseline.get(k, 0.0))
+                f_val = float(effective_features.get(k, b_val))
+                if b_val != 0:
+                    z_diffs.append(abs(f_val - b_val) / max(1.0, abs(b_val) * 0.25))
+            mean_z = float(np.mean(z_diffs)) if z_diffs else 0.0
+            lightgbm_score = float(np.clip((mean_z - 0.5) / 2.5, 0.05, 0.85))
 
         # 2. OC-SVM scoring
         ocsvm_model = self.ocsvm_models.get(uid_str)
         if ocsvm_model:
             raw_score = float(ocsvm_model.decision_function(model_input)[0])
-            bounds = self.calibration_bounds.get(uid_str, {"lower_bound": -0.05, "upper_bound": 0.25})
-            lb = bounds["lower_bound"]
-            ub = bounds["upper_bound"]
-            normal_score = float(np.clip((raw_score - lb) / max(1e-6, ub - lb), 0.0, 1.0))
+            bounds = self.calibration_bounds.get(uid_str, {"lower_bound": -0.2, "upper_bound": 0.2})
+            lb = bounds.get("lower_bound", -0.2)
+            ub = bounds.get("upper_bound", 0.2)
+            if raw_score >= lb:
+                normal_score = float(np.clip(0.60 + 0.40 * ((raw_score - lb) / max(1e-6, ub - lb)), 0.60, 1.0))
+            else:
+                normal_score = float(np.clip(0.60 - 0.60 * ((lb - raw_score) / max(1e-6, abs(lb) + 0.5)), 0.0, 0.60))
             anomaly_score = float(1.0 - normal_score)
         else:
             anomaly_score = lightgbm_score

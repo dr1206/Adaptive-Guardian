@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { cn } from "@/lib/utils";
+import { clearStoredDataset } from "@/services/behavioral/export";
 import {
   useCompleteTrainingSession,
   useEnrollTrainingProfile,
@@ -176,6 +177,7 @@ function TrainingPage() {
       return;
     }
     try {
+      clearStoredDataset();
       const res = await resetMutation.mutateAsync();
       setCompletedTasks(new Set());
       setBannerMessage({

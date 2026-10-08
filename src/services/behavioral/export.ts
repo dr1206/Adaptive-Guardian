@@ -69,7 +69,43 @@ export function clearStoredDataset(): void {
   }
 }
 
-/** Number of sessions and total windows currently stored. */
+/**
+ * Append one batch of feature windows directly to localStorage without
+ * requiring a full BehavioralSessionDump. Called after every 30-second
+ * collection window completes so data accumulates automatically.
+ */
+export function appendStoredWindows(
+  windows: FeatureWindow[],
+  sessionId?: string,
+): void {
+  if (windows.length === 0) return;
+  const ds = loadDataset();
+
+  // Find or create a session bucket for this sessionId
+  const sid = sessionId ?? `sess_${Date.now()}`;
+  let session = ds.sessions.find((s) => s.sessionId === sid);
+  if (!session) {
+    session = {
+      sessionId: sid,
+      capturedAt: new Date().toISOString(),
+      windows: [],
+    } as BehavioralSessionDump;
+    ds.sessions.push(session);
+  }
+  session.windows.push(...windows);
+  saveDataset(ds);
+  console.debug(
+    `[BehavioralExport] +${windows.length} windows persisted — ` +
+    `session ${sid} now has ${session.windows.length} windows`,
+  );
+}
+
+/** Expose the raw localStorage load so callers can check without mutating. */
+export function loadStoredWindows(): StoredDataset {
+  return loadDataset();
+}
+
+
 export function datasetStats(): { sessions: number; windows: number } {
   const ds = loadDataset();
   return {

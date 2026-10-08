@@ -9,6 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import type { Session } from "@/services/auth/auth.contract";
 import { BehavioralCollectorProvider } from "@/services/behavioral/BehavioralCollectorProvider";
@@ -144,6 +145,19 @@ function RootComponent() {
       <BehavioralCollectorProvider>
         <Outlet />
         <BehavioralTelemetryDock />
+        <Toaster
+          position="top-right"
+          theme="dark"
+          toastOptions={{
+            style: {
+              background: "oklch(0.18 0.03 264)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#f1f5f9",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "13px",
+            },
+          }}
+        />
       </BehavioralCollectorProvider>
     </QueryClientProvider>
   );

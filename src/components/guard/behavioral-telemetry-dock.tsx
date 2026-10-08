@@ -29,6 +29,7 @@ import {
   downloadAsCsv,
   downloadAsJson,
   downloadFullDataset,
+  loadStoredWindows,
 } from "@/services/behavioral/export";
 import { cn } from "@/lib/utils";
 
@@ -96,24 +97,41 @@ export function BehavioralTelemetryDock() {
     return () => clearInterval(id);
   }, [refreshStats]);
 
+  /**
+   * Collect all windows for export:
+   * 1. Start with everything stored in localStorage (accumulated across sessions)
+   * 2. Also include any windows currently in-memory (current live session)
+   */
+  function getAllWindowsForExport() {
+    const stored = loadStoredWindows();
+    const allStored = stored.sessions.flatMap((s) => s.windows);
+
+    // Also include in-memory windows not yet flushed to localStorage
+    const liveWindows = getWindows();
+    const liveDump = dumpSession();
+    const liveExtra = (liveDump?.windows ?? liveWindows).filter(
+      (w) => !allStored.some((sw) => sw.windowId === w.windowId),
+    );
+
+    return [...allStored, ...liveExtra];
+  }
+
   const handleExportJson = () => {
-    const dump = dumpSession();
-    if (dump && dump.windows.length > 0) {
-      downloadAsJson(dump.windows, label || undefined);
+    const windows = getAllWindowsForExport();
+    if (windows.length > 0) {
+      downloadAsJson(windows, label || undefined);
     } else {
-      const windows = getWindows();
-      if (windows.length > 0) downloadAsJson(windows, label || undefined);
+      alert("No behavioral data collected yet. Use the app for at least 30 seconds first.");
     }
     refreshStats();
   };
 
   const handleExportCsv = () => {
-    const dump = dumpSession();
-    if (dump && dump.windows.length > 0) {
-      downloadAsCsv(dump.windows, label || undefined);
+    const windows = getAllWindowsForExport();
+    if (windows.length > 0) {
+      downloadAsCsv(windows, label || undefined);
     } else {
-      const windows = getWindows();
-      if (windows.length > 0) downloadAsCsv(windows, label || undefined);
+      alert("No behavioral data collected yet. Use the app for at least 30 seconds first.");
     }
     refreshStats();
   };
@@ -456,8 +474,14 @@ export function BehavioralTelemetryDock() {
               <Download className="h-3.5 w-3.5 text-[#0B3A82]" />
               ML Dataset Export
             </span>
-            <span className="font-mono text-[10px] text-[#667085]">{status.windowsSent} sent</span>
+            <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5">
+              {stats.windows} windows stored
+            </span>
           </div>
+
+          <p className="mt-1.5 text-[10px] text-[#667085]">
+            All completed 30s windows are auto-saved. Export JSON or CSV below to download everything.
+          </p>
 
           <div className="mt-2">
             <input
@@ -471,15 +495,15 @@ export function BehavioralTelemetryDock() {
           <div className="mt-2 grid grid-cols-2 gap-1.5">
             <button
               onClick={handleExportJson}
-              className="flex items-center justify-center gap-1 rounded-md border border-[#D9E1EA] bg-white py-1 text-[10.5px] font-medium text-[#172033] shadow-2xs transition-colors hover:bg-slate-50"
+              className="flex items-center justify-center gap-1 rounded-md border border-[#D9E1EA] bg-white py-1.5 text-[10.5px] font-medium text-[#172033] shadow-2xs transition-colors hover:bg-slate-50 hover:border-[#0B3A82]"
             >
-              Export JSON
+              ⬇ JSON ({stats.windows})
             </button>
             <button
               onClick={handleExportCsv}
-              className="flex items-center justify-center gap-1 rounded-md border border-[#D9E1EA] bg-white py-1 text-[10.5px] font-medium text-[#172033] shadow-2xs transition-colors hover:bg-slate-50"
+              className="flex items-center justify-center gap-1 rounded-md border border-[#0B3A82]/30 bg-[#0B3A82]/5 py-1.5 text-[10.5px] font-medium text-[#0B3A82] shadow-2xs transition-colors hover:bg-[#0B3A82]/10"
             >
-              Export CSV
+              ⬇ CSV ({stats.windows})
             </button>
           </div>
 
@@ -489,7 +513,7 @@ export function BehavioralTelemetryDock() {
               disabled={stats.windows === 0}
               className="text-[10px] font-medium text-[#0B3A82] hover:underline disabled:text-slate-400"
             >
-              Export All ({stats.windows} windows)
+              Export Full Dataset ({stats.sessions} sessions)
             </button>
             <button
               onClick={handleClear}
@@ -497,7 +521,7 @@ export function BehavioralTelemetryDock() {
               className="flex items-center gap-1 text-[10px] text-rose-600 hover:underline disabled:text-slate-400"
             >
               <Trash2 className="h-2.5 w-2.5" />
-              Clear
+              Clear All
             </button>
           </div>
         </section>
