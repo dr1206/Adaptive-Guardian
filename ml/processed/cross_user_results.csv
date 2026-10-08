@@ -1,0 +1,17 @@
+model_owner,behavior_source,relationship,samples_tested,accepted,rejected,acceptance_rate,rejection_rate
+Amal,Amal,Genuine User,33,29,4,0.8787878787878788,0.12121212121212122
+Amal,Vyas,Impostor Cross-Test,19,3,16,0.15789473684210525,0.8421052631578947
+Amal,Dristi,Impostor Cross-Test,21,3,18,0.14285714285714285,0.8571428571428571
+Amal,Manasa,Impostor Cross-Test,30,4,26,0.13333333333333333,0.8666666666666667
+Vyas,Amal,Impostor Cross-Test,33,12,21,0.36363636363636365,0.6363636363636364
+Vyas,Vyas,Genuine User,19,18,1,0.9473684210526315,0.05263157894736842
+Vyas,Dristi,Impostor Cross-Test,21,2,19,0.09523809523809523,0.9047619047619048
+Vyas,Manasa,Impostor Cross-Test,30,9,21,0.3,0.7
+Dristi,Amal,Impostor Cross-Test,33,7,26,0.21212121212121213,0.7878787878787878
+Dristi,Vyas,Impostor Cross-Test,19,1,18,0.05263157894736842,0.9473684210526315
+Dristi,Dristi,Genuine User,21,18,3,0.8571428571428571,0.14285714285714285
+Dristi,Manasa,Impostor Cross-Test,30,3,27,0.1,0.9
+Manasa,Amal,Impostor Cross-Test,33,2,31,0.06060606060606061,0.9393939393939394
+Manasa,Vyas,Impostor Cross-Test,19,1,18,0.05263157894736842,0.9473684210526315
+Manasa,Dristi,Impostor Cross-Test,21,2,19,0.09523809523809523,0.9047619047619048
+Manasa,Manasa,Genuine User,30,24,6,0.8,0.2

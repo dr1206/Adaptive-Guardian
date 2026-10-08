@@ -35,3 +35,9 @@ dist-ssr
 *.sw?
 
 .claude/
+
+# Python & ML temporary cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+catboost_info/

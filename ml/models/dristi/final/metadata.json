@@ -1,0 +1,41 @@
+{
+  "model_version": "v2.5.0-production",
+  "algorithm": "Weighted Fusion",
+  "user": "Dristi",
+  "user_id": "dba80c84-68fd-45b2-ba28-10f10075b239",
+  "features": [
+    "accelerationMean",
+    "accelerationStd",
+    "clickCount",
+    "curvatureMean",
+    "curvatureStd",
+    "dwellMeanMs",
+    "dwellStdMs",
+    "flightMeanMs",
+    "flightStdMs",
+    "keysPerSec",
+    "mouseTravelPx",
+    "scrollAmount",
+    "velocityMean",
+    "velocityStd"
+  ],
+  "train_val_samples": 572,
+  "test_samples": 101,
+  "test_metrics": {
+    "accuracy": 0.8910891089108911,
+    "precision": 0.6923076923076923,
+    "recall": 0.8571428571428571,
+    "f1": 0.7659574468085106,
+    "roc_auc": 0.9660714285714287,
+    "far": 0.1,
+    "frr": 0.14285714285714285,
+    "eer": 0.09761904761904762,
+    "eer_threshold": 0.47952490489858113,
+    "tp": 18,
+    "tn": 72,
+    "fp": 8,
+    "fn": 3
+  },
+  "training_duration_s": 0.1300961971282959,
+  "timestamp": "2026-10-09 01:56:03"
+}

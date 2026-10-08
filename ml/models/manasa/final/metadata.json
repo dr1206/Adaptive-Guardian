@@ -1,0 +1,41 @@
+{
+  "model_version": "v2.5.0-production",
+  "algorithm": "Weighted Fusion",
+  "user": "Manasa",
+  "user_id": "468f03a2-d7c9-4701-abf8-bb2c692f696b",
+  "features": [
+    "accelerationMean",
+    "accelerationStd",
+    "clickCount",
+    "curvatureMean",
+    "curvatureStd",
+    "dwellMeanMs",
+    "dwellStdMs",
+    "flightMeanMs",
+    "flightStdMs",
+    "keysPerSec",
+    "mouseTravelPx",
+    "scrollAmount",
+    "velocityMean",
+    "velocityStd"
+  ],
+  "train_val_samples": 789,
+  "test_samples": 140,
+  "test_metrics": {
+    "accuracy": 0.9071428571428571,
+    "precision": 0.7741935483870968,
+    "recall": 0.8,
+    "f1": 0.7868852459016393,
+    "roc_auc": 0.9327272727272727,
+    "far": 0.06363636363636363,
+    "frr": 0.2,
+    "eer": 0.13484848484848483,
+    "eer_threshold": 0.3330782018537236,
+    "tp": 24,
+    "tn": 103,
+    "fp": 7,
+    "fn": 6
+  },
+  "training_duration_s": 0.14428448677062988,
+  "timestamp": "2026-10-09 01:56:03"
+}

@@ -181,9 +181,9 @@ function ModelsPage() {
           <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/[0.04] p-4 flex items-center gap-4">
             <Cpu className="size-5 text-cyan-300" />
             <div className="flex-1">
-              <div className="text-sm font-medium">v2.4.2-rc · ready to deploy</div>
+              <div className="text-sm font-medium">v2.6.0-weighted-fusion · active production</div>
               <div className="text-[11px] font-mono text-muted-foreground mt-0.5">
-                +0.2pp F1 · awaiting 1 of 2 approvals · requested by ai@adaptiveguard
+                93.21% val acc · 90.66% test acc · LightGBM + User-Specific OC-SVM
               </div>
             </div>
             <button

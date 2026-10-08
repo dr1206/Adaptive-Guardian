@@ -11,6 +11,8 @@ import shap
 
 logger = logging.getLogger(__name__)
 
+MODEL_VERSION = "v2.6.0-weighted-fusion"
+
 
 # ============================================================
 # PATHS
@@ -431,17 +433,28 @@ class BehavioralMLService:
 
         dataframe = pd.DataFrame([row_vals], columns=ALL_FEATURES)
 
-        # Scale features
+        # Raw features for LightGBM (gradient boosted trees fitted on unscaled domain metrics)
+        raw_input = dataframe[self.selected_features]
+
+        # StandardScaled features for One-Class SVM (RBF kernel requires scaling)
         normalized = self.scaler.transform(dataframe)
         normalized_df = pd.DataFrame(normalized, columns=ALL_FEATURES)
-        model_input = normalized_df[self.selected_features]
+        scaled_input = normalized_df[self.selected_features]
 
         # 1. LightGBM scoring (Personalized model if available, else baseline z-score)
         lgbm_model = self.lgbm_models.get(uid_str)
         if lgbm_model:
             try:
-                lgbm_probs = lgbm_model.predict_proba(model_input)[0]
-                lightgbm_score = float(lgbm_probs[1]) if len(lgbm_probs) > 1 else float(lgbm_probs[0])
+                lgbm_probs = lgbm_model.predict_proba(raw_input)[0]
+                # Dynamic derivation of impostor risk from classes_
+                classes = list(getattr(lgbm_model, "classes_", [0, 1]))
+                if 0 in classes:
+                    idx_imp = classes.index(0)
+                    lightgbm_score = float(lgbm_probs[idx_imp])
+                elif len(lgbm_probs) > 1:
+                    lightgbm_score = float(1.0 - lgbm_probs[1])
+                else:
+                    lightgbm_score = float(lgbm_probs[0])
             except Exception as e:
                 logger.warning(f"LightGBM prediction error: {e}")
                 lightgbm_score = 0.12
@@ -458,7 +471,7 @@ class BehavioralMLService:
         # 2. OC-SVM scoring
         ocsvm_model = self.ocsvm_models.get(uid_str)
         if ocsvm_model:
-            raw_score = float(ocsvm_model.decision_function(model_input)[0])
+            raw_score = float(ocsvm_model.decision_function(scaled_input)[0])
             bounds = self.calibration_bounds.get(uid_str, {"lower_bound": -0.2, "upper_bound": 0.2})
             lb = bounds.get("lower_bound", -0.2)
             ub = bounds.get("upper_bound", 0.2)
@@ -489,7 +502,7 @@ class BehavioralMLService:
         try:
             explainer = self.explainers.get(uid_str, self.explainers.get("default"))
             if explainer:
-                shap_vals = explainer.shap_values(model_input)
+                shap_vals = explainer.shap_values(raw_input)
                 # For binary LightGBM, shap_values can be list of arrays [class0, class1] or 2D array
                 if isinstance(shap_vals, list) and len(shap_vals) > 1:
                     raw_shaps = shap_vals[1][0]
@@ -514,12 +527,18 @@ class BehavioralMLService:
         except Exception as shap_err:
             logger.debug(f"TreeSHAP calculation note: {shap_err}")
 
+        logger.info(
+            "Continuous auth evaluated for user=%s: fusion=%.4f (lgbm=%.4f, ocsvm=%.4f) -> %s [version=%s]",
+            uid_str, fused_score, lightgbm_score, anomaly_score, decision, MODEL_VERSION,
+        )
+
         return {
             "lightgbm_score": round(lightgbm_score, 4),
             "ocsvm_anomaly_score": round(anomaly_score, 4),
             "fused_score": round(fused_score, 4),
             "decision": decision,
             "top_contributors": top_contributors,
+            "model_version": MODEL_VERSION,
         }
 
     def evaluate_drift(

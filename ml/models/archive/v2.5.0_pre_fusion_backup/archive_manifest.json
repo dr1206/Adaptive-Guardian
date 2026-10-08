@@ -1,0 +1,68 @@
+{
+  "archive_timestamp": "2026-10-09T02:37:30.037679",
+  "archived_from": "C:\\Users\\Amal Varghese\\Desktop\\MAJOR PROJECT BACKUP\\MAJOR PROJ MADE BY DRISTI\\Adaptive-Guardian\\ml\\models",
+  "archived_version": "v2.5.0",
+  "target_version": "v2.6.0-weighted-fusion",
+  "files": [
+    {
+      "filename": "standard_scaler.joblib",
+      "bytes": 951,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "lightgbm_classifier.joblib",
+      "bytes": 211732,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "ocsvm_calibration.joblib",
+      "bytes": 358,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "user_baselines.json",
+      "bytes": 2476,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "lightgbm_e92e7c09-c1b8-4f72-a7a8-f75077608d1b.joblib",
+      "bytes": 211732,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "ocsvm_e92e7c09-c1b8-4f72-a7a8-f75077608d1b.joblib",
+      "bytes": 5535,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "lightgbm_4958d349-1ff1-4f6b-8344-fca7d4d717aa.joblib",
+      "bytes": 120058,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "ocsvm_4958d349-1ff1-4f6b-8344-fca7d4d717aa.joblib",
+      "bytes": 4223,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "lightgbm_dba80c84-68fd-45b2-ba28-10f10075b239.joblib",
+      "bytes": 184964,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "ocsvm_dba80c84-68fd-45b2-ba28-10f10075b239.joblib",
+      "bytes": 4351,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "lightgbm_468f03a2-d7c9-4701-abf8-bb2c692f696b.joblib",
+      "bytes": 219636,
+      "sha256_backed_up": true
+    },
+    {
+      "filename": "ocsvm_468f03a2-d7c9-4701-abf8-bb2c692f696b.joblib",
+      "bytes": 4751,
+      "sha256_backed_up": true
+    }
+  ]
+}

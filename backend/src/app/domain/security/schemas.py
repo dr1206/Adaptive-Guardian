@@ -152,7 +152,10 @@ class BehavioralAuthenticationRequest(BaseModel):
 
 
 class BehavioralAuthenticationResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     lightgbm_score: float = Field(serialization_alias="lightgbmScore")
     ocsvm_anomaly_score: float = Field(serialization_alias="ocsvmAnomalyScore")
     fused_score: float = Field(serialization_alias="fusedScore")
     decision: str
+    model_version: str = Field("v2.6.0-weighted-fusion", serialization_alias="modelVersion")
