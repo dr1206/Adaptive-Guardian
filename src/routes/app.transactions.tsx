@@ -236,7 +236,9 @@ function TransactionsPage() {
                   <option value="Unauthorized Transaction">Unauthorized / Fraudulent Charge</option>
                   <option value="Duplicate Charge">Duplicate Debit for Single Purchase</option>
                   <option value="Incorrect Amount Charged">Incorrect Amount Charged</option>
-                  <option value="Merchandise Not Received">Merchandise or Service Not Received</option>
+                  <option value="Merchandise Not Received">
+                    Merchandise or Service Not Received
+                  </option>
                   <option value="ATM Cash Not Dispensed">ATM Cash Not Dispensed</option>
                   <option value="Other">Other Grievance</option>
                 </select>

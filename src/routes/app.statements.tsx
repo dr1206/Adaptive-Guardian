@@ -37,8 +37,8 @@ function StatementsPage() {
       a.remove();
       window.URL.revokeObjectURL(url);
       toast.success("Statement exported successfully as CSV");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to export statement");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to export statement");
     } finally {
       setIsDownloading(false);
     }
@@ -50,11 +50,13 @@ function StatementsPage() {
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: `Bank Statement - ${year}`,
-        text: `Official Bank Statement for ${year}`,
-        url: window.location.href,
-      }).catch(() => {});
+      navigator
+        .share({
+          title: `Bank Statement - ${year}`,
+          text: `Official Bank Statement for ${year}`,
+          url: window.location.href,
+        })
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Statement reference URL copied to clipboard");
@@ -108,7 +110,8 @@ function StatementsPage() {
             <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
               <header className="flex items-center justify-between border-b border-border px-5 py-3 bg-muted/20">
                 <h3 className="font-display text-[14px] font-semibold text-foreground">
-                  {years.find((y) => y.year === year)?.months[month]?.label ?? ""} {year} · Primary Savings Account
+                  {years.find((y) => y.year === year)?.months[month]?.label ?? ""} {year} · Primary
+                  Savings Account
                 </h3>
                 <div className="flex items-center gap-1">
                   <button
@@ -117,7 +120,11 @@ function StatementsPage() {
                     title="Export CSV"
                     className="grid h-8 w-8 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
                   >
-                    {isDownloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                    {isDownloading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Download className="h-3.5 w-3.5" />
+                    )}
                   </button>
                   <button
                     onClick={handlePrint}
@@ -173,7 +180,9 @@ function StatementsPage() {
                             <span className="font-mono text-muted-foreground">{line.date}</span> ·{" "}
                             <span className="font-medium text-foreground">{line.name}</span>
                           </div>
-                          <span className="font-numeric font-semibold text-foreground">{line.amount}</span>
+                          <span className="font-numeric font-semibold text-foreground">
+                            {line.amount}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -191,7 +200,9 @@ function StatementsPage() {
 function Cell({ k, v }: { k: string; v: string }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3 shadow-xs">
-      <div className="text-[9px] uppercase font-bold tracking-[0.18em] text-muted-foreground">{k}</div>
+      <div className="text-[9px] uppercase font-bold tracking-[0.18em] text-muted-foreground">
+        {k}
+      </div>
       <div className="mt-0.5 font-numeric text-[14px] font-bold text-foreground">{v}</div>
     </div>
   );

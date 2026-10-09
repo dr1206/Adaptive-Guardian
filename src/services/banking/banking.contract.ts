@@ -133,11 +133,22 @@ export interface BankingService {
     limits: { daily?: number; monthly?: number; atm?: number },
     opts?: { signal?: AbortSignal },
   ): Promise<BankCard>;
-  changeCardPin(cardId: string, pin: string, opts?: { signal?: AbortSignal }): Promise<{ status: string; message: string }>;
+  changeCardPin(
+    cardId: string,
+    pin: string,
+    opts?: { signal?: AbortSignal },
+  ): Promise<{ status: string; message: string }>;
 
   listPayments(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Payment>>;
   createPayment(
-    payment: { description: string; amount: number; currency: string; nextDate: string; frequency: string; beneficiary: string },
+    payment: {
+      description: string;
+      amount: number;
+      currency: string;
+      nextDate: string;
+      frequency: string;
+      beneficiary: string;
+    },
     opts?: { signal?: AbortSignal },
   ): Promise<Payment>;
   deletePayment(paymentId: string, opts?: { signal?: AbortSignal }): Promise<void>;
@@ -146,11 +157,29 @@ export interface BankingService {
 
   listSavingsGoals(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<SavingsGoal>>;
   createSavingsGoal(
-    goal: { name: string; target: number; currency: string; deadline: string; image?: string; category?: string; monthly?: number },
+    goal: {
+      name: string;
+      target: number;
+      currency: string;
+      deadline: string;
+      image?: string;
+      category?: string;
+      monthly?: number;
+    },
     opts?: { signal?: AbortSignal },
   ): Promise<SavingsGoal>;
-  contributeSavingsGoal(goalId: string, amount: number, accountId?: string, opts?: { signal?: AbortSignal }): Promise<SavingsGoal>;
-  withdrawSavingsGoal(goalId: string, amount: number, accountId?: string, opts?: { signal?: AbortSignal }): Promise<SavingsGoal>;
+  contributeSavingsGoal(
+    goalId: string,
+    amount: number,
+    accountId?: string,
+    opts?: { signal?: AbortSignal },
+  ): Promise<SavingsGoal>;
+  withdrawSavingsGoal(
+    goalId: string,
+    amount: number,
+    accountId?: string,
+    opts?: { signal?: AbortSignal },
+  ): Promise<SavingsGoal>;
   deleteSavingsGoal(goalId: string, opts?: { signal?: AbortSignal }): Promise<void>;
 
   listHoldings(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<Holding>>;

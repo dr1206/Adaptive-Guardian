@@ -175,7 +175,9 @@ function BeneficiariesPage() {
           </DialogHeader>
           <form onSubmit={handleAddSubmit} className="space-y-4 pt-2">
             <div>
-              <label className="text-[12px] font-medium text-foreground">Beneficiary Full Name</label>
+              <label className="text-[12px] font-medium text-foreground">
+                Beneficiary Full Name
+              </label>
               <input
                 type="text"
                 value={name}
@@ -224,7 +226,8 @@ function BeneficiariesPage() {
               </select>
             </div>
             <div className="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground">
-              ⚠️ In accordance with RBI guidelines, transfers to newly registered beneficiaries are subject to a ₹50,000 cooling limit for the first 24 hours.
+              ⚠️ In accordance with RBI guidelines, transfers to newly registered beneficiaries are
+              subject to a ₹50,000 cooling limit for the first 24 hours.
             </div>
             <DialogFooter>
               <button

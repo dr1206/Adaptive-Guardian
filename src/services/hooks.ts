@@ -425,8 +425,13 @@ export function useUnfreezeCard() {
 export function useUpdateCardLimits() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ cardId, limits }: { cardId: string; limits: { daily?: number; monthly?: number; atm?: number } }) =>
-      services.banking.updateCardLimits(cardId, limits),
+    mutationFn: ({
+      cardId,
+      limits,
+    }: {
+      cardId: string;
+      limits: { daily?: number; monthly?: number; atm?: number };
+    }) => services.banking.updateCardLimits(cardId, limits),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.cards });
       qc.invalidateQueries({ queryKey: queryKeys.activity });
@@ -448,8 +453,13 @@ export function useChangeCardPin() {
 export function useAddBeneficiary() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (beneficiary: { name: string; iban: string; bank: string; category?: string; currency?: string }) =>
-      services.banking.addBeneficiary(beneficiary),
+    mutationFn: (beneficiary: {
+      name: string;
+      iban: string;
+      bank: string;
+      category?: string;
+      currency?: string;
+    }) => services.banking.addBeneficiary(beneficiary),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.beneficiaries });
       qc.invalidateQueries({ queryKey: queryKeys.activity });
@@ -482,8 +492,14 @@ export function useVerifyBeneficiary() {
 export function useCreatePayment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payment: { description: string; amount: number; currency: string; nextDate: string; frequency: string; beneficiary: string }) =>
-      services.banking.createPayment(payment),
+    mutationFn: (payment: {
+      description: string;
+      amount: number;
+      currency: string;
+      nextDate: string;
+      frequency: string;
+      beneficiary: string;
+    }) => services.banking.createPayment(payment),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.payments });
       qc.invalidateQueries({ queryKey: queryKeys.activity });
@@ -551,8 +567,15 @@ export function useCreateSavingsGoal() {
 export function useContributeSavingsGoal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) =>
-      services.banking.contributeSavingsGoal(goalId, amount, accountId),
+    mutationFn: ({
+      goalId,
+      amount,
+      accountId,
+    }: {
+      goalId: string;
+      amount: number;
+      accountId?: string;
+    }) => services.banking.contributeSavingsGoal(goalId, amount, accountId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
       qc.invalidateQueries({ queryKey: queryKeys.accounts });
@@ -565,8 +588,15 @@ export function useContributeSavingsGoal() {
 export function useWithdrawSavingsGoal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) =>
-      services.banking.withdrawSavingsGoal(goalId, amount, accountId),
+    mutationFn: ({
+      goalId,
+      amount,
+      accountId,
+    }: {
+      goalId: string;
+      amount: number;
+      accountId?: string;
+    }) => services.banking.withdrawSavingsGoal(goalId, amount, accountId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
       qc.invalidateQueries({ queryKey: queryKeys.accounts });
@@ -590,8 +620,12 @@ export function useDeleteSavingsGoal() {
 export function useCreateBudget() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (budget: { category: string; budgeted: number; currency: string; color?: string }) =>
-      services.banking.createBudget(budget),
+    mutationFn: (budget: {
+      category: string;
+      budgeted: number;
+      currency: string;
+      color?: string;
+    }) => services.banking.createBudget(budget),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.budgets });
       qc.invalidateQueries({ queryKey: queryKeys.activity });
@@ -613,8 +647,12 @@ export function useDeleteBudget() {
 export function useExecuteExchange() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: { fromCurrency: string; toCurrency: string; fromAmount: number; fromAccountId?: string }) =>
-      services.banking.executeExchange(input),
+    mutationFn: (input: {
+      fromCurrency: string;
+      toCurrency: string;
+      fromAmount: number;
+      fromAccountId?: string;
+    }) => services.banking.executeExchange(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.accounts });
       qc.invalidateQueries({ queryKey: ["banking", "transactions"] });

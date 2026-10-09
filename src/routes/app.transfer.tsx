@@ -81,7 +81,8 @@ function TransferPage() {
     try {
       const windows = getWindows();
       if (windows.length > 0) {
-        const { windowId, windowStart, windowEnd, deviceInfo, ...feats } = windows[windows.length - 1];
+        const { windowId, windowStart, windowEnd, deviceInfo, ...feats } =
+          windows[windows.length - 1];
         return feats as Record<string, number>;
       }
     } catch {
@@ -134,7 +135,7 @@ function TransferPage() {
           toast.success("Transfer executed successfully");
           setStep(4);
         },
-        onError: (err: any) => {
+        onError: (err) => {
           setIsSending(false);
           const msg = err.message || "Failed to execute transfer. Please try again.";
           setErrorMsg(msg);
@@ -623,7 +624,8 @@ function ReviewStage({
         </div>
 
         <p className="mt-4 text-center text-[12px] text-muted-foreground">
-          Biometric session integrity and double-entry ledger balance will be verified upon authorization.
+          Biometric session integrity and double-entry ledger balance will be verified upon
+          authorization.
         </p>
       </article>
     </div>
@@ -687,7 +689,9 @@ function SuccessStage({
           {result.riskScore !== undefined && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Risk Score:</span>
-              <span className="font-medium text-success">{result.riskScore.toFixed(3)} (Low Risk)</span>
+              <span className="font-medium text-success">
+                {result.riskScore.toFixed(3)} (Low Risk)
+              </span>
             </div>
           )}
           {result.riskDecision && (

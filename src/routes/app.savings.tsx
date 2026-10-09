@@ -214,7 +214,9 @@ function SavingsPage() {
                 </select>
               </div>
               <div>
-                <label className="text-[12px] font-medium text-foreground">Monthly Contribution (₹)</label>
+                <label className="text-[12px] font-medium text-foreground">
+                  Monthly Contribution (₹)
+                </label>
                 <input
                   type="number"
                   min="500"
@@ -255,7 +257,9 @@ function SavingsPage() {
           </DialogHeader>
           <form onSubmit={handleContributeSubmit} className="space-y-4 pt-2">
             <div>
-              <label className="text-[12px] font-medium text-foreground">Contribution Amount (₹)</label>
+              <label className="text-[12px] font-medium text-foreground">
+                Contribution Amount (₹)
+              </label>
               <input
                 type="number"
                 min="100"
@@ -376,7 +380,9 @@ function GoalCard({
           </button>
         </div>
       </header>
-      <h3 className="font-display text-[18px] font-semibold tracking-tight text-foreground">{g.name}</h3>
+      <h3 className="font-display text-[18px] font-semibold tracking-tight text-foreground">
+        {g.name}
+      </h3>
 
       <div className="my-5 grid place-items-center">
         <div className="relative grid h-32 w-32 place-items-center">
@@ -403,7 +409,9 @@ function GoalCard({
             />
           </svg>
           <div className="text-center">
-            <div className="font-numeric text-[24px] font-bold text-foreground">{pct.toFixed(0)}%</div>
+            <div className="font-numeric text-[24px] font-bold text-foreground">
+              {pct.toFixed(0)}%
+            </div>
             <div className="text-[9px] uppercase font-bold tracking-[0.18em] text-muted-foreground">
               complete
             </div>
@@ -421,7 +429,9 @@ function GoalCard({
         </span>
         <span>
           <span className="text-muted-foreground">Target /mo</span>{" "}
-          <span className="font-numeric font-semibold text-foreground">{fmt(g.monthly, "₹", 0)}</span>
+          <span className="font-numeric font-semibold text-foreground">
+            {fmt(g.monthly, "₹", 0)}
+          </span>
         </span>
       </div>
       <div className="mt-4 flex items-center gap-2">

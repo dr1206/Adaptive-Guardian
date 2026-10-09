@@ -114,7 +114,9 @@ function BudgetsPage() {
                 className="group relative rounded-[20px] border border-border bg-card p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
               >
                 <header className="mb-3 flex items-center justify-between">
-                  <h3 className="font-display text-[14px] font-semibold text-foreground">{e.name}</h3>
+                  <h3 className="font-display text-[14px] font-semibold text-foreground">
+                    {e.name}
+                  </h3>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-[11px] font-semibold ${over ? "text-destructive" : "text-muted-foreground"}`}
@@ -133,7 +135,9 @@ function BudgetsPage() {
                 <div className="font-numeric text-[20px] font-bold text-foreground">
                   {fmt(e.spent, "₹", 0)}
                 </div>
-                <div className="text-[11px] text-muted-foreground">of {fmt(e.budget, "₹", 0)} limit</div>
+                <div className="text-[11px] text-muted-foreground">
+                  of {fmt(e.budget, "₹", 0)} limit
+                </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
                   <div
                     className="h-full rounded-full transition-all"
@@ -224,7 +228,9 @@ function BudgetsPage() {
 function KPI({ k, v, tone }: { k: string; v: string; tone?: "success" | "danger" }) {
   return (
     <div className="rounded-xl border border-border bg-card p-3 shadow-xs">
-      <div className="text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">{k}</div>
+      <div className="text-[10px] uppercase font-bold tracking-[0.16em] text-muted-foreground">
+        {k}
+      </div>
       <div
         className={`mt-1 font-numeric text-[18px] font-bold ${
           tone === "success"

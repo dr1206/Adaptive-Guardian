@@ -99,7 +99,7 @@ export const mockBankingService: BankingService = {
       bank: b.bank,
       iban: b.iban,
       last4: b.iban.slice(-4),
-      category: (b.category as any) || "General",
+      category: (b.category as Beneficiary["category"]) || "Recent",
       initials: b.name.slice(0, 2).toUpperCase(),
       tint: 1,
     };
@@ -122,10 +122,13 @@ export const mockBankingService: BankingService = {
   },
   async updateCardLimits(cardId, limits, { signal } = {}) {
     const card = CARDS.find((c) => c.id === cardId) || { ...CARDS[0], id: cardId };
-    return mockResolve<BankCard>({
-      ...card,
-      limits: { ...card.limits, ...limits },
-    }, { signal });
+    return mockResolve<BankCard>(
+      {
+        ...card,
+        limits: { ...card.limits, ...limits },
+      },
+      { signal },
+    );
   },
   async changeCardPin(_cardId, _pin, { signal } = {}) {
     return mockResolve({ status: "success", message: "Card PIN updated" }, { signal });
@@ -150,18 +153,18 @@ export const mockBankingService: BankingService = {
   },
   async pausePayment(id, { signal } = {}) {
     const found = PAYMENTS.find((p) => p.id === id) || PAYMENTS[0];
-    return mockResolve<Payment>({ ...found, status: "paused" as any }, { signal });
+    return mockResolve<Payment>({ ...found, status: "paused" }, { signal });
   },
   async resumePayment(id, { signal } = {}) {
     const found = PAYMENTS.find((p) => p.id === id) || PAYMENTS[0];
-    return mockResolve<Payment>({ ...found, status: "active" as any }, { signal });
+    return mockResolve<Payment>({ ...found, status: "active" }, { signal });
   },
   async createSavingsGoal(g, { signal } = {}) {
     const newG: SavingsGoal = {
       id: `sg-${Date.now()}`,
       name: g.name,
       icon: "🎯",
-      category: (g.category as any) || "Travel",
+      category: g.category || "Travel",
       saved: 0,
       current: 0,
       target: g.target,
@@ -187,16 +190,19 @@ export const mockBankingService: BankingService = {
     return mockResolve<void>(undefined, { signal });
   },
   async executeExchange(input, { signal } = {}) {
-    return mockResolve({
-      transactionId: `fx-${Date.now()}`,
-      fromCurrency: input.fromCurrency,
-      toCurrency: input.toCurrency,
-      fromAmount: input.fromAmount,
-      toAmount: input.fromAmount * 86.5,
-      rate: 86.5,
-      fee: input.fromAmount * 0.002,
-      executedAt: new Date().toISOString(),
-    }, { signal });
+    return mockResolve(
+      {
+        transactionId: `fx-${Date.now()}`,
+        fromCurrency: input.fromCurrency,
+        toCurrency: input.toCurrency,
+        fromAmount: input.fromAmount,
+        toAmount: input.fromAmount * 86.5,
+        rate: 86.5,
+        fee: input.fromAmount * 0.002,
+        executedAt: new Date().toISOString(),
+      },
+      { signal },
+    );
   },
   async exportStatement(_year, _month, { signal } = {}) {
     const blob = new Blob(["Date,Amount,Description\n"], { type: "text/csv" });
@@ -222,12 +228,15 @@ export const mockBankingService: BankingService = {
     return mockResolve<void>(undefined, { signal });
   },
   async createDispute(input, { signal } = {}) {
-    return mockResolve({
-      id: `dsp-${Date.now()}`,
-      transactionId: input.transactionId,
-      reason: input.reason,
-      status: "under_review",
-    }, { signal });
+    return mockResolve(
+      {
+        id: `dsp-${Date.now()}`,
+        transactionId: input.transactionId,
+        reason: input.reason,
+        status: "under_review",
+      },
+      { signal },
+    );
   },
   async listDisputes({ signal } = {}) {
     return mockResolve([], { signal });

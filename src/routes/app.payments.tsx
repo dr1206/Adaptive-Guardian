@@ -154,7 +154,11 @@ function PaymentsPage() {
                 Committed this month
               </h3>
               <div className="mt-2 font-numeric text-[28px] font-bold text-foreground">
-                {fmt(list.reduce((s, p) => s + p.amount, 0), "₹", 0)}
+                {fmt(
+                  list.reduce((s, p) => s + p.amount, 0),
+                  "₹",
+                  0,
+                )}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
                 Fixed {list.filter((x) => x.status !== "paused").length} active ·{" "}
@@ -221,7 +225,9 @@ function PaymentsPage() {
                 </select>
               </div>
               <div>
-                <label className="text-[12px] font-medium text-foreground">First Execution Date</label>
+                <label className="text-[12px] font-medium text-foreground">
+                  First Execution Date
+                </label>
                 <input
                   type="date"
                   value={nextDate}
@@ -232,7 +238,9 @@ function PaymentsPage() {
               </div>
             </div>
             <div>
-              <label className="text-[12px] font-medium text-foreground">Biller / Beneficiary</label>
+              <label className="text-[12px] font-medium text-foreground">
+                Biller / Beneficiary
+              </label>
               <input
                 type="text"
                 value={beneficiary}
@@ -281,7 +289,9 @@ function ViewBtn({
       onClick={onClick}
       className={cn(
         "inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] transition-colors",
-        active ? "bg-primary/10 font-semibold text-primary" : "text-muted-foreground hover:text-foreground",
+        active
+          ? "bg-primary/10 font-semibold text-primary"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {icon} {label}
@@ -348,7 +358,11 @@ function Timeline({
                 title={p.status === "paused" ? "Resume" : "Pause"}
                 className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
               >
-                {p.status === "paused" ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                {p.status === "paused" ? (
+                  <Play className="h-3 w-3" />
+                ) : (
+                  <Pause className="h-3 w-3" />
+                )}
               </button>
               <button
                 disabled={isDeleting}
@@ -392,12 +406,18 @@ function CalendarView({ payments }: { payments: ReadonlyArray<Payment> }) {
               key={day}
               className={cn(
                 "min-h-[50px] rounded-lg border p-1.5 text-left text-[11px]",
-                matched.length > 0 ? "border-primary/40 bg-primary/5" : "border-border/60 bg-muted/10",
+                matched.length > 0
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-border/60 bg-muted/10",
               )}
             >
               <div className="font-numeric font-medium text-muted-foreground">{day}</div>
               {matched.map((m) => (
-                <div key={m.id} className="mt-1 truncate text-[10px] font-bold text-primary" title={m.name}>
+                <div
+                  key={m.id}
+                  className="mt-1 truncate text-[10px] font-bold text-primary"
+                  title={m.name}
+                >
                   • {m.name}
                 </div>
               ))}

@@ -24,6 +24,8 @@ import type {
   TransactionQuery,
   TransferInput,
   TransferResult,
+  DisputeResult,
+  ExchangeResult,
 } from "./banking.contract";
 
 // ---------------------------------------------------------------------------
@@ -665,7 +667,7 @@ export const httpBankingService: BankingService = {
   },
 
   async executeExchange(input, { signal } = {}) {
-    return httpRequest<any>("/exchange/execute", {
+    return httpRequest<ExchangeResult>("/exchange/execute", {
       method: "POST",
       body: input,
       signal,
@@ -707,7 +709,7 @@ export const httpBankingService: BankingService = {
   },
 
   async createDispute(input, { signal } = {}) {
-    return httpRequest<any>("/disputes", {
+    return httpRequest<DisputeResult>("/disputes", {
       method: "POST",
       body: input,
       signal,
@@ -715,7 +717,7 @@ export const httpBankingService: BankingService = {
   },
 
   async listDisputes({ signal } = {}) {
-    return httpRequest<any[]>("/disputes", { signal });
+    return httpRequest<DisputeResult[]>("/disputes", { signal });
   },
 
   async initiateTransfer(input: TransferInput, { signal } = {}) {

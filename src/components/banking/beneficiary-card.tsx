@@ -31,9 +31,7 @@ export function BeneficiaryCard({ b }: { b: Beneficiary }) {
   return (
     <article className="group relative rounded-[20px] border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm">
       <div className="flex items-start gap-3">
-        <span
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-display text-[13px] font-semibold bg-primary/10 text-primary border border-primary/20"
-        >
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-display text-[13px] font-semibold bg-primary/10 text-primary border border-primary/20">
           {b.initials}
         </span>
         <div className="min-w-0 flex-1">
@@ -72,8 +70,9 @@ export function BeneficiaryCard({ b }: { b: Beneficiary }) {
       <div className="mt-3 text-[11px] text-muted-foreground">
         {b.lastSent ? (
           <>
-            Last sent <span className="font-numeric text-foreground">{fmt(b.lastSent.amount, "₹", 0)}</span>{" "}
-            · {b.lastSent.date}
+            Last sent{" "}
+            <span className="font-numeric text-foreground">{fmt(b.lastSent.amount, "₹", 0)}</span> ·{" "}
+            {b.lastSent.date}
           </>
         ) : (
           <span className="italic opacity-70">No transfers yet</span>

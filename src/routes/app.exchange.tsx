@@ -139,7 +139,11 @@ function ExchangePage() {
             </div>
 
             <div className="mt-3 text-[11px] text-muted-foreground">
-              Exchange Rate <span className="font-numeric font-semibold text-foreground">1 {send.code} = {rate.toFixed(4)} {recv}</span> · Spreads: 0.15% · Instant Real-time Settlement
+              Exchange Rate{" "}
+              <span className="font-numeric font-semibold text-foreground">
+                1 {send.code} = {rate.toFixed(4)} {recv}
+              </span>{" "}
+              · Spreads: 0.15% · Instant Real-time Settlement
             </div>
 
             <div className="mt-6 rounded-2xl border border-border bg-muted/20 p-4">
