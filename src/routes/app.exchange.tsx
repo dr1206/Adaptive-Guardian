@@ -174,7 +174,7 @@ function ExchangePage() {
                     <strong>
                       {lastResult.toAmount.toFixed(2)} {lastResult.toCurrency}
                     </strong>{" "}
-                    (Ref: {lastResult.exchangeId})
+                    (Ref: {lastResult.exchangeId ?? lastResult.transactionId})
                   </div>
                 </div>
               </div>

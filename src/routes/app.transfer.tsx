@@ -81,7 +81,8 @@ function TransferPage() {
     try {
       const windows = getWindows();
       if (windows.length > 0) {
-        return windows[windows.length - 1].features;
+        const { windowId, windowStart, windowEnd, deviceInfo, ...feats } = windows[windows.length - 1];
+        return feats as Record<string, number>;
       }
     } catch {
       /* ignore */

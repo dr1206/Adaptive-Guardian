@@ -43,7 +43,9 @@ export function BeneficiaryCard({ b }: { b: Beneficiary }) {
             </h3>
             {b.favorite && <Star className="h-3 w-3 fill-warning text-warning" />}
             {b.isVerified ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" title="Bank Verified" />
+              <span title="Bank Verified" className="inline-flex shrink-0">
+                <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+              </span>
             ) : (
               <span
                 onClick={handleVerify}

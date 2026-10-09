@@ -133,11 +133,14 @@ export const mockBankingService: BankingService = {
   async createPayment(p, { signal } = {}) {
     const newP: Payment = {
       id: `pay-${Date.now()}`,
+      name: p.description,
       description: p.description,
-      amount: p.amount,
-      currency: p.currency,
+      category: "Bills",
       nextDate: p.nextDate,
-      frequency: p.frequency as any,
+      amount: p.amount,
+      status: "auto",
+      currency: p.currency,
+      frequency: p.frequency,
       beneficiary: p.beneficiary,
     };
     return mockResolve<Payment>(newP, { signal });
@@ -157,8 +160,13 @@ export const mockBankingService: BankingService = {
     const newG: SavingsGoal = {
       id: `sg-${Date.now()}`,
       name: g.name,
-      target: g.target,
+      icon: "🎯",
+      category: (g.category as any) || "Travel",
+      saved: 0,
       current: 0,
+      target: g.target,
+      monthly: g.monthly || Math.round(g.target / 12),
+      eta: "1 Year",
       currency: g.currency,
       deadline: g.deadline,
       image: g.image,
@@ -167,11 +175,13 @@ export const mockBankingService: BankingService = {
   },
   async contributeSavingsGoal(id, amount, _acc, { signal } = {}) {
     const found = GOALS.find((g) => g.id === id) || GOALS[0];
-    return mockResolve<SavingsGoal>({ ...found, current: found.current + amount }, { signal });
+    const newSaved = (found.saved ?? found.current ?? 0) + amount;
+    return mockResolve<SavingsGoal>({ ...found, saved: newSaved, current: newSaved }, { signal });
   },
   async withdrawSavingsGoal(id, amount, _acc, { signal } = {}) {
     const found = GOALS.find((g) => g.id === id) || GOALS[0];
-    return mockResolve<SavingsGoal>({ ...found, current: Math.max(0, found.current - amount) }, { signal });
+    const newSaved = Math.max(0, (found.saved ?? found.current ?? 0) - amount);
+    return mockResolve<SavingsGoal>({ ...found, saved: newSaved, current: newSaved }, { signal });
   },
   async deleteSavingsGoal(_id, { signal } = {}) {
     return mockResolve<void>(undefined, { signal });
@@ -192,10 +202,15 @@ export const mockBankingService: BankingService = {
     const blob = new Blob(["Date,Amount,Description\n"], { type: "text/csv" });
     return mockResolve(blob, { signal });
   },
+  async exportStatementCsv(year, month, { signal } = {}) {
+    return this.exportStatement(year, month, { signal });
+  },
   async createBudget(b, { signal } = {}) {
     const newB: BudgetEnvelope = {
       id: `bg-${Date.now()}`,
+      name: b.category,
       category: b.category,
+      budget: b.budgeted,
       budgeted: b.budgeted,
       spent: 0,
       currency: b.currency,

@@ -81,7 +81,7 @@ function CardsPage() {
       return;
     }
     limitsMutation.mutate(
-      { cardId: card.id, daily, monthly, atm },
+      { cardId: card.id, limits: { daily, monthly, atm } },
       {
         onSuccess: () => {
           toast.success("Card spending limits updated");

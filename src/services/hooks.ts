@@ -527,8 +527,20 @@ export function useResumePayment() {
 export function useCreateSavingsGoal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (goal: { name: string; target: number; currency: string; deadline: string; image?: string }) =>
-      services.banking.createSavingsGoal(goal),
+    mutationFn: (goal: {
+      name: string;
+      target: number;
+      currency?: string;
+      deadline?: string;
+      image?: string;
+      category?: string;
+      monthly?: number;
+    }) =>
+      services.banking.createSavingsGoal({
+        currency: "INR",
+        deadline: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split("T")[0],
+        ...goal,
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.savingsGoals });
       qc.invalidateQueries({ queryKey: queryKeys.activity });

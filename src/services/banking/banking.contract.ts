@@ -85,6 +85,7 @@ export interface ExchangeInput {
 
 export interface ExchangeResult {
   transactionId: string;
+  exchangeId?: string;
   fromCurrency: string;
   toCurrency: string;
   fromAmount: number;
@@ -145,7 +146,7 @@ export interface BankingService {
 
   listSavingsGoals(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<SavingsGoal>>;
   createSavingsGoal(
-    goal: { name: string; target: number; currency: string; deadline: string; image?: string },
+    goal: { name: string; target: number; currency: string; deadline: string; image?: string; category?: string; monthly?: number },
     opts?: { signal?: AbortSignal },
   ): Promise<SavingsGoal>;
   contributeSavingsGoal(goalId: string, amount: number, accountId?: string, opts?: { signal?: AbortSignal }): Promise<SavingsGoal>;
@@ -161,6 +162,7 @@ export interface BankingService {
   listStatementYears(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<StatementYearGroup>>;
   getStatement(query: StatementQuery, opts?: { signal?: AbortSignal }): Promise<StatementSample>;
   exportStatement(year: number, month: number, opts?: { signal?: AbortSignal }): Promise<Blob>;
+  exportStatementCsv(year: number, month: number, opts?: { signal?: AbortSignal }): Promise<Blob>;
 
   listActivity(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<ActivityEvent>>;
   listBudgets(opts?: { signal?: AbortSignal }): Promise<ReadonlyArray<BudgetEnvelope>>;

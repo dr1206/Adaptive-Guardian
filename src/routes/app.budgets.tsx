@@ -52,8 +52,9 @@ function BudgetsPage() {
     }
     createMutation.mutate(
       {
-        name: name.trim(),
-        budget: amount,
+        category: name.trim(),
+        budgeted: amount,
+        currency: "INR",
         color,
       },
       {

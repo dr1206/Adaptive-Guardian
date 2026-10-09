@@ -184,6 +184,8 @@ export type Beneficiary = {
   lastSent?: { amount: number; date: string };
   category: "Family" | "Business" | "Utilities" | "Savings" | "Recent";
   favorite?: boolean;
+  isVerified?: boolean;
+  coolingUntil?: string;
   initials: string;
   tint: number;
 };
@@ -622,6 +624,9 @@ export type BudgetEnvelope = {
   spent: number;
   budget: number;
   color: string;
+  category?: string;
+  budgeted?: number;
+  currency?: string;
 };
 
 export const BUDGET_ENVELOPES: BudgetEnvelope[] = [
@@ -635,10 +640,14 @@ export const BUDGET_ENVELOPES: BudgetEnvelope[] = [
 export type Payment = {
   id: string;
   name: string;
+  description?: string;
   category: string;
   nextDate: string;
   amount: number;
-  status: "auto" | "manual" | "paused";
+  status: "auto" | "manual" | "paused" | "active";
+  currency?: string;
+  beneficiary?: string;
+  frequency?: string;
 };
 
 export const PAYMENTS: Payment[] = [
@@ -720,11 +729,15 @@ export type SavingsGoal = {
   id: string;
   name: string;
   icon: string;
-  category: "Travel" | "Emergency" | "Car" | "Education" | "Home" | "Retirement";
+  category: "Travel" | "Emergency" | "Car" | "Education" | "Home" | "Retirement" | string;
   saved: number;
+  current?: number;
   target: number;
   monthly: number;
   eta: string;
+  currency?: string;
+  deadline?: string;
+  image?: string | null;
 };
 
 export const GOALS: SavingsGoal[] = [

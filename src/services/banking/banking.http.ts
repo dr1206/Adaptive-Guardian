@@ -173,7 +173,12 @@ interface BackendBudget {
 interface BackendTransferResult {
   transactionId: string;
   scheduledFor: string;
-  signature: string;
+  signature?: string;
+  status?: string;
+  riskScore?: number;
+  riskDecision?: string;
+  challengeId?: string;
+  message?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -679,6 +684,10 @@ export const httpBankingService: BankingService = {
       throw new Error(`Failed to export statement (${res.status})`);
     }
     return res.blob();
+  },
+
+  async exportStatementCsv(year, month, { signal } = {}) {
+    return this.exportStatement(year, month, { signal });
   },
 
   async createBudget(budget, { signal } = {}) {
