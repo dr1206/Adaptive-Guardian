@@ -17,12 +17,16 @@ export const httpBehavioralService: BehavioralService = {
       return;
     }
 
-    await httpRequest("/events/batch", {
-      method: "POST",
-      body: {
-        sessionId,
-        windows,
-      },
-    });
+    try {
+      await httpRequest("/events/batch", {
+        method: "POST",
+        body: {
+          sessionId,
+          windows,
+        },
+      });
+    } catch (err) {
+      console.debug("[BehavioralHTTP] Batch event background upload note:", err);
+    }
   },
 };

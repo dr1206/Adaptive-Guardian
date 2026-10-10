@@ -201,9 +201,14 @@ export const httpAegisService: AegisService = {
 
   async submitBatch(windows, sessionId?: string, deviceId?: string) {
     if (!windows || windows.length === 0 || !sessionId) return;
-    await httpRequest("/events/batch", {
-      method: "POST",
-      body: { windows, sessionId, deviceId },
-    });
+    try {
+      await httpRequest("/events/batch", {
+        method: "POST",
+        body: { windows, sessionId, deviceId },
+      });
+    } catch (err) {
+      // Backend MongoDB bulk write or deployment blip — log debug without breaking pipeline
+      console.debug("[AegisHTTP] Background batch telemetry upload note:", err);
+    }
   },
 };

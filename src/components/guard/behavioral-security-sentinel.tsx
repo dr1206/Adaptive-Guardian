@@ -68,7 +68,8 @@ export function BehavioralSecuritySentinel() {
               HIGH RISK BEHAVIORAL ANOMALY DETECTED · Risk score: {formatPct01(auth.fusedScore)}
             </div>
             <p className="mt-0.5 text-[12px] text-muted-foreground">
-              Your biometric typing and mouse patterns diverge significantly from the account owner. Re-verification required.
+              Your biometric typing and mouse patterns diverge significantly from the account owner.
+              Re-verification required.
             </p>
           </div>
           <button

@@ -92,6 +92,12 @@ export const httpAuthService: AuthService = {
     if (!hasToken()) return null;
     try {
       const user = await httpRequest<BackendMe>("/auth/me", { signal });
+      try {
+        localStorage.setItem("ag_user_email", user.email);
+        localStorage.setItem("ag_user_id", user.id);
+      } catch {
+        /* ignore storage error */
+      }
       return userToSession(user);
     } catch (err) {
       // A cancelled load (user navigated away mid-request, query
@@ -135,6 +141,12 @@ export const httpAuthService: AuthService = {
     });
     setAccessToken(result.accessToken);
     setCurrentSessionId(result.sessionId);
+    try {
+      localStorage.setItem("ag_user_email", result.user.email);
+      localStorage.setItem("ag_user_id", result.user.id);
+    } catch {
+      /* ignore storage error */
+    }
     return userToSession(result.user);
   },
 
@@ -146,6 +158,12 @@ export const httpAuthService: AuthService = {
     });
     setAccessToken(result.accessToken);
     setCurrentSessionId(result.sessionId);
+    try {
+      localStorage.setItem("ag_user_email", result.user.email);
+      localStorage.setItem("ag_user_id", result.user.id);
+    } catch {
+      /* ignore storage error */
+    }
     return userToSession(result.user);
   },
 
@@ -154,6 +172,12 @@ export const httpAuthService: AuthService = {
       await httpRequest("/auth/logout", { method: "POST", signal });
     } finally {
       removeAccessToken();
+      try {
+        localStorage.removeItem("ag_user_email");
+        localStorage.removeItem("ag_user_id");
+      } catch {
+        /* ignore storage error */
+      }
     }
   },
 

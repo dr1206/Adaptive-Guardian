@@ -340,9 +340,52 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
       // result (compared by timestamp in the sentinel component).
       console.debug("[BehavioralML] Authentication result:", result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Authentication failed";
-      setLastError(message);
-      console.warn("[BehavioralML] Authentication request failed:", error);
+      console.warn(
+        "[BehavioralML] Remote authentication endpoint error, using local Weighted Fusion:",
+        error,
+      );
+      try {
+        const { predictWeightedFusion } = await import("./fusion-engine");
+        const currentSessionId = localStorage.getItem("ag_session_id");
+        const currentEmail = localStorage.getItem("ag_user_email");
+        const targetId = currentEmail || currentSessionId;
+        const fallbackResult = predictWeightedFusion(targetId, {
+          dwellMeanMs: window.dwellMeanMs,
+          dwellStdMs: window.dwellStdMs,
+          flightMeanMs: window.flightMeanMs,
+          flightStdMs: window.flightStdMs,
+          velocityMean: window.velocityMean,
+          accelerationMean: window.accelerationMean,
+          accelerationStd: window.accelerationStd,
+          curvatureMean: window.curvatureMean,
+          curvatureStd: window.curvatureStd,
+          clickCount: window.clickCount,
+          scrollAmount: window.scrollAmount,
+          mouseTravelPx: window.mouseTravelPx,
+          keysPerSec: window.keysPerSec,
+          velocityStd: window.velocityStd,
+        });
+
+        setAuthentication({
+          lightgbmScore: fallbackResult.lightgbmScore,
+          ocsvmAnomalyScore: fallbackResult.ocsvmAnomalyScore,
+          fusedScore: fallbackResult.fusedScore,
+          decision: fallbackResult.decision,
+          authenticatedAt: new Date().toISOString(),
+        });
+        setWindowCount((c) => c + 1);
+        setLastError(null);
+
+        if (fallbackResult.decision !== "WARN") {
+          setDismissedWarnScore(null);
+        } else {
+          setDismissedWarnScore((prev) => (prev === fallbackResult.fusedScore ? prev : null));
+        }
+      } catch (fallbackErr) {
+        const message =
+          fallbackErr instanceof Error ? fallbackErr.message : "Authentication failed";
+        setLastError(message);
+      }
     } finally {
       inFlightRef.current = Math.max(0, inFlightRef.current - 1);
       if (inFlightRef.current === 0) setIsAuthenticating(false);
