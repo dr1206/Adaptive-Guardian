@@ -43,8 +43,8 @@ class BehavioralWindow(BaseModel):
 
 class BatchEventsRequest(BaseModel):
     model_config = {"populate_by_name": True}
-    session_id: UUID = Field(validation_alias="sessionId")
-    device_id: UUID | None = Field(None, validation_alias="deviceId")
+    session_id: str | UUID = Field(validation_alias="sessionId")
+    device_id: str | UUID | None = Field(None, validation_alias="deviceId")
     windows: list[BehavioralWindow]
 
 

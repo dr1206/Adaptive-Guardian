@@ -148,6 +148,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
+        allow_origin_regex=r"^https://.*\.vercel\.app$|^https://.*\.onrender\.com$",
         allow_credentials=True,
         allow_methods=[
             "GET",
@@ -157,11 +158,7 @@ def create_app() -> FastAPI:
             "DELETE",
             "OPTIONS",
         ],
-        allow_headers=[
-            "Authorization",
-            "Content-Type",
-            "X-Correlation-Id",
-        ],
+        allow_headers=["*"],
     )
 
     # ── Exception Handlers ────────────────────────────────────
@@ -191,7 +188,7 @@ def create_app() -> FastAPI:
 
         return {
             "status": "ok",
-            "version": "0.1.0",
+            "version": "0.1.1-hotfix-cors-ml",
         }
 
     @app.get("/api/v1/health/ready")

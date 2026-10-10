@@ -11,8 +11,8 @@ from pymongo import IndexModel
 class BehaviorWindow(Document):
     window_id: str
     user_id: uuid.UUID
-    session_id: uuid.UUID
-    device_id: uuid.UUID | None = None
+    session_id: uuid.UUID | str
+    device_id: uuid.UUID | str | None = None
     window_start: datetime
     window_end: datetime
     features: dict[str, float]
@@ -72,7 +72,7 @@ class Decision(Document):
     model_config = {"protected_namespaces": ()}
     decision_id: uuid.UUID = Field(default_factory=uuid.uuid4)
     user_id: uuid.UUID | None = None
-    session_id: uuid.UUID
+    session_id: uuid.UUID | str
     window_id: str | None = None
     lightgbm_score: float | None = None
     ocsvm_score: float | None = None

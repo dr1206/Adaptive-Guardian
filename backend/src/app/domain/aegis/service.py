@@ -39,8 +39,8 @@ BEHAVIOR_WINDOW_SECONDS: int = 30
 
 
 def compute_window_id(
-    user_id: uuid.UUID,
-    session_id: uuid.UUID,
+    user_id: uuid.UUID | str,
+    session_id: uuid.UUID | str,
     window_start: datetime,
     window_end: datetime,
 ) -> str:

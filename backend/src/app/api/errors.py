@@ -11,12 +11,27 @@ from app.shared.errors import AppError
 logger = logging.getLogger("adaptiveguardian")
 
 
+def _cors_headers(request: Request) -> dict[str, str]:
+    origin = request.headers.get("origin")
+    headers = {
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+    }
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+    else:
+        headers["Access-Control-Allow-Origin"] = "*"
+    return headers
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         return JSONResponse(
             status_code=exc.status,
             content=exc.to_response(),
+            headers=_cors_headers(request),
         )
 
     @app.exception_handler(Exception)
@@ -30,4 +45,5 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "message": "An unexpected error occurred",
                 "details": {"error": str(exc), "type": type(exc).__name__},
             },
+            headers=_cors_headers(request),
         )

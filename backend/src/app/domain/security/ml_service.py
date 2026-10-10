@@ -7,7 +7,12 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
-import shap
+try:
+    import shap
+    HAS_SHAP = True
+except Exception:
+    shap = None
+    HAS_SHAP = False
 
 logger = logging.getLogger(__name__)
 
@@ -249,12 +254,13 @@ class BehavioralMLService:
 
         # Build TreeExplainer for SHAP explanations
         self.explainers.clear()
-        try:
-            self.explainers["default"] = shap.TreeExplainer(self.lightgbm)
-            for uid, model in self.lgbm_models.items():
-                self.explainers[uid] = shap.TreeExplainer(model)
-        except Exception as e:
-            logger.warning(f"Note creating TreeExplainer: {e}")
+        if HAS_SHAP and shap is not None:
+            try:
+                self.explainers["default"] = shap.TreeExplainer(self.lightgbm)
+                for uid, model in self.lgbm_models.items():
+                    self.explainers[uid] = shap.TreeExplainer(model)
+            except Exception as e:
+                logger.warning(f"Note creating TreeExplainer: {e}")
 
         self.loaded = bool(self.scaler and self.lightgbm and self.ocsvm_models)
         logger.info(
