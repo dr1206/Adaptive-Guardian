@@ -199,14 +199,15 @@ async def seed() -> None:
         pwd = hash_password("Demo@1234567890")
 
         demo_users_data = [
-            {"email": "amal@adaptiveguardian.dev", "full_name": "Amal Varghese"},
-            {"email": "manasa@adaptiveguardian.dev", "full_name": "Manasa"},
-            {"email": "dristi@adaptiveguardian.dev", "full_name": "Dristi"},
-            {"email": "vyas@adaptiveguardian.dev", "full_name": "Vyas"},
+            {"id": uuid.UUID("e92e7c09-c1b8-4f72-a7a8-f75077608d1b"), "email": "amal@adaptiveguardian.dev", "full_name": "Amal Varghese"},
+            {"id": uuid.UUID("468f03a2-d7c9-4701-abf8-bb2c692f696b"), "email": "manasa@adaptiveguardian.dev", "full_name": "Manasa"},
+            {"id": uuid.UUID("dba80c84-68fd-45b2-ba28-10f10075b239"), "email": "dristi@adaptiveguardian.dev", "full_name": "Dristi"},
+            {"id": uuid.UUID("4958d349-1ff1-4f6b-8344-fca7d4d717aa"), "email": "vyas@adaptiveguardian.dev", "full_name": "Vyas"},
         ]
 
         for user_data in demo_users_data:
             user = User(
+                id=user_data["id"],
                 email=user_data["email"],
                 password_hash=pwd,
                 full_name=user_data["full_name"],
@@ -368,14 +369,15 @@ async def seed() -> None:
     pwd = hash_password("Demo@1234567890")
 
     demo_users_data = [
-        {"email": "amal@adaptiveguardian.dev", "full_name": "Amal Varghese"},
-        {"email": "manasa@adaptiveguardian.dev", "full_name": "Manasa"},
-        {"email": "dristi@adaptiveguardian.dev", "full_name": "Dristi"},
-        {"email": "vyas@adaptiveguardian.dev", "full_name": "Vyas"},
+        {"id": uuid.UUID("e92e7c09-c1b8-4f72-a7a8-f75077608d1b"), "email": "amal@adaptiveguardian.dev", "full_name": "Amal Varghese"},
+        {"id": uuid.UUID("468f03a2-d7c9-4701-abf8-bb2c692f696b"), "email": "manasa@adaptiveguardian.dev", "full_name": "Manasa"},
+        {"id": uuid.UUID("dba80c84-68fd-45b2-ba28-10f10075b239"), "email": "dristi@adaptiveguardian.dev", "full_name": "Dristi"},
+        {"id": uuid.UUID("4958d349-1ff1-4f6b-8344-fca7d4d717aa"), "email": "vyas@adaptiveguardian.dev", "full_name": "Vyas"},
     ]
 
     for user_data in demo_users_data:
         user = User(
+            id=user_data["id"],
             email=user_data["email"],
             password_hash=pwd,
             full_name=user_data["full_name"],

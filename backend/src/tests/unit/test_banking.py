@@ -327,3 +327,163 @@ async def test_list_budgets(client: AsyncClient):
     assert len(body) >= 1
     for field in ("id", "category", "budgeted", "spent", "currency"):
         assert field in body[0], f"Missing field: {field}"
+
+
+# ── Behavioral Transfer Security Evaluation ──────────────────
+
+
+async def test_transfer_with_predict_direct_invocation():
+    """Verify that behavioral_ml_service.predict accepts both positional and kwarg patterns without TypeError."""
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    dummy_feats = {
+        "dwellMeanMs": 110.0,
+        "flightMeanMs": 130.0,
+        "velocityMean": 220.0,
+        "accelerationMean": 300.0,
+    }
+    # Pattern 1: predict(user_id, features)
+    res1 = behavioral_ml_service.predict("manasa@adaptivebank.com", dummy_feats)
+    assert "fused_score" in res1
+    assert "decision" in res1
+
+    # Pattern 2: predict(dummy_feats, user_id=...)
+    res2 = behavioral_ml_service.predict(dummy_feats, user_id="manasa@adaptivebank.com")
+    assert "fused_score" in res2
+    assert "decision" in res2
+
+
+async def test_transfer_with_genuine_behavior_allows(client: AsyncClient, monkeypatch):
+    """Low risk score produces COMPLETED transfer with ALLOW decision."""
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    # Monkeypatch predict to return genuine score
+    monkeypatch.setattr(
+        behavioral_ml_service,
+        "predict",
+        lambda *args, **kwargs: {
+            "lightgbm_score": 0.15,
+            "ocsvm_anomaly_score": 0.12,
+            "fused_score": 0.14,
+            "decision": "ALLOW",
+            "anomaly_detected": False,
+            "requires_stepup": False,
+        },
+    )
+
+    headers = await _auth_headers(client)
+    b = await client.post(
+        "/api/v1/beneficiaries",
+        json={"name": "Alice Genuine", "iban": "DE89370400440532013001", "bank": "Bank A", "currency": "USD"},
+        headers=headers,
+    )
+    beneficiary_id = b.json()["id"]
+
+    r = await client.post(
+        "/api/v1/transfers",
+        json={
+            "fromAccountId": "acc_0000",
+            "beneficiaryId": beneficiary_id,
+            "amount": 250,
+            "currency": "USD",
+            "reference": "Genuine Test",
+            "behavioralFeatures": {"dwellMeanMs": 100.0, "velocityMean": 200.0},
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+    data = r.json()
+    assert data["status"] == "COMPLETED"
+    assert data["riskDecision"] == "ALLOW"
+    assert data["riskScore"] == 0.14
+
+
+async def test_transfer_with_suspicious_behavior_warns(client: AsyncClient, monkeypatch):
+    """Suspicious risk score (0.45 <= score < 0.65) produces COMPLETED transfer with WARN decision and warning message."""
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    monkeypatch.setattr(
+        behavioral_ml_service,
+        "predict",
+        lambda *args, **kwargs: {
+            "lightgbm_score": 0.58,
+            "ocsvm_anomaly_score": 0.52,
+            "fused_score": 0.56,
+            "decision": "WARN",
+            "anomaly_detected": True,
+            "requires_stepup": False,
+        },
+    )
+
+    headers = await _auth_headers(client)
+    b = await client.post(
+        "/api/v1/beneficiaries",
+        json={"name": "Bob Suspicious", "iban": "DE89370400440532013002", "bank": "Bank B", "currency": "USD"},
+        headers=headers,
+    )
+    beneficiary_id = b.json()["id"]
+
+    r = await client.post(
+        "/api/v1/transfers",
+        json={
+            "fromAccountId": "acc_0000",
+            "beneficiaryId": beneficiary_id,
+            "amount": 450,
+            "currency": "USD",
+            "reference": "Suspicious Test",
+            "behavioralFeatures": {"dwellMeanMs": 280.0, "velocityMean": 50.0},
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+    data = r.json()
+    assert data["status"] == "COMPLETED"
+    assert data["riskDecision"] == "WARN"
+    assert data["riskScore"] == 0.56
+    assert "behavioral anomaly warning" in data["message"].lower()
+
+
+async def test_transfer_with_impostor_behavior_challenges(client: AsyncClient, monkeypatch):
+    """High risk score (score >= 0.65) triggers CHALLENGED status with challengeId and does not complete transfer immediately."""
+    from app.domain.security.ml_service import behavioral_ml_service
+
+    monkeypatch.setattr(
+        behavioral_ml_service,
+        "predict",
+        lambda *args, **kwargs: {
+            "lightgbm_score": 0.82,
+            "ocsvm_anomaly_score": 0.78,
+            "fused_score": 0.80,
+            "decision": "CHALLENGE",
+            "anomaly_detected": True,
+            "requires_stepup": True,
+        },
+    )
+
+    headers = await _auth_headers(client)
+    b = await client.post(
+        "/api/v1/beneficiaries",
+        json={"name": "Charlie Impostor", "iban": "DE89370400440532013003", "bank": "Bank C", "currency": "USD"},
+        headers=headers,
+    )
+    beneficiary_id = b.json()["id"]
+
+    r = await client.post(
+        "/api/v1/transfers",
+        json={
+            "fromAccountId": "acc_0000",
+            "beneficiaryId": beneficiary_id,
+            "amount": 900,
+            "currency": "USD",
+            "reference": "Impostor Test",
+            "behavioralFeatures": {"dwellMeanMs": 450.0, "velocityMean": 10.0},
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+    data = r.json()
+    assert data["status"] == "CHALLENGED"
+    assert data["riskDecision"] == "CHALLENGE"
+    assert data["challengeId"] is not None
+    assert "step-up otp authentication required" in data["message"].lower()
+

@@ -81,7 +81,11 @@ async def create_transfer(
     data: TransferInput,
     current_user: dict[str, Any] = Depends(get_current_user),
 ):
-    return await service.create_transfer(_uid(current_user), data)
+    return await service.create_transfer(
+        _uid(current_user),
+        data,
+        user_email=current_user.get("email"),
+    )
 
 
 # ── Deposits ──────────────────────────────────────────────────

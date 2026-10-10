@@ -1,7 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useMemo, useState, useRef } from "react";
-import { ArrowRight, Search, Check, Shield, ShieldAlert, Loader2, KeyRound } from "lucide-react";
+import {
+  ArrowRight,
+  Search,
+  Check,
+  Shield,
+  ShieldAlert,
+  AlertTriangle,
+  Loader2,
+  KeyRound,
+} from "lucide-react";
 import { PageHeader } from "@/components/banking/page-header";
 import { PressHoldButton } from "@/components/banking/press-hold-button";
 import { AsyncBoundary } from "@/components/ui/async-boundary";
@@ -12,7 +21,10 @@ import {
   useCurrencies,
   useInitiateTransfer,
 } from "@/services/hooks";
-import { useBehavioralExport } from "@/services/behavioral/BehavioralCollectorProvider";
+import {
+  useBehavioralExport,
+  useBehavioralAuthenticationStatus,
+} from "@/services/behavioral/BehavioralCollectorProvider";
 import type { Beneficiary, Currency, TransferResult } from "@/services/banking/banking.contract";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -41,7 +53,8 @@ function TransferPage() {
   const beneficiariesQ = useBeneficiaries();
   const currenciesQ = useCurrencies();
   const transferMutation = useInitiateTransfer();
-  const { getWindows } = useBehavioralExport();
+  const { getWindows, getLatestFeatures } = useBehavioralExport();
+  const behavioralAuth = useBehavioralAuthenticationStatus();
 
   const [step, setStep] = useState<Step>(presetTo ? 2 : 0);
   const [sourceId, setSourceId] = useState<string>(presetFrom ?? "primary");
@@ -79,6 +92,10 @@ function TransferPage() {
 
   const getLatestBehavioralFeatures = () => {
     try {
+      const liveFeats = getLatestFeatures();
+      if (liveFeats && Object.keys(liveFeats).length > 0) {
+        return liveFeats;
+      }
       const windows = getWindows();
       if (windows.length > 0) {
         const { windowId, windowStart, windowEnd, deviceInfo, ...feats } =
@@ -129,10 +146,18 @@ function TransferPage() {
             toast.error("Transfer Blocked by Risk Controls");
             return;
           }
-          // Success
+          // Success (ALLOW or WARN)
           setChallengeOpen(false);
           setTransferResult(data);
-          toast.success("Transfer executed successfully");
+          if (data.riskDecision === "WARN") {
+            toast.warning(
+              data.message ||
+                "Suspicious behavioral biometric activity flagged. Security monitoring alerted.",
+              { duration: 6000 },
+            );
+          } else {
+            toast.success("Transfer executed successfully");
+          }
           setStep(4);
         },
         onError: (err) => {
@@ -289,6 +314,7 @@ function TransferPage() {
               amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
               purpose={purpose}
               note={note}
+              behavioralAuth={behavioralAuth}
               onEdit={back}
               onSend={() => executeTransfer()}
               isSending={isSending}
@@ -572,6 +598,7 @@ function ReviewStage({
   amount,
   purpose,
   note,
+  behavioralAuth,
   onEdit,
   onSend,
   isSending,
@@ -584,6 +611,7 @@ function ReviewStage({
   amount: string;
   purpose: string;
   note: string;
+  behavioralAuth: ReturnType<typeof useBehavioralAuthenticationStatus>;
   onEdit: () => void;
   onSend: () => void;
   isSending: boolean;
@@ -595,9 +623,20 @@ function ReviewStage({
           <span className="uppercase font-bold tracking-[0.2em] text-muted-foreground">
             Transfer Confirmation
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
-            <Shield size={12} /> Behavioral Match Verified
-          </span>
+          {behavioralAuth?.decision === "WARN" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+              <AlertTriangle size={12} /> Biometric Anomaly Flagged (
+              {behavioralAuth.fusedScore.toFixed(2)})
+            </span>
+          ) : behavioralAuth?.decision === "CHALLENGE" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-0.5 text-[11px] font-semibold text-destructive">
+              <ShieldAlert size={12} /> Step-Up Required ({behavioralAuth.fusedScore.toFixed(2)})
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
+              <Shield size={12} /> Behavioral Match Verified
+            </span>
+          )}
         </header>
 
         <dl className="space-y-3">
@@ -665,23 +704,49 @@ function SuccessStage({
   onAnother: () => void;
   onDone: () => void;
 }) {
+  const isWarn = result?.riskDecision === "WARN";
+  const isChallenge = result?.riskDecision === "CHALLENGE";
+
   return (
     <div className="grid place-items-center py-10 text-center">
       <div className="relative grid h-28 w-28 place-items-center">
-        <span className="grid h-20 w-20 place-items-center rounded-full bg-success/15 text-success">
-          <Check className="h-10 w-10" strokeWidth={2.5} />
+        <span
+          className={cn(
+            "grid h-20 w-20 place-items-center rounded-full",
+            isWarn
+              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+              : "bg-success/15 text-success",
+          )}
+        >
+          {isWarn ? (
+            <AlertTriangle className="h-10 w-10" strokeWidth={2.5} />
+          ) : (
+            <Check className="h-10 w-10" strokeWidth={2.5} />
+          )}
         </span>
       </div>
       <h2 className="mt-4 font-display text-[26px] font-bold tracking-tight text-foreground">
-        Transfer Completed
+        {isWarn ? "Transfer Completed with Warning" : "Transfer Completed"}
       </h2>
       <p className="mt-1 text-[14px] text-muted-foreground">
         Payment of <span className="font-numeric font-bold text-foreground">{amount}</span> to{" "}
         <span className="font-semibold text-foreground">{to}</span> has been debited and posted.
       </p>
 
+      {isWarn && (
+        <div className="mt-4 max-w-sm rounded-lg border border-amber-500/30 bg-amber-500/10 p-3.5 text-left text-[12px] text-amber-800 dark:text-amber-200">
+          <div className="flex items-center gap-1.5 font-semibold text-amber-600 dark:text-amber-400">
+            <ShieldAlert className="h-4 w-4 shrink-0" /> Suspicious Interaction Flagged
+          </div>
+          <p className="mt-1 text-[11.5px] leading-relaxed text-amber-700/90 dark:text-amber-300/90">
+            Unusual typing or mouse dynamics were detected during this transfer session. The
+            transaction was audited and flagged in the Security Center.
+          </p>
+        </div>
+      )}
+
       {result && (
-        <div className="mt-5 max-w-sm rounded-lg border border-border bg-card p-4 text-left text-[12px] space-y-1">
+        <div className="mt-5 max-w-sm w-full rounded-lg border border-border bg-card p-4 text-left text-[12px] space-y-1">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Transaction ID:</span>
             <span className="font-mono font-medium text-foreground">{result.transactionId}</span>
@@ -689,15 +754,36 @@ function SuccessStage({
           {result.riskScore !== undefined && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Risk Score:</span>
-              <span className="font-medium text-success">
-                {result.riskScore.toFixed(3)} (Low Risk)
+              <span
+                className={cn(
+                  "font-medium",
+                  result.riskScore >= 0.65
+                    ? "text-destructive"
+                    : result.riskScore >= 0.45
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-success",
+                )}
+              >
+                {result.riskScore.toFixed(3)} (
+                {isWarn ? "Elevated Warning" : isChallenge ? "High Risk" : "Low Risk"})
               </span>
             </div>
           )}
           {result.riskDecision && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Decision:</span>
-              <span className="font-medium text-foreground">{result.riskDecision}</span>
+              <span
+                className={cn(
+                  "font-medium",
+                  isWarn
+                    ? "text-amber-600 dark:text-amber-400"
+                    : isChallenge
+                      ? "text-destructive"
+                      : "text-foreground",
+                )}
+              >
+                {result.riskDecision}
+              </span>
             </div>
           )}
         </div>

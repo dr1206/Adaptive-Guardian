@@ -128,7 +128,11 @@ async def list_transactions(
 
 # ── Transfers ─────────────────────────────────────────────────
 
-async def create_transfer(user_id: uuid.UUID, data: TransferInput) -> TransferResult:
+async def create_transfer(
+    user_id: uuid.UUID,
+    data: TransferInput,
+    user_email: str | None = None,
+) -> TransferResult:
     # 1. Idempotency Check
     if data.idempotency_key:
         existing = await repo.check_idempotency(user_id, data.idempotency_key)
@@ -170,40 +174,66 @@ async def create_transfer(user_id: uuid.UUID, data: TransferInput) -> TransferRe
     # 4. Behavioral Risk Evaluation
     risk_score = 0.12
     risk_decision = "ALLOW"
-    if data.behavioral_features:
-        try:
-            pred = behavioral_ml_service.predict(data.behavioral_features, user_id=str(user_id))
-            risk_score = float(pred.get("fused_score", 0.12))
-            raw_decision = str(pred.get("decision", "ALLOW")).upper()
-            if raw_decision == "DENY" or risk_score > 0.85:
-                risk_decision = "DENY"
-            elif raw_decision == "CHALLENGE" or risk_score >= 0.60:
-                risk_decision = "CHALLENGE"
-            else:
-                risk_decision = "ALLOW"
-        except Exception as e:
-            logger.warning("ML evaluation warning during transfer: %s", e)
 
-    if risk_decision == "DENY":
-        await repo.create_activity_event(
-            user_id=user_id,
-            event_type="transfer_blocked",
-            description=f"Transfer of {data.amount:,.2f} {data.currency} blocked by behavioral fraud prevention engine.",
-        )
-        raise ValidationError("Transaction blocked by adaptive fraud risk engine due to high risk anomaly.")
+    # A. Check if caller already supplied verified challenge OTP
+    if data.challenge_id and data.otp_code:
+        stored = await redis_get_otp(str(data.challenge_id))
+        if not stored:
+            raise ValidationError("OTP challenge has expired or is invalid. Please request a new one.")
+        payload = json.loads(stored)
+        if payload.get("code") != data.otp_code:
+            raise ValidationError("Invalid OTP code. Authentication failed.")
+        await redis_delete_otp(str(data.challenge_id))
+        risk_decision = "STEP_UP_VERIFIED"
+        risk_score = 0.20
+    else:
+        # B. Behavioral feature resolution: use direct request features or recent session window
+        features_to_eval = data.behavioral_features
+        if not features_to_eval:
+            try:
+                from app.domain.aegis.models import BehaviorWindow
+                latest_win = (
+                    await BehaviorWindow.find(BehaviorWindow.user_id == user_id)
+                    .sort("-created_at")
+                    .first_or_none()
+                )
+                if latest_win and latest_win.features:
+                    features_to_eval = latest_win.features
+            except Exception as win_err:
+                logger.debug("Recent behavioral window lookup note: %s", win_err)
 
-    if risk_decision == "CHALLENGE":
-        # Check if caller already supplied verified challenge
-        if data.challenge_id and data.otp_code:
-            stored = await redis_get_otp(str(data.challenge_id))
-            if not stored:
-                raise ValidationError("OTP challenge has expired or is invalid. Please request a new one.")
-            payload = json.loads(stored)
-            if payload.get("code") != data.otp_code:
-                raise ValidationError("Invalid OTP code. Authentication failed.")
-            await redis_delete_otp(str(data.challenge_id))
-            risk_decision = "STEP_UP_VERIFIED"
-        else:
+        if features_to_eval:
+            try:
+                target_identity = user_email or str(user_id)
+                pred = behavioral_ml_service.predict(
+                    user_id=target_identity,
+                    features=features_to_eval,
+                )
+                risk_score = float(pred.get("fused_score", 0.12))
+                raw_decision = str(pred.get("decision", "ALLOW")).upper()
+                if raw_decision == "DENY" or risk_score > 0.85:
+                    risk_decision = "DENY"
+                elif raw_decision == "CHALLENGE" or risk_score >= 0.65:
+                    risk_decision = "CHALLENGE"
+                elif raw_decision == "WARN" or risk_score >= 0.45:
+                    risk_decision = "WARN"
+                else:
+                    risk_decision = "ALLOW"
+            except Exception as e:
+                logger.error("ML evaluation error during transfer for user %s: %s", user_id, e)
+                # Fail-safe security policy: flag anomaly as warning rather than silently zeroing risk
+                risk_decision = "WARN"
+                risk_score = 0.50
+
+        if risk_decision == "DENY":
+            await repo.create_activity_event(
+                user_id=user_id,
+                event_type="transfer_blocked",
+                description=f"Transfer of {data.amount:,.2f} {data.currency} blocked by behavioral fraud prevention engine (Risk score: {risk_score:.2f}).",
+            )
+            raise ValidationError("Transaction blocked by adaptive fraud risk engine due to critical behavioral anomaly.")
+
+        if risk_decision == "CHALLENGE":
             # Issue step-up OTP challenge
             otp = generate_otp_code()
             chal = await auth_repo.create_otp_challenge(user_id=user_id, purpose="transfer_step_up")
@@ -216,6 +246,7 @@ async def create_transfer(user_id: uuid.UUID, data: TransferInput) -> TransferRe
             return TransferResult(
                 transaction_id="",
                 scheduled_for=_fmt_dt(datetime.now(UTC)),
+                signature="",
                 status="CHALLENGED",
                 risk_score=risk_score,
                 risk_decision="CHALLENGE",
@@ -273,15 +304,28 @@ async def create_transfer(user_id: uuid.UUID, data: TransferInput) -> TransferRe
         reference=data.reference or transfer_ref,
     )
 
-    await repo.create_activity_event(
-        user_id=user_id,
-        event_type="transfer",
-        description=f"Transferred {data.amount:,.2f} {data.currency} to {beneficiary.name}",
-    )
+    if risk_decision == "WARN":
+        await repo.create_activity_event(
+            user_id=user_id,
+            event_type="transfer_warned",
+            description=f"Transfer of {data.amount:,.2f} {data.currency} to {beneficiary.name} flagged with behavioral divergence warning (Risk score: {risk_score:.2f}).",
+        )
+    else:
+        await repo.create_activity_event(
+            user_id=user_id,
+            event_type="transfer",
+            description=f"Transferred {data.amount:,.2f} {data.currency} to {beneficiary.name}",
+        )
 
     # 9. Beneficiary Update
     beneficiary.last_used = datetime.now(UTC)
     await beneficiary.save()
+
+    message_text = (
+        "Transfer completed under behavioral anomaly warning"
+        if risk_decision == "WARN"
+        else "Transfer completed successfully"
+    )
 
     result = TransferResult(
         transaction_id=str(record.id),
@@ -290,7 +334,7 @@ async def create_transfer(user_id: uuid.UUID, data: TransferInput) -> TransferRe
         status="COMPLETED",
         risk_score=risk_score,
         risk_decision=risk_decision,
-        message="Transfer completed successfully",
+        message=message_text,
     )
 
     if data.idempotency_key:

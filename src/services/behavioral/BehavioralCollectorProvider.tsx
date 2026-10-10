@@ -57,6 +57,7 @@ interface BehavioralContextValue {
   status: CollectorStatus;
   dumpSession: () => BehavioralSessionDump | null;
   getWindows: () => FeatureWindow[];
+  getLatestFeatures: () => Record<string, number> | null;
   /** Immediately flush the current partial window for authentication. */
   authenticateNow: () => void;
 
@@ -141,6 +142,7 @@ const BehavioralCtx = createContext<BehavioralContextValue>({
   status: initialCollectorStatus,
   dumpSession: () => null,
   getWindows: () => [],
+  getLatestFeatures: () => null,
   authenticateNow: () => {},
   authentication: null,
   isAuthenticating: false,
@@ -164,11 +166,12 @@ export function useBehavioralStatus(): CollectorStatus {
  * Returns functions to dump/export the current session's behavioral data.
  */
 export function useBehavioralExport() {
-  const { dumpSession, getWindows } = useContext(BehavioralCtx);
+  const { dumpSession, getWindows, getLatestFeatures } = useContext(BehavioralCtx);
 
   return {
     dumpSession,
     getWindows,
+    getLatestFeatures,
   };
 }
 
@@ -665,6 +668,10 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
     return collectorRef.current?.getWindows() ?? [];
   }, []);
 
+  const getLatestFeatures = useCallback((): Record<string, number> | null => {
+    return collectorRef.current?.getLatestFeatures() ?? null;
+  }, []);
+
   /**
    * Immediately finalize the current partial window and authenticate it.
    * Collection keeps running — this never pauses or stops the collector.
@@ -736,6 +743,7 @@ export function BehavioralCollectorProvider({ children }: { children: ReactNode 
         status,
         dumpSession,
         getWindows,
+        getLatestFeatures,
         authenticateNow,
         authentication,
         isAuthenticating,

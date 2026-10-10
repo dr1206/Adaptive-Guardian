@@ -119,8 +119,8 @@ def test_incidents_structure() -> None:
 def test_models_have_versions() -> None:
     models = generate_models()
     assert len(models) >= 2
-    keystroke = [m for m in models if m["name"].startswith("Keystroke")][0]
-    assert len(keystroke["versions"]) >= 1
+    model = [m for m in models if "Fusion" in m["name"] or "Component" in m["name"] or m["name"].startswith("Keystroke")][0]
+    assert len(model["versions"]) >= 1
 
 
 def test_datasets_all_active_or_processing() -> None:

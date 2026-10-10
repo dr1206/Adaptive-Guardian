@@ -151,6 +151,7 @@ export class BehavioralCollector {
   // Window management
   private currentWindowStartWall = 0;
   private bufferedWindows: FeatureWindow[] = [];
+  private lastCompletedWindow: FeatureWindow | null = null;
   private windowsSent = 0;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private startedAt = 0;
@@ -457,6 +458,56 @@ export class BehavioralCollector {
     return [...this.bufferedWindows];
   }
 
+  /** Returns the last completed feature window (retained across buffer flushes). */
+  getLastCompletedWindow(): FeatureWindow | null {
+    return this.lastCompletedWindow;
+  }
+
+  /**
+   * Returns current behavioral features for instant risk evaluation:
+   * Computes from current in-flight interaction samples if available,
+   * otherwise falls back to the last completed window.
+   */
+  getLatestFeatures(): Omit<
+    FeatureWindow,
+    "windowId" | "windowStart" | "windowEnd" | "deviceInfo"
+  > | null {
+    const hasActiveEvents =
+      this.dwellTimes.length > 0 ||
+      this.mouseSamples.length > 2 ||
+      this.clickEvents.length > 0 ||
+      this.scrollDeltas.length > 0;
+
+    if (hasActiveEvents) {
+      const nowWall = Date.now();
+      const windowStart = this.currentWindowStartWall || nowWall - 15000;
+      const windowDurationMs = Math.max(1000, nowWall - windowStart);
+      const mouseSnapshot = [...this.mouseSamples];
+      let mouseTravel = this.mouseTravelPx;
+      for (let i = 1; i < mouseSnapshot.length; i++) {
+        const dx = mouseSnapshot[i].x - mouseSnapshot[i - 1].x;
+        const dy = mouseSnapshot[i].y - mouseSnapshot[i - 1].y;
+        mouseTravel += Math.sqrt(dx * dx + dy * dy);
+      }
+      return this.computeFeatures(
+        [...this.dwellTimes],
+        [...this.flightTimes],
+        this.clickEvents.length,
+        [...this.scrollDeltas],
+        mouseSnapshot,
+        windowDurationMs,
+        mouseTravel,
+      );
+    }
+
+    if (this.lastCompletedWindow) {
+      const { windowId, windowStart, windowEnd, deviceInfo, ...rest } = this.lastCompletedWindow;
+      return rest;
+    }
+
+    return null;
+  }
+
   /**
    * Returns a complete session dump: all buffered windows plus metadata
    * suitable for ML training datasets.
@@ -683,15 +734,17 @@ export class BehavioralCollector {
     );
 
     const sessionId = getCurrentSessionId() || "sess";
-    const windowId = `${sessionId}-${Math.round(windowStart)}-${Math.round(windowEnd)}`;
-
-    this.bufferedWindows.push({
+    const windowId = crypto.randomUUID();
+    const completedWindow: FeatureWindow = {
       windowId,
       windowStart,
       windowEnd,
       ...features,
       deviceInfo: this.getDeviceInfo(),
-    });
+    };
+
+    this.bufferedWindows.push(completedWindow);
+    this.lastCompletedWindow = completedWindow;
 
     this.currentWindowStartWall = windowEnd;
 

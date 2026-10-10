@@ -51,7 +51,7 @@ class TransferInput(BaseModel):
 class TransferResult(BaseModel):
     transaction_id: str = Field(serialization_alias="transactionId")
     scheduled_for: str = Field(serialization_alias="scheduledFor")
-    signature: str
+    signature: str = ""
     status: str = "completed"  # completed, step_up_required, blocked
     risk_score: float | None = Field(None, serialization_alias="riskScore")
     risk_decision: str | None = Field(None, serialization_alias="riskDecision")
