@@ -108,7 +108,7 @@ export interface BehavioralSessionDump {
 }
 
 /** Canonical production behavioral window duration in seconds */
-export const BEHAVIOR_WINDOW_SECONDS = 30;
+export const BEHAVIOR_WINDOW_SECONDS = 15;
 export const FLUSH_INTERVAL_MS = BEHAVIOR_WINDOW_SECONDS * 1000;
 const MAX_BUFFERED_WINDOWS = 60;
 const MAX_VELOCITY_PX_MS = 8;

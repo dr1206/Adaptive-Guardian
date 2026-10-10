@@ -55,6 +55,32 @@ export function BehavioralSecuritySentinel() {
 
   return (
     <>
+      {activeChallenge && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          data-testid="behavioral-challenge-banner"
+          className="sticky top-0 z-40 mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/50 bg-destructive/[0.12] px-4 py-3 backdrop-blur-xl shadow-lg"
+        >
+          <ShieldAlert className="h-4 w-4 shrink-0 text-destructive" />
+          <div className="min-w-0 flex-1">
+            <div className="text-[12.5px] font-semibold tracking-wide text-destructive">
+              HIGH RISK BEHAVIORAL ANOMALY DETECTED · Risk score: {formatPct01(auth.fusedScore)}
+            </div>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+              Your biometric typing and mouse patterns diverge significantly from the account owner. Re-verification required.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setChallengeOpen(true)}
+            className="rounded-full bg-destructive px-3.5 py-1.5 text-[12px] font-medium text-white hover:bg-destructive/90 shadow-sm transition"
+          >
+            Verify Identity Now
+          </button>
+        </div>
+      )}
+
       {activeWarn && (
         <div
           role="alert"

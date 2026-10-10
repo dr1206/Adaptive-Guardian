@@ -1,0 +1,82 @@
+{
+  "Amal": {
+    "matrix": [
+      [
+        112,
+        15
+      ],
+      [
+        4,
+        29
+      ]
+    ],
+    "labels": [
+      "Impostor (0)",
+      "Genuine (1)"
+    ],
+    "tp": 29,
+    "tn": 112,
+    "fp": 15,
+    "fn": 4
+  },
+  "Vyas": {
+    "matrix": [
+      [
+        71,
+        4
+      ],
+      [
+        1,
+        18
+      ]
+    ],
+    "labels": [
+      "Impostor (0)",
+      "Genuine (1)"
+    ],
+    "tp": 18,
+    "tn": 71,
+    "fp": 4,
+    "fn": 1
+  },
+  "Dristi": {
+    "matrix": [
+      [
+        72,
+        8
+      ],
+      [
+        3,
+        18
+      ]
+    ],
+    "labels": [
+      "Impostor (0)",
+      "Genuine (1)"
+    ],
+    "tp": 18,
+    "tn": 72,
+    "fp": 8,
+    "fn": 3
+  },
+  "Manasa": {
+    "matrix": [
+      [
+        103,
+        7
+      ],
+      [
+        6,
+        24
+      ]
+    ],
+    "labels": [
+      "Impostor (0)",
+      "Genuine (1)"
+    ],
+    "tp": 24,
+    "tn": 103,
+    "fp": 7,
+    "fn": 6
+  }
+}

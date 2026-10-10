@@ -1,0 +1,101 @@
+{
+  "Amal": {
+    "train": {
+      "total": 744,
+      "genuine": 151,
+      "impostor": 593,
+      "pct": 70.0
+    },
+    "val": {
+      "total": 159,
+      "genuine": 32,
+      "impostor": 127,
+      "pct": 15.0
+    },
+    "test": {
+      "total": 160,
+      "genuine": 33,
+      "impostor": 127,
+      "pct": 15.1
+    },
+    "total_samples": 1063,
+    "genuine_total": 216,
+    "impostor_total": 847
+  },
+  "Vyas": {
+    "train": {
+      "total": 434,
+      "genuine": 86,
+      "impostor": 348,
+      "pct": 69.9
+    },
+    "val": {
+      "total": 93,
+      "genuine": 18,
+      "impostor": 75,
+      "pct": 15.0
+    },
+    "test": {
+      "total": 94,
+      "genuine": 19,
+      "impostor": 75,
+      "pct": 15.1
+    },
+    "total_samples": 621,
+    "genuine_total": 123,
+    "impostor_total": 498
+  },
+  "Dristi": {
+    "train": {
+      "total": 471,
+      "genuine": 101,
+      "impostor": 370,
+      "pct": 70.0
+    },
+    "val": {
+      "total": 101,
+      "genuine": 22,
+      "impostor": 79,
+      "pct": 15.0
+    },
+    "test": {
+      "total": 101,
+      "genuine": 21,
+      "impostor": 80,
+      "pct": 15.0
+    },
+    "total_samples": 673,
+    "genuine_total": 144,
+    "impostor_total": 529
+  },
+  "Manasa": {
+    "train": {
+      "total": 650,
+      "genuine": 139,
+      "impostor": 511,
+      "pct": 70.0
+    },
+    "val": {
+      "total": 139,
+      "genuine": 30,
+      "impostor": 109,
+      "pct": 15.0
+    },
+    "test": {
+      "total": 140,
+      "genuine": 30,
+      "impostor": 110,
+      "pct": 15.1
+    },
+    "total_samples": 929,
+    "genuine_total": 199,
+    "impostor_total": 730
+  },
+  "Summary": {
+    "total_train": 2299,
+    "total_val": 492,
+    "total_test": 495,
+    "grand_total": 3286,
+    "split_policy": "70% Train / 15% Validation / 15% Test (Stratified by genuine/impostor labels)"
+  }
+}

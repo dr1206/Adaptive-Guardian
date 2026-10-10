@@ -50,68 +50,68 @@ ENROLLED_USERS = [
 
 USER_BASELINES: dict[str, dict[str, float]] = {
     "468f03a2-d7c9-4701-abf8-bb2c692f696b": {  # Manasa
-        "accelerationMean": 0.8281,
-        "accelerationStd": 10.0562,
-        "clickCount": 4.80,
-        "curvatureMean": 0.2972,
-        "curvatureStd": 0.2186,
-        "dwellMeanMs": 99.2956,
-        "dwellStdMs": 21.7572,
-        "flightMeanMs": 80.1653,
-        "flightStdMs": 23.1165,
-        "keysPerSec": 4.2,
-        "mouseTravelPx": 20659.5,
-        "scrollAmount": 224.0,
-        "velocityMean": 1123.0174,
-        "velocityStd": 150.0,
+        "accelerationMean": -0.6976,
+        "accelerationStd": 17.5896,
+        "clickCount": 4.0,
+        "curvatureMean": 0.3734,
+        "curvatureStd": 0.5517,
+        "dwellMeanMs": 146.12,
+        "dwellStdMs": 36.06,
+        "flightMeanMs": 426.2,
+        "flightStdMs": 454.49,
+        "keysPerSec": 1.73,
+        "mouseTravelPx": 1951.65,
+        "scrollAmount": 210.0,
+        "velocityMean": 708.7511,
+        "velocityStd": 1087.6316,
     },
     "4958d349-1ff1-4f6b-8344-fca7d4d717aa": {  # Vyas
-        "accelerationMean": 1.7457,
-        "accelerationStd": 1.0079,
-        "clickCount": 5.02,
-        "curvatureMean": 0.3062,
-        "curvatureStd": 0.1373,
-        "dwellMeanMs": 112.0230,
-        "dwellStdMs": 23.7058,
-        "flightMeanMs": 82.8035,
-        "flightStdMs": 17.1197,
-        "keysPerSec": 4.0,
-        "mouseTravelPx": 26008.1,
-        "scrollAmount": 238.9,
-        "velocityMean": 960.2672,
-        "velocityStd": 130.0,
+        "accelerationMean": -0.8707,
+        "accelerationStd": 20.5471,
+        "clickCount": 3.0,
+        "curvatureMean": 0.1943,
+        "curvatureStd": 0.3545,
+        "dwellMeanMs": 0.0,
+        "dwellStdMs": 0.0,
+        "flightMeanMs": 0.0,
+        "flightStdMs": 0.0,
+        "keysPerSec": 0.0,
+        "mouseTravelPx": 6952.62,
+        "scrollAmount": 4027.0,
+        "velocityMean": 855.897,
+        "velocityStd": 1364.8796,
     },
     "dba80c84-68fd-45b2-ba28-10f10075b239": {  # Dristi
-        "accelerationMean": -1.0692,
-        "accelerationStd": 13.5827,
-        "clickCount": 4.26,
-        "curvatureMean": 0.2970,
-        "curvatureStd": 0.3092,
-        "dwellMeanMs": 82.3606,
-        "dwellStdMs": 34.1416,
-        "flightMeanMs": 132.6672,
-        "flightStdMs": 41.8217,
-        "keysPerSec": 3.8,
-        "mouseTravelPx": 15773.7,
-        "scrollAmount": 566.9,
-        "velocityMean": 1077.2398,
-        "velocityStd": 140.0,
+        "accelerationMean": -1.4509,
+        "accelerationStd": 10.6837,
+        "clickCount": 5.0,
+        "curvatureMean": 0.4159,
+        "curvatureStd": 0.5692,
+        "dwellMeanMs": 116.49,
+        "dwellStdMs": 24.96,
+        "flightMeanMs": 373.27,
+        "flightStdMs": 468.89,
+        "keysPerSec": 1.37,
+        "mouseTravelPx": 1497.1,
+        "scrollAmount": 0.0,
+        "velocityMean": 411.3811,
+        "velocityStd": 587.4265,
     },
     "e92e7c09-c1b8-4f72-a7a8-f75077608d1b": {  # Amal
-        "accelerationMean": 1.0331,
-        "accelerationStd": 2.3452,
-        "clickCount": 5.85,
-        "curvatureMean": 0.2993,
-        "curvatureStd": 0.1606,
-        "dwellMeanMs": 109.2234,
-        "dwellStdMs": 26.0660,
-        "flightMeanMs": 79.5685,
-        "flightStdMs": 20.2049,
-        "keysPerSec": 4.5,
-        "mouseTravelPx": 24077.6,
-        "scrollAmount": 311.7,
-        "velocityMean": 1051.3853,
-        "velocityStd": 135.0,
+        "accelerationMean": -0.2591,
+        "accelerationStd": 12.9912,
+        "clickCount": 3.0,
+        "curvatureMean": 0.2955,
+        "curvatureStd": 0.4067,
+        "dwellMeanMs": 0.0,
+        "dwellStdMs": 0.0,
+        "flightMeanMs": 0.0,
+        "flightStdMs": 0.0,
+        "keysPerSec": 0.0,
+        "mouseTravelPx": 6900.6,
+        "scrollAmount": 700.0,
+        "velocityMean": 549.8736,
+        "velocityStd": 709.7897,
     },
 }
 
@@ -403,32 +403,25 @@ class BehavioralMLService:
             or features.get("clickCount", 0.0) > 0.0
         )
 
-        effective_features = dict(features)
-
-        # Impute missing typing / mouse modalities cleanly from user baseline
-        if not has_typing or features.get("dwellMeanMs", 0.0) <= 0.0:
-            for k in ["dwellMeanMs", "dwellStdMs", "flightMeanMs", "flightStdMs", "keysPerSec"]:
-                effective_features[k] = baseline.get(k, DEFAULT_BASELINE.get(k, 100.0))
-
-        if not has_mouse or features.get("mouseTravelPx", 0.0) <= 0.0:
-            for k in [
-                "accelerationMean", "accelerationStd", "clickCount", "curvatureMean",
-                "curvatureStd", "mouseTravelPx", "scrollAmount", "velocityMean", "velocityStd"
-            ]:
-                effective_features[k] = baseline.get(k, DEFAULT_BASELINE.get(k, 0.0))
-
-        # Fill remaining zeros for missing secondary features with user baseline
-        if effective_features.get("keysPerSec", 0.0) <= 0.0:
-            effective_features["keysPerSec"] = baseline.get("keysPerSec", 4.0)
-        if effective_features.get("velocityStd", 0.0) <= 0.0:
-            effective_features["velocityStd"] = baseline.get("velocityStd", 130.0)
+        # If completely idle (zero keyboard, zero mouse events), return benign ALLOW
+        if not has_typing and not has_mouse:
+            logger.info("Empty idle behavioral window received for user %s. Allowing session.", uid_str)
+            return {
+                "lightgbm_score": 0.05,
+                "ocsvm_anomaly_score": 0.05,
+                "fused_score": 0.05,
+                "decision": "ALLOW",
+                "top_contributors": [],
+                "model_version": MODEL_VERSION,
+            }
 
         # Build clean input DataFrame in authoritative ALL_FEATURES column order
+        # using actual measured window features without artificial baseline contamination
         row_vals = []
         for name in ALL_FEATURES:
-            val = effective_features.get(name, baseline.get(name, 0.0))
+            val = features.get(name, 0.0)
             if val is None or np.isnan(val) or np.isinf(val):
-                val = baseline.get(name, 0.0)
+                val = 0.0
             row_vals.append(float(val))
 
         dataframe = pd.DataFrame([row_vals], columns=ALL_FEATURES)
@@ -446,7 +439,6 @@ class BehavioralMLService:
         if lgbm_model:
             try:
                 lgbm_probs = lgbm_model.predict_proba(raw_input)[0]
-                # Dynamic derivation of impostor risk from classes_
                 classes = list(getattr(lgbm_model, "classes_", [0, 1]))
                 if 0 in classes:
                     idx_imp = classes.index(0)
@@ -462,37 +454,33 @@ class BehavioralMLService:
             z_diffs = []
             for k in ALL_FEATURES:
                 b_val = float(baseline.get(k, 0.0))
-                f_val = float(effective_features.get(k, b_val))
+                f_val = float(features.get(k, b_val))
                 if b_val != 0:
                     z_diffs.append(abs(f_val - b_val) / max(1.0, abs(b_val) * 0.25))
             mean_z = float(np.mean(z_diffs)) if z_diffs else 0.0
             lightgbm_score = float(np.clip((mean_z - 0.5) / 2.5, 0.05, 0.85))
 
-        # 2. OC-SVM scoring
+        # 2. OC-SVM scoring with calibrated sigmoid anomaly probability
         ocsvm_model = self.ocsvm_models.get(uid_str)
         if ocsvm_model:
             raw_score = float(ocsvm_model.decision_function(scaled_input)[0])
-            bounds = self.calibration_bounds.get(uid_str, {"lower_bound": -0.2, "upper_bound": 0.2})
-            lb = bounds.get("lower_bound", -0.2)
-            ub = bounds.get("upper_bound", 0.2)
-            if raw_score >= lb:
-                normal_score = float(np.clip(0.60 + 0.40 * ((raw_score - lb) / max(1e-6, ub - lb)), 0.60, 1.0))
-            else:
-                normal_score = float(np.clip(0.60 - 0.60 * ((lb - raw_score) / max(1e-6, abs(lb) + 0.5)), 0.0, 0.60))
-            anomaly_score = float(1.0 - normal_score)
+            # Calibrated steep sigmoid anomaly probability (temperature k=2.8):
+            # raw_score > 0 (inside authentic boundary) -> anomaly_score < 0.50
+            # raw_score < 0 (outside boundary / anomaly) -> anomaly_score > 0.50
+            anomaly_score = float(np.clip(1.0 / (1.0 + np.exp(2.8 * raw_score)), 0.0, 1.0))
         else:
             anomaly_score = lightgbm_score
 
-        # 3. Score Fusion: 0.6 * LightGBM + 0.4 * OC-SVM
-        fused_score = float(np.clip(0.60 * lightgbm_score + 0.40 * anomaly_score, 0.0, 1.0))
+        # 3. Score Fusion: 0.65 * LightGBM + 0.35 * OC-SVM (calibrated experimental weights)
+        fused_score = float(np.clip(0.65 * lightgbm_score + 0.35 * anomaly_score, 0.0, 1.0))
 
-        # 4. Security Decision Thresholds (Production Banking Rule)
-        # < 0.60       -> ALLOW
-        # 0.60 - 0.85  -> WARN
-        # >= 0.85      -> CHALLENGE
-        if fused_score < 0.60:
+        # 4. Security Decision Thresholds (Production Continuous Biometric Rule)
+        # < 0.45       -> ALLOW
+        # 0.45 - 0.65  -> WARN (Continuous behavioral warning banner)
+        # >= 0.65      -> CHALLENGE (Step-up biometric / OTP verification modal)
+        if fused_score < 0.45:
             decision = "ALLOW"
-        elif fused_score < 0.85:
+        elif fused_score < 0.65:
             decision = "WARN"
         else:
             decision = "CHALLENGE"
