@@ -26,6 +26,7 @@ dependencies = [
     "joblib>=1.4",
     "scikit-learn>=1.5",
     "lightgbm>=4.5",
+    "catboost>=1.2",
 ]
 
 [project.optional-dependencies]

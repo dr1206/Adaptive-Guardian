@@ -16,20 +16,20 @@
     "velocityStd": 1087.6316
   },
   "4958d349-1ff1-4f6b-8344-fca7d4d717aa": {
-    "accelerationMean": -0.8707,
-    "accelerationStd": 20.5471,
-    "clickCount": 3.0,
-    "curvatureMean": 0.1943,
-    "curvatureStd": 0.3545,
-    "dwellMeanMs": 0.0,
-    "dwellStdMs": 0.0,
-    "flightMeanMs": 0.0,
-    "flightStdMs": 0.0,
-    "keysPerSec": 0.0,
-    "mouseTravelPx": 6952.62,
-    "scrollAmount": 4027.0,
-    "velocityMean": 855.897,
-    "velocityStd": 1364.8796
+    "accelerationMean": -0.6305,
+    "accelerationStd": 15.6534,
+    "clickCount": 3.22,
+    "curvatureMean": 0.195,
+    "curvatureStd": 0.3115,
+    "dwellMeanMs": 92.65,
+    "dwellStdMs": 34.46,
+    "flightMeanMs": 454.84,
+    "flightStdMs": 426.81,
+    "keysPerSec": 1.84,
+    "mouseTravelPx": 3593.62,
+    "scrollAmount": 1476.37,
+    "velocityMean": 732.25,
+    "velocityStd": 977.2
   },
   "dba80c84-68fd-45b2-ba28-10f10075b239": {
     "accelerationMean": -1.4509,
@@ -48,19 +48,19 @@
     "velocityStd": 587.4265
   },
   "e92e7c09-c1b8-4f72-a7a8-f75077608d1b": {
-    "accelerationMean": -0.2591,
-    "accelerationStd": 12.9912,
-    "clickCount": 3.0,
-    "curvatureMean": 0.2955,
-    "curvatureStd": 0.4067,
-    "dwellMeanMs": 0.0,
-    "dwellStdMs": 0.0,
-    "flightMeanMs": 0.0,
-    "flightStdMs": 0.0,
-    "keysPerSec": 0.0,
-    "mouseTravelPx": 6900.6,
-    "scrollAmount": 700.0,
-    "velocityMean": 549.8736,
-    "velocityStd": 709.7897
+    "accelerationMean": -0.1918,
+    "accelerationStd": 13.5373,
+    "clickCount": 4.77,
+    "curvatureMean": 0.1946,
+    "curvatureStd": 0.2858,
+    "dwellMeanMs": 112.15,
+    "dwellStdMs": 79.88,
+    "flightMeanMs": 459.03,
+    "flightStdMs": 401.64,
+    "keysPerSec": 1.93,
+    "mouseTravelPx": 3066.99,
+    "scrollAmount": 654.71,
+    "velocityMean": 680.44,
+    "velocityStd": 813.09
   }
 }

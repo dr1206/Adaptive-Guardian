@@ -45,20 +45,20 @@ export const USER_BASELINES: Record<string, CanonicalBaselines> = {
   },
   // Vyas (UUID: 4958d349-1ff1-4f6b-8344-fca7d4d717aa)
   "4958d349-1ff1-4f6b-8344-fca7d4d717aa": {
-    accelerationMean: -0.8707,
-    accelerationStd: 20.5471,
-    clickCount: 3.0,
-    curvatureMean: 0.1943,
-    curvatureStd: 0.3545,
-    dwellMeanMs: 0.0,
-    dwellStdMs: 0.0,
-    flightMeanMs: 0.0,
-    flightStdMs: 0.0,
-    keysPerSec: 0.0,
-    mouseTravelPx: 6952.62,
-    scrollAmount: 4027.0,
-    velocityMean: 855.897,
-    velocityStd: 1364.8796,
+    accelerationMean: -0.6305,
+    accelerationStd: 15.6534,
+    clickCount: 3.22,
+    curvatureMean: 0.195,
+    curvatureStd: 0.3115,
+    dwellMeanMs: 92.65,
+    dwellStdMs: 34.46,
+    flightMeanMs: 454.84,
+    flightStdMs: 426.81,
+    keysPerSec: 1.84,
+    mouseTravelPx: 3593.62,
+    scrollAmount: 1476.37,
+    velocityMean: 732.25,
+    velocityStd: 977.2,
   },
   // Dristi (UUID: dba80c84-68fd-45b2-ba28-10f10075b239)
   "dba80c84-68fd-45b2-ba28-10f10075b239": {
@@ -79,20 +79,20 @@ export const USER_BASELINES: Record<string, CanonicalBaselines> = {
   },
   // Amal (UUID: e92e7c09-c1b8-4f72-a7a8-f75077608d1b)
   "e92e7c09-c1b8-4f72-a7a8-f75077608d1b": {
-    accelerationMean: -0.2591,
-    accelerationStd: 12.9912,
-    clickCount: 3.0,
-    curvatureMean: 0.2955,
-    curvatureStd: 0.4067,
-    dwellMeanMs: 0.0,
-    dwellStdMs: 0.0,
-    flightMeanMs: 0.0,
-    flightStdMs: 0.0,
-    keysPerSec: 0.0,
-    mouseTravelPx: 6900.6,
-    scrollAmount: 700.0,
-    velocityMean: 549.8736,
-    velocityStd: 709.7897,
+    accelerationMean: -0.1918,
+    accelerationStd: 13.5373,
+    clickCount: 4.77,
+    curvatureMean: 0.1946,
+    curvatureStd: 0.2858,
+    dwellMeanMs: 112.15,
+    dwellStdMs: 79.88,
+    flightMeanMs: 459.03,
+    flightStdMs: 401.64,
+    keysPerSec: 1.93,
+    mouseTravelPx: 3066.99,
+    scrollAmount: 654.71,
+    velocityMean: 680.44,
+    velocityStd: 813.09,
   },
 };
 
@@ -194,13 +194,16 @@ export function predictWeightedFusion(
     };
   }
 
-  // 1. Z-Score divergence for each canonical feature
+  // 1. Z-Score divergence for active modalities
   const featureDiffs: Array<{ key: keyof CanonicalBaselines; z: number }> = [];
 
-  const checkKeys: Array<keyof CanonicalBaselines> = [
+  const typingKeys: Array<keyof CanonicalBaselines> = [
     "dwellMeanMs",
     "flightMeanMs",
     "keysPerSec",
+  ];
+
+  const mouseKeys: Array<keyof CanonicalBaselines> = [
     "velocityMean",
     "velocityStd",
     "accelerationMean",
@@ -212,12 +215,28 @@ export function predictWeightedFusion(
     "mouseTravelPx",
   ];
 
-  for (const k of checkKeys) {
+  const keysToEvaluate: Array<keyof CanonicalBaselines> = [];
+  if (hasTyping) {
+    keysToEvaluate.push(...typingKeys);
+  }
+  if (hasMouse && ((features.mouseTravelPx ?? 0) >= 40 || (features.velocityMean ?? 0) > 0)) {
+    keysToEvaluate.push(...mouseKeys);
+  }
+
+  const activeKeys = keysToEvaluate.length > 0 ? keysToEvaluate : [...typingKeys, ...mouseKeys];
+
+  for (const k of activeKeys) {
     const fVal = features[k as keyof BehavioralFeatures] ?? 0;
     const bVal = baseline[k];
 
-    // Compute robust normalized deviation
-    const denom = Math.max(1.0, Math.abs(bVal) * 0.28);
+    // Compute robust normalized deviation with realistic human variability tolerance
+    const minTolerance =
+      k === "dwellMeanMs" || k === "flightMeanMs"
+        ? 25.0
+        : k === "keysPerSec"
+          ? 0.8
+          : 12.0;
+    const denom = Math.max(minTolerance, Math.abs(bVal) * 0.35);
     const z = Math.abs(fVal - bVal) / denom;
     featureDiffs.push({ key: k, z });
   }
@@ -225,8 +244,10 @@ export function predictWeightedFusion(
   // Sort by highest deviation to find top contributors
   featureDiffs.sort((a, b) => b.z - a.z);
 
-  // Mean divergence of top features
-  const meanTopZ = featureDiffs.slice(0, 6).reduce((acc, x) => acc + x.z, 0) / 6;
+  // Mean divergence of top features (evaluated across active modalities)
+  const countToTake = Math.min(6, featureDiffs.length);
+  const meanTopZ =
+    featureDiffs.slice(0, countToTake).reduce((acc, x) => acc + x.z, 0) / countToTake;
 
   // 2. LightGBM calibrated probability mapping (0 = authentic, 1 = impostor)
   // Maps standard z-score difference into sigmoid risk probability
