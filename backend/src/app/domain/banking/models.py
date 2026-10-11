@@ -313,6 +313,7 @@ class IdempotencyRecord(Document):
     status: str = "processing"  # processing, completed, failed
     response_code: int = 200
     response_body: dict = Field(default_factory=dict)
+    response_payload: dict = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime
 

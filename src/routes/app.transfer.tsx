@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import {
   ArrowRight,
   Search,
@@ -83,6 +83,12 @@ function TransferPage() {
   const currencies = currenciesQ.data ?? [];
   const source = accounts.find((a) => a.id === sourceId) ?? accounts[0];
   const recipient = beneficiaries.find((b) => b.id === recipientId);
+
+  useEffect(() => {
+    if (source?.currency) {
+      setCurrency(source.currency);
+    }
+  }, [source?.currency]);
 
   const next = () => setStep((s) => Math.min(4, s + 1) as Step);
   const back = () => {
@@ -239,6 +245,9 @@ function TransferPage() {
                       key={a.id}
                       onClick={() => {
                         setSourceId(a.id);
+                        if (a.currency) {
+                          setCurrency(a.currency);
+                        }
                         setTimeout(next, 350);
                       }}
                       className={cn(
@@ -252,7 +261,17 @@ function TransferPage() {
                         {a.name} · {a.currency}
                       </div>
                       <div className="mt-2 font-numeric text-[24px] font-bold text-foreground">
-                        {fmt(a.balance, "₹", 0)}
+                        {fmt(
+                          a.balance,
+                          a.currency === "USD"
+                            ? "$"
+                            : a.currency === "EUR"
+                              ? "€"
+                              : a.currency === "GBP"
+                                ? "£"
+                                : "₹",
+                          0,
+                        )}
                       </div>
                       <div className="mt-1 text-[11px] text-muted-foreground">
                         A/C ••{a.iban.slice(-4)}
@@ -311,7 +330,7 @@ function TransferPage() {
               to={recipient.name}
               toBank={recipient.bank}
               toLast4={recipient.last4}
-              amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
+              amount={`${currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
               purpose={purpose}
               note={note}
               behavioralAuth={behavioralAuth}
@@ -323,7 +342,7 @@ function TransferPage() {
 
           {step === 4 && recipient && (
             <SuccessStage
-              amount={`${currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
+              amount={`${currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : currency === "INR" ? "₹" : currency} ${Number(amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
               to={recipient.name}
               result={transferResult}
               onAnother={() => {
@@ -506,32 +525,40 @@ function AmountStage({
             ))}
           </select>
         </div>
-        <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[64px] font-bold tracking-tight text-foreground">
-          <span className="text-muted-foreground">₹</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            autoFocus
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-            className="w-[320px] bg-transparent text-center focus:outline-none"
-          />
-        </div>
-        <div className="mt-3 text-[12px] text-muted-foreground">
-          Transfer Mode: <span className="font-semibold text-primary">IMPS / NEFT</span> · Charges:{" "}
-          <span className="font-semibold text-success">₹0.00 (Nil)</span>
-        </div>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          {["1000.00", "5000.00", "10000.00", "25000.00"].map((v) => (
-            <button
-              key={v}
-              onClick={() => setAmount(v)}
-              className="rounded-lg border border-border bg-muted/30 px-3 py-1 text-[12px] font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
-            >
-              {fmt(Number(v), "₹", 0)}
-            </button>
-          ))}
-        </div>
+        {(() => {
+          const currSymbol =
+            currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "₹";
+          return (
+            <>
+              <div className="mt-6 flex items-center justify-center gap-2 font-numeric text-[64px] font-bold tracking-tight text-foreground">
+                <span className="text-muted-foreground">{currSymbol}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  autoFocus
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+                  className="w-[320px] bg-transparent text-center focus:outline-none"
+                />
+              </div>
+              <div className="mt-3 text-[12px] text-muted-foreground">
+                Transfer Mode: <span className="font-semibold text-primary">Wire / Instant</span> ·
+                Charges: <span className="font-semibold text-success">{currSymbol}0.00 (Nil)</span>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                {["100.00", "500.00", "1000.00", "5000.00"].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setAmount(v)}
+                    className="rounded-lg border border-border bg-muted/30 px-3 py-1 text-[12px] font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
+                  >
+                    {fmt(Number(v), currSymbol, 0)}
+                  </button>
+                ))}
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       <aside className="space-y-4">

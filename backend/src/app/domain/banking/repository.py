@@ -61,13 +61,22 @@ async def get_beneficiaries_for_user(user_id: uuid.UUID) -> list[Beneficiary]:
 async def get_beneficiary_by_id(beneficiary_id: str, user_id: uuid.UUID) -> Beneficiary | None:
     try:
         b_uuid = beneficiary_id if isinstance(beneficiary_id, uuid.UUID) else uuid.UUID(str(beneficiary_id))
-        return await Beneficiary.find_one(Beneficiary.id == b_uuid, Beneficiary.user_id == user_id)
+        doc = await Beneficiary.find_one(Beneficiary.id == b_uuid, Beneficiary.user_id == user_id)
+        if doc:
+            return doc
     except (ValueError, TypeError):
-        seeds = generate_beneficiaries(user_id)
-        match = next((b for b in seeds if b.get("id") == beneficiary_id), None)
-        if match:
-            return Beneficiary(user_id=user_id, **_drop_id(match))
-        return None
+        pass
+
+    if str(beneficiary_id).startswith("ben_"):
+        try:
+            idx = int(str(beneficiary_id).replace("ben_", ""), 16)
+            docs = await get_beneficiaries_for_user(user_id)
+            if 0 <= idx < len(docs):
+                return docs[idx]
+        except Exception:
+            pass
+
+    return None
 
 
 async def create_beneficiary(
@@ -154,13 +163,22 @@ async def seed_accounts_if_empty(user_id: uuid.UUID) -> list[BankAccount]:
 async def get_account_by_id(account_id: str, user_id: uuid.UUID) -> BankAccount | None:
     try:
         acc_uuid = account_id if isinstance(account_id, uuid.UUID) else uuid.UUID(str(account_id))
-        return await BankAccount.find_one(BankAccount.id == acc_uuid, BankAccount.user_id == user_id)
+        doc = await BankAccount.find_one(BankAccount.id == acc_uuid, BankAccount.user_id == user_id)
+        if doc:
+            return doc
     except (ValueError, TypeError):
-        seeds = generate_accounts(user_id)
-        match = next((a for a in seeds if a.get("id") == account_id), None)
-        if match:
-            return BankAccount(user_id=user_id, **_drop_id(match))
-        return None
+        pass
+
+    if str(account_id).startswith("acc_"):
+        try:
+            idx = int(str(account_id).replace("acc_", ""), 16)
+            docs = await seed_accounts_if_empty(user_id)
+            if 0 <= idx < len(docs):
+                return docs[idx]
+        except Exception:
+            pass
+
+    return None
 
 
 async def get_accounts_for_user(user_id: uuid.UUID) -> list[BankAccount]:
@@ -649,6 +667,17 @@ async def update_card_limits(
 
 # ── Idempotency Store ──────────────────────────────────────────
 
+def _normalize_request_hash(data: Any) -> str:
+    if isinstance(data, str):
+        return data
+    try:
+        import hashlib, json
+        serialized = json.dumps(data, sort_keys=True, default=str)
+        return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+    except Exception:
+        return str(data)
+
+
 async def check_idempotency(user_id: uuid.UUID, key: str) -> IdempotencyRecord | None:
     return await IdempotencyRecord.find_one(
         IdempotencyRecord.user_id == user_id,
@@ -657,14 +686,15 @@ async def check_idempotency(user_id: uuid.UUID, key: str) -> IdempotencyRecord |
 
 
 async def start_idempotency(
-    user_id: uuid.UUID, key: str, action: str, request_hash: str, ttl_seconds: int = 86400
+    user_id: uuid.UUID, key: str, action: str, request_hash: Any, ttl_seconds: int = 86400
 ) -> IdempotencyRecord:
     from datetime import timedelta
+    hash_str = _normalize_request_hash(request_hash)
     rec = IdempotencyRecord(
         user_id=user_id,
         key=key,
         action=action,
-        request_hash=request_hash,
+        request_hash=hash_str,
         status="processing",
         expires_at=datetime.now(UTC) + timedelta(seconds=ttl_seconds),
     )
@@ -672,12 +702,32 @@ async def start_idempotency(
 
 
 async def finish_idempotency(
-    record: IdempotencyRecord, response_code: int, response_body: dict
+    record_or_user: IdempotencyRecord | uuid.UUID,
+    key_or_code: str | int = 200,
+    body: dict | None = None,
+    response_code: int = 200,
 ) -> None:
-    record.status = "completed"
-    record.response_code = response_code
-    record.response_body = response_body
-    await record.save()
+    rec: IdempotencyRecord | None = None
+    code = 200
+    resp_body: dict = {}
+    if isinstance(record_or_user, IdempotencyRecord):
+        rec = record_or_user
+        code = int(key_or_code) if isinstance(key_or_code, int) else 200
+        resp_body = body or {}
+    else:
+        user_id = record_or_user
+        key = str(key_or_code)
+        rec = await check_idempotency(user_id, key)
+        code = response_code
+        resp_body = body or {}
+
+    if rec:
+        rec.status = "completed"
+        rec.response_code = code
+        rec.response_body = resp_body
+        rec.response_payload = resp_body
+        await rec.save()
+
 
 
 # ── Immutable Financial Ledger ──────────────────────────────────

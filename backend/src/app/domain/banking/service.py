@@ -137,9 +137,10 @@ async def create_transfer(
     if data.idempotency_key:
         existing = await repo.check_idempotency(user_id, data.idempotency_key)
         if existing:
-            if existing.status == "completed" and existing.response_payload:
-                return TransferResult(**existing.response_payload)
-            if existing.status == "pending":
+            cached_body = existing.response_payload or existing.response_body
+            if existing.status == "completed" and cached_body:
+                return TransferResult(**cached_body)
+            if existing.status in ("pending", "processing"):
                 raise ConflictError("Transfer with this idempotency key is already in progress")
         await repo.start_idempotency(user_id, data.idempotency_key, "transfer", data.model_dump())
 
@@ -1104,9 +1105,10 @@ async def create_deposit(user_id: uuid.UUID, data: DepositInput) -> DepositResul
     if data.idempotency_key:
         existing = await repo.check_idempotency(user_id, data.idempotency_key)
         if existing:
-            if existing.status == "completed" and existing.response_payload:
-                return DepositResult(**existing.response_payload)
-            if existing.status == "pending":
+            cached_body = existing.response_payload or existing.response_body
+            if existing.status == "completed" and cached_body:
+                return DepositResult(**cached_body)
+            if existing.status in ("pending", "processing"):
                 raise ConflictError("Deposit is already processing")
         await repo.start_idempotency(user_id, data.idempotency_key, "deposit", data.model_dump())
 
