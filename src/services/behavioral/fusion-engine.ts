@@ -197,11 +197,7 @@ export function predictWeightedFusion(
   // 1. Z-Score divergence for active modalities
   const featureDiffs: Array<{ key: keyof CanonicalBaselines; z: number }> = [];
 
-  const typingKeys: Array<keyof CanonicalBaselines> = [
-    "dwellMeanMs",
-    "flightMeanMs",
-    "keysPerSec",
-  ];
+  const typingKeys: Array<keyof CanonicalBaselines> = ["dwellMeanMs", "flightMeanMs", "keysPerSec"];
 
   const mouseKeys: Array<keyof CanonicalBaselines> = [
     "velocityMean",
@@ -231,11 +227,7 @@ export function predictWeightedFusion(
 
     // Compute robust normalized deviation with realistic human variability tolerance
     const minTolerance =
-      k === "dwellMeanMs" || k === "flightMeanMs"
-        ? 25.0
-        : k === "keysPerSec"
-          ? 0.8
-          : 12.0;
+      k === "dwellMeanMs" || k === "flightMeanMs" ? 25.0 : k === "keysPerSec" ? 0.8 : 12.0;
     const denom = Math.max(minTolerance, Math.abs(bVal) * 0.35);
     const z = Math.abs(fVal - bVal) / denom;
     featureDiffs.push({ key: k, z });
